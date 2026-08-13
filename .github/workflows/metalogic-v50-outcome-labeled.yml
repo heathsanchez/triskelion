@@ -1,11 +1,11 @@
-name: Metalogic V50 Outcome-Labeled Sealed Ratchet
+name: Metalogic V50+V51 Ratchets
 on:
   push:
   workflow_dispatch:
 jobs:
-  v50:
+  v51:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,13 +21,22 @@ jobs:
           cd /tmp/v50_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . 'pytest<8'
           git clone -q https://github.com/Textualize/rich.git /tmp/v50_rich
           cd /tmp/v50_rich && git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f && python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
-      - name: Phase A verifier-labeled calibration
+          ln -s /tmp/v50_django /tmp/v51_django
+          ln -s /tmp/v50_requests /tmp/v51_requests
+          ln -s /tmp/v50_rich /tmp/v51_rich
+      - name: V50 verifier-labeled calibration
         run: python experiments/METALOGIC_V50_OUTCOME_LABELED_CALIBRATION.py
-      - name: Phase B sealed transfer and later harm
+      - name: V50 sealed transfer
         run: python experiments/METALOGIC_V50_OUTCOME_LABELED_TRANSFER.py
-      - name: Upload V50 evidence
+      - name: V51 construct absent operator
+        run: python experiments/METALOGIC_V51_OPERATOR_CONSTRUCTION.py
+      - name: V51 sealed transfer ablation and revision
+        run: python experiments/METALOGIC_V51_SEALED_TRANSFER.py
+      - name: Upload evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: metalogic-v50-outcome-labeled
-          path: artifacts/v50/
+          name: metalogic-v50-v51
+          path: |
+            artifacts/v50/
+            artifacts/v51/
