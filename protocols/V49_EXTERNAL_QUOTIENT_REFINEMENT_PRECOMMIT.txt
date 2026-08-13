@@ -1,0 +1,15 @@
+V49 EXTERNAL QUOTIENT REFINEMENT PRECOMMIT
+Timestamp context: 2026-08-14 NZST
+
+Frozen parent population: the same 22-name V32 external-law-miner population used by V45-V48.
+Consumed without replacement before V49: get_factors, lcs_length, find_in_sorted, shunting_yard.
+Selection population: the 18 remaining names.
+Selection seed: V49_20260814
+Ranking rule: lexicographically smallest SHA256(seed + '|' + function_name).
+Selected function: find_first_in_sorted
+Selected rank: 0523249d99dfa1cc19c0c0603668c4a894f347542fdf7bb1af6b8afe06ae458c
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+This file is committed BEFORE reading find_first_in_sorted buggy source, correct source, or official JSON testcase bodies in this V49 protocol.
+
+Frozen evaluation is identical to V45-V48: preserve official testcase order; W = first floor(N/2), S = remainder; matched execution limits; provisional equivalence only if W signatures are identical; refinement only if W-equivalent and S differs; no post-inspection retuning; otherwise record the appropriate negative and consume the target without replacement.
