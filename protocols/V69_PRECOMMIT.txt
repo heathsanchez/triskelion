@@ -1,0 +1,16 @@
+V69
+purpose=River routing revision after verified Lawbook quotient split
+external_events=V54,V57,V66
+base=Qwen/Qwen3.5-9B
+lora_rank=32
+seed=20260903
+threshold=0.75
+lr=5e-5
+stage0=learn weak-scope parent routes Q54,Q57,Q66
+stage1=learn V54 child route C54 while preserving all parent routes
+stage2=learn V57 child route C57 while preserving parents and C54
+stage3=learn V66 child route C66 while preserving all earlier routes
+adaptive_replay=allocate toward routes below threshold while retaining new-route pressure
+final_gate=all parent and child routes survive close_reload
+truth_boundary=explicit_verified_Lawbook_not_River_weights
+claim_boundary=neural_amortization_of_verified_revision_not_discovery
