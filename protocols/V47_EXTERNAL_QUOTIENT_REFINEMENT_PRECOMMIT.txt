@@ -1,0 +1,35 @@
+V47 EXTERNAL QUOTIENT REFINEMENT PRECOMMIT
+Timestamp context: 2026-08-14 NZST
+
+Frozen parent population: the 22 QuixBugs function names stored in the original V32 external-law-miner artifact (artifact id 9190497808, artifact digest sha256:5e0af022d52fdc0a2d4262f1766ed4042f2e6803689b06cf2fa370314e095073):
+bitcount, find_first_in_sorted, find_in_sorted, gcd, get_factors, is_valid_parenthesization, kth, lcs_length, lis, longest_common_subsequence, max_sublist_sum, mergesort, next_palindrome, next_permutation, pascal, possible_change, quicksort, shunting_yard, sieve, subsequences, to_base, wrap.
+
+Already consumed without replacement:
+- V45: get_factors
+- V46: lcs_length
+
+Selection population: the 20 remaining names.
+Selection seed: V47_20260814
+Ranking rule: lexicographically smallest SHA256(seed + '|' + function_name).
+Selected function: find_in_sorted
+Selected rank: 12db6c222773ba9b7b7dce4eaa92f6814da6204b5945f526e4cbb562a26021cc
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+This file is committed BEFORE reading find_in_sorted buggy source, correct source, or official JSON testcase bodies in this V47 protocol.
+
+Frozen evaluation is identical to V45/V46:
+1. Fetch independently authored `python_programs/find_in_sorted.py` and `correct_python_programs/find_in_sorted.py` at the fixed commit.
+2. Fetch official `json_testcases/find_in_sorted.json`.
+3. Preserve testcase order exactly as stored.
+4. Let N be testcase count. Weak verifier W = first floor(N/2) official tests. Protected stronger verifier S = remaining tests; if N is odd, protected receives the extra case.
+5. Evaluate buggy and correct implementations with identical per-case limits.
+6. A provisional weak equivalence exists only if both implementations have identical pass/fail/output signatures on every W case.
+7. A refinement event exists only if W-equivalent implementations have different signatures on S.
+8. Do not alter split, seed, selected function, timeout, source, or tests after inspection.
+9. If W already distinguishes, record NEGATIVE_NO_COARSE_EQUIVALENCE and stop; do not search another split.
+10. If W-equivalent and S-equivalent, record NEGATIVE_NO_REFINEMENT and stop; do not search another function in V47.
+11. If refinement occurs, record exact separating protected cases and show that retaining the coarse quotient erases a capability distinction required by S.
+12. Reversibility: removing S from observational authority must restore the provisional W quotient; restoring S must split it again.
+
+Scientific target:
+Continue the frozen external without-replacement sequence until independently authored executable evidence yields a legitimate verifier-indexed quotient that later evidence forces to split. Negative selections are retained as evidence that the system refuses false compression.
