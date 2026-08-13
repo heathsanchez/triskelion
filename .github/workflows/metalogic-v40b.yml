@@ -52,6 +52,8 @@ jobs:
           cd /tmp/v41_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . 'pytest<8'
           git clone -q https://github.com/Textualize/rich.git /tmp/v41_rich
           cd /tmp/v41_rich && git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f && python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
+      - name: Fix V41 verifier adapter
+        run: sed -i 's/pagination.PaginationTests/pagination.tests.PaginationTests/' experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py
       - name: Run generic AST relation constructor
         run: python experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py
       - name: Upload V41 result
