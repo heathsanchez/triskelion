@@ -5,6 +5,7 @@ on:
       - '.github/workflows/metalogic-alphabet-falsification-v2.yml'
       - 'experiments/METALOGIC_ALPHABET_FALSIFICATION_V2.py'
       - 'experiments/METALOGIC_MULTISCALE_MOTIF_DISCOVERY_V70.py'
+      - 'experiments/METALOGIC_SCALE_HOLDOUT_GRAMMAR_V71.py'
   workflow_dispatch:
 jobs:
   alphabet-v2:
@@ -41,3 +42,19 @@ jobs:
         with:
           name: metalogic-multiscale-motif-v70
           path: artifacts/multiscale_motif_discovery_v70/
+  scale-holdout-v71:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run V71 whole-scale transfer
+        run: python experiments/METALOGIC_SCALE_HOLDOUT_GRAMMAR_V71.py
+      - name: Upload V71 artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-scale-holdout-v71
+          path: artifacts/scale_holdout_grammar_v71/
