@@ -1,0 +1,89 @@
+V38/V39 OPERATIONAL TYPE INDUCTION — 2026-08-14 NZST
+
+V38 useful negative
+-------------------
+Goal: remove dependence on Python's pre-existing ast.stmt / ast.expr hierarchy.
+
+A local structural predicate learner used only observable parent-slot features.
+
+Statement examples:
+- Requests Try: list member in a `body` slot.
+- Rich Raise: list member in a `body` slot.
+This local rule transfers to held-out Flask With in a `body` slot.
+
+Expression examples:
+- Rich GeneratorExp in Call.args.
+- Flask Lambda in Call.args.
+The minimum local rule is therefore "Call.args list member".
+This fails to transfer to the held-out Requests NamedExpr, which occurs in Compare.left / conditional expression context.
+
+Conclusion: local field/slot anti-unification is too narrow. Do not promote it as a general expression constructor.
+
+V39 verifier-induced operational interfaces
+-------------------------------------------
+Instead of restoring the host semantic type lattice, infer slot equivalence by active compiler probes.
+
+Frozen neutral expression probes:
+- Name
+- Constant
+- zero-argument Call
+- BinOp
+
+Frozen neutral statement probes:
+- Pass
+- Expr(Constant)
+- Assign(Name, Constant)
+
+For each candidate slot, insert each probe into a minimal AST context and ask the Python compiler only whether the resulting AST is admissible. No code is executed.
+
+Observed acceptance signatures:
+
+Call.args:
+  expr = [1,1,1,1]
+  stmt = [0,0,0]
+Compare.left:
+  expr = [1,1,1,1]
+  stmt = [0,0,0]
+If.test:
+  expr = [1,1,1,1]
+  stmt = [0,0,0]
+Assign.value:
+  expr = [1,1,1,1]
+  stmt = [0,0,0]
+Module.body:
+  expr = [0,0,0,0]
+  stmt = [1,1,1]
+If.body:
+  expr = [0,0,0,0]
+  stmt = [1,1,1]
+
+Thus the verifier itself induces two operational interface classes without consulting ast.expr / ast.stmt:
+
+VALUE_SLOT = {Call.args, Compare.left, If.test, Assign.value}
+SEQUENCE_STATEMENT_SLOT = {Module.body, If.body}
+
+Actual operator checks:
+- GeneratorExp is compiler-admissible in every tested VALUE_SLOT.
+- Lambda is compiler-admissible in every tested VALUE_SLOT.
+- held-out NamedExpr is compiler-admissible in every tested VALUE_SLOT.
+
+Causal interpretation
+---------------------
+V38's narrow constructor overfit is repaired by:
+
+PROBE -> compare verifier acceptance signatures -> discover interface equivalence -> widen constructor scope -> transfer to a structurally different held-out slot/type.
+
+This removes another designer-supplied ontology layer. The constructor system no longer needs the names `stmt` or `expr` for this bounded case; it can recover an operational type partition from admissibility experiments.
+
+Connection to V36/V37
+---------------------
+The constructor ratchet remains:
+K0 -> K1 changes which residual evidence becomes observable; that evidence permits K2 formation. V39 strengthens K2 by replacing host-type inheritance with verifier-induced interface typing.
+
+Claim boundary
+--------------
+The neutral probe set, candidate context slots, and probe-comparison procedure are still supplied. This is not unrestricted discovery of all possible types or constructors.
+
+Next gate
+---------
+Make PROBE itself active: given an ambiguous constructor scope, automatically choose the cheapest slot substitution that maximally separates rival scope hypotheses. Then test whether the resulting learned operational type transfers across additional independently authored repositories and whether the induced type partition compresses/prunes future constructor search.
