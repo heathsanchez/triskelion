@@ -1,0 +1,26 @@
+name: Metalogic Reusable Words V19
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-reusable-words-v19.yml'
+      - 'experiments/METALOGIC_REUSABLE_WORDS_V19.py'
+  workflow_dispatch:
+jobs:
+  reusable-words-v19:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install numpy scikit-learn
+      - name: Run reusable words test
+        run: python experiments/METALOGIC_REUSABLE_WORDS_V19.py
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-reusable-words-v19
+          path: artifacts/reusable_words_v19/
