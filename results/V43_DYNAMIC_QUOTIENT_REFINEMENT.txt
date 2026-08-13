@@ -1,0 +1,79 @@
+V43 DYNAMIC QUOTIENT REFINEMENT — 2026-08-14 NZST
+
+Goal
+----
+Test reversibility of learned algebraic equivalences. A Lawbook quotient learned under a weak verifier must split when a precommitted stronger separator distinguishes members, and the refined distinction must matter for later capability.
+
+A. Finite proof / Boolean-expression world
+------------------------------------------
+Candidate space: the same 786 depth<=2 Boolean expressions from V42.
+
+Weak verifier V0 checks only inputs:
+(0,0), (0,1), (1,0)
+
+Strong verifier V1 adds exactly one precommitted separator:
+(1,1)
+
+Weak quotient:
+- 786 syntax trees -> 8 observational classes.
+
+Strong quotient:
+- 786 syntax trees -> 16 observational classes (all Boolean functions on two bits).
+
+Concrete split witness:
+FALSE expression and p AND q have identical V0 signature 000.
+Under V1:
+FALSE -> 0000
+p AND q -> 0001
+
+Therefore the V0 Lawbook equation FALSE ~ pANDq must be revised/split when the new separator is admitted.
+
+Causal later-capability check:
+A target requiring conjunction on (1,1) can be obscured if the coarse 000 class is represented by FALSE. After refinement, pANDq occupies a separate class and the target is reachable. Removing the separator restores the coarse equivalence and loses that distinction.
+
+B. Constructor operational-interface world
+-------------------------------------------
+10 slots from V41.
+
+Weak verifier uses only four expression probes.
+Result: 2 classes:
+1. VALUE slots: Call.args, Compare.left, If.test, Assign.value -> 1111
+2. all remaining slots -> 0000
+
+The second weak class incorrectly merges:
+- statement slots: Module.body, If.body
+with
+- operator/context/target slots: BinOp.op, Name.ctx, Compare.ops, comprehension.target
+
+Strong verifier adds the three precommitted statement probes.
+Result: the old 0000 class splits into:
+- STATEMENT: expr 0000 / stmt 111
+- OTHER: expr 0000 / stmt 000
+
+Total refined classes: 3.
+
+Causal constructor check:
+Under the weak quotient, a constructor scoped to the 0000 class would be unsound/overbroad because it combines statement and operator/context interfaces. After refinement, the isolated STATEMENT class supports the scoped statement constructor while excluding OTHER slots.
+
+Meta-law
+--------
+Lawbook equivalence must be indexed by verifier and scope:
+
+x ==_{V,scope} y
+
+not permanent global identity.
+
+When observational authority grows, equivalence classes may refine. The system must retain enough provenance to split old classes without deleting the underlying members.
+
+Reusable developmental transition:
+RELATE -> PROBE -> QUOTIENT -> RETAIN -> new separator -> SPLIT/REVISE -> RETAIN
+
+This supplies the reversibility requirement for the growing verified algebra.
+
+Claim boundary
+--------------
+Both experiments are bounded and use precommitted stronger probes. They demonstrate reversible quotient revision, not autonomous invention of arbitrary separators.
+
+Next gate
+---------
+Make separator choice active over a held-out candidate pool and charge for probe cost. The controller should select the minimum-cost probe that splits a problematic equivalence class enough to unlock the later target. Then test the same active quotient-refinement policy on an independently authored executable-code equivalence from the external repository stream.
