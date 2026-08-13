@@ -6,6 +6,7 @@ on:
       - 'experiments/METALOGIC_EXTERNAL_PROTECTED_MINER_V40B.py'
       - 'experiments/METALOGIC_SCOPE_UNIQUENESS_V40C.py'
       - 'experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py'
+      - 'experiments/METALOGIC_OPAQUE_LABEL_AUDIT_V42.py'
   workflow_dispatch:
 jobs:
   v40b:
@@ -69,3 +70,18 @@ jobs:
         with:
           name: metalogic-relational-scope-v41
           path: artifacts/v41/
+  v42:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run opaque-label invariance audit
+        run: python experiments/METALOGIC_OPAQUE_LABEL_AUDIT_V42.py
+      - name: Upload V42 result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-opaque-label-v42
+          path: artifacts/v42/
