@@ -1,0 +1,6 @@
+V64
+target=to_base
+verdict=NEGATIVE_NO_COARSE_EQUIVALENCE
+first_weak_separator=4
+sequence_precommit=890866b10d03ef47abaebdd743aa7b392c68313a
+note=weak_cases_1_3_coincide_but_W_includes_case_4
