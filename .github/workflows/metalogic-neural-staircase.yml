@@ -1,9 +1,9 @@
-name: Metalogic Wake Sleep Staircase V2
+name: Metalogic V2 Checkpoint Diagnostic
 
 on:
   push:
     paths:
-      - 'experiments/METALOGIC_WAKE_SLEEP_STAIRCASE_V2.py'
+      - 'experiments/DIAG_A_CHECKPOINT_V2.py'
       - '.github/workflows/metalogic-neural-staircase.yml'
   workflow_dispatch:
 
@@ -11,9 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  wake-sleep-v2:
+  diag-a-checkpoint:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     env:
       RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
       PYTHONUNBUFFERED: '1'
@@ -22,18 +22,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install frozen dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Install River
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7'
       - name: Require River secret
         run: test -n "$RIVER_API_KEY"
-      - name: Run compressed wake-sleep staircase V2
-        run: python experiments/METALOGIC_WAKE_SLEEP_STAIRCASE_V2.py
-      - name: Upload scientific artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: metalogic-wake-sleep-staircase-v2
-          path: artifacts/
-          if-no-files-found: warn
+      - name: Inspect saved A checkpoint output
+        run: python experiments/DIAG_A_CHECKPOINT_V2.py
