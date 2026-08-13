@@ -19,7 +19,7 @@ jobs:
           git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
           cd /tmp/BugsInPy && git checkout -q 11c5f1eea954a42132cfd06bf257766a7963e0fd
           chmod +x /tmp/BugsInPy/framework/bin/*
-      - name: Adapt historical interpreter only
+      - name: Adapt historical interpreter and timeout plumbing only
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -28,7 +28,11 @@ jobs:
           old="rc,out=run(f'uv python install {pyver} && uv venv --python {pyver} .v52env',cwd=repo,timeout=240)"
           new="pyline='.'.join(pyver.split('.')[:2]); rc,out=run(f'uv python install {pyline} && uv venv --seed --python {pyline} .v52env',cwd=repo,timeout=240)"
           assert old in s
-          p.write_text(s.replace(old,new))
+          s=s.replace(old,new)
+          old2="return 124,(e.stdout or '')+(e.stderr or '')"
+          new2="\n        def _txt(x): return x.decode(errors='replace') if isinstance(x,(bytes,bytearray)) else (x or '')\n        return 124,_txt(e.stdout)+_txt(e.stderr)"
+          assert old2 in s
+          p.write_text(s.replace(old2,new2))
           PY
       - name: Run unchanged historical discovery protocol
         run: python experiments/METALOGIC_V52_HISTORICAL_BUG_RATCHET.py
