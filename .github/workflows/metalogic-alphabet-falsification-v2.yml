@@ -6,6 +6,7 @@ on:
       - 'experiments/METALOGIC_ALPHABET_FALSIFICATION_V2.py'
       - 'experiments/METALOGIC_MULTISCALE_MOTIF_DISCOVERY_V70.py'
       - 'experiments/METALOGIC_SCALE_HOLDOUT_GRAMMAR_V71.py'
+      - 'experiments/METALOGIC_MDL_MOTIF_BASIS_V72.py'
   workflow_dispatch:
 jobs:
   alphabet-v2:
@@ -58,3 +59,19 @@ jobs:
         with:
           name: metalogic-scale-holdout-v71
           path: artifacts/scale_holdout_grammar_v71/
+  mdl-motif-v72:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run V72 MDL motif basis
+        run: python experiments/METALOGIC_MDL_MOTIF_BASIS_V72.py
+      - name: Upload V72 artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-mdl-motif-v72
+          path: artifacts/mdl_motif_basis_v72/
