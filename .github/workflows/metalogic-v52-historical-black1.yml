@@ -20,6 +20,7 @@ jobs:
           git checkout -q 26c9465a22c732ab1e17b0dec578fa3432e9b558
           touch tests/__init__.py
           python -m pip install -q -e .
+          python -m pip install -q 'aiohttp<3.9' aiohttp-cors
       - name: Run independently authored historical regression test
         shell: bash
         run: |
