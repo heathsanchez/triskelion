@@ -1,0 +1,15 @@
+V50 EXTERNAL QUOTIENT REFINEMENT PRECOMMIT
+Timestamp context: 2026-08-14 NZST
+
+Frozen parent population: the same 22-name V32 external-law-miner population used by V45-V49.
+Consumed without replacement before V50: get_factors, lcs_length, find_in_sorted, shunting_yard, find_first_in_sorted.
+Selection population: the 17 remaining names.
+Selection seed: V50_20260814
+Ranking rule: lexicographically smallest SHA256(seed + '|' + function_name).
+Selected function: kth
+Selected rank: 23ba5c7a9cd383545f72179f9495240e1ed40b0d0cc7f241de3f0e7fe127fcc6
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+This file is committed BEFORE reading kth buggy source, correct source, or official JSON testcase bodies in this V50 protocol.
+
+Frozen evaluation is identical to V45-V49: official testcase order is preserved; W is the first floor(N/2) cases and S the remainder; matched limits; weak equivalence requires identical W signatures; refinement requires W-equivalence and an S difference; no retuning after inspection; otherwise record the appropriate negative and consume the selected target without replacement.
