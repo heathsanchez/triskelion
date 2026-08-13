@@ -6,17 +6,16 @@ _Last updated: 2026-08-14 NZST_
 
 The project is converging on a **self-extending verified capability algebra** rather than a flat memory or fine-tuning system.
 
-At developmental state `A_t`, the system has a verified set of operators, composition laws, and provenance. For a new target `T` it should first test whether `T` is already in bounded lawful closure. If yes, recompose rather than invent. If closure fails, the residual may justify a minimal new generator. Verification controls admission. Repeatedly useful verified explicit capabilities may then be consolidated into neural weights, while the explicit source/provenance remains authoritative.
+At developmental state `A_t`, the system has a verified set of operators, composition laws, scopes, provenance, and revision conditions. For a new target `T` it should first test whether `T` is already in bounded lawful closure. If yes, recompose rather than invent. If closure fails, the residual may justify a minimal new generator. Verification controls admission. Repeatedly useful verified explicit capabilities may then be consolidated into neural weights, while the explicit source/provenance remains authoritative.
 
 A useful distinction is now:
 
 1. **Reuse** — invoke an existing capability.
 2. **New composition** — construct a new capability from existing generators.
-3. **New law** — learn a verified rule about when compositions are legal/equivalent.
+3. **New law** — learn a verified scoped rule about when compositions are legal/equivalent.
 4. **New generator** — add a genuinely closure-expanding primitive.
 5. **Compounding** — a verified generator changes what new generator is discoverable next.
-
-The remaining high-value gate is #5.
+6. **Meta-growth** — verified operator experience produces/revises reusable constructor families which change what operators can subsequently be built.
 
 ## Current cognitive IR hypothesis
 
@@ -63,49 +62,87 @@ V23 passed all frozen internal gates on the 51-transition / 11-domain corpus.
 - The semantic transition graph is recurrent rather than a single linear pipeline.
 - The coarse three-state transition algebra generates only **23 distinct state transformations**, with short normal forms, but is too lossy to identify semantic equivalence: e.g. `GENERATE`, `RELATE`, and `COMPOSE` can share a coarse `OPEN→OPEN` signature while executable experiments show they are causally distinct.
 
+### External algebra / recursive discoverability
+
+- **even_pairs negative**: apparent `MAP_PAIRS` novelty was already in closure through lawful recomposition, so primitive invention was correctly rejected. This remains the canonical closure-before-invention negative.
+- **EXCEPTION_FLOW external formation/reuse**: independently selected ffmpeg source exposed a missing exception-flow boundary; the operator was retained and later independently required by SHAP. Retained-library ACCEPT vs ablated-library REJECT established bounded causal reuse.
+- **V30b**: on fixed independently authored QuixBugs code, syntactic ambiguity became a scoped extensional-equivalence law; quotienting by the verified law changed composition-search topology and enabled a later chunked repair within the frozen horizon.
+- **V32**: global algebraic laws were mostly false. No CMP/BIN/CONST pair commuted over the full support, despite many local contexts collapsing all six triple orderings to one extensional class. Conclusion: equations must carry explicit scope/context.
+- **V33**: fixed external Rich source produced a causal frontier chain `Raise -> With -> GeneratorExp`. Each retained frontier handler exposed the next frontier; ancestor ablation hid the successor again. This established bounded within-source `Discoverable(A_t)` growth.
+- **V34**: source-distinct recursive discoverability ratchet across three independently authored fixed repositories. Deterministic lineage: Requests `Try` -> Rich `Raise` -> Flask `With`. Corpus contained 1,025 functions and 9,240 eligible three-generation lineages before hash selection. Cold later targets exposed only earlier frontiers; ancestor ablations on the deepest target moved discovery back to the missing ancestor. Verdict: `PASS_SOURCE_DISTINCT_DISCOVERABILITY_RATCHET_V34`.
+
+### V35 constructor-family formation — bounded meta-level result
+
+Question: can exact operator instances be compressed into a reusable constructor family that then causally constructs a new source-distinct operator?
+
+Frozen V34 instances:
+
+- exact `Try` handler from Requests;
+- exact `Raise` handler from Rich;
+- held-out `With` handler from Flask.
+
+A naive generic `PARAMETRIC_AST_HANDLER` was **rejected** because it also admitted protected non-statement AST objects (`Constant`, `Name`, `Load`, `Store`, `Add`, `Eq`). This is a useful negative: compression alone is insufficient for constructor promotion.
+
+The smallest scoped repair tested was a typed `PARAMETRIC_STMT_HANDLER(node_type, declared_fields)`. Under the transparent description-length proxy it:
+
+- covered the exact Try and Raise handlers;
+- rejected the protected non-statement negatives;
+- constructed the unseen source-distinct With handler;
+- compressed the two exact handlers from cost 247 to 148 (gain 99);
+- when the constructor family was ablated, With construction disappeared while already-retained Try/Raise remained available.
+
+Interpretation: bounded evidence for
+
+`exact verified operator instances -> scoped constructor abstraction -> unseen operator construction`.
+
+Claim boundary: the constructor candidate language and type predicates are still supplied. This is **not** unrestricted constructor invention.
+
 ## Current mathematical framing
 
 Let a developmental algebra be approximately
 
-`A_t = (O_t, L_t, V, D_t)`
+`A_t = (O_t, L_t, V, D_t, K_t)`
 
 where:
 
 - `O_t`: currently verified generators/capabilities;
-- `L_t`: verified conditional equations/rewrite/composition laws;
+- `L_t`: verified scoped equations/rewrite/composition laws;
 - `V`: external verifier family / authority boundary;
-- `D_t`: frozen discovery procedure induced by the current algebra.
+- `D_t`: frozen discovery procedure induced by the current algebra;
+- `K_t`: currently available constructor algebra for forming candidate operators/representations.
 
 Define:
 
 - `Closure(A)`: what can be constructed now by lawful composition.
 - `Discoverable(A)`: what new verified generators the frozen discovery process can reach from the current algebra.
+- `Constructible(K)`: what operator schemas the current constructor algebra can express.
 
-Capability accumulation is `Closure(A_0) ⊊ Closure(A_1)`.
+V34 gives bounded external evidence that `Discoverable(A_0)`, `Discoverable(A_1)`, and `Discoverable(A_2)` differ causally.
 
-The next decisive result is stronger:
+The next stronger meta-level target is:
 
-`Discoverable(A_0) ⊊ Discoverable(A_1)`.
+`Constructible(K_0) ⊊ Constructible(K_1)`
 
-That would show that a prior verified invention changes the space of later inventions, not merely later task success.
+with a later operator/constructor family discoverable only because the earlier verified constructor extension exists.
 
 ## Scientific discipline / claims boundary
 
-Current results strongly support bounded mechanisms: verified reuse, closure-before-invention, causal primitive dependence, explicit composition, hierarchical chunking, protected neural consolidation, typed cognitive programs, and cross-domain grammar structure.
+Current results support bounded mechanisms: closure-before-invention, verified operator formation, independent causal reuse, scoped law discovery, quotient search, recursive source-distinct discoverability, explicit composition, hierarchical chunking, protected neural consolidation, typed cognitive programs, and bounded constructor-family abstraction.
 
-Do **not** yet claim a universal cognitive algebra, open-ended self-improvement, or recursive capability compounding. The next experiment is explicitly designed to test the latter under a frozen bounded protocol.
+Do **not** yet claim a universal cognitive algebra, unrestricted operator invention, unrestricted constructor invention, or open-ended self-improvement.
 
 ## Immediate next experiment
 
-**V24 — Discoverability Ratchet**
+**V36 — Constructor Discoverability Ratchet**
 
-Precommit a frozen typed discovery algorithm and a three-generation task stream. Require:
+Freeze an old constructor algebra `K0`, a generic meta-construction/search budget, protected negatives, and source-selection protocol. Require:
 
-1. `q1` is not in old lawful closure and is independently synthesized/verified.
-2. `q2` is *not discoverable* under the same frozen discovery algorithm from `A0`.
-3. After adding `q1`, `q2` becomes discoverable from `A1`.
-4. A later independent target requires the composed lineage.
-5. Ablating `q1` removes not only final-task success but the ability to discover `q2`.
-6. An oracle-intermediate-representation control restores `q2` discoverability without `q1`, showing the causal mechanism is representation/capability access rather than an arbitrary hard-coded lock.
+1. a first residual/operator family is not expressible in `Closure(K0)`;
+2. a minimal constructor generator `k1` is synthesized and externally scoped/verified;
+3. `k1` enables construction of an operator family that was not constructible under `K0`;
+4. that new operator changes the frontier on a source-distinct target and exposes a residual requiring a second constructor family `k2`;
+5. `k2` is not constructible/discoverable under `K0` but is under `K1=<K0,k1>`;
+6. ablating `k1` removes discovery of `k2`, not merely final task success;
+7. all constructor laws carry provenance, scope, counterexamples, and explicit revision/removal conditions.
 
-This is a bounded causal test of whether verified algebra growth expands future discoverability.
+This is the constructor-level analogue of V34 and is now the highest-value falsification target.
