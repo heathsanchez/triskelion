@@ -1,0 +1,27 @@
+name: Calibrate Labeled A V6
+on:
+  push:
+    paths:
+      - 'experiments/CALIBRATE_LABELED_A_V6.py'
+      - '.github/workflows/calibrate-labeled-a-v6.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Calibrate labeled A
+        run: python experiments/CALIBRATE_LABELED_A_V6.py
