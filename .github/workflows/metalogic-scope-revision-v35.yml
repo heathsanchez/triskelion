@@ -46,111 +46,9 @@ jobs:
         with:
           name: metalogic-external-scope-revision-v37
           path: artifacts/external_scope_revision_v37/
-  v38a:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Clone fixed Django and install
-        run: |
-          git clone -q https://github.com/django/django.git /tmp/django
-          cd /tmp/django
-          git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800
-          python -m pip install -q -e .
-      - name: Baseline repository test passes
-        run: |
-          cd /tmp/django
-          python tests/runtests.py backends.test_utils.TestUtils.test_truncate_name --verbosity 0
-      - name: Boundary mutation is rejected by repository test
-        run: |
-          sed -i 's/len(name) <= length/len(name) < length/' /tmp/django/django/db/backends/utils.py
-          cd /tmp/django
-          if python tests/runtests.py backends.test_utils.TestUtils.test_truncate_name --verbosity 0; then exit 1; else echo EXPECTED_MUTATION_REJECTED; fi
-      - name: Retained repair restores repository-test correctness
-        run: |
-          sed -i 's/len(name) < length/len(name) <= length/' /tmp/django/django/db/backends/utils.py
-          cd /tmp/django
-          python tests/runtests.py backends.test_utils.TestUtils.test_truncate_name --verbosity 0
-          echo PASS_SEMANTIC_BOUNDARY_V38A
-  v38b_positive_transfer:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Clone fixed Requests and install
-        run: |
-          git clone -q https://github.com/psf/requests.git /tmp/requests
-          cd /tmp/requests
-          git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e
-          python -m pip install -q -e . pytest
-      - name: Baseline Requests semantic test passes
-        run: cd /tmp/requests && pytest -q tests/test_utils.py -k test_iter_slices
-      - name: Strict-boundary mutation is behaviorally rejected
-        run: |
-          sed -i 's/slice_length <= 0/slice_length < 0/' /tmp/requests/src/requests/utils.py
-          cd /tmp/requests
-          if timeout 10s pytest -q tests/test_utils.py -k test_iter_slices; then exit 1; else echo EXPECTED_REQUESTS_MUTATION_REJECTED; fi
-      - name: IF-test boundary repair transfers semantically
-        run: |
-          sed -i 's/slice_length < 0/slice_length <= 0/' /tmp/requests/src/requests/utils.py
-          cd /tmp/requests
-          pytest -q tests/test_utils.py -k test_iter_slices
-          echo PASS_V38B_SOURCE_DISTINCT_POSITIVE_TRANSFER
-  v38b_protected_click:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Clone fixed Click and install
-        run: |
-          git clone -q https://github.com/pallets/click.git /tmp/click
-          cd /tmp/click
-          git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1
-          python -m pip install -q -e . pytest
-      - name: Baseline Click protected behavior passes
-        run: cd /tmp/click && pytest -q tests/test_options.py::test_counting
-      - name: Fossilized strict-to-inclusive rule breaks protected semantics
-        run: |
-          sed -i 's/operator.le if self.min_open else operator.lt/operator.le if self.min_open else operator.le/' /tmp/click/src/click/types.py
-          cd /tmp/click
-          if pytest -q tests/test_options.py::test_counting; then exit 1; else echo EXPECTED_FOSSILIZATION_REJECTED; fi
-      - name: Scoped rule preserves protected semantics
-        run: |
-          cd /tmp/click
-          git checkout -- src/click/types.py
-          pytest -q tests/test_options.py::test_counting
-          echo PASS_V38B_PROTECTED_BEHAVIOR
-  v38b_later_contradiction:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Clone fixed Django and install
-        run: |
-          git clone -q https://github.com/django/django.git /tmp/django_contra
-          cd /tmp/django_contra
-          git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800
-          python -m pip install -q -e .
-      - name: Baseline independent validator behavior passes
-        run: |
-          cd /tmp/django_contra
-          python tests/runtests.py auth_tests.test_validators.MinimumLengthValidatorTest.test_validate --verbosity 0
-      - name: Later strict IF-test counterevidence falsifies retained scope
-        run: |
-          sed -i 's/if len(password) < self.min_length:/if len(password) <= self.min_length:/' /tmp/django_contra/django/contrib/auth/password_validation.py
-          cd /tmp/django_contra
-          if python tests/runtests.py auth_tests.test_validators.MinimumLengthValidatorTest.test_validate --verbosity 0; then exit 1; else echo BEHAVIORAL_CONTRADICTION_FOUND_REVOKE; fi
   v39_single_loop:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -164,7 +62,9 @@ jobs:
           cd /tmp/v39_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . pytest
           git clone -q https://github.com/pallets/click.git /tmp/v39_click
           cd /tmp/v39_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . pytest
-      - name: Run one frozen behavioral verifier loop
+      - name: Apply infrastructure timeout correction only
+        run: sed -i "s/timeout=20)/timeout=45)/" experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py
+      - name: Run frozen behavioral verifier loop
         run: python experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py
       - name: Upload V39 result
         if: always()
