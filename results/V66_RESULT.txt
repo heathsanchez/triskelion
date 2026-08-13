@@ -1,0 +1,10 @@
+V66
+precommit=890866b10d03ef47abaebdd743aa7b392c68313a
+target=lis
+N=12
+W=6
+S=6
+weak_equal=true
+first_protected_separator=9
+verdict=PASS_EXTERNAL_QUOTIENT_REFINEMENT_V66
+positive_replication=3
