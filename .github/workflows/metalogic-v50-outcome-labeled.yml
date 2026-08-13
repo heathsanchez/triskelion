@@ -1,4 +1,4 @@
-name: Metalogic V51 Operator Invention Ratchet
+name: Metalogic V51 + V52 Historical Ratchets
 on:
   push:
   workflow_dispatch:
@@ -32,3 +32,18 @@ jobs:
         with:
           name: metalogic-v51-operator-invention
           path: artifacts/v51/
+  v52_select:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Acquire historical corpus metadata
+        run: git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+      - name: Freeze deterministic historical stream
+        run: python experiments/V52_STREAM_SELECTOR.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v52-historical-stream
+          path: artifacts/v52/
