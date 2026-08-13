@@ -2,6 +2,10 @@ name: SorryDB V77 Phase 0
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sorrydb-v77-phase0.yml'
 
 jobs:
   phase0:
@@ -24,7 +28,6 @@ jobs:
           set -euo pipefail
           cd vendor/SorryDB
           test "$(git rev-parse HEAD)" = "83bd1976b2c0891dfd6dc997cd61956df7005a7f"
-          printf '%s  %s\n' 'af3b663429dc4689ee728d2fb5c7d8d5034476f7' 'data/SorryDB_2601/SorryDB_2601_1000_evaluation_split.json' | git hash-object --stdin >/dev/null
           test "$(git hash-object data/SorryDB_2601/SorryDB_2601_1000_evaluation_split.json)" = "af3b663429dc4689ee728d2fb5c7d8d5034476f7"
           test "$(git hash-object sorrydb/utils/verify.py)" = "00e3101c7bba30777dbd849fcda5f228c1712a32"
 
