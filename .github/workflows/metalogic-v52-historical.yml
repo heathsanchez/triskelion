@@ -20,6 +20,17 @@ jobs:
           git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
           cd /tmp/BugsInPy && git checkout -q 11c5f1eea954a42132cfd06bf257766a7963e0fd
           chmod +x /tmp/BugsInPy/framework/bin/*
+      - name: Patch historical interpreter adapter only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('experiments/METALOGIC_V52_HISTORICAL_BUG_RATCHET.py')
+          s=p.read_text()
+          old="rc,out=run(f'uv python install {pyver} && uv venv --python {pyver} .v52env',cwd=repo,timeout=240)"
+          new="pyline='.'.join(pyver.split('.')[:2]); rc,out=run(f'uv python install {pyline} && uv venv --seed --python {pyline} .v52env',cwd=repo,timeout=240)"
+          assert old in s
+          p.write_text(s.replace(old,new))
+          PY
       - name: Run historical operator ratchet
         run: python experiments/METALOGIC_V52_HISTORICAL_BUG_RATCHET.py
       - name: Upload V52 evidence
