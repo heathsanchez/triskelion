@@ -25,14 +25,20 @@ jobs:
           path: artifacts/scope_revision_ratchet_v35/
   v37:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run external source-grounded scope revision ratchet
-        run: python experiments/METALOGIC_EXTERNAL_SCOPE_REVISION_V37.py
+      - name: Expand fixed external corpus only
+        run: |
+          cp experiments/METALOGIC_EXTERNAL_SCOPE_REVISION_V37.py /tmp/v37_expanded.py
+          sed -i "/('httpx'/a\ ('pytest','https://github.com/pytest-dev/pytest.git','68308aa288e00ff84880572ed9b3590f6cd7d470')," /tmp/v37_expanded.py
+          sed -i "/('pytest'/a\ ('pydantic','https://github.com/pydantic/pydantic.git','02c5c975fa9f1bf4f094834487786d3148987fee')," /tmp/v37_expanded.py
+          sed -i "/('pydantic'/a\ ('django','https://github.com/django/django.git','c6be0bf3bb744d234947cefd6def9f31d9655800')," /tmp/v37_expanded.py
+      - name: Run frozen V37b mechanism on expanded corpus
+        run: python /tmp/v37_expanded.py
       - name: Upload V37 result
         if: always()
         uses: actions/upload-artifact@v4
