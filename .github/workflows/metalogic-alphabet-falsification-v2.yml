@@ -7,6 +7,7 @@ on:
       - 'experiments/METALOGIC_MULTISCALE_MOTIF_DISCOVERY_V70.py'
       - 'experiments/METALOGIC_SCALE_HOLDOUT_GRAMMAR_V71.py'
       - 'experiments/METALOGIC_MDL_MOTIF_BASIS_V72.py'
+      - 'experiments/METALOGIC_HIERARCHICAL_MOTIF_REIFICATION_V73.py'
   workflow_dispatch:
 jobs:
   alphabet-v2:
@@ -75,3 +76,19 @@ jobs:
         with:
           name: metalogic-mdl-motif-v72
           path: artifacts/mdl_motif_basis_v72/
+  hierarchical-motif-v73:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run V73 hierarchical motif reification
+        run: python experiments/METALOGIC_HIERARCHICAL_MOTIF_REIFICATION_V73.py
+      - name: Upload V73 artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-hierarchical-motif-v73
+          path: artifacts/hierarchical_motif_reification_v73/
