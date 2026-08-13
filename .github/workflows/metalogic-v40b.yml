@@ -7,81 +7,21 @@ on:
       - 'experiments/METALOGIC_SCOPE_UNIQUENESS_V40C.py'
       - 'experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py'
       - 'experiments/METALOGIC_OPAQUE_LABEL_AUDIT_V42.py'
+      - 'experiments/METALOGIC_CATEGORY_INDUCTION_V43.py'
   workflow_dispatch:
 jobs:
-  v40b:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Provision frozen Rich world
-        run: |
-          git clone -q https://github.com/Textualize/rich.git /tmp/v40b_rich
-          cd /tmp/v40b_rich
-          git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f
-          python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
-      - name: Mine protected semantic boundary
-        run: python experiments/METALOGIC_EXTERNAL_PROTECTED_MINER_V40B.py
-      - name: Synthesize unique scope from verified evidence
-        run: python experiments/METALOGIC_SCOPE_UNIQUENESS_V40C.py
-      - name: Upload result
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: metalogic-protected-miner-v40b
-          path: |
-            artifacts/v40b/
-            artifacts/v40c/
-  v41:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Provision frozen external worlds
-        run: |
-          git clone -q https://github.com/django/django.git /tmp/v41_django
-          cd /tmp/v41_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
-          git clone -q https://github.com/psf/requests.git /tmp/v41_requests
-          cd /tmp/v41_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . 'pytest<8'
-          git clone -q https://github.com/pallets/click.git /tmp/v41_click
-          cd /tmp/v41_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . 'pytest<8'
-          git clone -q https://github.com/Textualize/rich.git /tmp/v41_rich
-          cd /tmp/v41_rich && git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f && python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
-      - name: Fix V41 verifier adapters
-        run: |
-          sed -i 's/pagination.PaginationTests/pagination.tests.PaginationTests/' experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py')
-          s=p.read_text().replace("'ANCESTOR[ClassDef].FIELD[body]' in rels['positive_class']", "('ClassDef','body') in rels['positive_class']")
-          p.write_text(s)
-          PY
-      - name: Run generic AST relation constructor
-        run: python experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py
-      - name: Upload V41 result
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: metalogic-relational-scope-v41
-          path: artifacts/v41/
-  v42:
+  v43:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run opaque-label invariance audit
-        run: python experiments/METALOGIC_OPAQUE_LABEL_AUDIT_V42.py
-      - name: Upload V42 result
+      - name: Run category induction gate
+        run: python experiments/METALOGIC_CATEGORY_INDUCTION_V43.py
+      - name: Upload V43 result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: metalogic-opaque-label-v42
-          path: artifacts/v42/
+          name: metalogic-category-induction-v43
+          path: artifacts/v43/
