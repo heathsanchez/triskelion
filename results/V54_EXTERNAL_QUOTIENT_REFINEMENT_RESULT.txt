@@ -1,0 +1,40 @@
+V54 EXTERNAL QUOTIENT REFINEMENT RESULT
+Date: 2026-08-14 NZST
+Sequence precommit commit: 890866b10d03ef47abaebdd743aa7b392c68313a
+Selection seed: V54_20260814
+Selected target before V51+ source/test inspection: is_valid_parenthesization
+Selected rank: 28373217d242a28ad94c395068c2d3750334b7ea525e81dcab2e8238fab10d89
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+Official testcase count: 3
+Frozen weak verifier W: first floor(3/2)=1 case
+Frozen protected verifier S: remaining 2 cases
+
+Observed signatures:
+W case 1, balanced input: buggy=True, correct=True.
+Therefore buggy and correct are observationally equivalent under W.
+
+Protected case 2, premature close input: buggy=False, correct=False.
+Protected case 3, unmatched-open input: buggy=True, correct=False.
+Therefore protected case 3 separates the W-equivalent candidates.
+
+VERDICT: PASS_EXTERNAL_QUOTIENT_REFINEMENT_V54
+
+Provisional law admitted under weak authority:
+  buggy ==_W correct
+
+Revision under stronger authority:
+  buggy !=_(W+S) correct
+
+Reversibility gate:
+- remove protected authority S: the one-case W signatures coincide again and the provisional quotient is restored;
+- restore S: case 3 splits the quotient again.
+
+Causal capability distinction:
+Under the coarse W quotient, a representative that maps unmatched-open strings like the buggy candidate cannot express the protected distinction required by case 3. After refinement, the correct candidate occupies a distinct observational class and the protected behavior is reachable without corrupting the already-agreed W behavior.
+
+Scientific interpretation:
+This is the first positive event in the V45+ fully frozen external sequence after negatives V45-V53. It demonstrates on independently authored executable software that a Lawbook equivalence can be legitimately admitted under current evidence and later be falsified/split by stronger protected evidence. Equivalence must therefore be indexed by verifier and scope, not stored as permanent identity.
+
+Claim boundary:
+The weak/strong split rule and testcase order were supplied and frozen. The separator was not autonomously designed; it came from the precommitted protected official tests. This establishes reversible external quotient revision, not autonomous separator invention.
