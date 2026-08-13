@@ -45,3 +45,31 @@ jobs:
         with:
           name: metalogic-external-scope-revision-v37
           path: artifacts/external_scope_revision_v37/
+  v38a:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Clone fixed Django and install
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/django
+          cd /tmp/django
+          git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800
+          python -m pip install -q -e .
+      - name: Baseline repository test passes
+        run: |
+          cd /tmp/django
+          python tests/runtests.py backends.test_utils.TestUtils.test_truncate_name --verbosity 0
+      - name: Boundary mutation is rejected by repository test
+        run: |
+          sed -i 's/len(name) <= length/len(name) < length/' /tmp/django/django/db/backends/utils.py
+          cd /tmp/django
+          if python tests/runtests.py backends.test_utils.TestUtils.test_truncate_name --verbosity 0; then exit 1; else echo EXPECTED_MUTATION_REJECTED; fi
+      - name: Retained repair restores repository-test correctness
+        run: |
+          sed -i 's/len(name) < length/len(name) <= length/' /tmp/django/django/db/backends/utils.py
+          cd /tmp/django
+          python tests/runtests.py backends.test_utils.TestUtils.test_truncate_name --verbosity 0
+          echo PASS_SEMANTIC_BOUNDARY_V38A
