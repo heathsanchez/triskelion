@@ -1,0 +1,20 @@
+name: Metalogic Typed IR V21
+on:
+  push:
+    paths:
+      - 'experiments/METALOGIC_TYPED_IR_V21.py'
+      - '.github/workflows/metalogic-typed-ir-v21.yml'
+jobs:
+  typed-ir-v21:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run typed IR falsification
+        run: python experiments/METALOGIC_TYPED_IR_V21.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-typed-ir-v21
+          path: artifacts/typed_ir_v21/
