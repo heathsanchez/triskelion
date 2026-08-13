@@ -1,0 +1,11 @@
+V52
+precommit=890866b10d03ef47abaebdd743aa7b392c68313a
+seed=V52_20260814
+target=possible_change
+rank=02590ad9ecc2836fb1e16fe01e6415f567730a5f198b443bae1b35544c882148
+commit=4257f44b0ff1181dedaedee6a447e133219fcebf
+N=10
+W=5
+S=5
+verdict=NEGATIVE_NO_COARSE_EQUIVALENCE
+first_weak_separator=2
