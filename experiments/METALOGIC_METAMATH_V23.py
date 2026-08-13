@@ -1,17 +1,20 @@
-import json, importlib.util, collections, itertools, math
+import json, ast, collections, itertools, math
 from pathlib import Path
 
-spec=importlib.util.spec_from_file_location('a','experiments/METALOGIC_ALPHABET_FALSIFICATION_V2.py')
-a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
-E=a.E; OPS=a.OPS
+# Read the frozen alphabet corpus as literals without executing its sklearn/numpy analysis.
+src=Path('experiments/METALOGIC_ALPHABET_FALSIFICATION_V2.py').read_text()
+tree=ast.parse(src)
+vals={}
+for node in tree.body:
+    if isinstance(node,ast.Assign) and len(node.targets)==1 and isinstance(node.targets[0],ast.Name) and node.targets[0].id in {'E','OPS'}:
+        vals[node.targets[0].id]=ast.literal_eval(node.value)
+E=vals['E']; OPS=vals['OPS']
 OUT=Path('artifacts/metamath_v23');OUT.mkdir(parents=True,exist_ok=True)
-
 programs=[(d,tuple(p)) for d,_,_,p in E]
 domains=sorted(set(d for d,_ in programs))
 
-# 1) Directed precedence laws. Count pair a<b whenever both occur in a program.
 def precedence(rows):
-    cnt=collections.Counter(); rev=collections.Counter(); co=collections.Counter()
+    cnt=collections.Counter(); co=collections.Counter()
     for d,p in rows:
         pos={x:i for i,x in enumerate(p)}
         for x,y in itertools.combinations(sorted(pos),2):
@@ -29,7 +32,6 @@ def precedence(rows):
     return laws
 
 full_laws=precedence(programs)
-# robust if direction and >=.9 confidence survive every LODO fold where supported >=2
 robust=[]
 for x,y,n,conf in full_laws:
     if conf<0.9 or n<3: continue
@@ -43,10 +45,8 @@ for x,y,n,conf in full_laws:
     if ok and supports:
         robust.append({'before':x,'after':y,'support':n,'confidence':conf,'min_lodo_support':min(supports)})
 
-# 2) Adjacent rewrite candidates: AB is preferred over BA when AB observed and BA absent/rare.
 adj=collections.Counter()
-for d,p in programs:
-    adj.update(zip(p,p[1:]))
+for d,p in programs: adj.update(zip(p,p[1:]))
 rewrites=[]
 for x in OPS:
   for y in OPS:
@@ -55,14 +55,12 @@ for x in OPS:
     if axy>=3 and axy>=4*max(1,ayx):
         rewrites.append({'from':[y,x],'to':[x,y],'forward':axy,'reverse':ayx})
 
-# 3) Mine reusable contiguous words across >=3 domains; maximal word set only.
 def ngrams(p,n):return [p[i:i+n] for i in range(len(p)-n+1)]
 support=collections.defaultdict(set); counts=collections.Counter()
 for d,p in programs:
     for n in (2,3,4):
         for g in set(ngrams(p,n)): support[g].add(d); counts[g]+=1
 words=[g for g,ds in support.items() if len(ds)>=3]
-# retain words not strict substrings of another word with >= same domain support
 maxwords=[]
 for w in words:
     dominated=False
@@ -72,7 +70,6 @@ for w in words:
             dominated=True;break
     if not dominated:maxwords.append(w)
 
-# dynamic-program code length using reusable words.
 def code_len(p,dic):
     N=len(p);dp=[999]*(N+1);dp[0]=0
     for i in range(N):
@@ -82,15 +79,12 @@ def code_len(p,dic):
     return dp[N]
 raw=sum(len(p) for _,p in programs); coded=sum(code_len(p,maxwords) for _,p in programs)
 
-# 4) Transition graph SCCs from adjacent edges.
 graph={o:set() for o in OPS}
 for (x,y),n in adj.items():
     if n:graph[x].add(y)
-# Tarjan
-idx=0;stack=[];on=set();ind={};low={};scc=[]
+stack=[];on=set();ind={};low={};scc=[];counter=[0]
 def visit(v):
-    global idx
-    ind[v]=low[v]=len(ind);stack.append(v);on.add(v)
+    ind[v]=low[v]=counter[0];counter[0]+=1;stack.append(v);on.add(v)
     for w in graph[v]:
         if w not in ind:visit(w);low[v]=min(low[v],low[w])
         elif w in on:low[v]=min(low[v],ind[w])
@@ -103,7 +97,6 @@ def visit(v):
 for o in OPS:
     if o not in ind:visit(o)
 
-# 5) Algebraic roles from empirical context entropy: operators with many predecessor/successor contexts are services, low entropy are boundary-like.
 def entropy(counter):
     n=sum(counter.values())
     if not n:return 0.0
@@ -121,12 +114,6 @@ for o in OPS:
 R={'n_events':len(E),'domains':domains,'robust_precedence_laws':robust,'rewrite_candidates':rewrites,
    'maximal_cross_domain_words':[{'word':list(w),'domains':sorted(support[w]),'count':counts[w]} for w in sorted(maxwords,key=lambda z:(-len(support[z]),-len(z),z))],
    'raw_tokens':raw,'coded_tokens':coded,'compression':1-coded/raw,'scc':scc,'roles':roles}
-R['gates']={
- 'robust_laws':len(robust)>=5,
- 'noncommutative_rewrites':len(rewrites)>=3,
- 'cross_domain_words':len(maxwords)>=3,
- 'grammar_compresses':1-coded/raw>=0.20,
- 'semantic_cycle_exists':any(len(c)>=3 for c in scc),
-}
+R['gates']={'robust_laws':len(robust)>=5,'noncommutative_rewrites':len(rewrites)>=3,'cross_domain_words':len(maxwords)>=3,'grammar_compresses':1-coded/raw>=0.20,'semantic_cycle_exists':any(len(c)>=3 for c in scc)}
 R['verdict']='PASS_METAMATH_V23' if all(R['gates'].values()) else 'MIXED_METAMATH_V23'
 (OUT/'RESULT.json').write_text(json.dumps(R,indent=2));print(json.dumps(R,indent=2))
