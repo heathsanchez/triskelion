@@ -1,0 +1,23 @@
+V46 EXTERNAL QUOTIENT REFINEMENT PRECOMMIT
+Timestamp context: 2026-08-14 NZST
+
+Selection population: the 21 remaining QuixBugs function names from the frozen V32 external-law-miner population after consuming V45 target get_factors. Sequential sampling is without replacement.
+Selection seed: V46_20260814
+Ranking rule: lexicographically smallest SHA256(seed + '|' + function_name).
+Selected function: lcs_length
+Selected rank: 03e34cc5c41c4edee0cde492b55d0df54350e61447dcb0ddbbe45e8e847674ef
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+This file is committed BEFORE reading lcs_length buggy source, correct source, or official JSON testcase bodies in this V46 protocol.
+
+Frozen evaluation is identical to V45:
+1. Fetch independently authored buggy source, correct source, and official JSON testcases at the fixed commit.
+2. Preserve testcase order exactly.
+3. Let N be testcase count. Weak verifier W = first floor(N/2) tests; protected stronger verifier S = remaining tests, with the extra case protected if N is odd.
+4. Evaluate buggy and correct implementations under matched per-case limits.
+5. Provisional weak equivalence requires identical W signatures.
+6. Refinement requires W-equivalence and different S signatures.
+7. If W already distinguishes, record NEGATIVE_NO_COARSE_EQUIVALENCE and stop.
+8. If W and S both agree, record NEGATIVE_NO_REFINEMENT and stop.
+9. Do not retune split, seed, target, timeout, source, or tests after inspection.
+10. Reversibility: if refinement occurs, removing S must restore the W quotient and restoring S must split it again.
