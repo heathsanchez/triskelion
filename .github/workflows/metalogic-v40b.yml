@@ -19,7 +19,7 @@ jobs:
           git clone -q https://github.com/Textualize/rich.git /tmp/v40b_rich
           cd /tmp/v40b_rich
           git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f
-          python -m pip install -q -e . pytest
+          python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
       - name: Mine protected semantic boundary
         run: python experiments/METALOGIC_EXTERNAL_PROTECTED_MINER_V40B.py
       - name: Upload result
