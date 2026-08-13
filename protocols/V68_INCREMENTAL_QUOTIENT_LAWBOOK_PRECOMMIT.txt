@@ -1,0 +1,30 @@
+V68 INCREMENTAL QUOTIENT LAWBOOK PRECOMMIT
+Date: 2026-08-14 NZST
+
+Frozen source events: external positive quotient-refinement events V54, V57, V66.
+Seed: V68_20260814
+
+Each event contains two candidates, labelled BUGGY and CORRECT, which are equivalent under that event's frozen weak verifier W and split by at least one protected observation S.
+
+Frozen representative rule before inspecting its choices:
+representative(event) = candidate with lexicographically smallest SHA256(seed + '|' + event + '|' + candidate_label).
+
+Initial Lawbook index:
+- build one equivalence class per event under W;
+- store both members and provenance, but expose only the hash-selected representative to quotient-pruned capability search.
+
+Incremental refinement protocol:
+1. Add the already-recorded first protected separator for V54 only. Split only V54's class; V57 and V66 must remain unchanged.
+2. Add V57's first separator. Split only V57's class; V54's refined state and V66's coarse state must remain unchanged.
+3. Add V66's first separator. Split only V66's class.
+4. After each split, quotient-pruned search must expose every newly distinguished candidate without rebuilding unrelated classes.
+5. Remove each added separator in reverse order. The corresponding class must coarsen back to its original weak quotient while other classes retain their then-current state.
+
+Metrics:
+- number of classes after each update;
+- number of members touched per update;
+- whether a non-representative candidate hidden by initial quotient becomes reachable after its class splits;
+- whether unrelated classes remain byte-for-byte unchanged in the serialized index;
+- whether reverse updates reconstruct the exact initial partition/provenance.
+
+Claim boundary: the separators and source candidates come from prior external runs. V68 tests incremental reversible Lawbook mechanics and closure/search consistency, not new external discovery.
