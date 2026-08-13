@@ -1,0 +1,24 @@
+name: Primitive Transfer Census V15
+on:
+  push:
+    paths:
+      - '.github/workflows/primitive-transfer-census-v15.yml'
+      - 'experiments/PRIMITIVE_TRANSFER_CENSUS_V15.py'
+  workflow_dispatch:
+jobs:
+  census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run census
+        run: python experiments/PRIMITIVE_TRANSFER_CENSUS_V15.py
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: primitive-transfer-census-v15
+          path: artifacts/primitive_transfer_v15/
