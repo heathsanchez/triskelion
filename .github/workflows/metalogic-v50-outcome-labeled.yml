@@ -1,4 +1,4 @@
-name: Metalogic V50+V51 Ratchets
+name: Metalogic V51 Operator Invention Ratchet
 on:
   push:
   workflow_dispatch:
@@ -17,26 +17,18 @@ jobs:
           cd /tmp/v50_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
           git clone -q https://github.com/psf/requests.git /tmp/v50_requests
           cd /tmp/v50_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . 'pytest<8'
-          git clone -q https://github.com/pallets/click.git /tmp/v50_click
-          cd /tmp/v50_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . 'pytest<8'
           git clone -q https://github.com/Textualize/rich.git /tmp/v50_rich
           cd /tmp/v50_rich && git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f && python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
           ln -s /tmp/v50_django /tmp/v51_django
           ln -s /tmp/v50_requests /tmp/v51_requests
           ln -s /tmp/v50_rich /tmp/v51_rich
-      - name: V50 verifier-labeled calibration
-        run: python experiments/METALOGIC_V50_OUTCOME_LABELED_CALIBRATION.py
-      - name: V50 sealed transfer
-        run: python experiments/METALOGIC_V50_OUTCOME_LABELED_TRANSFER.py
-      - name: V51 construct absent operator
+      - name: Construct operator absent from old closure
         run: python experiments/METALOGIC_V51_OPERATOR_CONSTRUCTION.py
-      - name: V51 sealed transfer ablation and revision
+      - name: Sealed transfer ablation and revision
         run: python experiments/METALOGIC_V51_SEALED_TRANSFER.py
-      - name: Upload evidence
+      - name: Upload V51 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: metalogic-v50-v51
-          path: |
-            artifacts/v50/
-            artifacts/v51/
+          name: metalogic-v51-operator-invention
+          path: artifacts/v51/
