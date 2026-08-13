@@ -1,0 +1,12 @@
+V50 EXTERNAL QUOTIENT REFINEMENT RESULT
+Date: 2026-08-14 NZST
+Precommit: 2607044367bc56ccc91eae09f6bff9569bc4b2b5
+Seed: V50_20260814
+Selected target before inspection: kth
+Selected rank: 23ba5c7a9cd383545f72179f9495240e1ed40b0d0cc7f241de3f0e7fe127fcc6
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+Official cases: 7
+Weak verifier: first 3
+Protected verifier: final 4
+Verdict: NEGATIVE_NO_COARSE_EQUIVALENCE
+The frozen weak verifier already distinguishes buggy from correct on weak cases 1 and 2. No provisional quotient is admitted. V50 is consumed without replacement.
