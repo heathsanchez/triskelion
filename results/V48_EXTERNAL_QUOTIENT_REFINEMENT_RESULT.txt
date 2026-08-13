@@ -1,0 +1,25 @@
+V48 EXTERNAL QUOTIENT REFINEMENT RESULT
+Date: 2026-08-14 NZST
+
+Precommit commit: 2a8baab76952795df355fd5f3531d7474a8ae6d0
+Selection seed: V48_20260814
+Selected function before source/test inspection: shunting_yard
+Selected rank: 0940861bdf04be7f91a1b7b4378e377a04b037dd09ba2004bf1c36020a041707
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+Official testcase count: 6
+Frozen weak verifier W: first 3 cases
+Frozen protected verifier S: remaining 3 cases
+
+Buggy source omits `opstack.append(token)` for operator tokens. Correct source pushes each operator after popping higher/equal-precedence operators.
+
+Weak cases:
+1. [] -> []: buggy [], correct []
+2. [30] -> [30]: buggy [30], correct [30]
+3. [10,'-',5,'-',2] expected [10,5,'-',2,'-']: buggy [10,5,2], correct [10,5,'-',2,'-']
+
+The weak verifier already distinguishes the implementations on case 3.
+
+VERDICT: NEGATIVE_NO_COARSE_EQUIVALENCE
+
+No provisional quotient is learned; protected cases are not searched for a separator; V48 is consumed without replacement.
