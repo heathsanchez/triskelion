@@ -1,0 +1,4 @@
+V58 target=mergesort verdict=NEGATIVE_NO_COARSE_EQUIVALENCE weak_separator=2
+V59 target=max_sublist_sum verdict=NEGATIVE_NO_COARSE_EQUIVALENCE weak_separator=1
+sequence_precommit=890866b10d03ef47abaebdd743aa7b392c68313a
+quixbugs_commit=4257f44b0ff1181dedaedee6a447e133219fcebf
