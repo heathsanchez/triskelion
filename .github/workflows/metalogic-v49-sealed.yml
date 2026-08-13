@@ -1,0 +1,33 @@
+name: Metalogic V49 Temporally Sealed Transfer
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  v49:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision frozen external worlds
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/v45_django
+          cd /tmp/v45_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
+          git clone -q https://github.com/psf/requests.git /tmp/v45_requests
+          cd /tmp/v45_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . 'pytest<8'
+          git clone -q https://github.com/pallets/click.git /tmp/v45_click
+          cd /tmp/v45_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . 'pytest<8'
+          git clone -q https://github.com/Textualize/rich.git /tmp/v45_rich
+          cd /tmp/v45_rich && git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f && python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
+      - name: Phase A sealed calibration
+        run: python experiments/METALOGIC_V49_SEALED_CALIBRATION.py
+      - name: Phase B withheld transfer and revocation
+        run: python experiments/METALOGIC_V49_SEALED_TRANSFER.py
+      - name: Upload V49 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-v49-sealed
+          path: artifacts/v49/
