@@ -1,0 +1,37 @@
+V47 EXTERNAL QUOTIENT REFINEMENT RESULT
+Date: 2026-08-14 NZST
+
+Precommit commit: 70bee3e7d675c99b75165a91a4559b3914b824e7
+Parent V32 artifact id: 9190497808
+Parent V32 artifact digest: sha256:5e0af022d52fdc0a2d4262f1766ed4042f2e6803689b06cf2fa370314e095073
+Selection seed: V47_20260814
+Selected function before source/test inspection: find_in_sorted
+Selected rank: 12db6c222773ba9b7b7dce4eaa92f6814da6204b5945f526e4cbb562a26021cc
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+Official testcase count: 7
+Frozen weak verifier W: first floor(7/2)=3 cases
+Frozen protected verifier S: remaining 4 cases
+
+Buggy source recurrence when x > arr[mid]:
+  return binsearch(mid, end)
+Correct source recurrence:
+  return binsearch(mid + 1, end)
+
+Weak cases in stored order and observed outcomes:
+1. ([3,4,5,5,5,5,6], 5) expected 3: buggy 3, correct 3
+2. ([1,2,3,4,6,7,8], 5) expected -1: buggy RecursionError/non-progressing recursion, correct -1
+3. ([1,2,3,4,6,7,8], 4) expected 3: buggy 3, correct 3
+
+The weak verifier already distinguishes the implementations on case 2.
+
+VERDICT: NEGATIVE_NO_COARSE_EQUIVALENCE
+
+Per the precommitted protocol:
+- no provisional weak quotient is learned;
+- protected cases are not searched for a separator;
+- split/target/seed are not retuned;
+- V47 is consumed in the without-replacement sequence.
+
+Scientific value:
+The verifier-indexed quotient machinery again refuses false compression when current observational authority already distinguishes the candidates.
