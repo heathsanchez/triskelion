@@ -1,24 +1,24 @@
-name: Metalogic External Algebra
+name: Metalogic External Frontier V33
 on:
   push:
     paths:
       - '.github/workflows/metalogic-external-chunk-v30.yml'
-      - 'experiments/METALOGIC_EXTERNAL_LAW_MINER_V32.py'
+      - 'experiments/METALOGIC_EXTERNAL_FRONTIER_V33.py'
   workflow_dispatch:
 jobs:
-  v32:
+  v33:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run external law miner
-        run: python experiments/METALOGIC_EXTERNAL_LAW_MINER_V32.py
+      - name: Run external frontier discoverability test
+        run: python experiments/METALOGIC_EXTERNAL_FRONTIER_V33.py
       - name: Upload result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: metalogic-external-law-miner-v32
-          path: artifacts/external_law_miner_v32/
+          name: metalogic-external-frontier-v33
+          path: artifacts/external_frontier_v33/
