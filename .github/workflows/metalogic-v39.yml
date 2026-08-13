@@ -1,0 +1,35 @@
+name: Metalogic V39 Behavioral Loop
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v39.yml'
+      - 'experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py'
+  workflow_dispatch:
+jobs:
+  v39:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision fixed external worlds
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/v39_django
+          cd /tmp/v39_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
+          git clone -q https://github.com/psf/requests.git /tmp/v39_requests
+          cd /tmp/v39_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . pytest
+          git clone -q https://github.com/pallets/click.git /tmp/v39_click
+          cd /tmp/v39_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . pytest
+      - name: Make verifier timeout an ordinary rejection
+        run: |
+          sed -i "s#return sh('pytest -q tests/test_utils.py -k test_iter_slices', RQ, timeout=20)#return sh('timeout 5s pytest -q tests/test_utils.py -k test_iter_slices', RQ, timeout=10)#" experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py
+      - name: Run one frozen behavioral verifier loop
+        run: python experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py
+      - name: Upload V39 result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-behavioral-scope-loop-v39
+          path: artifacts/v39/
