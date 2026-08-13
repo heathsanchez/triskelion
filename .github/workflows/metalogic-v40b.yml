@@ -1,0 +1,30 @@
+name: Metalogic V40b Protected Miner
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v40b.yml'
+      - 'experiments/METALOGIC_EXTERNAL_PROTECTED_MINER_V40B.py'
+  workflow_dispatch:
+jobs:
+  v40b:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision frozen Rich world
+        run: |
+          git clone -q https://github.com/Textualize/rich.git /tmp/v40b_rich
+          cd /tmp/v40b_rich
+          git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f
+          python -m pip install -q -e . pytest
+      - name: Mine protected semantic boundary
+        run: python experiments/METALOGIC_EXTERNAL_PROTECTED_MINER_V40B.py
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-protected-miner-v40b
+          path: artifacts/v40b/
