@@ -1,0 +1,23 @@
+{
+  "protocol": "V45_RAW_SCOPE_CLOSURE_CERTIFICATE_20260814",
+  "old_language": ["TRUE", "FALSE"],
+  "old_closure_survivors": [],
+  "old_closure_obstructed": true,
+  "induced_category": "c_b9e5226e353c76f7",
+  "posthoc_decode": "if",
+  "extended_language_survivors": ["c_b9e5226e353c76f7"],
+  "unique_extension": true,
+  "ablation_restores_obstruction": true,
+  "later_counterevidence_hits_induced_category": true,
+  "decision": "REVOKE",
+  "gates": {
+    "old_closure_cannot_express_scope": true,
+    "new_category_makes_scope_reachable": true,
+    "ablation_removes_reachability": true,
+    "category_decodes_posthoc_only": true,
+    "later_counterevidence_falsifies_category_rule": true,
+    "system_revokes": true
+  },
+  "verdict": "PASS_V45_RAW_SCOPE_CLOSURE_CERTIFICATE",
+  "claim_boundary": "Bounded closure certificate over the externally verified V41B/V44 evidence. It proves necessity relative to the frozen old predicate language, not unrestricted impossibility across arbitrary metalanguages."
+}
