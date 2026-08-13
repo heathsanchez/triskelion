@@ -1,0 +1,33 @@
+{
+  "protocol": "V44_RAW_LEXICAL_CATEGORY_20260814",
+  "status": "PASS_BOUNDED_AUDIT",
+  "substrate": "generic first lexical atom of raw source line; opaque hashed before learner sees it; no AST, node types, field names, or semantic labels",
+  "externally_verified_evidence_provenance": "V41B behavioral sites",
+  "sites": {
+    "trigger": "a_4f021fa66f245692",
+    "transfer": "a_4f021fa66f245692",
+    "positive_class": "a_4f021fa66f245692",
+    "protected_click": "a_97758aacec8756cd",
+    "protected_rich": "a_48ea61d3c624b0e5",
+    "counterexample": "a_4f021fa66f245692"
+  },
+  "induced_category_count": 3,
+  "behaviorally_admissible_category_count": 1,
+  "selected_opaque_category": "a_4f021fa66f245692",
+  "posthoc_decode": "if",
+  "covers_three_positives": true,
+  "excludes_two_protected_contexts": true,
+  "source_distinct_transfer": true,
+  "later_counterevidence_hits_category": true,
+  "decision": "REVOKE",
+  "gates": {
+    "no_ast": true,
+    "no_semantic_labels_visible": true,
+    "unique_extensional_category": true,
+    "posthoc_decode_is_if": true,
+    "transfer_supported": true,
+    "counterevidence_hits": true,
+    "revokes": true
+  },
+  "claim_boundary": "This lowers the supplied substrate from AST relations to raw lexical structure. Target-site localization and the generic lexical atom extractor remain supplied. It reuses previously externally verified behavioral sites and is therefore an audit, not a fresh repository-test replication."
+}
