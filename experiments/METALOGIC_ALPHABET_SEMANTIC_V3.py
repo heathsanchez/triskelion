@@ -1,8 +1,7 @@
-import os,json,random,importlib.util
+import os,json,random,importlib.util,re
 from pathlib import Path
 import river_client as river
 
-# Load the already-frozen V2 corpus/alphabet. V2 executes its zero-cost audit on import as a side effect.
 spec=importlib.util.spec_from_file_location('av2','experiments/METALOGIC_ALPHABET_FALSIFICATION_V2.py');mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
 E=mod.E;OPS=mod.OPS
 OUT=Path('artifacts/alphabet_semantic_v3');OUT.mkdir(parents=True,exist_ok=True)
@@ -22,36 +21,35 @@ defs={
 }
 
 def make_prompt(text,mode,shuffle_map=None):
-    if mode=='opaque_true':
-        lines=[f"{codes[o]}: {defs[o]}" for o in OPS]
-        labels=list(codes.values())
-    elif mode=='opaque_shuffled':
-        lines=[f"{codes[o]}: {defs[shuffle_map[o]]}" for o in OPS]
-        labels=list(codes.values())
-    elif mode=='opaque_labels_only':
-        lines=[];labels=list(codes.values())
-    elif mode=='natural_true':
-        lines=[f"{o}: {defs[o]}" for o in OPS];labels=OPS
+    if mode=='opaque_true': lines=[f"{codes[o]}: {defs[o]}" for o in OPS];labels=list(codes.values())
+    elif mode=='opaque_shuffled': lines=[f"{codes[o]}: {defs[shuffle_map[o]]}" for o in OPS];labels=list(codes.values())
+    elif mode=='opaque_labels_only': lines=[];labels=list(codes.values())
+    elif mode=='natural_true': lines=[f"{o}: {defs[o]}" for o in OPS];labels=OPS
     else: raise ValueError(mode)
     glossary=('Operator definitions:\n'+'\n'.join(lines)+'\n\n') if lines else ''
-    return f"""{glossary}Situation:\n{text}\n\nChoose the SINGLE operator that is the decisive missing or next move. Return only one label from: {', '.join(labels)}."""
+    return f"""{glossary}Situation:\n{text}\n\nChoose the SINGLE operator that is the decisive missing or next move. At the very end write FINAL=<label>. Valid labels: {', '.join(labels)}."""
 
 def parse(text,labels):
-    t=text.strip().upper().replace('`','').replace('*','')
+    t=text.upper().replace('`','').replace('*','')
+    # Prefer explicit final marker, allowing reasoning before it.
     for lab in labels:
-        if t==lab.upper() or t.startswith(lab.upper()+' ') or t.startswith(lab.upper()+':'):return lab
-    # fallback exact token occurrence only if unique
-    hits=[lab for lab in labels if lab.upper() in t.split()]
-    return hits[0] if len(hits)==1 else None
+        if re.search(r'FINAL\s*=\s*'+re.escape(lab.upper())+r'\b',t): return lab
+    # Otherwise use the last uniquely occurring label token.
+    hits=[]
+    for lab in labels:
+        ms=list(re.finditer(r'(?<![A-Z0-9_])'+re.escape(lab.upper())+r'(?![A-Z0-9_])',t))
+        if ms:hits.append((ms[-1].start(),lab))
+    return max(hits)[1] if hits else None
 
 rng=random.Random(8142026);perm=OPS.copy();rng.shuffle(perm);shuffle_map=dict(zip(OPS,perm))
 client=river.Client(api_key=os.environ['RIVER_API_KEY'],timeout=180.0);assert client.health_check()
 R={'base':BASE,'n':len(E),'codes':codes,'shuffle_map':shuffle_map,'modes':{}}
-with client.session(project='ml-alphabet-semantic-v3') as s:
+with client.session(project='ml-alphabet-semantic-v3b') as s:
     m=s.create_model(base_model=BASE)
     for mode in ['opaque_true','opaque_shuffled','opaque_labels_only','natural_true']:
         prompts=[make_prompt(x[1],mode,shuffle_map) for x in E]
-        gens=m.sample(prompts=prompts,max_tokens=8,temperature=0.0)
+        max_tokens=64 if mode=='natural_true' else 24
+        gens=m.sample(prompts=prompts,max_tokens=max_tokens,temperature=0.0)
         labels=list(codes.values()) if mode.startswith('opaque') else OPS
         pred=[parse(g[0].text,labels) for g in gens]
         gold=[codes[x[2]] if mode.startswith('opaque') else x[2] for x in E]
