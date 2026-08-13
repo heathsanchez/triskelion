@@ -1,0 +1,40 @@
+name: Metalogic V52 Historical Black1 Probe
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v52-historical-black1.yml'
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      - name: Checkout historical buggy commit
+        run: |
+          git clone -q https://github.com/psf/black.git /tmp/v52_black
+          cd /tmp/v52_black
+          git checkout -q 26c9465a22c732ab1e17b0dec578fa3432e9b558
+          touch tests/__init__.py
+          python -m pip install -q -e .
+      - name: Run independently authored historical regression test
+        shell: bash
+        run: |
+          set +e
+          cd /tmp/v52_black
+          python -m unittest -q tests.test_black.BlackTestCase.test_works_in_mono_process_only_environment > "$GITHUB_WORKSPACE/black1.log" 2>&1
+          rc=$?
+          echo "returncode=$rc" | tee "$GITHUB_WORKSPACE/black1.status"
+          cat "$GITHUB_WORKSPACE/black1.log"
+          if [ "$rc" -eq 0 ]; then exit 1; fi
+          exit 0
+      - name: Upload probe evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: v52-black1-probe
+          path: |
+            black1.log
+            black1.status
