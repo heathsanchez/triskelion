@@ -1,0 +1,31 @@
+V67 ACTIVE EXTERNAL SEPARATOR AUDIT PRECOMMIT
+Date: 2026-08-14 NZST
+
+Purpose: mechanistic retrospective audit over the already-frozen positive external quotient events V54, V57, V66. This is not a new blinded external replication.
+
+Frozen source events:
+- V54 is_valid_parenthesization
+- V57 next_palindrome
+- V66 lis
+
+For each event, start from the provisional weak quotient already established under W. Candidate observations are exactly the previously frozen protected official cases S for that event.
+
+Frozen active rule:
+1. For each remaining candidate observation, evaluate the two currently quotient-identified candidates on that observation.
+2. Score an observation 1 if it produces different observable signatures and 0 otherwise.
+3. Choose a score-1 observation if one exists; deterministic tie break is earliest official testcase position.
+4. Charge one probe for the selected observation.
+5. Stop once the quotient is split.
+
+Controls:
+- exhaustive cost = number of protected observations in S;
+- sequential official-order cost = position of the first separating protected observation;
+- random-without-replacement expected cost is computed from number of separating observations among S.
+
+Gates:
+- active rule must identify a real protected separator in every positive event;
+- one selected probe must suffice to split each provisional quotient;
+- selected separator must preserve the already-agreed weak observations;
+- removing the selected separator from authority must restore the original W quotient.
+
+Claim boundary: separator candidates and rival candidate programs come from already-observed external events. V67 tests the PROBE mechanism and cost accounting, not autonomous invention of candidate experiments.
