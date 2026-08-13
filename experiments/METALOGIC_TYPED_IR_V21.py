@@ -1,8 +1,6 @@
 import json, itertools, random, statistics
 from pathlib import Path
 
-# Frozen typed cognitive IR. Operators may have more than one lawful signature,
-# but every transition must satisfy an explicit input/output contract.
 OPS = {
     'DISTINGUISH': [('WORLD','RESIDUAL'), ('BOUNDARY_RECORD','RESIDUAL'), ('TRACE','RESIDUAL')],
     'GENERATE': [('RESIDUAL','CANDIDATES'), ('MEMORY','CANDIDATES'), ('QUESTION','CANDIDATES')],
@@ -80,8 +78,6 @@ R['gates']={'all_canonical_typecheck':R['metrics']['canonical_valid_rate']==1.0,
 R['verdict']='PASS_TYPED_COGNITIVE_IR_V21' if all(R['gates'].values()) else 'MIXED_TYPED_COGNITIVE_IR_V21'
 out=Path('artifacts/typed_ir_v21');out.mkdir(parents=True,exist_ok=True);(out/'RESULT.json').write_text(json.dumps(R,indent=2));print(json.dumps(R,indent=2))
 
-# Run frozen follow-on analyses under the already-approved safe workflow.
-import importlib.util as _iu
-_s=_iu.spec_from_file_location('v23','experiments/METALOGIC_METAMATH_V23.py');_m=_iu.module_from_spec(_s);_s.loader.exec_module(_m)
-_s24=_iu.spec_from_file_location('v24','experiments/METALOGIC_DISCOVERABILITY_RATCHET_V24.py');_m24=_iu.module_from_spec(_s24);_s24.loader.exec_module(_m24)
-# retrigger: V24 discoverability ratchet
+import importlib.util as _iu, sys as _sys
+_s=_iu.spec_from_file_location('v23','experiments/METALOGIC_METAMATH_V23.py');_m=_iu.module_from_spec(_s);_sys.modules['v23']=_m;_s.loader.exec_module(_m)
+_s27=_iu.spec_from_file_location('v27','experiments/METALOGIC_SHARED_GRAMMAR_RATCHET_V27.py');_m27=_iu.module_from_spec(_s27);_sys.modules['v27']=_m27;_s27.loader.exec_module(_m27)
