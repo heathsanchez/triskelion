@@ -1,0 +1,33 @@
+{
+  "protocol": "V35 bounded executable scope/revision ratchet; fixed operator and fixed scope grammar",
+  "seed": "V35_SCOPE_REVISION_20260814",
+  "operator": "FLIP_LT_TO_LE",
+  "scope_grammar": ["ANY", "IF_TEST", "RETURN"],
+  "counts": {"train_pos": 8, "revision_neg": 8, "held_pos": 12, "held_neg": 12, "cross_pos": 6, "cross_neg": 6},
+  "local": {"old_positive_fail": true, "provisional_any_repairs_all": true, "protected_regressions_under_any": 8},
+  "scope_search": {
+    "survivors": ["IF_TEST"],
+    "selected": "IF_TEST",
+    "scores": {
+      "ANY": {"positive": 8, "protected": 0},
+      "IF_TEST": {"positive": 8, "protected": 8},
+      "RETURN": {"positive": 0, "protected": 0}
+    }
+  },
+  "heldout": {"scoped_positive": 12, "scoped_protected": 12, "fossil_positive": 12, "fossil_protected": 0},
+  "cross_family": {"scoped_positive": 0, "scoped_protected": 0},
+  "revision_decision": {"action": "NARROW", "from": "ANY", "to": "IF_TEST"},
+  "contradictory_evidence_decision": {"action": "REVOKE", "from": "IF_TEST", "reason": "no unique scope preserves positives and protected behaviours"},
+  "gates": {
+    "old_language_fails_trigger_family": true,
+    "locally_successful_operator_is_provisionally_useful": true,
+    "unscoped_operator_excludes_valid_behaviour": true,
+    "unique_scope_is_discovered": true,
+    "scoped_operator_transfers_on_heldout": true,
+    "revision_ablation_fossilizes_bad_rule": true,
+    "system_narrows_on_counterevidence": true,
+    "system_revokes_when_scope_grammar_cannot_reconcile_evidence": true
+  },
+  "verdict": "PASS_SCOPE_REVISION_RATCHET_V35",
+  "interpretation_boundary": "This is a bounded executable mechanism test of scoped reversible retention. It is not an external source-distinct operator-invention result."
+}
