@@ -1,0 +1,39 @@
+V51-V66 EXTERNAL QUOTIENT REFINEMENT SEQUENCE PRECOMMIT
+Timestamp context: 2026-08-14 NZST
+
+Frozen parent population: the 22 QuixBugs names from V32 artifact id 9190497808, digest sha256:5e0af022d52fdc0a2d4262f1766ed4042f2e6803689b06cf2fa370314e095073.
+Consumed before this sequence: get_factors (V45), lcs_length (V46), find_in_sorted (V47), shunting_yard (V48), find_first_in_sorted (V49), kth (V50).
+QuixBugs commit for every run: 4257f44b0ff1181dedaedee6a447e133219fcebf.
+
+The entire remaining without-replacement order is frozen here BEFORE inspecting any V51+ buggy source, correct source, or official testcase body. For each version n, rank remaining names by lexicographically smallest SHA256('Vn_20260814' + '|' + function_name), select the minimum, then remove it before the next version.
+
+Frozen schedule:
+V51 | seed V51_20260814 | next_permutation | rank 0e9c8c45734ecc5f5789b3e71f420c978b3de1be5209a19c727cb3e7354d3d8c | population 16
+V52 | seed V52_20260814 | possible_change | rank 02590ad9ecc2836fb1e16fe01e6415f567730a5f198b443bae1b35544c882148 | population 15
+V53 | seed V53_20260814 | bitcount | rank 1dd182aa13c367378ce9ca7af1730549bd0d00160503349f72cab62b11e66a44 | population 14
+V54 | seed V54_20260814 | is_valid_parenthesization | rank 28373217d242a28ad94c395068c2d3750334b7ea525e81dcab2e8238fab10d89 | population 13
+V55 | seed V55_20260814 | quicksort | rank 00f17210135909c1a8e69d8fb31dfc063d887c2b0ec7b9abb568f6c4f68f681d | population 12
+V56 | seed V56_20260814 | gcd | rank 406a64c8069f1b741684ba01b455de3fcfab8027266ea8bab7376d553584d2b7 | population 11
+V57 | seed V57_20260814 | next_palindrome | rank 3881b3e2344b128eee0c326c697dadc6dc14b459fc8f1c9e02c0e055aa992596 | population 10
+V58 | seed V58_20260814 | mergesort | rank 351ed9ef66e591e906ea87036447734b051eb68ef69ff5e321ecdad0280cddb9 | population 9
+V59 | seed V59_20260814 | max_sublist_sum | rank 0c6df21fe96ed5f1dc9b36d8dcc9fb667bbee86be8fa4678b3f1d5d61d0b27fc | population 8
+V60 | seed V60_20260814 | sieve | rank 1e63861e997410c4607509d6c55e78d2cf8cacc996fbb9d1d2c1f1f6bd2ab9b4 | population 7
+V61 | seed V61_20260814 | wrap | rank 0699e7d03cbd5e79f1e65514ccba2c2e52183d35c6c02214e3354184cf8f2e9b | population 6
+V62 | seed V62_20260814 | subsequences | rank 13ee1382933fe0d7a4b1df01c416e4ebe8ebd8d722b21670328fc61d18939a3d | population 5
+V63 | seed V63_20260814 | pascal | rank 071415e604e7567017e6ec0ab19734941f6585ea4d022448415be6e413c7f14e | population 4
+V64 | seed V64_20260814 | to_base | rank 04c6cbd3c8e312268896ed849fcc92a2d9b702cfd9b409ec20a5fd76a5d4e46a | population 3
+V65 | seed V65_20260814 | longest_common_subsequence | rank 6b4865c61e5e1c9b55e956396b013bc10a73d53eeff3d8d567ee7976c650f5cb | population 2
+V66 | seed V66_20260814 | lis | rank c8e389004fc244fc4ab0d2d629a7b9632529ae6608eab2e242321bd62fe7559d | population 1
+
+Frozen evaluation for every target:
+- preserve official testcase order;
+- W = first floor(N/2) cases, S = remainder;
+- matched per-case limits;
+- provisional weak equivalence only if buggy/correct signatures match on all W;
+- refinement only if W-equivalent and S differs;
+- if W distinguishes: NEGATIVE_NO_COARSE_EQUIVALENCE and consume target;
+- if W and S agree: NEGATIVE_NO_REFINEMENT and consume target;
+- if refinement occurs: record exact protected separator(s), reversibility, and causal capability distinction;
+- no target/split/seed/test/source retuning after inspection.
+
+The sequence may stop for interpretation at the first genuine refinement event, but the frozen schedule remains the continuation order for any subsequent replication.
