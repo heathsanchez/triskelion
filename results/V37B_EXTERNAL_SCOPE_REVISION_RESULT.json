@@ -1,0 +1,55 @@
+{
+  "protocol": "V37b fixed-commit external source-grounded scope/revision; frozen structural direction/role selector",
+  "run_id": 31726352634,
+  "commit": "282a238e6529e5fa7e75e8a5cb6d6f2f5945c131",
+  "seed": "V37B_EXTERNAL_SCOPE_REVISION_20260814",
+  "direction": "LT_TO_LTE",
+  "operator": "REPAIR_Lt_TO_LtE",
+  "roles": {
+    "train_positive": "flask",
+    "train_protected": "rich",
+    "held_positive": "requests",
+    "held_protected": "httpx",
+    "contradiction": "click"
+  },
+  "counts": {
+    "pool": 93,
+    "train_pos": 1,
+    "train_protected": 8,
+    "held_pos": 1,
+    "held_protected": 3,
+    "contradictions": 8
+  },
+  "scope_search": {
+    "survivors": ["IF_TEST"],
+    "selected": "IF_TEST",
+    "ANY": {"positive": 1, "protected": 0},
+    "IF_TEST": {"positive": 1, "protected": 8}
+  },
+  "heldout": {
+    "scoped_positive": 1,
+    "scoped_protected": 3,
+    "fossil_positive": 1,
+    "fossil_protected": 0
+  },
+  "contradiction_regressions": 8,
+  "revision_decision": {
+    "action": "REVOKE",
+    "scope": "IF_TEST",
+    "reason": "new independently authored source-of-truth cases contradict retained structural scope"
+  },
+  "gates": {
+    "adequate_external_examples": false,
+    "old_state_fails_mutated_trigger_cases": true,
+    "provisional_unscoped_rule_repairs_all_triggers": true,
+    "unscoped_rule_corrupts_external_valid_code": true,
+    "unique_scope_discovered": true,
+    "scope_transfers_to_source_distinct_heldout": true,
+    "revision_ablation_fossilizes_bad_rule": true,
+    "new_external_counterevidence_falsifies_scope": true,
+    "system_revokes_falsified_scope": true
+  },
+  "verdict": "MIXED_EXTERNAL_SCOPE_REVISION_V37B",
+  "interpretation": "All substantive causal scope/revision gates passed, but the precommitted minimum-support gate failed because the deterministic role-selected external corpus contained only one train-positive and one held-positive instance. This is evidence for the mechanism, not yet a strong external replication. The next run should expand a precommitted fixed repository corpus without weakening the support gate.",
+  "authority_boundary": "Exact AST restoration/preservation against independently authored source-of-truth at fixed commits; not package behavioral tests or deployment-semantic correctness."
+}
