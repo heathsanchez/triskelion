@@ -121,8 +121,8 @@ jobs:
           if pytest -q tests/test_options.py::test_counting; then exit 1; else echo EXPECTED_FOSSILIZATION_REJECTED; fi
       - name: Scoped rule preserves protected semantics
         run: |
-          sed -i 's/operator.le if self.min_open else operator.le/operator.le if self.min_open else operator.lt/' /tmp/click/src/click/types.py
           cd /tmp/click
+          git checkout -- src/click/types.py
           pytest -q tests/test_options.py::test_counting
           echo PASS_V38B_PROTECTED_BEHAVIOR
   v38b_later_contradiction:
@@ -132,16 +132,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Clone fixed Rich and install
+      - name: Clone fixed Django and install
         run: |
-          git clone -q https://github.com/Textualize/rich.git /tmp/rich
-          cd /tmp/rich
-          git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f
-          python -m pip install -q -e . pytest
-      - name: Baseline Rich tests pass
-        run: cd /tmp/rich && pytest -q tests/test_measure.py tests/test_console.py
-      - name: Later strict IF-test counterevidence challenges retained scope
+          git clone -q https://github.com/django/django.git /tmp/django_contra
+          cd /tmp/django_contra
+          git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800
+          python -m pip install -q -e .
+      - name: Baseline independent validator behavior passes
         run: |
-          sed -i '0,/_max_width < 1/s//_max_width <= 1/' /tmp/rich/rich/measure.py
-          cd /tmp/rich
-          if pytest -q tests/test_measure.py tests/test_console.py; then echo NO_BEHAVIORAL_CONTRADICTION_FOUND; exit 2; else echo BEHAVIORAL_CONTRADICTION_FOUND_REVOKE; fi
+          cd /tmp/django_contra
+          python tests/runtests.py auth_tests.test_validators.MinimumLengthValidatorTest.test_validate --verbosity 0
+      - name: Later strict IF-test counterevidence falsifies retained scope
+        run: |
+          sed -i 's/if len(password) < self.min_length:/if len(password) <= self.min_length:/' /tmp/django_contra/django/contrib/auth/password_validation.py
+          cd /tmp/django_contra
+          if python tests/runtests.py auth_tests.test_validators.MinimumLengthValidatorTest.test_validate --verbosity 0; then exit 1; else echo BEHAVIORAL_CONTRADICTION_FOUND_REVOKE; fi
