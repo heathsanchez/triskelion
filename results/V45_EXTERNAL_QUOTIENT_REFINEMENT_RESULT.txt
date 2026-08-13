@@ -1,0 +1,40 @@
+V45 EXTERNAL QUOTIENT REFINEMENT RESULT
+Date: 2026-08-14 NZST
+
+Precommit commit: 15bee64b9b7976f7fa97383fe579995258d715e9
+Selection seed: V45_20260814
+Selected function before source/test inspection: get_factors
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+Official testcase count: 11
+Frozen weak verifier W: first floor(11/2)=5 cases
+Frozen protected verifier S: remaining 6 cases
+
+Buggy source behavior:
+After trial division finds no factor, returns []. Therefore prime inputs are incorrectly mapped to [].
+
+Correct source behavior:
+After trial division finds no factor, returns [n]. Therefore prime inputs are returned as their own prime factor.
+
+Weak cases in stored order:
+1. 1 -> []
+2. 100 -> [2,2,5,5]
+3. 101 -> [101]
+4. 104 -> [2,2,2,13]
+5. 2 -> [2]
+
+The buggy and correct implementations already differ on weak case 3 (101) and weak case 5 (2).
+
+VERDICT: NEGATIVE_NO_COARSE_EQUIVALENCE
+
+Per the precommitted protocol:
+- no provisional weak quotient is learned;
+- protected cases are not used to search for a separator;
+- the split is not altered;
+- no alternative function is substituted into V45.
+
+Scientific value:
+The reversible-equivalence machinery correctly refuses to merge candidates that current evidence already distinguishes. This is a closure/selection negative, not a failed attempt to be repaired by post-hoc test selection.
+
+Next external gate:
+Run a new separately precommitted V46 selection over the remaining eligible functions with a different frozen seed and the same weak/protected split rule. Do not exclude get_factors until the new selection population/rule is frozen in the V46 precommit.
