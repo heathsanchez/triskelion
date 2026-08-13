@@ -1,0 +1,24 @@
+name: Metalogic External Chunk V30
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-external-chunk-v30.yml'
+      - 'experiments/METALOGIC_EXTERNAL_CHUNK_RATCHET_V30.py'
+  workflow_dispatch:
+jobs:
+  v30:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run external chunk ratchet
+        run: python experiments/METALOGIC_EXTERNAL_CHUNK_RATCHET_V30.py
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-external-chunk-v30
+          path: artifacts/external_chunk_ratchet_v30/
