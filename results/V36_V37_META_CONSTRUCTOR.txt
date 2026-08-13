@@ -1,0 +1,29 @@
+V36/V37 META-CONSTRUCTOR CHECKPOINT — 2026-08-14 NZST
+
+V36 bounded constructor-discoverability ratchet:
+- Exact retained operators before constructor abstraction: Try, Raise.
+- External Rich frontier previously established by V33: Raise -> With -> GeneratorExp.
+- Without the learned statement constructor, the Rich target stops at With.
+- With the statement constructor, With becomes constructible and the unchanged source exposes GeneratorExp.
+- Only then is the second expression-level constructor family eligible to be proposed.
+- With both constructor families the Rich frontier closes.
+- Ablating the statement constructor hides GeneratorExp again: discovery of the second constructor disappears, not merely final closure.
+- The expression constructor transfers to source-distinct Requests generator-expression functions in src/requests/structures.py.
+
+V37 removes hand-named constructor classes:
+- Frozen abstraction rule: require at least two exact acquired node types from source-distinct evidence, then derive their least common nontrivial superclass from Python's host AST type lattice.
+- LCA(Try, Raise) = ast.stmt.
+- Rich GeneratorExp is not observable until the earlier statement constructor exists.
+- Independent Flask source examples/tutorial/flaskr/db.py supplies Lambda.
+- Without the earlier constructor there is only one expression example, so the support>=2 abstraction gate cannot form a second family.
+- With the earlier constructor: LCA(GeneratorExp, Lambda) = ast.expr.
+- The induced expr family rejects statement controls by type and transfers to a different unseen subtype, Requests NamedExpr (walrus) in src/requests/auth.py.
+
+Interpretation:
+K0 -> K1 changes which evidence is observable; that new evidence makes K2 constructible/discoverable under the same frozen anti-unification procedure. This is a bounded constructor-level analogue of the V34 operator ratchet.
+
+Claim boundary:
+The remaining meta-substrate is still supplied: Python's AST type lattice, the least-common-supertype abstraction operation, the minimum-support rule, and the external verifier/scope tests. Do not claim unrestricted constructor invention.
+
+Next gate:
+Remove dependence on the host's pre-existing semantic type lattice. Infer constructor equivalence classes from observed structural interfaces/field shapes and protected behavior alone, then test whether an acquired structural constructor makes a later, structurally different constructor discoverable.
