@@ -1,0 +1,24 @@
+name: QuixBugs Fresh Mutation Census V13
+on:
+  push:
+    paths:
+      - '.github/workflows/quixbugs-fresh-mutation-v13.yml'
+      - 'experiments/QUIXBUGS_FRESH_MUTATION_CENSUS_V13.py'
+  workflow_dispatch:
+jobs:
+  census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run fresh mutation census
+        run: python experiments/QUIXBUGS_FRESH_MUTATION_CENSUS_V13.py
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quixbugs-fresh-mutation-v13
+          path: artifacts/fresh_mutation_v13/
