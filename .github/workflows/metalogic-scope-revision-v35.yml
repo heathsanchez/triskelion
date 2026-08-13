@@ -73,3 +73,75 @@ jobs:
           cd /tmp/django
           python tests/runtests.py backends.test_utils.TestUtils.test_truncate_name --verbosity 0
           echo PASS_SEMANTIC_BOUNDARY_V38A
+  v38b_positive_transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Clone fixed Requests and install
+        run: |
+          git clone -q https://github.com/psf/requests.git /tmp/requests
+          cd /tmp/requests
+          git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e
+          python -m pip install -q -e . pytest
+      - name: Baseline Requests semantic test passes
+        run: cd /tmp/requests && pytest -q tests/test_utils.py -k test_iter_slices
+      - name: Strict-boundary mutation is behaviorally rejected
+        run: |
+          sed -i 's/slice_length <= 0/slice_length < 0/' /tmp/requests/src/requests/utils.py
+          cd /tmp/requests
+          if timeout 10s pytest -q tests/test_utils.py -k test_iter_slices; then exit 1; else echo EXPECTED_REQUESTS_MUTATION_REJECTED; fi
+      - name: IF-test boundary repair transfers semantically
+        run: |
+          sed -i 's/slice_length < 0/slice_length <= 0/' /tmp/requests/src/requests/utils.py
+          cd /tmp/requests
+          pytest -q tests/test_utils.py -k test_iter_slices
+          echo PASS_V38B_SOURCE_DISTINCT_POSITIVE_TRANSFER
+  v38b_protected_click:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Clone fixed Click and install
+        run: |
+          git clone -q https://github.com/pallets/click.git /tmp/click
+          cd /tmp/click
+          git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1
+          python -m pip install -q -e . pytest
+      - name: Baseline Click protected behavior passes
+        run: cd /tmp/click && pytest -q tests/test_options.py::test_counting
+      - name: Fossilized strict-to-inclusive rule breaks protected semantics
+        run: |
+          sed -i 's/operator.le if self.min_open else operator.lt/operator.le if self.min_open else operator.le/' /tmp/click/src/click/types.py
+          cd /tmp/click
+          if pytest -q tests/test_options.py::test_counting; then exit 1; else echo EXPECTED_FOSSILIZATION_REJECTED; fi
+      - name: Scoped rule preserves protected semantics
+        run: |
+          sed -i 's/operator.le if self.min_open else operator.le/operator.le if self.min_open else operator.lt/' /tmp/click/src/click/types.py
+          cd /tmp/click
+          pytest -q tests/test_options.py::test_counting
+          echo PASS_V38B_PROTECTED_BEHAVIOR
+  v38b_later_contradiction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Clone fixed Rich and install
+        run: |
+          git clone -q https://github.com/Textualize/rich.git /tmp/rich
+          cd /tmp/rich
+          git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f
+          python -m pip install -q -e . pytest
+      - name: Baseline Rich tests pass
+        run: cd /tmp/rich && pytest -q tests/test_measure.py tests/test_console.py
+      - name: Later strict IF-test counterevidence challenges retained scope
+        run: |
+          sed -i '0,/_max_width < 1/s//_max_width <= 1/' /tmp/rich/rich/measure.py
+          cd /tmp/rich
+          if pytest -q tests/test_measure.py tests/test_console.py; then echo NO_BEHAVIORAL_CONTRADICTION_FOUND; exit 2; else echo BEHAVIORAL_CONTRADICTION_FOUND_REVOKE; fi
