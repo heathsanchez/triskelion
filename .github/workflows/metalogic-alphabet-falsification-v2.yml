@@ -10,6 +10,7 @@ on:
       - 'experiments/METALOGIC_HIERARCHICAL_MOTIF_REIFICATION_V73.py'
       - 'experiments/METALOGIC_MATH_GRAMMAR_TRANSFER_V74.py'
       - 'experiments/METALOGIC_EXECUTABLE_MATH_CONTROL_V75.py'
+      - 'experiments/METALOGIC_EXECUTABLE_MATH_CONTROL_V75_FAST.py'
   workflow_dispatch:
 jobs:
   alphabet-v2:
@@ -119,7 +120,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run V75 executable math control
-        run: python experiments/METALOGIC_EXECUTABLE_MATH_CONTROL_V75.py
+        run: python experiments/METALOGIC_EXECUTABLE_MATH_CONTROL_V75_FAST.py
       - name: Upload V75 artifact
         if: always()
         uses: actions/upload-artifact@v4
