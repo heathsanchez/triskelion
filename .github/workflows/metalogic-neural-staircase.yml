@@ -1,9 +1,9 @@
-name: Metalogic Neural Developmental Staircase
+name: Metalogic River Instrumented Smoke
 
 on:
   push:
     paths:
-      - 'experiments/METALOGIC_NEURAL_DEVELOPMENTAL_STAIRCASE_V1.py'
+      - 'experiments/RIVER_INSTRUMENTED_SMOKE_V1.py'
       - '.github/workflows/metalogic-neural-staircase.yml'
   workflow_dispatch:
 
@@ -11,9 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  neural-staircase:
+  river-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 8
     env:
       RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
       PYTHONUNBUFFERED: '1'
@@ -29,47 +29,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
 
-      - name: River API preflight
-        run: |
-          python - <<'PY'
-          import inspect, river_client as river
-          print('river module:', river)
-          print('Client signature:', inspect.signature(river.Client))
-          print('Client public:', [x for x in dir(river.Client) if not x.startswith('_')])
-          c = river.Client(api_key='preflight-placeholder')
-          print('Session factory signature:', inspect.signature(c.session))
-          try:
-              import subprocess, sys
-              p = subprocess.run([sys.executable, '-m', 'river_client.skill'], capture_output=True, text=True)
-              print('Bundled River skill path:', p.stdout.strip())
-              if p.stdout.strip():
-                  path=p.stdout.strip().splitlines()[-1]
-                  try:
-                      txt=open(path).read()
-                      for line in txt.splitlines():
-                          low=line.lower()
-                          if 'checkpoint' in low or 'resume' in low or 'save_weights' in low or 'create_model' in low:
-                              print('SKILL:',line)
-                  except Exception as e:
-                      print('Could not read bundled skill:',repr(e))
-          except Exception as e:
-              print('Skill introspection error:',repr(e))
-          PY
-
       - name: Require River secret
         run: |
-          if [ -z "$RIVER_API_KEY" ]; then
-            echo 'RIVER_API_KEY GitHub Actions secret is not configured.'
-            exit 2
-          fi
+          test -n "$RIVER_API_KEY"
 
-      - name: Run frozen neural developmental staircase
-        run: python experiments/METALOGIC_NEURAL_DEVELOPMENTAL_STAIRCASE_V1.py
+      - name: Run instrumented River smoke
+        run: python experiments/RIVER_INSTRUMENTED_SMOKE_V1.py
 
-      - name: Upload scientific artifacts
+      - name: Upload smoke artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: metalogic-neural-staircase-v1
+          name: river-instrumented-smoke-v1
           path: artifacts/
           if-no-files-found: warn
