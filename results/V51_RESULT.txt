@@ -1,0 +1,11 @@
+V51
+precommit=890866b10d03ef47abaebdd743aa7b392c68313a
+seed=V51_20260814
+target=next_permutation
+rank=0e9c8c45734ecc5f5789b3e71f420c978b3de1be5209a19c727cb3e7354d3d8c
+commit=4257f44b0ff1181dedaedee6a447e133219fcebf
+N=8
+W=4
+S=4
+verdict=NEGATIVE_NO_COARSE_EQUIVALENCE
+first_weak_separator=1
