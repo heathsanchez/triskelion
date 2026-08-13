@@ -1,0 +1,26 @@
+name: Metalogic Alphabet Falsification V2
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-alphabet-falsification-v2.yml'
+      - 'experiments/METALOGIC_ALPHABET_FALSIFICATION_V2.py'
+  workflow_dispatch:
+jobs:
+  alphabet-v2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'scikit-learn==1.7.1' 'numpy>=2,<3'
+      - name: Run alphabet falsification
+        run: python experiments/METALOGIC_ALPHABET_FALSIFICATION_V2.py
+      - name: Upload scientific artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-alphabet-falsification-v2
+          path: artifacts/alphabet_falsification_v2/
