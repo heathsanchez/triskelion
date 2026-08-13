@@ -43,23 +43,41 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install Poetry 2.1.1
-        uses: snok/install-poetry@v1
-        with:
-          version: 2.1.1
-
-      - name: Install official SorryDB dependencies
-        working-directory: vendor/SorryDB
-        run: poetry install --no-interaction
-
-      - name: Reproduce official accepted and rejected verifier cases
-        working-directory: vendor/SorryDB
+      - name: Install verifier-only public dependencies
         run: |
           set -euxo pipefail
-          poetry run pytest -q tests/test_verify.py::test_verify_proofs
+          python -m pip install --upgrade pip
+          python -m pip install \
+            'pytest>=8.3,<9' \
+            'gitpython>=3.1,<4' \
+            'pydantic-settings>=2.9,<3' \
+            'requests>=2.32,<3' \
+            'lean-interact==0.10.5' \
+            'sqlmodel>=0.0.24,<0.1' \
+            'typer>=0.15,<1' \
+            'python-dotenv>=1,<2'
+          # The pinned public pyproject references a non-public local Aristotle wheel.
+          # It is not imported by the official verifier test; do not substitute it.
+          ! grep -R --line-number -E '(^|[[:space:]])(from|import)[[:space:]]+aristotlelib' \
+              vendor/SorryDB/tests/test_verify.py \
+              vendor/SorryDB/sorrydb/utils/verify.py \
+              vendor/SorryDB/sorrydb/utils/verify_lean_interact.py \
+              vendor/SorryDB/sorrydb/database/process_sorries.py \
+              vendor/SorryDB/sorrydb/database/sorry.py
+
+      - name: Reproduce official accepted and rejected verifier cases
+        id: verify
+        working-directory: vendor/SorryDB
+        env:
+          PYTHONPATH: ${{ github.workspace }}/vendor/SorryDB
+        run: |
+          set -euxo pipefail
+          pytest -q tests/test_verify.py::test_verify_proofs
 
       - name: Record Phase-0 certificate
         if: always()
+        env:
+          VERIFIER_OUTCOME: ${{ steps.verify.outcome }}
         run: |
           mkdir -p artifacts/v77_phase0
           python - <<'PY'
@@ -70,6 +88,10 @@ jobs:
           out={
             'experiment':'METALOGIC_V77_SORRYDB_EXTERNAL_ALPHABET',
             'phase':'PHASE_0_OFFICIAL_VERIFIER_REPRODUCTION',
+            'phase0_pass':os.environ.get('VERIFIER_OUTCOME')=='success',
+            'official_verifier_test':'tests/test_verify.py::test_verify_proofs',
+            'official_verifier_test_outcome':os.environ.get('VERIFIER_OUTCOME'),
+            'dependency_note':'Verifier-only public dependencies installed because pinned pyproject references absent local aristotlelib wheel; no substitute Aristotle package installed.',
             'sorrydb_commit_expected':os.environ['SORRYDB_COMMIT'],
             'sorrydb_commit_observed':run('git','rev-parse','HEAD') if root.exists() else None,
             'evaluation_blob_sha_expected':os.environ['EVAL_BLOB_SHA'],
