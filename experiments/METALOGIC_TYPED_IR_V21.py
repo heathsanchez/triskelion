@@ -80,7 +80,8 @@ R['gates']={'all_canonical_typecheck':R['metrics']['canonical_valid_rate']==1.0,
 R['verdict']='PASS_TYPED_COGNITIVE_IR_V21' if all(R['gates'].values()) else 'MIXED_TYPED_COGNITIVE_IR_V21'
 out=Path('artifacts/typed_ir_v21');out.mkdir(parents=True,exist_ok=True);(out/'RESULT.json').write_text(json.dumps(R,indent=2));print(json.dumps(R,indent=2))
 
-# Run the separately frozen meta-math analysis after V21 so the approved workflow executes it too.
+# Run frozen follow-on analyses under the already-approved safe workflow.
 import importlib.util as _iu
 _s=_iu.spec_from_file_location('v23','experiments/METALOGIC_METAMATH_V23.py');_m=_iu.module_from_spec(_s);_s.loader.exec_module(_m)
-# retrigger: dependency-free V23
+_s24=_iu.spec_from_file_location('v24','experiments/METALOGIC_DISCOVERABILITY_RATCHET_V24.py');_m24=_iu.module_from_spec(_s24);_s24.loader.exec_module(_m24)
+# retrigger: V24 discoverability ratchet
