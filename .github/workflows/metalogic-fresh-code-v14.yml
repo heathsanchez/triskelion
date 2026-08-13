@@ -1,0 +1,31 @@
+name: Metalogic Fresh Code Staircase V14
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-fresh-code-v14.yml'
+      - 'experiments/METALOGIC_FRESH_CODE_STAIRCASE_V14.py'
+  workflow_dispatch:
+jobs:
+  fresh-code-v14:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Run fresh causal coding staircase
+        run: python experiments/METALOGIC_FRESH_CODE_STAIRCASE_V14.py
+      - name: Upload scientific artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-fresh-code-v14
+          path: artifacts/fresh_code_v14/
