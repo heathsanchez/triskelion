@@ -1,0 +1,91 @@
+name: V77 SorryDB Phase 0
+
+on:
+  push:
+    branches: [v77-sorrydb]
+    paths:
+      - '.github/workflows/v77_sorrydb_phase0.yml'
+      - 'experiments/v77/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SORRYDB_COMMIT: 83bd1976b2c0891dfd6dc997cd61956df7005a7f
+      EVAL_BLOB_SHA: af3b663429dc4689ee728d2fb5c7d8d5034476f7
+      PROTOCOL_SHA256: fff847de047b6e1d1c7eb1a42d4388c0c4b2a991711ff634318f9c28a380ed84
+      OPERATOR_PROMPT_SHA256: f672fbada5d2c7422e605f363af085549cb73575d7552e3fe397a816739ca0fb
+    steps:
+      - name: Checkout V77 branch
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned SorryDB
+        run: |
+          set -euxo pipefail
+          git clone https://github.com/SorryDB/SorryDB.git vendor/SorryDB
+          git -C vendor/SorryDB checkout --detach "$SORRYDB_COMMIT"
+          test "$(git -C vendor/SorryDB rev-parse HEAD)" = "$SORRYDB_COMMIT"
+          test "$(git -C vendor/SorryDB rev-parse HEAD:data/SorryDB_2601/SorryDB_2601_1000_evaluation_split.json)" = "$EVAL_BLOB_SHA"
+
+      - name: Install Lean exactly as SorryDB CI
+        uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          lake-package-directory: vendor/SorryDB/tests/mock_lean_repository
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Poetry 2.1.1
+        uses: snok/install-poetry@v1
+        with:
+          version: 2.1.1
+
+      - name: Install official SorryDB dependencies
+        working-directory: vendor/SorryDB
+        run: poetry install --no-interaction
+
+      - name: Reproduce official accepted and rejected verifier cases
+        working-directory: vendor/SorryDB
+        run: |
+          set -euxo pipefail
+          poetry run pytest -q tests/test_verify.py::test_verify_proofs
+
+      - name: Record Phase-0 certificate
+        if: always()
+        run: |
+          mkdir -p artifacts/v77_phase0
+          python - <<'PY'
+          import json, os, pathlib, subprocess, datetime
+          root=pathlib.Path('vendor/SorryDB')
+          def run(*a):
+              return subprocess.check_output(a,cwd=root,text=True).strip()
+          out={
+            'experiment':'METALOGIC_V77_SORRYDB_EXTERNAL_ALPHABET',
+            'phase':'PHASE_0_OFFICIAL_VERIFIER_REPRODUCTION',
+            'sorrydb_commit_expected':os.environ['SORRYDB_COMMIT'],
+            'sorrydb_commit_observed':run('git','rev-parse','HEAD') if root.exists() else None,
+            'evaluation_blob_sha_expected':os.environ['EVAL_BLOB_SHA'],
+            'evaluation_blob_sha_observed':run('git','rev-parse','HEAD:data/SorryDB_2601/SorryDB_2601_1000_evaluation_split.json') if root.exists() else None,
+            'protocol_sha256':os.environ['PROTOCOL_SHA256'],
+            'operator_prompt_sha256':os.environ['OPERATOR_PROMPT_SHA256'],
+            'github_run_id':os.environ.get('GITHUB_RUN_ID'),
+            'github_sha':os.environ.get('GITHUB_SHA'),
+            'recorded_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+          }
+          pathlib.Path('artifacts/v77_phase0/PHASE0_CERTIFICATE.json').write_text(json.dumps(out,indent=2)+'\n')
+          PY
+
+      - name: Upload Phase-0 certificate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v77-sorrydb-phase0
+          path: artifacts/v77_phase0
