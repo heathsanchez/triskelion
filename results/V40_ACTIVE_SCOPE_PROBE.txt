@@ -1,0 +1,77 @@
+V40 ACTIVE CONSTRUCTOR SCOPE PROBE — 2026-08-14 NZST
+
+Goal
+----
+Make PROBE executable at the constructor-meta-level. Given rival scope hypotheses for a newly formed constructor, choose the cheapest maximally separating compiler experiment rather than exhaustively testing every context.
+
+Frozen candidate slots
+----------------------
+Call.args
+Compare.left
+If.test
+Assign.value
+Module.body
+If.body
+
+Expression-constructor rivals
+-----------------------------
+EXACT_ARGS = {Call.args}
+ALL_LIST_SLOTS = {Call.args, Module.body, If.body}
+VALUE_INTERFACE = {Call.args, Compare.left, If.test, Assign.value}
+ANY_SLOT = all six slots
+
+Actual verifier is Python compile-admissibility only; no code execution.
+
+For the acquired GeneratorExp operator, compiler outcomes are:
+Call.args=PASS
+Compare.left=PASS
+If.test=PASS
+Assign.value=PASS
+Module.body=FAIL
+If.body=FAIL
+
+Entropy-maximizing active query sequence under deterministic tie-breaking:
+1. Query Assign.value -> PASS. Survivors: VALUE_INTERFACE, ANY_SLOT.
+2. Query If.body -> FAIL. Survivor: VALUE_INTERFACE.
+
+Result: 2 compiler probes identify the correct scope versus 6-slot exhaustive testing (66.7% fewer scope probes).
+
+Transfer:
+- held-out Flask Lambda has exactly the same six-slot acceptance signature as VALUE_INTERFACE.
+- held-out/source-distinct Requests NamedExpr has exactly the same six-slot acceptance signature as VALUE_INTERFACE.
+
+Statement-constructor rivals
+----------------------------
+EXACT_MODULE_BODY = {Module.body}
+ALL_LIST_SLOTS = {Call.args, Module.body, If.body}
+STMT_INTERFACE = {Module.body, If.body}
+ANY_SLOT = all six slots
+
+Using a concrete With statement as the acquired operator, compiler outcomes are:
+Call.args=FAIL
+Compare.left=FAIL
+If.test=FAIL
+Assign.value=FAIL
+Module.body=PASS
+If.body=PASS
+
+Same active policy:
+1. Query Call.args -> FAIL. Survivors: EXACT_MODULE_BODY, STMT_INTERFACE.
+2. Query If.body -> PASS. Survivor: STMT_INTERFACE.
+
+Again 2 probes identify the correct operational scope.
+
+Interpretation
+--------------
+PROBE is now an executable meta-level operator:
+ambiguous constructor scope -> rival hypotheses -> cheapest separating experiment -> external compiler decision -> narrowed scope.
+
+This connects the earlier cognitive alphabet to the constructor system itself. The same general word DISTINGUISH -> PROBE -> CONSTRAIN -> SELECT -> RETAIN is now instantiated over constructor hypotheses.
+
+Claim boundary
+--------------
+The rival hypothesis families, candidate slot set, and information-gain selection rule are still supplied. This is bounded active scope learning, not unrestricted experimental design.
+
+Next gate
+---------
+Grow the rival hypothesis language itself from prior verified scope decisions, then test whether the system can propose a new structural predicate/feature when all current scope hypotheses are falsified. This would make failure expand not only the operator and constructor algebra, but the language used to state constructor scopes.
