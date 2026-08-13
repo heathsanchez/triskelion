@@ -1,0 +1,11 @@
+V53
+precommit=890866b10d03ef47abaebdd743aa7b392c68313a
+seed=V53_20260814
+target=bitcount
+rank=1dd182aa13c367378ce9ca7af1730549bd0d00160503349f72cab62b11e66a44
+commit=4257f44b0ff1181dedaedee6a447e133219fcebf
+N=9
+W=4
+S=5
+verdict=NEGATIVE_NO_COARSE_EQUIVALENCE
+first_weak_separator=1
