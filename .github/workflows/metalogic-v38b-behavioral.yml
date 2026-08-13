@@ -53,7 +53,7 @@ jobs:
           git clone -q https://github.com/Textualize/rich.git /tmp/rich
           cd /tmp/rich
           git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f
-          python -m pip install -q -e . pytest
+          python -m pip install -q -e . pytest attrs
           pytest -q
           sed -i '0,/_max_width < 1/s//_max_width <= 1/' rich/measure.py
           find . -name '*.pyc' -delete
