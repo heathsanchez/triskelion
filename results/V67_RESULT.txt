@@ -1,0 +1,11 @@
+V67
+precommit=8afd6fa48dff5be29479215ecfe7177bf6965429
+events=V54,V57,V66
+active=3
+sequential=8
+exhaustive=11
+random_expected=4.9
+vs_exhaustive=72.7_percent
+vs_sequential=62.5_percent
+vs_random=38.8_percent
+verdict=PASS_RETROSPECTIVE_ACTIVE_SEPARATOR_V67
