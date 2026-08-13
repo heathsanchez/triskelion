@@ -54,4 +54,4 @@ R['claim_boundary']='Single fresh external executable chain with repository-owne
 (OUT/'RESULT.json').write_text(json.dumps(R,indent=2)); print(json.dumps(R,indent=2))
 if R['verdict'].startswith('FAIL'): raise SystemExit(1)
 runpy.run_path('experiments/METALOGIC_GENERIC_LEXICAL_CONSTRUCTOR_V46.py',run_name='__main__')
-runpy.run_path('experiments/METALOGIC_BEHAVIORAL_SITE_MINER_V47.py',run_name='__main__')
+runpy.run_path('experiments/METALOGIC_TOKENIZED_SITE_MINER_V47B.py',run_name='__main__')
