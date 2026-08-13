@@ -1,0 +1,24 @@
+V27 PASS_SHARED_GRAMMAR_RATCHET_V27
+Run: 31722283544
+Commit: b5c19879aee759af06dd2dfc7a365f70a499f87d
+
+One frozen global typed constructor inventory was used for every episode; there were no stage-specific candidate lists.
+
+Unique lineage:
+RAW -- PARTITION_COLOR --> GRAPH
+GRAPH -- FIXPOINT_LEAF_ROUNDS --> INT
+INT -- GE_2 --> BOOL
+
+Results:
+- q1 unique survivor: PASS (3 shared-grammar candidates)
+- q2 unique survivor after q1: PASS (4 candidates)
+- q3 unique survivor after q2: PASS (5 candidates)
+- separator intervention required: NO
+- cold frontier from A0 reaches only RAW->GRAPH: PASS
+- cold frontier from A1 reaches GRAPH->INT, not INT->BOOL: PASS
+- oracle intermediate interfaces restore later discovery: PASS
+- all three lineage elements causally required for final executable pipeline: PASS
+- heldout exact: 10,000/10,000
+
+Interpretation boundary:
+This strengthens V25/V26 by removing stage-specific q1/q2/q3 grammars. It demonstrates bounded discoverability expansion under a single typed grammar, but later primitives still exist in the fixed grammar; prior learning changes reachability of their input types. V28 targets the stronger claim that verified chunking adds a new atomic symbol and thereby changes the bounded program language / description-length frontier itself.
