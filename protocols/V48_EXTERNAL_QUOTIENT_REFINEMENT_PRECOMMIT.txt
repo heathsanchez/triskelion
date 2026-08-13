@@ -1,0 +1,25 @@
+V48 EXTERNAL QUOTIENT REFINEMENT PRECOMMIT
+Timestamp context: 2026-08-14 NZST
+
+Frozen parent population: the same 22-name V32 external-law-miner population used by V45-V47.
+Consumed without replacement before V48: get_factors, lcs_length, find_in_sorted.
+Selection population: the 19 remaining names.
+Selection seed: V48_20260814
+Ranking rule: lexicographically smallest SHA256(seed + '|' + function_name).
+Selected function: shunting_yard
+Selected rank: 0940861bdf04be7f91a1b7b4378e377a04b037dd09ba2004bf1c36020a041707
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+This file is committed BEFORE reading shunting_yard buggy source, correct source, or official JSON testcase bodies in this V48 protocol.
+
+Frozen evaluation is identical to V45-V47:
+1. Fetch independently authored buggy source, correct source, and official JSON testcases at the fixed commit.
+2. Preserve testcase order exactly.
+3. Let N be testcase count. W = first floor(N/2) tests; S = remaining tests, extra case protected when N is odd.
+4. Evaluate buggy and correct implementations under matched per-case limits.
+5. Provisional weak equivalence requires identical W signatures.
+6. Refinement requires W-equivalence and different S signatures.
+7. If W already distinguishes, record NEGATIVE_NO_COARSE_EQUIVALENCE and stop.
+8. If W and S both agree, record NEGATIVE_NO_REFINEMENT and stop.
+9. Do not retune split, seed, target, source, timeout, or tests after inspection.
+10. If refinement occurs, record exact protected separators and the reversible quotient split.
