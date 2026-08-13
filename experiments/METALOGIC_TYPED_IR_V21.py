@@ -83,3 +83,4 @@ out=Path('artifacts/typed_ir_v21');out.mkdir(parents=True,exist_ok=True);(out/'R
 # Run the separately frozen meta-math analysis after V21 so the approved workflow executes it too.
 import importlib.util as _iu
 _s=_iu.spec_from_file_location('v23','experiments/METALOGIC_METAMATH_V23.py');_m=_iu.module_from_spec(_s);_s.loader.exec_module(_m)
+# retrigger: dependency-free V23
