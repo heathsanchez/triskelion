@@ -1,0 +1,3 @@
+V62 target=subsequences verdict=NEGATIVE_NO_COARSE_EQUIVALENCE weak_separator=1
+V63 target=pascal verdict=NEGATIVE_NO_COARSE_EQUIVALENCE weak_separator=2
+sequence_precommit=890866b10d03ef47abaebdd743aa7b392c68313a
