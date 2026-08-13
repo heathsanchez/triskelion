@@ -1,0 +1,12 @@
+V29 PASS (deterministic local run): the V28 description-length ratchet reproduced on safe control-flow/program objects with the same max program length B=2.
+
+Lineage:
+q1 = NORM -> CFG. q1 candidates 2, unique survivor 1.
+q2 cold RAW->INT candidates 6, survivors 0.
+After q1 is retained as Q1, q2 candidates 10, unique survivor Q1 -> REACH_RAISE.
+q3 before q2 chunk RAW->BOOL candidates 8, survivors 0.
+After q2 is retained as Q2, q3 candidates 12, unique survivor Q2 -> GE2.
+
+Verifier support included three control-flow separators with 0, 1, and 2 reachable raise nodes so downstream classifiers and raw-count shortcuts were distinguishable.
+
+Interpretation: a verified composite retained as a one-step chunk can move a later capability from outside to inside the same fixed search horizon. This reproduces V28b on a different substrate.
