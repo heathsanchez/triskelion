@@ -1,0 +1,65 @@
+name: V77 OpenAI Preflight
+
+on:
+  push:
+    branches: [v77-sorrydb]
+    paths: ['.github/workflows/v77_openai_preflight.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MODEL: gpt-5.6-sol
+      PROTOCOL_SHA256: fff847de047b6e1d1c7eb1a42d4388c0c4b2a991711ff634318f9c28a380ed84
+      OPERATOR_PROMPT_SHA256: f672fbada5d2c7422e605f363af085549cb73575d7552e3fe397a816739ca0fb
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Refuse missing secret
+        run: |
+          test -n "$OPENAI_API_KEY" || { echo 'OPENAI_API_KEY secret is absent'; exit 42; }
+      - name: Install official OpenAI SDK
+        run: python -m pip install -q 'openai>=1.0'
+      - name: One non-benchmark API call
+        run: |
+          mkdir -p artifacts/v77_api_preflight
+          python - <<'PY'
+          import json,os,pathlib,datetime,hashlib
+          from openai import OpenAI
+          c=OpenAI()
+          r=c.responses.create(
+              model=os.environ['MODEL'],
+              reasoning={'effort':'medium'},
+              input='Return exactly the token V77_PREFLIGHT_OK and nothing else.',
+              max_output_tokens=32,
+          )
+          text=(r.output_text or '').strip()
+          out={
+            'experiment':'METALOGIC_V77_SORRYDB_EXTERNAL_ALPHABET',
+            'requested_model':os.environ['MODEL'],
+            'returned_model':getattr(r,'model',None),
+            'response_id':getattr(r,'id',None),
+            'text_sha256':hashlib.sha256(text.encode()).hexdigest(),
+            'text_exact_ok':text=='V77_PREFLIGHT_OK',
+            'protocol_sha256':os.environ['PROTOCOL_SHA256'],
+            'operator_prompt_sha256':os.environ['OPERATOR_PROMPT_SHA256'],
+            'recorded_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+          }
+          pathlib.Path('artifacts/v77_api_preflight/API_PREFLIGHT.json').write_text(json.dumps(out,indent=2)+'\n')
+          print(json.dumps({k:v for k,v in out.items() if k!='response_id'},indent=2))
+          if not out['text_exact_ok'] or out['returned_model'] != os.environ['MODEL']:
+              raise SystemExit(43)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v77-openai-preflight
+          path: artifacts/v77_api_preflight
