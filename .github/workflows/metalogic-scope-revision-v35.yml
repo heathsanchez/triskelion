@@ -1,9 +1,10 @@
-name: Metalogic Scope Revision V35
+name: Metalogic Scope Revision
 on:
   push:
     paths:
       - '.github/workflows/metalogic-scope-revision-v35.yml'
       - 'experiments/METALOGIC_SCOPE_REVISION_RATCHET_V35.py'
+      - 'experiments/METALOGIC_EXTERNAL_SCOPE_REVISION_V37.py'
   workflow_dispatch:
 jobs:
   v35:
@@ -16,9 +17,25 @@ jobs:
           python-version: '3.12'
       - name: Run scope and revision ratchet
         run: python experiments/METALOGIC_SCOPE_REVISION_RATCHET_V35.py
-      - name: Upload result
+      - name: Upload V35 result
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: metalogic-scope-revision-v35
           path: artifacts/scope_revision_ratchet_v35/
+  v37:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run external source-grounded scope revision ratchet
+        run: python experiments/METALOGIC_EXTERNAL_SCOPE_REVISION_V37.py
+      - name: Upload V37 result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-external-scope-revision-v37
+          path: artifacts/external_scope_revision_v37/
