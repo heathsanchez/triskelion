@@ -1,0 +1,45 @@
+name: Metalogic V52 Canonical BugsInPy Probe
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v52-canonical.yml'
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      - name: Install benchmark
+        run: git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+      - name: Checkout benchmark bug
+        run: |
+          export PATH="$PATH:/tmp/BugsInPy/framework/bin"
+          mkdir -p /tmp/v52_workspace
+          bugsinpy-checkout -p black -v 0 -i 1 -w /tmp/v52_workspace
+      - name: Compile benchmark bug
+        run: |
+          export PATH="$PATH:/tmp/BugsInPy/framework/bin"
+          cd /tmp/v52_workspace/black
+          bugsinpy-compile
+      - name: Run benchmark verifier
+        shell: bash
+        run: |
+          set +e
+          export PATH="$PATH:/tmp/BugsInPy/framework/bin"
+          cd /tmp/v52_workspace/black
+          bugsinpy-test > "$GITHUB_WORKSPACE/v52.log" 2>&1
+          rc=$?
+          echo "returncode=$rc" | tee "$GITHUB_WORKSPACE/v52.status"
+          cat "$GITHUB_WORKSPACE/v52.log"
+          test "$rc" -ne 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v52-canonical-probe
+          path: |
+            v52.log
+            v52.status
