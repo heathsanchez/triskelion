@@ -1,12 +1,12 @@
-name: Metalogic External Frontier V33
+name: Metalogic Source Distinct Ratchet V34
 on:
   push:
     paths:
       - '.github/workflows/metalogic-external-chunk-v30.yml'
-      - 'experiments/METALOGIC_EXTERNAL_FRONTIER_V33.py'
+      - 'experiments/METALOGIC_SOURCE_DISTINCT_RATCHET_V34.py'
   workflow_dispatch:
 jobs:
-  v33:
+  v34:
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
@@ -14,11 +14,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run external frontier discoverability test
-        run: python experiments/METALOGIC_EXTERNAL_FRONTIER_V33.py
+      - name: Run source-distinct discoverability ratchet
+        run: python experiments/METALOGIC_SOURCE_DISTINCT_RATCHET_V34.py
       - name: Upload result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: metalogic-external-frontier-v33
-          path: artifacts/external_frontier_v33/
+          name: metalogic-source-distinct-ratchet-v34
+          path: artifacts/source_distinct_ratchet_v34/
