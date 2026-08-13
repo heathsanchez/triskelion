@@ -1,0 +1,70 @@
+name: V77 SorryDB Phase 0 V3
+
+on:
+  push:
+    branches: [v77-sorrydb]
+    paths: ['.github/workflows/v77_sorrydb_phase0_v3.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SORRYDB_COMMIT: 83bd1976b2c0891dfd6dc997cd61956df7005a7f
+      EVAL_BLOB_SHA: af3b663429dc4689ee728d2fb5c7d8d5034476f7
+      PROTOCOL_SHA256: fff847de047b6e1d1c7eb1a42d4388c0c4b2a991711ff634318f9c28a380ed84
+      OPERATOR_PROMPT_SHA256: f672fbada5d2c7422e605f363af085549cb73575d7552e3fe397a816739ca0fb
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout pinned SorryDB and verify immutable inputs
+        run: |
+          set -euxo pipefail
+          git clone https://github.com/SorryDB/SorryDB.git vendor/SorryDB
+          git -C vendor/SorryDB checkout --detach "$SORRYDB_COMMIT"
+          test "$(git -C vendor/SorryDB rev-parse HEAD)" = "$SORRYDB_COMMIT"
+          test "$(git -C vendor/SorryDB rev-parse HEAD:data/SorryDB_2601/SorryDB_2601_1000_evaluation_split.json)" = "$EVAL_BLOB_SHA"
+      - name: Install Lean as official SorryDB CI
+        uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          lake-package-directory: vendor/SorryDB/tests/mock_lean_repository
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install public dependencies needed to import verifier path
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'pytest>=8.3,<9' 'gitpython>=3.1,<4' 'pydantic-settings>=2.9,<3' 'requests>=2.32,<3' 'lean-interact==0.10.5' 'sqlmodel>=0.0.24,<0.1' 'typer>=0.15,<1' 'python-dotenv>=1,<2' 'langchain-community>=0.4,<0.5' 'langchain-core>=1.1,<2' 'tavily-python>=0.7,<1' 'wikipedia>=1.4,<2'
+      - name: Verify absent Aristotle wheel is not on verifier import path
+        run: |
+          set -euo pipefail
+          if grep -R --line-number -E '(^|[[:space:]])(from|import)[[:space:]]+aristotlelib' vendor/SorryDB/tests/test_verify.py vendor/SorryDB/sorrydb/utils/verify.py vendor/SorryDB/sorrydb/utils/verify_lean_interact.py vendor/SorryDB/sorrydb/database/process_sorries.py vendor/SorryDB/sorrydb/database/sorry.py; then exit 31; fi
+      - name: Reproduce official accepted and rejected verifier cases
+        id: verify
+        working-directory: vendor/SorryDB
+        env:
+          PYTHONPATH: ${{ github.workspace }}/vendor/SorryDB
+        run: pytest -q tests/test_verify.py::test_verify_proofs
+      - name: Write certificate
+        if: always()
+        env:
+          VERIFIER_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          mkdir -p artifacts/v77_phase0_v3
+          python - <<'PY'
+          import json,os,pathlib,subprocess,datetime
+          r=pathlib.Path('vendor/SorryDB')
+          def g(*a): return subprocess.check_output(a,cwd=r,text=True).strip()
+          d={'experiment':'METALOGIC_V77_SORRYDB_EXTERNAL_ALPHABET','phase0_pass':os.getenv('VERIFIER_OUTCOME')=='success','official_verifier_test':'tests/test_verify.py::test_verify_proofs','official_verifier_test_outcome':os.getenv('VERIFIER_OUTCOME'),'sorrydb_commit_expected':os.environ['SORRYDB_COMMIT'],'sorrydb_commit_observed':g('git','rev-parse','HEAD') if r.exists() else None,'evaluation_blob_sha_expected':os.environ['EVAL_BLOB_SHA'],'evaluation_blob_sha_observed':g('git','rev-parse','HEAD:data/SorryDB_2601/SorryDB_2601_1000_evaluation_split.json') if r.exists() else None,'protocol_sha256':os.environ['PROTOCOL_SHA256'],'operator_prompt_sha256':os.environ['OPERATOR_PROMPT_SHA256'],'dependency_boundary':'No Aristotle substitute installed; only public packages needed to import unchanged official verifier test path.','github_run_id':os.getenv('GITHUB_RUN_ID'),'github_sha':os.getenv('GITHUB_SHA'),'recorded_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+          pathlib.Path('artifacts/v77_phase0_v3/PHASE0_CERTIFICATE.json').write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - name: Upload certificate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v77-sorrydb-phase0-v3
+          path: artifacts/v77_phase0_v3
