@@ -1,0 +1,31 @@
+name: Metalogic Verified Composer V16
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-verified-composer-v16.yml'
+      - 'experiments/METALOGIC_VERIFIED_COMPOSER_V16.py'
+  workflow_dispatch:
+jobs:
+  composer-v16:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Run verified composer
+        run: python experiments/METALOGIC_VERIFIED_COMPOSER_V16.py
+      - name: Upload scientific artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-verified-composer-v16
+          path: artifacts/verified_composer_v16/
