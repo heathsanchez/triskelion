@@ -1,0 +1,38 @@
+name: Metalogic V52 Historical Ratchet
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v52-historical-launch.yml'
+jobs:
+  v52:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v52-historical-bugs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -q uv
+      - run: |
+          git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+          cd /tmp/BugsInPy && git checkout -q 11c5f1eea954a42132cfd06bf257766a7963e0fd
+          chmod +x /tmp/BugsInPy/framework/bin/*
+      - run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('experiments/METALOGIC_V52_HISTORICAL_BUG_RATCHET.py')
+          s=p.read_text()
+          old="rc,out=run(f'uv python install {pyver} && uv venv --python {pyver} .v52env',cwd=repo,timeout=240)"
+          new="pyline='.'.join(pyver.split('.')[:2]); rc,out=run(f'uv python install {pyline} && uv venv --seed --python {pyline} .v52env',cwd=repo,timeout=240)"
+          assert old in s
+          p.write_text(s.replace(old,new))
+          PY
+      - run: python experiments/METALOGIC_V52_HISTORICAL_BUG_RATCHET.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-v52-historical
+          path: artifacts/v52/
