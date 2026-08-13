@@ -1,0 +1,28 @@
+V45 EXTERNAL QUOTIENT REFINEMENT PRECOMMIT
+Timestamp context: 2026-08-14 NZST
+
+Selection population: 22 QuixBugs function names present in the previously frozen V32 external-law-miner artifact.
+Selection seed: V45_20260814
+Ranking rule: lexicographically smallest SHA256(seed + '|' + function_name).
+Selected function: get_factors
+Selected rank: 03ec20cb95ff9d9d241137ee2c03d8658fc28a3b419f12ea11b17990dc416231
+QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+
+This file is committed BEFORE reading get_factors buggy source, correct source, or official JSON testcase bodies in this V45 protocol.
+
+Frozen evaluation:
+1. Fetch independently authored `python_programs/get_factors.py` and `correct_python_programs/get_factors.py` at the fixed commit.
+2. Fetch official `json_testcases/get_factors.json`.
+3. Preserve testcase order exactly as stored.
+4. Let N be testcase count. Weak verifier W = first floor(N/2) official tests. Protected stronger verifier S = remaining tests. If N is odd, protected side receives the extra case.
+5. Evaluate buggy and correct implementations with identical per-case execution limits.
+6. A provisional weak equivalence exists only if both implementations have identical pass/fail/output signatures on every W case.
+7. A refinement event exists only if W-equivalent implementations have different signatures on S.
+8. Do not alter split, seed, selected function, timeout, source, or tests after inspection.
+9. If W already distinguishes the implementations, record NEGATIVE_NO_COARSE_EQUIVALENCE and stop; do not search another split.
+10. If W-equivalent and S-equivalent, record NEGATIVE_NO_REFINEMENT and stop; do not search another function.
+11. If refinement occurs, record the exact separating protected cases and show that retaining the coarse quotient would erase a capability distinction required by S.
+12. Reversibility gate: removing S from observational authority must restore the provisional W quotient; restoring S must split it again.
+
+Scientific target:
+Demonstrate or falsify reversible verifier-indexed equivalence on independently authored executable software under a precommitted weak/strong observation protocol.
