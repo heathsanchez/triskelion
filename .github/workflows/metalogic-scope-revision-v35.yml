@@ -5,6 +5,7 @@ on:
       - '.github/workflows/metalogic-scope-revision-v35.yml'
       - 'experiments/METALOGIC_SCOPE_REVISION_RATCHET_V35.py'
       - 'experiments/METALOGIC_EXTERNAL_SCOPE_REVISION_V37.py'
+      - 'experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py'
   workflow_dispatch:
 jobs:
   v35:
@@ -147,3 +148,27 @@ jobs:
           sed -i 's/if len(password) < self.min_length:/if len(password) <= self.min_length:/' /tmp/django_contra/django/contrib/auth/password_validation.py
           cd /tmp/django_contra
           if python tests/runtests.py auth_tests.test_validators.MinimumLengthValidatorTest.test_validate --verbosity 0; then exit 1; else echo BEHAVIORAL_CONTRADICTION_FOUND_REVOKE; fi
+  v39_single_loop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision fixed external worlds
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/v39_django
+          cd /tmp/v39_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
+          git clone -q https://github.com/psf/requests.git /tmp/v39_requests
+          cd /tmp/v39_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . pytest
+          git clone -q https://github.com/pallets/click.git /tmp/v39_click
+          cd /tmp/v39_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . pytest
+      - name: Run one frozen behavioral verifier loop
+        run: python experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py
+      - name: Upload V39 result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-behavioral-scope-loop-v39
+          path: artifacts/v39/
