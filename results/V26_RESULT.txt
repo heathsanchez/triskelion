@@ -1,0 +1,1 @@
+V26 PASS. Different substrate from V25. Unique lineage: BUILD_CFG/FULL -> REACH_COUNT/RAISE -> COMPARE/GE1. Same cold-frontier and oracle-interface controls passed. 10,000 fresh held-out cases exact. All three lineage ablations removed final reachability.
