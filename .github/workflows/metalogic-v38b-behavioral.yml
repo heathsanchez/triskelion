@@ -1,0 +1,60 @@
+name: Metalogic V38b Behavioral Scope
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v38b-behavioral.yml'
+jobs:
+  requests_transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: |
+          git clone -q https://github.com/psf/requests.git /tmp/requests
+          cd /tmp/requests
+          git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e
+          python -m pip install -q -e . pytest
+          pytest -q tests/test_utils.py -k test_iter_slices
+          sed -i 's/slice_length <= 0/slice_length < 0/' src/requests/utils.py
+          find . -name '*.pyc' -delete
+          if timeout 10s pytest -q tests/test_utils.py -k test_iter_slices; then exit 1; else echo EXPECTED_REQUESTS_MUTATION_REJECTED; fi
+          git checkout -- src/requests/utils.py
+          find . -name '*.pyc' -delete
+          pytest -q tests/test_utils.py -k test_iter_slices
+          echo PASS_V38B_SOURCE_DISTINCT_POSITIVE_TRANSFER
+  click_protected:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: |
+          git clone -q https://github.com/pallets/click.git /tmp/click
+          cd /tmp/click
+          git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1
+          python -m pip install -q -e . pytest
+          pytest -q tests/test_options.py::test_counting
+          sed -i 's/operator.le if self.min_open else operator.lt/operator.le if self.min_open else operator.le/' src/click/types.py
+          find . -name '*.pyc' -delete
+          if pytest -q tests/test_options.py::test_counting; then exit 1; else echo EXPECTED_FOSSILIZATION_REJECTED; fi
+          git checkout -- src/click/types.py
+          find . -name '*.pyc' -delete
+          pytest -q tests/test_options.py::test_counting
+          echo PASS_V38B_PROTECTED_BEHAVIOR
+  rich_contradiction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: |
+          git clone -q https://github.com/Textualize/rich.git /tmp/rich
+          cd /tmp/rich
+          git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f
+          python -m pip install -q -e . pytest
+          pytest -q
+          sed -i '0,/_max_width < 1/s//_max_width <= 1/' rich/measure.py
+          find . -name '*.pyc' -delete
+          if pytest -q; then echo NO_BEHAVIORAL_CONTRADICTION_FOUND; exit 2; else echo BEHAVIORAL_CONTRADICTION_FOUND_REVOKE; fi
