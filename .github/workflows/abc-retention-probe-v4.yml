@@ -1,0 +1,33 @@
+name: ABC Retention Probe V4
+on:
+  push:
+    paths:
+      - 'experiments/PROBE_ABC_RETENTION_V4.py'
+      - '.github/workflows/abc-retention-probe-v4.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7'
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Probe frozen ABC checkpoint
+        run: python experiments/PROBE_ABC_RETENTION_V4.py
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: abc-retention-probe-v4
+          path: artifacts/abc_retention_probe_v4/
