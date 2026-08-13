@@ -1,4 +1,4 @@
-import hashlib,json,subprocess,re
+import hashlib,json,subprocess,re,runpy
 from pathlib import Path
 OUT=Path('artifacts/v45'); OUT.mkdir(parents=True,exist_ok=True)
 DJ=Path('/tmp/v45_django'); RQ=Path('/tmp/v45_requests'); CK=Path('/tmp/v45_click'); RH=Path('/tmp/v45_rich')
@@ -13,7 +13,7 @@ def sh(cmd,cwd,t=90):
         return False,(x+'\nTIMEOUT')[-1800:]
 def reset(r): subprocess.run('git reset --hard -q HEAD && git clean -fdxq',cwd=r,shell=True,check=True)
 def repl(p,a,b):
-    s=p.read_text();
+    s=p.read_text()
     if a not in s: raise RuntimeError(f'missing {a}')
     p.write_text(s.replace(a,b,1))
 def atom(p,needle):
@@ -32,23 +32,19 @@ def rh(): return sh('pytest -q tests/test_highlighter.py',RH,75)
 for r in (DJ,RQ,CK,RH): reset(r)
 spec={'trigger':(trig,'len(name) <= length'),'positive_class':(cls,'self.per_page <= self.orphans'),'transfer':(trans,'slice_length <= 0'),'protected_click':(click,'operator.lt'),'protected_rich':(rich,'cursor < len(plain)'),'counterexample':(contra,'len(password) < self.min_length')}
 raw={k:atom(*v) for k,v in spec.items()}; obs={k:H(v) for k,v in raw.items()}
-# executable positive evidence
 P={}
 reset(DJ); repl(trig,'len(name) <= length','len(name) < length'); x,_=dj1(); repl(trig,'len(name) < length','len(name) <= length'); y,_=dj1(); P['trigger']=(x,y)
 reset(DJ); repl(cls,'self.per_page <= self.orphans','self.per_page < self.orphans'); x,_=dj2(); repl(cls,'self.per_page < self.orphans','self.per_page <= self.orphans'); y,_=dj2(); P['positive_class']=(x,y)
 reset(RQ); repl(trans,'slice_length <= 0','slice_length < 0'); x,_=rq(); repl(trans,'slice_length < 0','slice_length <= 0'); y,_=rq(); P['transfer']=(x,y)
-# protected evidence
 reset(CK); cb,_=ck(); repl(click,'operator.le if self.min_open else operator.lt','operator.le if self.min_open else operator.le'); cm,_=ck()
 reset(RH); rb,_=rh(); repl(rich,'cursor < len(plain)','cursor <= len(plain)'); rm,_=rh()
 pos=['trigger','positive_class','transfer']; neg=['protected_click','protected_rich']
-old_survivors=[] # TRUE fails negatives; FALSE fails positives
+old_survivors=[]
 vocab=sorted(set(obs.values())); new=[c for c in vocab if all(obs[k]==c for k in pos) and all(obs[k]!=c for k in neg)]; selected=new[0] if len(new)==1 else None
-# transfer ablation
-reset(RQ); repl(trans,'slice_length <= 0','slice_length < 0'); cold,_=rq();
+reset(RQ); repl(trans,'slice_length <= 0','slice_length < 0'); cold,_=rq()
 if selected and obs['transfer']==selected: repl(trans,'slice_length < 0','slice_length <= 0')
 warm,_=rq(); reset(RQ); repl(trans,'slice_length <= 0','slice_length < 0'); abl,_=rq()
-# later contradiction
-reset(DJ); base,_=dj3();
+reset(DJ); base,_=dj3()
 if selected and obs['counterexample']==selected: repl(contra,'if len(password) < self.min_length:','if len(password) <= self.min_length:')
 after,_=dj3(); decision='REVOKE' if selected and base and not after else 'WITHHOLD'
 R={'protocol':SEED,'representation':'opaque hash of first lexical atom; no AST used by learner','raw_posthoc':raw,'obs':obs,'positive':P,'protected':{'click':(cb,cm),'rich':(rb,rm)},'old_survivors':old_survivors,'new_survivors':new,'selected':selected,'transfer':{'cold':cold,'warm':warm,'ablated':abl},'counter':{'base':base,'after':after},'decision':decision}
@@ -57,3 +53,4 @@ R['verdict']='PASS_V45_ONEPASS_RAW_EXTERNAL_RATCHET' if all(R['gates'].values())
 R['claim_boundary']='Single fresh external executable chain with repository-owned tests and no AST in learner representation. Mutation sites and first-token projection remain designer supplied.'
 (OUT/'RESULT.json').write_text(json.dumps(R,indent=2)); print(json.dumps(R,indent=2))
 if R['verdict'].startswith('FAIL'): raise SystemExit(1)
+runpy.run_path('experiments/METALOGIC_GENERIC_LEXICAL_CONSTRUCTOR_V46.py',run_name='__main__')
