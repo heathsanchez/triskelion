@@ -1,9 +1,10 @@
-name: Metalogic V39 Behavioral Loop
+name: Metalogic Behavioral Scope Research
 on:
   push:
     paths:
       - '.github/workflows/metalogic-v39.yml'
       - 'experiments/METALOGIC_BEHAVIORAL_SCOPE_LOOP_V39.py'
+      - 'experiments/METALOGIC_SCOPE_CONSTRUCTION_V40.py'
   workflow_dispatch:
 jobs:
   v39:
@@ -34,3 +35,27 @@ jobs:
         with:
           name: metalogic-behavioral-scope-loop-v39
           path: artifacts/v39/
+  v40:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision fixed external worlds
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/v40_django
+          cd /tmp/v40_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
+          git clone -q https://github.com/psf/requests.git /tmp/v40_requests
+          cd /tmp/v40_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . pytest
+          git clone -q https://github.com/pallets/click.git /tmp/v40_click
+          cd /tmp/v40_click && git checkout -q 9c4dfdaebe0e6b2aabc566eb81f6f10eb5cd6ea1 && python -m pip install -q -e . pytest
+      - name: Run generic structural scope constructor
+        run: python experiments/METALOGIC_SCOPE_CONSTRUCTION_V40.py
+      - name: Upload V40 result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-scope-construction-v40
+          path: artifacts/v40/
