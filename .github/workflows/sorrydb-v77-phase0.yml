@@ -30,6 +30,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "83bd1976b2c0891dfd6dc997cd61956df7005a7f"
           test "$(git hash-object data/SorryDB_2601/SorryDB_2601_1000_evaluation_split.json)" = "af3b663429dc4689ee728d2fb5c7d8d5034476f7"
           test "$(git hash-object sorrydb/utils/verify.py)" = "00e3101c7bba30777dbd849fcda5f228c1712a32"
+          test "$(git hash-object tests/test_verify.py)" = "0915f9e5bcc150b8d8cc124cf17f1ffe964bac99"
 
       - name: Install Lean
         uses: leanprover/lean-action@v1
@@ -42,18 +43,16 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 2.1.1
-
-      - name: Install SorryDB dependencies
-        working-directory: vendor/SorryDB
-        run: poetry install --no-interaction
+      - name: Install public verifier dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest==8.3.5 lean-interact==0.10.5 gitpython==3.1.44 pydantic-settings==2.9.1 requests==2.32.3 python-dotenv==1.1.0
 
       - name: Run official positive and negative verifier test
         working-directory: vendor/SorryDB
-        run: poetry run pytest -q tests/test_verify.py::test_verify_proofs
+        env:
+          PYTHONPATH: .
+        run: python -m pytest -q tests/test_verify.py::test_verify_proofs
 
       - name: Record Phase-0 evidence
         if: always()
@@ -64,11 +63,12 @@ jobs:
             echo "SORRYDB_COMMIT=83bd1976b2c0891dfd6dc997cd61956df7005a7f"
             echo "EVAL_BLOB=af3b663429dc4689ee728d2fb5c7d8d5034476f7"
             echo "VERIFY_BLOB=00e3101c7bba30777dbd849fcda5f228c1712a32"
+            echo "TEST_VERIFY_BLOB=0915f9e5bcc150b8d8cc124cf17f1ffe964bac99"
             echo "PROTOCOL_SHA256=fff847de047b6e1d1c7eb1a42d4388c0c4b2a991711ff634318f9c28a380ed84"
             echo "OPERATOR_PROMPT_SHA256=f672fbada5d2c7422e605f363af085549cb73575d7552e3fe397a816739ca0fb"
-            lean --version || true
-            poetry --version || true
-          } > artifacts/sorrydb_v77_phase0/evidence.txt
+            cd vendor/SorryDB/tests/mock_lean_repository
+            lake env lean --version || true
+          } > ../../../../artifacts/sorrydb_v77_phase0/evidence.txt
 
       - name: Upload Phase-0 evidence
         if: always()
