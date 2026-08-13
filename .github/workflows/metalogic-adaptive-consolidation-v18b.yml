@@ -1,0 +1,31 @@
+name: Metalogic Adaptive Consolidation V18b
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-adaptive-consolidation-v18b.yml'
+      - 'experiments/METALOGIC_ADAPTIVE_CONSOLIDATION_V18B.py'
+  workflow_dispatch:
+jobs:
+  adaptive-v18b:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Run adaptive consolidation
+        run: python experiments/METALOGIC_ADAPTIVE_CONSOLIDATION_V18B.py
+      - name: Upload scientific artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-adaptive-consolidation-v18b
+          path: artifacts/adaptive_consolidation_v18b/
