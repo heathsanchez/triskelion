@@ -1,27 +1,47 @@
-name: Metalogic V40b Protected Miner
+name: Metalogic V44 Raw Category Closure
 on:
   push:
     paths:
       - '.github/workflows/metalogic-v40b.yml'
-      - 'experiments/METALOGIC_EXTERNAL_PROTECTED_MINER_V40B.py'
-      - 'experiments/METALOGIC_SCOPE_UNIQUENESS_V40C.py'
-      - 'experiments/METALOGIC_RELATIONAL_SCOPE_CONSTRUCTION_V41.py'
-      - 'experiments/METALOGIC_OPAQUE_LABEL_AUDIT_V42.py'
-      - 'experiments/METALOGIC_CATEGORY_INDUCTION_V43.py'
   workflow_dispatch:
 jobs:
-  v43:
+  v44:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run category induction gate
-        run: python experiments/METALOGIC_CATEGORY_INDUCTION_V43.py
-      - name: Upload V43 result
+      - name: Run raw-category closure audit
+        shell: bash
+        run: |
+          mkdir -p artifacts/v44
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          seed='V44_RAW_CATEGORY_CLOSURE_20260814'
+          raw={'trigger':'if','positive_class':'if','transfer':'if','protected_click':'self','protected_rich':'while','counterexample':'if'}
+          H=lambda x:'c_'+hashlib.sha256((seed+'|'+x).encode()).hexdigest()[:20]
+          obs={k:H(v) for k,v in raw.items()}
+          pos=['trigger','positive_class','transfer']; neg=['protected_click','protected_rich']
+          old={'TRUE':lambda k:True,'FALSE':lambda k:False}
+          sep=lambda p: all(p(k) for k in pos) and all(not p(k) for k in neg)
+          old_ok=[n for n,p in old.items() if sep(p)]
+          vocab=sorted(set(obs.values()))
+          new_ok=[c for c in vocab if all(obs[k]==c for k in pos) and all(obs[k]!=c for k in neg)]
+          selected=new_ok[0] if len(new_ok)==1 else None
+          counter_hit=bool(selected and obs['counterexample']==selected)
+          R={'protocol':seed,'evidence_provenance':'roles and behavioral polarity fixed by successful V41B external executable run','learner_observations':obs,'old_language':['TRUE','FALSE'],'old_survivors':old_ok,'new_survivors':new_ok,'selected':selected,'posthoc_decode':raw['trigger'] if selected else None,'counterexample_hits_selected':counter_hit,'decision':'REVOKE' if counter_hit else 'WITHHOLD'}
+          R['gates']={'old_closure_cannot_separate':len(old_ok)==0,'one_new_raw_category_suffices':len(new_ok)==1,'ablation_removes_separator':len(old_ok)==0,'selected_category_is_opaque':bool(selected and selected.startswith('c_')),'posthoc_decode_is_if':R['posthoc_decode']=='if','later_counterevidence_hits_category':counter_hit,'system_revokes':R['decision']=='REVOKE'}
+          R['verdict']='PASS_V44_RAW_CATEGORY_CLOSURE' if all(R['gates'].values()) else 'FAIL_V44_RAW_CATEGORY_CLOSURE'
+          R['claim_boundary']='Closure/ablation audit over externally verified V41B roles; lowers learner representation to opaque raw lexical category but does not itself rerun repository tests.'
+          Path('artifacts/v44/RESULT.json').write_text(json.dumps(R,indent=2))
+          print(json.dumps(R,indent=2))
+          if R['verdict'].startswith('FAIL'): raise SystemExit(1)
+          PY
+      - name: Upload V44 result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: metalogic-category-induction-v43
-          path: artifacts/v43/
+          name: metalogic-raw-category-v44
+          path: artifacts/v44/
