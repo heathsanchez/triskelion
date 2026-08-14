@@ -1,0 +1,30 @@
+name: Metalogic V53 Historical Cleanroom Ratchet
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v53-historical-cleanroom.yml'
+      - 'experiments/METALOGIC_V53_HISTORICAL_CLEANROOM.py'
+  workflow_dispatch:
+jobs:
+  v53:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze BugsInPy corpus
+        run: |
+          python -m pip install -q uv
+          git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+          cd /tmp/BugsInPy && git checkout -q 11c5f1eea954a42132cfd06bf257766a7963e0fd
+          chmod +x /tmp/BugsInPy/framework/bin/*
+      - name: Run clean-room historical ratchet
+        run: python experiments/METALOGIC_V53_HISTORICAL_CLEANROOM.py
+      - name: Upload V53 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-v53-historical-cleanroom
+          path: artifacts/v53/
