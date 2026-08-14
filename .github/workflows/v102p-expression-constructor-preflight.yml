@@ -1,0 +1,27 @@
+name: V102P Expression Constructor Preflight NONCLAIM
+on:
+  push:
+    branches: [v102p-expression-constructor-preflight]
+jobs:
+  v102p:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs && git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run NONCLAIM V102P
+        env:
+          QUIXBUGS_ROOT: /tmp/QuixBugs
+          OUT_DIR: results/v102p
+        run: python experiments/METALOGIC_V102P_EXPRESSION_CONSTRUCTOR_PREFLIGHT.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v102p-expression-constructor-preflight-nonclaim
+          path: results/v102p/RESULT.json
