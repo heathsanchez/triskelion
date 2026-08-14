@@ -1,0 +1,67 @@
+name: Lean Kernel Arena recrule index audit
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-recrule-index-audit]
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit constructor index against recursor rule order
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/recrule-index-audit
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('soko/src/eval.rs'); s=p.read_text()
+          old='''        let rec_rule = rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?;'''
+          new='''        let ctor_data = self.env.get_constructor(&ctor_name)?;
+        let direct = rec.rec_rules.get(usize::from(ctor_data.ctor_idx)).copied();
+        let linear = rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied();
+        if direct.map(|r| r.ctor_name) != Some(ctor_name) || direct != linear {
+            panic!("RECRULE_INDEX_MISMATCH ctor_idx={} rules={}", ctor_data.ctor_idx, rec.rec_rules.len());
+        }
+        let rec_rule = direct?;'''
+          assert old in s
+          p.write_text(s.replace(old,new,1))
+          PY
+          cat > soko/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
+          JSON
+          (cd soko && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,json
+          root=Path.cwd(); exe=root/'soko/target/release/sokonanoda'; cfg=root/'soko/config.json'
+          rows=[]
+          for kind,exp in [('good',0),('bad',1)]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'):
+                  with p.open('rb') as f:
+                      r=subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+                  if b'RECRULE_INDEX_MISMATCH' in r.stderr:
+                      raise SystemExit(f'invariant mismatch: {p}: {r.stderr.decode(errors="replace")[-1000:]}')
+                  rows.append({'file':str(p.relative_to(root/'arena-tests')),'rc':r.returncode})
+          Path('results/recrule-index-audit/summary.json').write_text(json.dumps({'cases':len(rows),'invariant_holds':True},indent=2))
+          print(json.dumps({'cases':len(rows),'invariant_holds':True},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-recrule-index-audit
+          path: results/recrule-index-audit/
