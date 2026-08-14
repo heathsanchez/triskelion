@@ -1,0 +1,24 @@
+name: V93 Polymorphic BackRef Quotient
+
+on:
+  push:
+    branches: [v93-polymorphic-backref]
+  workflow_dispatch:
+
+jobs:
+  quotient:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run polymorphic quotient and hostile ablations
+        run: python3 experiments/v93_polymorphic_backref.py
+      - name: Upload V93 audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v93-polymorphic-backref
+          path: results/v93/
