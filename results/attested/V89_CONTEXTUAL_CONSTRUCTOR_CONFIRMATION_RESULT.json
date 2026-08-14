@@ -1,0 +1,28 @@
+{
+  "protocol": "V89_CONTEXTUAL_CONSTRUCTOR_CONFIRMATION",
+  "external_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+  "seed": "V89_CONTEXTUAL_CONFIRMATION_FRESH_SPLIT_2026-08-14",
+  "k0_solved": ["knapsack", "quicksort"],
+  "k0_plus_context_solved": ["knapsack", "quicksort"],
+  "k0_plus_context_shuffle_solved": ["knapsack", "quicksort"],
+  "new_closure": [],
+  "shuffle_new_closure": [],
+  "learned_schemas": [
+    {"schema":["OP","Compare","ops","Eq","LtE"],"support":1},
+    {"schema":["CONST","Compare","comparators","int"],"support":1},
+    {"schema":["OP","Compare","ops","LtE","Lt"],"support":1}
+  ],
+  "gates": {
+    "preexisting_external_corpus": true,
+    "heldout_correct_files_sealed": true,
+    "nonempty_contextual_grammar": true,
+    "conservative_growth": true,
+    "heldout_closure_strictly_expands": false,
+    "contextual_gain_beats_shuffle": false
+  },
+  "verdict": "MIXED_CONTEXTUAL_CONSTRUCTOR_CONFIRMATION_V89",
+  "primary_run": 31786710386,
+  "artifact_id": 9213865127,
+  "artifact_sha256": "79874f34040f87d4af7141e778b5b3076614c2ee92ab2bc4c7a650a5de5cf373",
+  "qualification": "Fresh-split confirmation after V88. Supervised bridge only. The V88 contextual closure gain did not replicate: K0 plus learned contextual AST roles produced zero new held-out closure and matched the context-shuffle control exactly."
+}
