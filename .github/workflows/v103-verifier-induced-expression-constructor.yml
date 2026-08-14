@@ -1,0 +1,27 @@
+name: V103 Verifier-Induced Expression Constructor
+on:
+  push:
+    branches: [v103-verifier-induced-expression-constructor]
+jobs:
+  v103:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs && git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V103
+        env:
+          QUIXBUGS_ROOT: /tmp/QuixBugs
+          OUT_DIR: results/v103
+        run: python experiments/METALOGIC_V103_VERIFIER_INDUCED_EXPRESSION_CONSTRUCTOR.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v103-verifier-induced-expression-constructor
+          path: results/v103/RESULT.json
