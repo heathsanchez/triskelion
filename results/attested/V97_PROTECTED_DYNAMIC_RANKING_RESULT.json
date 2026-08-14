@@ -1,0 +1,20 @@
+{
+  "canonical_id": "V97_PROTECTED_DYNAMIC_RANKING",
+  "status": "MIXED / TRAINING-CONSTRUCTOR CEILING",
+  "run_id": 31792056360,
+  "artifact_id": 9216195928,
+  "artifact_sha256": "1d354260dca95343b9e6bc1ad671bf0583632ec8e9830363e79e2f438c40d561",
+  "external_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+  "verdict": "MIXED_PROTECTED_DYNAMIC_RANKING_V97",
+  "gates": {
+    "preexisting_external_corpus": true,
+    "no_correct_implementations_read": true,
+    "cheap_probe_distinct_from_full_verifier": true,
+    "verifier_improving_training_deltas_exist": false,
+    "dynamic_clusters_formed": false,
+    "learned_recovers_heldout_success": false,
+    "learned_beats_coordinate_null": false,
+    "learned_beats_hash_baseline": false
+  },
+  "audit": "All seven frozen training tasks produced zero verifier-improving candidates under the V97 constructor. Therefore no dynamic prototype formed and the protected economic ranking hypothesis was not reached. This is not evidence that cheap dynamic ranking fails when useful training deltas exist."
+}
