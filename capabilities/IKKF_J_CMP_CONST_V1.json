@@ -1,0 +1,17 @@
+{
+  "schema": "metalogic.verified_capability.v1",
+  "id": "IKKF_J_CMP_CONST_V1",
+  "name": "COMPARE_AND_CONSTANT_REPAIR",
+  "kind": "repair_plan",
+  "plan": [["CMP", 0], ["CONST", 0]],
+  "scope": "Python functions whose verified residual is caused by first-eligible comparison and integer-constant mutations",
+  "dependencies": ["CMP", "CONST"],
+  "provenance": {
+    "role": "matched verified decoy control",
+    "discovery_episodes_embedded": false
+  },
+  "compilation": {
+    "requires_original_episode": false,
+    "target_format": "CMP@i;CONST@i"
+  }
+}
