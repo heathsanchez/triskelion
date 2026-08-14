@@ -91,7 +91,7 @@ Original run `31759304935` reproduced the official SorryDB verifier but only pre
 
 The checkout implementation was repaired on `main` to initialize each repository and fetch the exact frozen commit directly before detached checkout. Selection seed, selected commits, model, retry schedules, arms, budgets and verifier criteria were unchanged.
 
-Repaired run: `31761636184`, head `4eac4818156c65c8cf75f0fea242308540513485`.
+Repaired run: `31761636184`, run head `ece4d2dcbc83377526002a086797ccf925decc95`.
 
 Current verified prerequisites in that rerun:
 
