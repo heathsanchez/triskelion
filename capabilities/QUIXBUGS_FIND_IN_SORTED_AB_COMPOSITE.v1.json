@@ -1,0 +1,61 @@
+{
+  "capability_id": "QUIXBUGS_FIND_IN_SORTED_AB_COMPOSITE",
+  "dependencies": [
+    "A",
+    "B"
+  ],
+  "kind": "VERIFIED_COMPOSITE",
+  "package_sha256": "db229c0451110ab0539e41f34289cbeec04d80ca4ef50cff3ebfbb975470a663",
+  "plan": [
+    [
+      "CMP",
+      0
+    ],
+    [
+      "BIN",
+      0
+    ]
+  ],
+  "provenance": {
+    "construction": "minimal subset closure over verified primitives A and B",
+    "source_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf"
+  },
+  "revision": {
+    "reverify_before_compile": true,
+    "status": "active"
+  },
+  "schema": "metalogic.verified_capability.v1",
+  "scope": {
+    "commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+    "corpus": "jkoppel/QuixBugs",
+    "mutation_family": [
+      "CMP",
+      "BIN"
+    ],
+    "program": "find_in_sorted"
+  },
+  "target_family": "AB_TEST",
+  "verifier": {
+    "authority": "QuixBugs json_testcases at frozen commit",
+    "discovery_variants": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "type": "external_test_suite"
+  },
+  "version": 1
+}
