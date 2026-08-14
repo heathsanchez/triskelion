@@ -1,0 +1,68 @@
+name: Lean Kernel Arena infer-cache diagnostic
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-infer-cache-diagnostic]
+
+jobs:
+  infer-cache-diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instrument inference cache pruning
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/infer-cache-diagnostic
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('soko/src/infer.rs'); s=p.read_text()
+          s=s.replace('use Expr::*;\nuse InferFlag::*;\n', '''use Expr::*;\nuse InferFlag::*;\nuse std::sync::atomic::{AtomicU64, Ordering::Relaxed};\n\nstatic INFER_COMPLEX: AtomicU64 = AtomicU64::new(0);\nstatic KEY_CHANGED: AtomicU64 = AtomicU64::new(0);\nstatic KEY_SAME: AtomicU64 = AtomicU64::new(0);\nstatic HIT_CHANGED: AtomicU64 = AtomicU64::new(0);\nstatic HIT_SAME: AtomicU64 = AtomicU64::new(0);\nstatic MISS_CHANGED: AtomicU64 = AtomicU64::new(0);\nstatic MISS_SAME: AtomicU64 = AtomicU64::new(0);\n\npub(crate) fn reset_infer_stats() {\n    for x in [&INFER_COMPLEX,&KEY_CHANGED,&KEY_SAME,&HIT_CHANGED,&HIT_SAME,&MISS_CHANGED,&MISS_SAME] { x.store(0, Relaxed); }\n}\n\npub(crate) fn infer_stats_json() -> String {\n    format!(r#"{{\"complex\":{},\"key_changed\":{},\"key_same\":{},\"hit_changed\":{},\"hit_same\":{},\"miss_changed\":{},\"miss_same\":{}}}"#,\n        INFER_COMPLEX.load(Relaxed), KEY_CHANGED.load(Relaxed), KEY_SAME.load(Relaxed), HIT_CHANGED.load(Relaxed), HIT_SAME.load(Relaxed), MISS_CHANGED.load(Relaxed), MISS_SAME.load(Relaxed))\n}\n''',1)
+          old="""        let key = (self.key_env(env, e) as *const value::Env<'t> as usize, e);\n        let scope = self.uparam_scope();\n        if let Some(cached) = self.tc_cache.type_cache.get(&key).copied() {\n            if flag == InferOnly || cached.checked_under == scope {\n                return cached.result;\n            }\n        }\n"""
+          new="""        INFER_COMPLEX.fetch_add(1, Relaxed);\n        let keyed_env = self.key_env(env, e);\n        let changed = !std::ptr::eq(keyed_env, env);\n        if changed { KEY_CHANGED.fetch_add(1, Relaxed); } else { KEY_SAME.fetch_add(1, Relaxed); }\n        let key = (keyed_env as *const value::Env<'t> as usize, e);\n        let scope = self.uparam_scope();\n        if let Some(cached) = self.tc_cache.type_cache.get(&key).copied() {\n            if flag == InferOnly || cached.checked_under == scope {\n                if changed { HIT_CHANGED.fetch_add(1, Relaxed); } else { HIT_SAME.fetch_add(1, Relaxed); }\n                return cached.result;\n            }\n        }\n        if changed { MISS_CHANGED.fetch_add(1, Relaxed); } else { MISS_SAME.fetch_add(1, Relaxed); }\n"""
+          assert old in s
+          p.write_text(s.replace(old,new,1))
+          p=Path('soko/src/tc.rs'); s=p.read_text()
+          old='''    pub fn check_all_declars(&self) {\n        if self.config.num_threads > 1 {\n            self.check_all_declars_par(self.config.num_threads)\n        } else {\n            self.check_all_declars_serial()\n        }\n    }\n'''
+          new='''    pub fn check_all_declars(&self) {\n        crate::infer::reset_infer_stats();\n        if self.config.num_threads > 1 {\n            self.check_all_declars_par(self.config.num_threads)\n        } else {\n            self.check_all_declars_serial()\n        }\n        eprintln!("INFER_STATS {}", crate::infer::infer_stats_json());\n    }\n'''
+          assert old in s
+          p.write_text(s.replace(old,new,1))
+          PY
+          cat > soko/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":1}
+          JSON
+          (cd soko && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          TEST=$(find arena-tests/good -type f -name 'grind-ring-5.ndjson' | head -n1)
+          soko/target/release/sokonanoda soko/config.json < "$TEST" >/dev/null 2> "$OUT/stderr.txt"
+          grep 'INFER_STATS' "$OUT/stderr.txt" | tail -n1 | tee "$OUT/stats-line.txt"
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          line=Path('results/infer-cache-diagnostic/stats-line.txt').read_text()
+          d=json.loads(re.search(r'INFER_STATS (\{.*\})',line).group(1))
+          hits=d['hit_changed']+d['hit_same']; misses=d['miss_changed']+d['miss_same']
+          d['hit_rate']=hits/(hits+misses) if hits+misses else 0
+          d['changed_fraction']=d['key_changed']/d['complex'] if d['complex'] else 0
+          d['hit_rate_changed']=d['hit_changed']/(d['hit_changed']+d['miss_changed']) if d['hit_changed']+d['miss_changed'] else 0
+          d['hit_rate_same']=d['hit_same']/(d['hit_same']+d['miss_same']) if d['hit_same']+d['miss_same'] else 0
+          Path('results/infer-cache-diagnostic/summary.json').write_text(json.dumps(d,indent=2,sort_keys=True))
+          print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-infer-cache-diagnostic
+          path: results/infer-cache-diagnostic/
