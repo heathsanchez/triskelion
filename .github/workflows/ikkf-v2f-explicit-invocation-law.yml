@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install frozen substrate dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
       - name: Show frozen hashes
         run: sha256sum protocols/IKKF_V2F_EXPLICIT_INVOCATION_LAW_PRECOMMIT.txt experiments/IKKF_V2_CAPABILITY_ROUTING.py experiments/IKKF_V2F_EXPLICIT_INVOCATION_LAW.py
       - name: Run V2f explicit invocation law gate
