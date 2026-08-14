@@ -22,6 +22,7 @@ def token_sites(path,val):
 def mutate(path,site,new):
     row,c0,c1,_=site; lines=path.read_text().splitlines(True); old=lines[row-1]
     lines[row-1]=old[:c0]+new+old[c1:]; path.write_text(''.join(lines)); return old.strip()
+def site_id(site): return tuple(site[:2])
 
 pkg=json.loads(Path('artifacts/ikkf_v3/CAPABILITY.json').read_text())
 phase_a=json.loads((V51/'PHASE_A.json').read_text()); commit=json.loads((V51/'COMMITMENT.json').read_text())
@@ -73,8 +74,9 @@ p=subprocess.run(['python','experiments/METALOGIC_V51_SEALED_TRANSFER.py'],text=
 print(p.stdout,flush=True); assert p.returncode==0
 phase_b=json.loads((V51/'PHASE_B.json').read_text()); decision=phase_b['decision']; runtime_available=decision!='REVOKE'
 export=json.loads(Path('artifacts/ikkf_v3/EXPORT_RESULT.json').read_text())
-required_in_coarse=any(tuple(c['site'])==tuple(broken_site[:3]) for c in candidates)
-refined_is_required=len(refined)==1 and tuple(refined[0]['site'])==tuple(broken_site[:3])
+# TOKEN_REWRITE changes token width (< -> <=); transformed-token identity is row + start column.
+required_in_coarse=any(site_id(c['site'])==site_id(broken_site) for c in candidates)
+refined_is_required=len(refined)==1 and site_id(refined[0]['site'])==site_id(broken_site)
 G={
  'old_closure_obstruction_passes':phase_a['gates']['constructed_operator_not_in_old_closure'],
  'external_operator_construction_passes':phase_a['verdict']=='PASS_V51_PHASE_A_OPERATOR_CONSTRUCTION',
