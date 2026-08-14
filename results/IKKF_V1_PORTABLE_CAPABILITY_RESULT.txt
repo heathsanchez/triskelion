@@ -1,0 +1,47 @@
+IKKF V1 PORTABLE VERIFIED CAPABILITY RESULT
+run_id=31759018062
+head_sha=cb888db028097bfb6a935b47f84ac9f04e150a42
+capability_id=QUIXBUGS_FIND_IN_SORTED_AB_COMPOSITE
+capability_hash=db229c0451110ab0539e41f34289cbeec04d80ca4ef50cff3ebfbb975470a663
+
+BASELINE_RELOAD
+A=1.0
+B=1.0
+C=1.0
+AB_TEST=0.0
+
+FIRST_COMPILE_POST_RELOAD
+A=1.0
+B=1.0
+C=1.0
+AB_TEST=1.0
+first_compile_steps=5
+
+UNINSTALL_RELOAD
+A=1.0
+B=1.0
+C=1.0
+AB_TEST=0.0
+
+SECOND_INDEPENDENT_COMPILE_POST_RELOAD
+A=1.0
+B=1.0
+C=1.0
+AB_TEST=1.0
+second_compile_steps=5
+
+GATES
+baseline_heldout_fails=true
+first_compile_passes=true
+ancestors_survive_first_compile=true
+first_reload_passes=true
+uninstall_restores_failure=true
+second_compile_passes=true
+ancestors_survive_second_compile=true
+second_reload_passes=true
+same_capability_hash_both_compiles=true
+
+verdict=PASS_IKKF_V1_PORTABLE_CAPABILITY
+
+CLAIM BOUNDARY
+This establishes a bounded portable-capability result on the frozen QuixBugs/River substrate. Phase A exported a compact verified capability object; Phase B received only that capability artifact from Phase A, started twice from the same pre-capability neural checkpoint, and independently compiled direct held-out competence both times. The original checkpoint remained a failing uninstall control. This does not yet establish transfer across different model families or unrestricted capability compilation.
