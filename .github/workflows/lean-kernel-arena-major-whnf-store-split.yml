@@ -1,0 +1,82 @@
+name: Lean Kernel Arena major WHNF store split
+on:
+  push:
+    branches: [agent/lean-kernel-arena-major-whnf-store-split]
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Four-way recursor-major cache-policy benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/major-whnf-store-split
+          rm -rf "$OUT" base nolookup nonote neither arena-tests artifact tests.zip
+          mkdir -p "$OUT/bin" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git base
+          git -C base checkout "$SOKO_REV"
+          cp -a base nolookup; cp -a base nonote; cp -a base neither
+          python3 - <<'PY'
+          from pathlib import Path
+          for d,lookup,note in [('nolookup',False,True),('nonote',True,False),('neither',False,False)]:
+              p=Path(d)/'src/eval.rs'; s=p.read_text()
+              marker="    pub(crate) fn whnf_head(&mut self, depth: u32, v: V<'t>) -> V<'t> {"
+              prefix="        if let Some(r) = self.store_lookup(depth, v) { return r; }\n" if lookup else ''
+              suffix="        self.note_whnf(depth, v, result, steps);\n" if note else ''
+              helper="    fn whnf_head_major_policy(&mut self, depth: u32, v: V<'t>) -> V<'t> {\n"+prefix+"        let mut cur = v;\n        let mut steps = 0u32;\n        let result = loop {\n            cur = self.force_thunk(depth, cur);\n            match cur {\n                Value::Unfold { .. } => { let next = self.unfold_value(depth, cur); if std::ptr::eq(next, cur) { break cur; } steps += 1; cur = next; }\n                Value::Rigid { head: RigidHead::Recursor(..) | RigidHead::QuotConst(..), .. } => match self.iota_value(depth, cur) { Some(next) => { steps += 1; cur = next; }, None => break cur },\n                _ => break cur,\n            }\n        };\n"+suffix+"        result\n    }\n\n"
+              assert marker in s; s=s.replace(marker,helper+marker,1)
+              old="        let major = self.whnf_head(depth, args[rec.major_idx()]);"; assert old in s
+              s=s.replace(old,"        let major = self.whnf_head_major_policy(depth, args[rec.major_idx()]);",1)
+              p.write_text(s)
+          PY
+          for d in base nolookup nonote neither; do
+            cat > "$d/config.json" <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
+          JSON
+            (cd "$d" && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+            cp "$d/target/release/sokonanoda" "$OUT/bin/$d"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,time,json,statistics,random,hashlib
+          root=Path.cwd(); out=root/'results/major-whnf-store-split'; vs=['base','nolookup','nonote','neither']
+          bins={v:out/'bin'/v for v in vs}; cfgs={v:root/v/'config.json' for v in vs}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          cases=[]
+          for kind,exp in [('good','accept'),('bad','reject')]:
+            for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
+          correctness={}
+          for v in vs:
+            bad=[]
+            for p,exp in cases:
+              with p.open('rb') as f: rc=subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+              if status(rc)!=exp: bad.append(str(p.relative_to(root/'arena-tests')))
+            correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
+          workload=sorted([p for p,_ in cases],key=lambda p:p.stat().st_size,reverse=True)[:24]
+          workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
+          samples={v:[] for v in vs}
+          for seed in range(14):
+            order=vs.copy(); random.Random(seed).shuffle(order)
+            for v in order:
+              t=time.perf_counter()
+              for p in workload:
+                with p.open('rb') as f: subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+              samples[v].append(time.perf_counter()-t)
+          med={v:statistics.median(samples[v]) for v in vs}; b=med['base']; summary={'correctness':correctness,'median_seconds':med,'speedup_vs_base':{v:b/med[v] for v in vs},'samples_seconds':samples}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2)); print(json.dumps(summary,indent=2))
+          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit(1)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-major-whnf-store-split
+          path: results/major-whnf-store-split/
