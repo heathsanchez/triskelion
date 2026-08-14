@@ -1,0 +1,24 @@
+{
+  "protocol": "V78D_RELATE_RECURSE_HARDENED",
+  "seed": 7804,
+  "relate": {
+    "worlds": 400,
+    "candidate_scores": {"PAIR_METRIC": 400, "PICK_FIRST": 56, "PICK_LAST": 70, "MIN_ID": 57, "MAX_ID": 61, "MIN_X": 57, "MAX_X": 49, "MIN_Y": 48, "MAX_Y": 45, "MIN_RAW_DIFF": 30, "MAX_RAW_DIFF": 31},
+    "unique_best": true,
+    "pair_break_null_mean": 58.55,
+    "pair_break_null_max": 76,
+    "cross_relation_family_transfer": 200,
+    "cross_relation_family_total": 200,
+    "classification": "SEMANTIC_RELATION_OPERATOR_SUPPORTED"
+  },
+  "recurse": {
+    "worlds": 400,
+    "semantic_recurse_solved": 400,
+    "generic_fixed_point_solved": 400,
+    "extensional_equal": true,
+    "bounded_unroll_solved": {"1": 0, "2": 0, "4": 0, "8": 28, "16": 92, "32": 196},
+    "cross_type_transfer": 13,
+    "cross_type_total": 13,
+    "classification": "CONTROL_GRAMMAR_COMBINATOR_SUPPORTED"
+  }
+}
