@@ -1,0 +1,24 @@
+name: V95 Single Assignment Law
+
+on:
+  push:
+    branches: [v95-single-assignment-law]
+  workflow_dispatch:
+
+jobs:
+  law:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Distinguish fresh-key law from true injectivity
+        run: python3 experiments/v95_single_assignment_law.py
+      - name: Upload V95 audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v95-single-assignment-law
+          path: results/v95/
