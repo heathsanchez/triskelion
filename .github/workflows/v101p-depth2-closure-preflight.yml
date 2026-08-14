@@ -1,0 +1,27 @@
+name: V101P Depth-2 Closure Preflight NONCLAIM
+on:
+  push:
+    branches: [v101p-depth2-closure-preflight]
+jobs:
+  v101p:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/quixbugs
+          cd /tmp/quixbugs && git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run NONCLAIM V101P
+        env:
+          QUIXBUGS_ROOT: /tmp/quixbugs
+          OUT_DIR: results/v101p
+        run: python experiments/METALOGIC_V101P_DEPTH2_CLOSURE_PREFLIGHT.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v101p-depth2-closure-preflight-nonclaim
+          path: results/v101p/RESULT.json
