@@ -1,0 +1,156 @@
+name: Lean Kernel Arena static sweep
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-growth]
+  workflow_dispatch:
+
+jobs:
+  static-sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download proven representation repair
+        uses: actions/download-artifact@v4
+        with:
+          name: lean-kernel-arena-growth-results
+          path: prior-growth
+          github-token: ${{ github.token }}
+          repository: heathsanchez/triskelion
+          run-id: 31786914317
+
+      - name: Sweep all frozen static Arena exports
+        shell: bash
+        run: |
+          set -euo pipefail
+          NANODA_REV=418320295890faed83a96fd97907b12a3b6728c2
+          ARENA_REV=e1553db0d9ad58b6d7e0ca7de839191187aff0cb
+
+          git clone https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          git -C nanoda_lib checkout "$NANODA_REV"
+          git clone https://github.com/leanprover/lean-kernel-arena.git arena
+          git -C arena checkout "$ARENA_REV"
+
+          cat > nanoda_lib/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+
+          cd nanoda_lib
+          cargo build --release
+          cd ..
+
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, subprocess, yaml, hashlib
+
+          root = Path.cwd()
+          arena = root/'arena'
+          nanoda = root/'nanoda_lib'
+          out = root/'lean-kernel-arena-static-sweep-results'
+          out.mkdir(exist_ok=True)
+
+          cases=[]
+          for yp in sorted((arena/'tests').glob('*.yaml')):
+              try:
+                  data=yaml.safe_load(yp.read_text()) or {}
+              except Exception:
+                  continue
+              f=data.get('file')
+              outcome=data.get('outcome')
+              if not f or outcome not in ('accept','reject'):
+                  continue
+              fp=arena/f
+              if not fp.exists() or fp.suffix != '.ndjson':
+                  continue
+              cases.append((yp.stem,fp,outcome))
+
+          # Freeze ordering before executing anything.
+          ordered=sorted(cases,key=lambda x: hashlib.sha256(x[0].encode()).hexdigest())
+          (out/'manifest.json').write_text(json.dumps([
+              {'name':n,'file':str(p.relative_to(arena)),'outcome':o,
+               'order_hash':hashlib.sha256(n.encode()).hexdigest()}
+              for n,p,o in ordered],indent=2))
+
+          def run_all(label):
+              rows=[]
+              exe=nanoda/'target/release/nanoda_bin'
+              cfg=nanoda/'config.json'
+              for n,p,o in ordered:
+                  with p.open('rb') as inp:
+                      cp=subprocess.run([str(exe),str(cfg)],stdin=inp,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+                  rc=cp.returncode
+                  pred='accept' if rc==0 else 'reject_or_decline'
+                  correct=(rc==0) if o=='accept' else (rc!=0)
+                  rows.append({'name':n,'outcome':o,'rc':rc,'pred':pred,'correct':correct})
+              (out/f'{label}.json').write_text(json.dumps(rows,indent=2))
+              return rows
+
+          baseline=run_all('baseline')
+          print('STATIC_CASES',len(baseline))
+          print('BASELINE_CORRECT',sum(r['correct'] for r in baseline))
+          PY
+
+          cd nanoda_lib
+          git apply ../prior-growth/representation-map.patch
+          cargo build --release
+          cd ..
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, subprocess
+
+          root=Path.cwd(); arena=root/'arena'; nanoda=root/'nanoda_lib'; out=root/'lean-kernel-arena-static-sweep-results'
+          manifest=json.loads((out/'manifest.json').read_text())
+          rows=[]
+          exe=nanoda/'target/release/nanoda_bin'; cfg=nanoda/'config.json'
+          for m in manifest:
+              p=arena/m['file']; o=m['outcome']
+              with p.open('rb') as inp:
+                  cp=subprocess.run([str(exe),str(cfg)],stdin=inp,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+              rc=cp.returncode
+              rows.append({'name':m['name'],'outcome':o,'rc':rc,
+                           'pred':'accept' if rc==0 else 'reject_or_decline',
+                           'correct':(rc==0) if o=='accept' else (rc!=0)})
+          (out/'patched.json').write_text(json.dumps(rows,indent=2))
+
+          base={r['name']:r for r in json.loads((out/'baseline.json').read_text())}
+          gains=[]; regressions=[]; changed=[]
+          for r in rows:
+              b=base[r['name']]
+              if b['rc']!=r['rc']:
+                  changed.append({'name':r['name'],'outcome':r['outcome'],'baseline_rc':b['rc'],'patched_rc':r['rc']})
+              if not b['correct'] and r['correct']:
+                  gains.append(r['name'])
+              if b['correct'] and not r['correct']:
+                  regressions.append(r['name'])
+          summary={
+              'static_cases':len(rows),
+              'baseline_correct':sum(x['correct'] for x in base.values()),
+              'patched_correct':sum(x['correct'] for x in rows),
+              'gains':gains,
+              'regressions':regressions,
+              'changed':changed,
+              'no_regressions':not regressions,
+          }
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True))
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          if regressions:
+              raise SystemExit('representation repair caused static Arena regressions')
+          PY
+
+      - name: Upload sweep audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-kernel-arena-static-sweep-results
+          path: lean-kernel-arena-static-sweep-results/
