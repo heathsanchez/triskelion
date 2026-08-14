@@ -1,0 +1,33 @@
+name: IKKF V2F Explicit Invocation Law
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v2f-explicit-invocation-law]
+    paths:
+      - '.github/workflows/ikkf-v2f-explicit-invocation-law.yml'
+      - 'experiments/IKKF_V2F_EXPLICIT_INVOCATION_LAW.py'
+      - 'protocols/IKKF_V2F_EXPLICIT_INVOCATION_LAW_PRECOMMIT.txt'
+      - 'experiments/IKKF_V2_CAPABILITY_ROUTING.py'
+
+jobs:
+  explicit-invocation-law-v2f:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Show frozen hashes
+        run: sha256sum protocols/IKKF_V2F_EXPLICIT_INVOCATION_LAW_PRECOMMIT.txt experiments/IKKF_V2_CAPABILITY_ROUTING.py experiments/IKKF_V2F_EXPLICIT_INVOCATION_LAW.py
+      - name: Run V2f explicit invocation law gate
+        run: python experiments/IKKF_V2F_EXPLICIT_INVOCATION_LAW.py
+      - name: Upload scientific artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v2f-explicit-invocation-law
+          path: artifacts/ikkf_v2f_explicit_invocation_law/
