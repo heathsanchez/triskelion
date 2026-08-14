@@ -1,0 +1,76 @@
+IKKF V1 — PORTABLE VERIFIED CAPABILITY PRECOMMIT
+Date: 2026-08-14 NZST
+
+Question
+Can a compact explicit capability artifact, without an inherited neural checkpoint and without replaying its discovery episodes, be compiled twice into fresh neural models and cause source-distinct held-out capability transfer?
+
+Frozen substrate
+- Base model: Qwen/Qwen3.5-9B
+- River LoRA rank: 32
+- QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+- Repair DSL: CMP@i, BIN@i, CONST@i
+- Capability C: ordered plan CMP@0;BIN@0
+- Decoy capability J: ordered plan CMP@0;CONST@0
+- No inherited River checkpoint is permitted.
+- No V15/V16/V17/V18 neural checkpoint is permitted.
+- Discovery episodes for C are not training inputs.
+
+Compilation practice worlds
+C practice programs, fixed before this run:
+- find_in_sorted
+- get_factors
+
+J practice programs, fixed before this run:
+- gcd
+- is_valid_parenthesization
+
+C held-out transfer worlds, fixed before this run and never used for gradient updates:
+- possible_change
+- quicksort
+- sieve
+- subsequences
+
+Variant split
+- practice suffixes: 0..15
+- held-out suffixes: 100..107
+Local-variable renaming is the only per-suffix source variation.
+
+Frozen compilation procedure
+- For each practice program, start from the correct QuixBugs source at the pinned commit.
+- Mutate the first eligible AST node of each operator named by the capability artifact.
+- The capability artifact must repair every practice mutation under the official QuixBugs tests before any gradient update is allowed.
+- Mechanically generate supervised repair-plan examples from the artifact. No original discovery trajectory, prior model output, or prior adapter is supplied.
+- Train for at most 8 optimizer steps, batch size 16, LR 5e-5, grad clip 1.0.
+- Evaluation is deterministic temperature 0 on the held-out source-distinct programs.
+
+Arms
+B0: fresh base model, no capability compilation.
+C1: fresh base model + compile C from explicit artifact only, seed 20260903.
+C2: independent fresh base model + compile the same C artifact only, seed 20260904.
+J: fresh base model + matched decoy verified capability J, seed 20260905.
+U: fresh base model after C1, representing uninstall/reversion to the unmodified substrate.
+R: reload C1 checkpoint in a new River session.
+
+Threshold
+PASS score >= 0.75 over all held-out variants pooled across the four held-out programs.
+
+Frozen gates
+1. practice_C_verified: C repairs every C practice mutation.
+2. practice_J_verified: J repairs every J practice mutation.
+3. cold_fails: B0 < 0.75.
+4. compile_C1_passes: C1 >= 0.75.
+5. compile_C2_passes: C2 >= 0.75.
+6. independent_recompile: both independent C compiles pass.
+7. decoy_fails: J < 0.75 on the C held-out target family.
+8. uninstall_restores_failure: U < 0.75.
+9. reload_preserves_C: R >= 0.75.
+10. heldout_never_trained: held-out suffixes/programs never appear in any gradient batch.
+11. no_inherited_checkpoint: all compilation arms start from base_model + fresh LoRA only.
+12. heldout_semantic_C_verified: after neural evaluation is complete, C itself repairs every held-out mutation under official tests.
+
+Primary verdict
+PASS_IKKF_V1_PORTABLE_CAPABILITY iff all 12 gates pass.
+Otherwise report the exact failed gates. Do not broaden thresholds, swap targets, add steps, or replace programs after observing outcomes.
+
+Claim boundary if PASS
+A previously explicit verified repair capability can be used as the sole learned artifact to generate independent compilation practice, producing persistent neural competence on source-distinct held-out programs from fresh base-model instances. This does not establish arbitrary cross-model-family portability, open-ended capability invention, or portability of every capability class.
