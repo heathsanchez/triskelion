@@ -1,0 +1,43 @@
+IKKF V2d — VERIFIED CAPABILITY OS — PRECOMMIT
+
+Parent negative
+IKKF V2c kept C and J as explicit modules but learned their selector neurally. On the frozen held-out universe the selector collapsed onto C: route_accuracy=0.5, C=1.0, J=0.0. That negative remains untouched.
+
+Question
+On the exact V2c held-out mutation worlds, can external verification select between the same installed capability modules without learning a router?
+
+Frozen universe
+- QuixBugs commit 4257f44b0ff1181dedaedee6a447e133219fcebf.
+- Held-out programs exactly: possible_change, sieve, subsequences.
+- Held-out suffixes exactly: 100..107.
+- Installed capability C exactly: CMP@0;BIN@0.
+- Installed capability J exactly: CMP@0;CONST@0.
+- For each world, generate the exact same required-C or required-J mutation as V2c.
+
+Frozen invocation rule
+For each mutated world independently:
+1. Execute the unmodified broken program (NOOP candidate).
+2. Apply C and execute the authoritative QuixBugs tests.
+3. Apply J and execute the authoritative QuixBugs tests.
+4. Select a capability iff exactly one installed capability passes the verifier.
+No model, learned router, program-name rule, suffix rule, or hand-written C/J discriminator may participate.
+
+Primary gates
+G1 all required-C worlds are semantically repairable by C.
+G2 all required-J worlds are semantically repairable by J.
+G3 every broken NOOP world fails.
+G4 every world has exactly one verifier-admissible installed capability.
+G5 the unique selected capability equals the required capability on every world.
+G6 selected capability execution passes every world.
+G7 the nonselected installed capability fails every world.
+G8 route accuracy is 1.0 over the exact frozen V2c held-out universe.
+G9 joint execution accuracy is 1.0.
+G10 no learned router/checkpoint/gradient/token-label discriminator is used.
+G11 candidate modules C and J are unchanged from V2c.
+G12 held-out universe is unchanged from V2c.
+
+Verdict
+PASS_IKKF_V2D_VERIFIED_CAPABILITY_OS iff all twelve gates pass.
+
+Claim boundary
+A pass establishes bounded verifier-routed selection between two explicit repair modules on the exact held-out worlds where V2c neural routing failed. It does not establish cheap routing, learned applicability, or general multi-capability orchestration.
