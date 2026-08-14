@@ -18,11 +18,14 @@ jobs:
         run: python experiments/V78_ALPHABET_COLLIDER_CALIBRATION.py
       - name: Run grammar and organ calibration
         run: python experiments/V78B_GRAMMAR_ORGAN_CALIBRATION.py
+      - name: Run hidden primitive recovery
+        run: python experiments/V78C_HIDDEN_PRIMITIVE_RECOVERY.py
       - name: Copy results into artifact directory
         run: |
           mkdir -p artifact
           cp /tmp/alphabet_collider_result.json artifact/RESULT_V78.json
           cp /tmp/v78b_result.json artifact/RESULT_V78B.json
+          cp /tmp/v78c_result.json artifact/RESULT_V78C.json
       - uses: actions/upload-artifact@v4
         with:
           name: v78-alphabet-collider-calibration
