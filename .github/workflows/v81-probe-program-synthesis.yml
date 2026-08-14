@@ -1,0 +1,28 @@
+name: V81 Epistemic Program Synthesis
+
+on:
+  push:
+    branches: [v81-probe-program-synthesis]
+  workflow_dispatch:
+
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -q numpy scipy mpmath
+      - name: Run V81
+        run: python experiments/V81_PROBE_PROGRAM_SYNTHESIS.py
+      - name: Collect artifact
+        run: |
+          mkdir -p artifact
+          cp /tmp/v81_result.json artifact/RESULT.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v81-probe-program-synthesis
+          path: artifact/RESULT.json
