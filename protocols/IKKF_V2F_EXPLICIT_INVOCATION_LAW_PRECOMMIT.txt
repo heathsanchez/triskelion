@@ -1,0 +1,62 @@
+IKKF V2f — EXPLICIT INVOCATION LAW — PRECOMMIT
+
+Parent evidence
+- V2c/V2b neural routing collapsed to one capability on the frozen held-out universe.
+- V2d verifier-controlled invocation routed the exact same C/J capabilities perfectly on that universe.
+- V2e tests whether those verified invocation decisions can be distilled neurally.
+
+Question
+Can verifier-decided invocation experiences be compressed into a compact explicit routing law that transfers to the exact V2c/V2d held-out universe without rerunning both capabilities at evaluation time?
+
+Frozen substrate
+- QuixBugs commit 4257f44b0ff1181dedaedee6a447e133219fcebf.
+- Capabilities unchanged: C=CMP@0;BIN@0, J=CMP@0;CONST@0.
+- Held-out programs unchanged: possible_change, sieve, subsequences.
+- Held-out suffixes unchanged: 100..107.
+- Training-world selection is identical to V2e: lexicographic non-heldout programs, require both C and J worlds verifier-unique on suffixes 0..3, retain first 8; require at least 4.
+- Full training suffixes 0..15. Every training label must be the unique verifier-admissible capability.
+
+Frozen representation
+The law learner may inspect only generic features of the mutated source and verifier residual. It may not use program name, suffix, target capability identity, held-out outcomes, repository filename, or the correct source.
+Features are:
+1. AST counts for Compare, BinOp, Constant, If, For, While, Call, Return, BoolOp, UnaryOp, Subscript, ListComp; predicates count>=1, >=2, >=3.
+2. Presence of generic operator classes/tokens from the mutated AST: comparison operator class names and binary operator class names.
+3. Residual structural features: observed/expected Python type names, same-type, equality, truthiness, and for sized values whether lengths are equal / observed shorter / observed longer.
+4. Numeric residual sign/equality relations when both observed and expected are scalar numbers.
+No lexical identifiers or program names are admissible.
+
+Frozen law class
+- Binary decision trees of maximum depth 3 over the frozen boolean features.
+- Leaves are C or J.
+- Search is exact over the training set with memoization.
+- Among zero-training-error trees, select minimum internal-node count, then canonical lexicographic serialization.
+- If no zero-error tree exists by depth 3, verdict FAIL_NO_COMPACT_LAW; held-out results are descriptive only.
+
+Frozen controls
+- SHUFFLE: swap every C/J training label and learn under the identical hypothesis class.
+- NOOP: no routing law, counted as failure on all broken held-out worlds.
+
+Frozen evaluation
+- Exact V2c/V2d held-out program/suffix universe.
+- The learned law predicts C or J from features only; only the selected explicit capability is executed.
+- No candidate capability trial is permitted at held-out routing time before selection.
+
+Primary gates
+G1 >=4 paired training programs selected by the frozen semantic rule.
+G2 every full training world has exactly one verifier-admissible capability.
+G3 chosen law has zero training error and depth<=3.
+G4 chosen law uses no forbidden identity/held-out features.
+G5 held-out never enters law induction.
+G6 learned-law C execution >=0.75.
+G7 learned-law J execution >=0.75.
+G8 learned-law route accuracy >=0.75.
+G9 learned-law joint execution >=0.75.
+G10 SHUFFLE fails route or joint threshold.
+G11 selected capability executes and nonselected capability is not consulted before selection.
+G12 law is compact: <=7 internal decision nodes.
+
+Verdict
+PASS_IKKF_V2F_EXPLICIT_INVOCATION_LAW iff all twelve gates pass.
+
+Claim boundary
+A pass establishes bounded compression of verifier-decided invocation into a compact explicit law on held-out QuixBugs program identities. It does not establish arbitrary routing, cross-repository transfer, or eliminate verifier fallback for novel/out-of-scope cases.
