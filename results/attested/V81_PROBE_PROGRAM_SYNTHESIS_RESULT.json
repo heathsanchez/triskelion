@@ -1,0 +1,29 @@
+{
+  "protocol": "V81_PROBE_PROGRAM_SYNTHESIS",
+  "program_space_size": 36,
+  "low_level_grammar": {
+    "selectors": ["FIRST", "LAST", "MIDDLE", "MAX_PARTITION"],
+    "sources": ["OPAQUE_PORT", "CANDIDATE_ZERO", "CONSTANT_ZERO"],
+    "sinks": ["RECORD_EVIDENCE", "WRITE_DATA", "DISCARD"]
+  },
+  "train_targets": 16,
+  "best_program_score": 16,
+  "constructed_schema": ["SELECT_QUERY", "OPAQUE_PORT", "RECORD_EVIDENCE"],
+  "unique_best_schema": true,
+  "heldout_numeric_package": "mpmath",
+  "heldout_numeric_success": [6,6],
+  "cross_type_string_success": [5,5],
+  "source_ablation_success": [1,6],
+  "sink_ablation_success": [0,6],
+  "semantic_shuffle_success": [0,6],
+  "gates": {
+    "schema_constructed_without_probe_candidate": true,
+    "unique_best_schema": true,
+    "source_distinct_numeric_transfer": true,
+    "cross_type_transfer": true,
+    "source_is_causal": true,
+    "evidence_recording_is_causal": true,
+    "semantic_mapping_matters": true
+  },
+  "verdict": "PASS_EPISTEMIC_PROGRAM_SYNTHESIS_V81"
+}
