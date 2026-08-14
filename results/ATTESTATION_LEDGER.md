@@ -7,6 +7,7 @@ This file is the authoritative evidence index for headline Triskelion / LOGOS cl
 ## Evidence classes
 
 - **ATTESTED** — primary result artifact plus harness/protocol inspected; implemented predicate supports the exact sentence.
+- **ATTESTED WITH QUALIFICATION** — core behavioral predicate is supported, but an adjacent property (for example sealing or independence) is established structurally or remains weaker than the gate name suggests.
 - **BOUNDED PASS** — frozen run/result located and scientific verdict supports the bounded claim; full predicate-level audit may still be pending.
 - **LINEAGE LOCATED / CONTENT AUDIT PENDING** — branch/run/artifact exists, but artifact contents and implemented gates have not yet been checked against the prose claim.
 - **RESULT FILE PRESENT / RUN AUDIT PENDING** — result exists in `main`, but branch/run/artifact provenance has not yet been reconciled.
@@ -35,13 +36,13 @@ All new docs should use the descriptive slug plus V-number.
 | `ADAPTIVE_CONSOLIDATION_V18B` | **ATTESTED** | main; run `31740188434`; head `070dd7a14f288481c16c1cb33ca127a588da501f`; primary RESULT audited | Bounded protected consolidation preserves the measured ancestors/composites and reload persistence. |
 | `SORRYDB_V77` | **NEGATIVE AT CURRENT SOLVER/BUDGET** | main; repaired run `31761636184` | Exact-commit plumbing/official verifier/repo preparation work; five frozen solver arms solve 0/3 selected tasks. |
 
-## Newly reconciled V49–V51 operator line
+## Reconciled V49–V51 operator line
 
 | Canonical ID | Current status | Located lineage | Allowed wording now |
 |---|---|---|---|
-| `SEALED_TRANSFER_V49` | **LINEAGE LOCATED / CONTENT AUDIT PENDING** | branch `v49-sealed-run`; run `31749423209`; head `8c5797db33db01c4af8448f399fbea37f251e79c`; artifact `metalogic-v49-sealed`, digest `sha256:1b466db0231ed3042842dfb93a4b2794a68e5332084292bd3a54c1eaa66ed3dc` | A real sealed-transfer run/artifact exists. Do not yet state the cold→warm→ablation→revocation chain as attested until artifact predicates are audited. |
+| `SEALED_TRANSFER_V49` | **ATTESTED WITH SEALING QUALIFICATION** | branch `v49-sealed-run`; run `31749423209`; head `8c5797db33db01c4af8448f399fbea37f251e79c`; artifact `metalogic-v49-sealed`, digest `sha256:1b466db0231ed3042842dfb93a4b2794a68e5332084292bd3a54c1eaa66ed3dc`; `PHASE_A.json`, `COMMITMENT.json`, `PHASE_B.json` audited with calibration/transfer harnesses | The artifact records a unique learned lexical category, Requests cold FAIL → warm PASS → ablation FAIL, a unique later Django counterexample inside the category, and `REVOKE`. The transfer/counterexample predicates are implemented from executable tests. Temporal sealing is supported by the two-phase workflow/script structure, but the script field `requests_absent_from_phase_a_code` is hard-coded `True` rather than dynamically checked, so do not cite that boolean itself as the sealing proof. |
 | `OUTCOME_LABELED_V50` | **LINEAGE LOCATED / CONTENT AUDIT PENDING** | V50 code/workflow staged on the sealed/operator lineage; completed CI lineage located, but exact V50 result artifact/predicate audit still pending | Verifier-derived HELP/HARM is a reported result with executable lineage, not yet attested. |
-| `OPERATOR_INVENTION_V51` | **LINEAGE LOCATED / CONTENT AUDIT PENDING** | branch `v51-operator-invention`; run `31759857216`; head `f739be68af3cd6695a1674225938961f3b69f7b2`; artifact `metalogic-v51-operator-invention`, digest `sha256:e3c10a4ba1011876e5df7248de4f3cb468e90195f6c331e625c3bb5d6c2f93d0` | A real operator-invention artifact exists. `< -> <=`, old-closure obstruction, sealed transfer, ablation and revocation remain **content-audit pending**, not yet ATTESTED. |
+| `OPERATOR_INVENTION_V51` | **ATTESTED WITH SEALING QUALIFICATION** | branch `v51-operator-invention`; run `31759857216`; head `f739be68af3cd6695a1674225938961f3b69f7b2`; artifact `metalogic-v51-operator-invention`, digest `sha256:e3c10a4ba1011876e5df7248de4f3cb468e90195f6c331e625c3bb5d6c2f93d0`; `PHASE_A.json`, `COMMITMENT.json`, `PHASE_B.json`, workflow log and both harnesses audited | Under the supplied generic token-emission substrate, two executable obstructions had a unique common repair token `<=`; the frozen old token-position generators preserve token-value multisets, so `< -> <=` is outside that old closure. The committed operator then gives sealed Requests cold FAIL → warm PASS → ablation FAIL, and a later Django harm yields no surviving refined scope so the decision is `REVOKE`. The claim is **not** invention outside all meta-languages. Temporal sealing is supported by workflow order and phase-separated code, while `requests_forbidden_phase_a` / `requests_was_sealed_until_phase_b` are hard-coded fields rather than self-verifying predicates. |
 
 ## Natural / constructor frontier
 
@@ -82,7 +83,7 @@ Those filenames must never be cited as primary evidence for `SEALED_TRANSFER_V49
 
 A headline is allowed in README/paper/demo only if this ledger supplies one of:
 
-1. **ATTESTED** exact sentence;
+1. **ATTESTED / ATTESTED WITH QUALIFICATION** exact sentence;
 2. **BOUNDED PASS** with explicit bounded wording and branch/run pointer;
 3. **NEGATIVE/INCOMPLETE** with exact failure boundary.
 
@@ -90,7 +91,7 @@ Anything else must carry `REPORTED / NEEDS ATTESTATION`, `LINEAGE LOCATED / CONT
 
 ## Next evidence work, before new capstones
 
-1. Audit uploaded artifacts for `SEALED_TRANSFER_V49` and `OPERATOR_INVENTION_V51`; locate/audit the V50 result artifact.
+1. Locate and audit the exact `OUTCOME_LABELED_V50` result artifact and its HELP/HARM predicates.
 2. Locate primary run/artifact for `SOURCE_DISTINCT_DISCOVERABILITY_V33_V34` and `EXCEPTION_FLOW_EXTERNAL_STREAM`.
 3. Reconcile V36, V40–V43, V70–V74, V15–V23, and V45–V68 into this ledger.
 4. Only after those are classified should top-level docs promote any of them beyond the current evidence class.
