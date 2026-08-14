@@ -1,6 +1,6 @@
 # Natural Constructor Frontier
 
-_Last updated 2026-08-14 NZST — primary artifacts audited through V97; V98/V99/V100 live. V92/V93b remain long-running legacy primaries and are not blocking the frontier._
+_Last updated 2026-08-14 NZST — primary artifacts audited through V97; V98/V99/V100 live; V100 diagnostics pinned; V101P depth-2 closure test live. V92/V93b remain long-running legacy primaries and are not blocking the frontier._
 
 This file tracks the natural-world constructor-language programme separately from bounded authored calibrations. The external corpus is QuixBugs at commit `4257f44b0ff1181dedaedee6a447e133219fcebf`, a pre-existing program-repair benchmark. Correct implementations are treated according to each experiment's explicit train/test sealing rule.
 
@@ -93,19 +93,42 @@ V99 inherits V98's candidate-family ordering caveat, so V100 is the stronger con
 
 Live primary run `31793070377`.
 
-V100 freezes the strongest version so far. Before truncation, it enumerates a large generic candidate superset, then allocates approximately equal quota to every observed mutation family and fills remaining slots round-robin. This removes constructor-family ordering as a reachability confound while preserving V99's other gates:
+V100 freezes the strongest version so far. Before truncation, it enumerates a large generic candidate superset, then allocates approximately equal quota to every observed mutation family and fills remaining slots round-robin. This removes constructor-family ordering as a reachability confound while preserving V99's other gates.
 
-- pre-existing external corpus;
-- no correct implementations read;
-- fixed K identical across learned/null/hash arms;
-- cheap probe channel distinct from protected verifier;
-- normalized dynamic signatures;
-- source-distinct support from at least two training tasks;
-- nonzero held-out reachability ceiling;
-- protected success recovery within top-B;
-- advantage over coordinate-shuffled and hash baselines.
+### V100K static coverage diagnostic — NONCLAIM
 
-If V100 passes all gates, it would support a bounded natural claim of **source-distinct verifier-induced dynamic components that causally reduce protected search under a fixed external corpus**. It would still not establish autonomous constructor genesis or the universal ten-operator alphabet.
+Run `31793496441`, artifact `9216418827`, SHA-256 `1d3bb3714c2a77e964d4f0e76eb1c4308055b2806b75817d07b779714192dbe6`.
+
+Without using verifier outcomes, balanced K increases mean represented mutation families from `3.925` to `5.225` across 40 programs. Ten programs gain additional families. Several cap-saturated tasks move from effectively `NAME_SUB` only to 5–9 families. The constructor-order confound is therefore real and materially changes effective K.
+
+### V100P shortened balanced-K preflight — NONCLAIM
+
+Run `31793309945`, artifact `9216630872`, SHA-256 `af4f971e05b3f7fd9059fec73eb1d588ca219838e47f5b02516891b2b763b9a1`.
+
+Balanced K yields verifier-improving training mutations on 3/4 tasks and produces one source-distinct normalized dynamic component supported by two independent programs, `mergesort` and `levenshtein`. This is the first diagnostic in this branch where the training side is no longer starved.
+
+However none of the four held-out tasks (`breadth_first_search`, `sieve`, `subsequences`, `find_in_sorted`) is reachable by the depth-1 balanced candidate language. Learned, coordinate-null and hash arms therefore all solve zero and ranking utility is not interpretable.
+
+Binding lesson: the current obstruction has moved. We now have
+
+`balanced K -> verifier improvements -> source-distinct dynamic component`
+
+but still lack
+
+`depth-1 K -> held-out reachable solution`.
+
+Full details are pinned in `V100_DIAGNOSTICS_20260814.md`.
+
+## V101P — closure-before-invention: depth-2 balanced K
+
+Live corrected run `31794548501`. The first run failed before scientific execution because the workflow cloned QuixBugs to `/tmp/quixbugs` while the inherited harness expected `/tmp/QuixBugs`; only that path was corrected.
+
+V101P adds **no new primitive family and no learned semantics**. It asks whether bounded two-step composition of the same balanced generic edit families reaches the four V100P held-out tasks that were unreachable at depth 1.
+
+Interpretation is precommitted:
+
+- if depth 2 reaches tasks that depth 1 cannot, the current obstruction is compositional depth and closure must be exhausted before constructor invention;
+- if depth 2 remains unreachable under the frozen cap, evidence for genuine constructor-language inadequacy strengthens and the next experiment may legitimately target construction of K1.
 
 ## Current falsification ladder
 
@@ -131,7 +154,11 @@ If V100 passes all gates, it would support a bounded natural claim of **source-d
 
 `cheap-probe ranking + zero training improvements -> economic hypothesis not reached`
 
-The live hypothesis is now maximally specific: **source-distinct, normalized execution-state transformation motifs may be useful developmental components only when tested inside a fixed constructor language that demonstrably contains held-out solutions and against equally expressive null/search controls.**
+`nominally rich K with family-order truncation != genuinely rich effective K`
+
+`source-distinct component + zero held-out reachability -> organ utility still untestable`
+
+The live hypothesis is now maximally specific: **source-distinct, normalized execution-state transformation motifs may be useful developmental components only when tested inside a fixed constructor language whose bounded closure demonstrably contains held-out solutions and against equally expressive null/search controls.**
 
 ## Crown-jewel boundary
 
