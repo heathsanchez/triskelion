@@ -1,0 +1,59 @@
+name: IKKF V3 External Invented Instinct
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v3-external-invented-instinct]
+    paths:
+      - '.github/workflows/ikkf-v3-external-invented-instinct.yml'
+      - 'experiments/IKKF_V3_EXPORT_DISCOVERED_CAPABILITY.py'
+      - 'experiments/IKKF_V3_COMPILE_DISCOVERED_CAPABILITY.py'
+      - 'experiments/IKKF_V3_SEALED_NEURAL_AND_REVOCATION.py'
+      - 'protocols/IKKF_V3_EXTERNAL_INVENTED_INSTINCT_PRECOMMIT.txt'
+      - 'protocols/IKKF_V3_COMPILER_FREEZE.txt'
+
+jobs:
+  external-invention-to-instinct:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install River and frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Show precommit hashes
+        run: sha256sum protocols/IKKF_V3_EXTERNAL_INVENTED_INSTINCT_PRECOMMIT.txt protocols/IKKF_V3_COMPILER_FREEZE.txt
+      - name: Provision V51 independently authored external worlds
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/v50_django
+          cd /tmp/v50_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
+          git clone -q https://github.com/psf/requests.git /tmp/v50_requests
+          cd /tmp/v50_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . 'pytest<8'
+          git clone -q https://github.com/Textualize/rich.git /tmp/v50_rich
+          cd /tmp/v50_rich && git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f && python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
+          ln -s /tmp/v50_django /tmp/v51_django
+          ln -s /tmp/v50_requests /tmp/v51_requests
+          ln -s /tmp/v50_rich /tmp/v51_rich
+      - name: V51 Phase A — construct capability outside old closure
+        run: python experiments/METALOGIC_V51_OPERATOR_CONSTRUCTION.py
+      - name: Export compact capability package only
+        run: python experiments/IKKF_V3_EXPORT_DISCOVERED_CAPABILITY.py
+      - name: Compile package into fresh River substrates
+        run: python experiments/IKKF_V3_COMPILE_DISCOVERED_CAPABILITY.py
+      - name: Open sealed target, evaluate neural instinct, then open counterevidence
+        run: python experiments/IKKF_V3_SEALED_NEURAL_AND_REVOCATION.py
+      - name: Upload V3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v3-external-invented-instinct
+          path: |
+            artifacts/ikkf_v3/
+            artifacts/v51/
