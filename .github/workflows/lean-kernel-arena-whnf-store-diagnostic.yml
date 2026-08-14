@@ -1,0 +1,88 @@
+name: Lean Kernel Arena WHNF store diagnostic
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-whnf-store-diagnostic]
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Measure WHNF store economics
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/whnf-store-diagnostic
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('soko/src/eval.rs'); s=p.read_text()
+          marker='use std::collections::hash_map::Entry;\n'
+          ins='use std::sync::atomic::{AtomicU64, Ordering::Relaxed};\nstatic SL_CALL: AtomicU64 = AtomicU64::new(0);\nstatic SL_HIT: AtomicU64 = AtomicU64::new(0);\nstatic NW_CALL: AtomicU64 = AtomicU64::new(0);\nstatic NW_STEPS: AtomicU64 = AtomicU64::new(0);\nstatic NW_CLOSED: AtomicU64 = AtomicU64::new(0);\nstatic NW_ADMIT: AtomicU64 = AtomicU64::new(0);\nstatic NW_STORE: AtomicU64 = AtomicU64::new(0);\npub(crate) fn reset_ws(){for x in [&SL_CALL,&SL_HIT,&NW_CALL,&NW_STEPS,&NW_CLOSED,&NW_ADMIT,&NW_STORE]{x.store(0,Relaxed);}}\npub(crate) fn ws_json()->String{format!(r#"{{\"store_lookup_calls\":{},\"store_lookup_hits\":{},\"note_calls\":{},\"note_with_steps\":{},\"note_closed\":{},\"note_admit\":{},\"note_store\":{}}}"#,SL_CALL.load(Relaxed),SL_HIT.load(Relaxed),NW_CALL.load(Relaxed),NW_STEPS.load(Relaxed),NW_CLOSED.load(Relaxed),NW_ADMIT.load(Relaxed),NW_STORE.load(Relaxed))}\n'
+          assert marker in s; s=s.replace(marker,marker+ins,1)
+          old='    fn store_lookup(&mut self, depth: u32, v: V<\'t>) -> Option<V<\'t>> {\n        let hk = Self::shallow_head_key(v)?;'
+          new='    fn store_lookup(&mut self, depth: u32, v: V<\'t>) -> Option<V<\'t>> {\n        SL_CALL.fetch_add(1, Relaxed);\n        let hk = Self::shallow_head_key(v)?;'
+          assert old in s; s=s.replace(old,new,1)
+          old='        Some(self.eval(depth, env, e))\n    }'
+          new='        SL_HIT.fetch_add(1, Relaxed);\n        Some(self.eval(depth, env, e))\n    }'
+          assert old in s; s=s.replace(old,new,1)
+          old='    fn note_whnf(&mut self, depth: u32, src: V<\'t>, res: V<\'t>, steps: u32) {\n        if steps == 0 {'
+          new='    fn note_whnf(&mut self, depth: u32, src: V<\'t>, res: V<\'t>, steps: u32) {\n        NW_CALL.fetch_add(1, Relaxed);\n        if steps == 0 {'
+          assert old in s; s=s.replace(old,new,1)
+          old='        let closed = src.is_closed();'
+          new='        NW_STEPS.fetch_add(1, Relaxed);\n        let closed = src.is_closed();'
+          assert old in s; s=s.replace(old,new,1)
+          old='        if !closed {\n            return;\n        }'
+          new='        if !closed {\n            return;\n        }\n        NW_CLOSED.fetch_add(1, Relaxed);'
+          assert old in s; s=s.replace(old,new,1)
+          old='        let Ok((full, verified)) = self.global_key(src, depth) else { return };'
+          new='        NW_ADMIT.fetch_add(1, Relaxed);\n        let Ok((full, verified)) = self.global_key(src, depth) else { return };'
+          assert old in s; s=s.replace(old,new,1)
+          old='        self.tc_cache.whnf_store.insert(k, (full, q));'
+          new='        self.tc_cache.whnf_store.insert(k, (full, q));\n        NW_STORE.fetch_add(1, Relaxed);'
+          assert old in s; s=s.replace(old,new,1)
+          p.write_text(s)
+          p=Path('soko/src/tc.rs'); s=p.read_text()
+          old='    pub fn check_all_declars(&self) {\n        if self.config.num_threads > 1 {'
+          new='    pub fn check_all_declars(&self) {\n        crate::eval::reset_ws();\n        if self.config.num_threads > 1 {'
+          assert old in s; s=s.replace(old,new,1)
+          old='        } else {\n            self.check_all_declars_serial()\n        }\n    }'
+          new='        } else {\n            self.check_all_declars_serial()\n        }\n        eprintln!("WHNF_STORE_STATS {}", crate::eval::ws_json());\n    }'
+          assert old in s; s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          cat > soko/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":1}
+          JSON
+          (cd soko && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          TEST=$(find arena-tests/good -type f -name 'grind-ring-5.ndjson' | head -n1)
+          soko/target/release/sokonanoda soko/config.json < "$TEST" >/dev/null 2> "$OUT/stderr.txt"
+          grep 'WHNF_STORE_STATS' "$OUT/stderr.txt" | tail -n1 | tee "$OUT/stats-line.txt"
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          line=Path('results/whnf-store-diagnostic/stats-line.txt').read_text(); d=json.loads(re.search(r'WHNF_STORE_STATS (\{.*\})',line).group(1))
+          d['lookup_hit_rate']=d['store_lookup_hits']/d['store_lookup_calls'] if d['store_lookup_calls'] else 0
+          d['steps_fraction']=d['note_with_steps']/d['note_calls'] if d['note_calls'] else 0
+          d['admit_fraction_of_steps']=d['note_admit']/d['note_with_steps'] if d['note_with_steps'] else 0
+          d['store_fraction_of_steps']=d['note_store']/d['note_with_steps'] if d['note_with_steps'] else 0
+          Path('results/whnf-store-diagnostic/summary.json').write_text(json.dumps(d,indent=2,sort_keys=True)); print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-whnf-store-diagnostic
+          path: results/whnf-store-diagnostic/
