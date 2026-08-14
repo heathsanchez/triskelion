@@ -32,7 +32,6 @@ op=pkg['operator']; src=op['src_posthoc']; dst=op['dst_posthoc']; scope=tuple(tu
 
 rpath=RQ/'src/requests/utils.py'; rtest='timeout 8s pytest -q tests/test_utils.py -k test_iter_slices'
 reset(RQ); base,_=sh(rtest,RQ,15); assert base
-# Find the unique sealed obstruction by reverting each dst site to src, exactly as V51 Phase B.
 breaks=[]
 for site in token_sites(rpath,dst):
     reset(RQ); line=mutate(rpath,site,src); ok,log=sh(rtest,RQ,15)
@@ -41,7 +40,6 @@ assert len(breaks)==1, breaks
 broken=breaks[0]; broken_site=broken['site']
 reset(RQ); mutate(rpath,broken_site,src); broken_ok,_=sh(rtest,RQ,15); assert not broken_ok
 
-# Enumerate candidate src-token sites in the broken file and route only by frozen scope membership.
 candidates=[]
 for s in token_sites(rpath,src):
     line=rpath.read_text().splitlines()[s[0]-1].strip()
@@ -49,18 +47,14 @@ for s in token_sites(rpath,src):
     candidates.append({'site':list(s[:3]),'line':line,'member':member})
 selected=[c for c in candidates if c['member']]
 required=[c for c in selected if tuple(c['site'])==tuple(broken_site[:3])]
-nonmembers=[c for c in candidates if not c['member']]
 
-# Explicit invocation: apply only selected candidates, then ask external verifier.
 reset(RQ); mutate(rpath,broken_site,src)
 for c in selected:
     cur=[s for s in token_sites(rpath,src) if tuple(s[:3])==tuple(c['site'])]
     if len(cur)==1: mutate(rpath,cur[0],dst)
 invoked_ok,invoked_log=sh(rtest,RQ,15)
-# Ablation: restore the broken state and verify failure.
 reset(RQ); mutate(rpath,broken_site,src); ablated_ok,ablated_log=sh(rtest,RQ,15)
 
-# Open precommitted later counterevidence only now.
 p=subprocess.run(['python','experiments/METALOGIC_V51_SEALED_TRANSFER.py'],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 print(p.stdout,flush=True); assert p.returncode==0
 phase_b=json.loads((V51/'PHASE_B.json').read_text())
@@ -74,7 +68,7 @@ G={
  'compact_export_hygiene_passes':export['verdict']=='PASS_IKKF_V3_EXPORT',
  'unique_sealed_requests_obstruction':len(breaks)==1,
  'explicit_applicability_selects_required_site':len(required)==1,
- 'explicit_applicability_rejects_nonmembers':all(not c['member'] for c in nonmembers),
+ 'explicit_applicability_selects_no_extraneous_sites':len(selected)==1 and len(required)==1,
  'explicit_invocation_repairs_sealed_verifier':invoked_ok,
  'ablation_restores_failure':not ablated_ok,
  'no_neural_router_or_checkpoint_used':True,
