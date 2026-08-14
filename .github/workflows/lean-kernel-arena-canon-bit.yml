@@ -1,0 +1,105 @@
+name: Lean Kernel Arena canon-bit
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-canon-bit]
+
+jobs:
+  canon-bit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test compact Value representation
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/canon-bit
+          rm -rf "$OUT" base compact arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git base
+          git -C base checkout "$SOKO_REV"
+          cp -a base compact
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('compact/src/value.rs'); s=p.read_text()
+          # Remove explicit per-value canonicality cells from the four variants.
+          s=s.replace('        canon: Cell<bool>,\n        key: Cell<u64>,', '        key: Cell<u64>,')
+          # Add one reserved key-cache bit. Digest callers never observe it.
+          s=s.replace('const KEY_PRESENT: u64 = 1 << 63;\n', 'const KEY_PRESENT: u64 = 1 << 63;\nconst CANON_BIT: u64 = 1 << 62;\n')
+          old='''    #[inline]\n    pub fn digest(&self) -> u64 {\n        let cell = self.key_cell();\n        let k = cell.get();\n        if k & KEY_PRESENT != 0 {\n            return k;\n        }\n        let d = self.compute_key();\n        cell.set(d);\n        d\n    }\n\n    #[inline]\n    pub fn is_canonical(&self) -> bool {\n        match self {\n            Value::Rigid { canon, .. }\n            | Value::Unfold { canon, .. }\n            | Value::Lam { canon, .. }\n            | Value::Pi { canon, .. } => canon.get(),\n            _ => false,\n        }\n    }\n\n    #[inline]\n    pub fn mark_canonical(&self) {\n        match self {\n            Value::Rigid { canon, .. }\n            | Value::Unfold { canon, .. }\n            | Value::Lam { canon, .. }\n            | Value::Pi { canon, .. } => canon.set(true),\n            _ => {}\n        }\n    }\n'''
+          new='''    #[inline]\n    pub fn digest(&self) -> u64 {\n        let cell = self.key_cell();\n        let k = cell.get();\n        if k & KEY_PRESENT != 0 {\n            return k & !CANON_BIT;\n        }\n        let canon = k & CANON_BIT;\n        let d = self.compute_key() & !CANON_BIT;\n        cell.set(d | canon);\n        d\n    }\n\n    #[inline]\n    pub fn is_canonical(&self) -> bool {\n        match self {\n            Value::Rigid { key, .. }\n            | Value::Unfold { key, .. }\n            | Value::Lam { key, .. }\n            | Value::Pi { key, .. } => key.get() & CANON_BIT != 0,\n            _ => false,\n        }\n    }\n\n    #[inline]\n    pub fn mark_canonical(&self) {\n        match self {\n            Value::Rigid { key, .. }\n            | Value::Unfold { key, .. }\n            | Value::Lam { key, .. }\n            | Value::Pi { key, .. } => key.set(key.get() | CANON_BIT),\n            _ => {}\n        }\n    }\n'''
+          assert old in s
+          s=s.replace(old,new,1)
+          # Constructors no longer initialize a separate canon cell.
+          s=s.replace(', canon: Cell::new(false), key: Cell::new(0)', ', key: Cell::new(0)')
+          s=s.replace('        canon: Cell::new(false),\n        key: Cell::new(0),', '        key: Cell::new(0),')
+          s=s.replace('const _: () = assert!(std::mem::size_of::<Value<\'static>>() == 56);', 'const _: () = assert!(std::mem::size_of::<Value<\'static>>() <= 56);')
+          p.write_text(s)
+          PY
+
+          cat > base/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
+          JSON
+          cp base/config.json compact/config.json
+          (cd base && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          (cd compact && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+
+          mkdir -p compact/examples
+          cat > compact/examples/layout.rs <<'RS'
+          use std::mem::{align_of,size_of};
+          use sokonanoda::value::Value;
+          fn main(){println!("Value size={} align={}",size_of::<Value<'static>>(),align_of::<Value<'static>>());}
+          RS
+          (cd compact && cargo run --release --example layout) | tee "$OUT/layout.txt"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,time,json,statistics,random,hashlib
+          root=Path.cwd(); out=root/'results/canon-bit'
+          bins={'base':root/'base/target/release/sokonanoda','compact':root/'compact/target/release/sokonanoda'}
+          cfgs={'base':root/'base/config.json','compact':root/'compact/config.json'}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          cases=[]
+          for kind,exp in [('good','accept'),('bad','reject')]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
+          correctness={}
+          for v in bins:
+              bad=[]
+              for p,exp in cases:
+                  with p.open('rb') as f:
+                      rc=subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+                  if status(rc)!=exp: bad.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'got':status(rc),'rc':rc})
+              correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
+          fs=[p for p,_ in cases]
+          workload=sorted(fs,key=lambda p:p.stat().st_size,reverse=True)[:24]
+          workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
+          samples={v:[] for v in bins}
+          for seed in range(14):
+              order=list(bins); random.Random(seed).shuffle(order)
+              for v in order:
+                  t=time.perf_counter()
+                  for p in workload:
+                      with p.open('rb') as f:
+                          subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                  samples[v].append(time.perf_counter()-t)
+          med={v:statistics.median(xs) for v,xs in samples.items()}
+          summary={'correctness':correctness,'samples_seconds':samples,'median_seconds':med,'speedup_compact_vs_base':med['base']/med['compact']}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True))
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit('correctness regression')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-canon-bit
+          path: results/canon-bit/
