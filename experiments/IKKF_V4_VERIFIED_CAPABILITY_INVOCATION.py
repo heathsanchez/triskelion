@@ -28,7 +28,7 @@ phase_a=json.loads((V51/'PHASE_A.json').read_text())
 commit=json.loads((V51/'COMMITMENT.json').read_text())
 assert phase_a['verdict']=='PASS_V51_PHASE_A_OPERATOR_CONSTRUCTION'
 assert pkg['canonical_sha256'] and pkg['operator']==commit['operator'] and pkg['scope']==commit['scope']
-op=pkg['operator']; src=op['src_posthoc']; dst=op['dst_posthoc']; scope=tuple(tuple(x) for x in pkg['scope'])
+op=pkg['operator']; src=op['src_posthoc']; dst=op['dst_posthoc']; scope=tuple(pkg['scope'])
 
 rpath=RQ/'src/requests/utils.py'; rtest='timeout 8s pytest -q tests/test_utils.py -k test_iter_slices'
 reset(RQ); base,_=sh(rtest,RQ,15); assert base
@@ -43,7 +43,7 @@ reset(RQ); mutate(rpath,broken_site,src); broken_ok,_=sh(rtest,RQ,15); assert no
 candidates=[]
 for s in token_sites(rpath,src):
     line=rpath.read_text().splitlines()[s[0]-1].strip()
-    member=set(scope).issubset(feats(line))
+    member=scope in feats(line)
     candidates.append({'site':list(s[:3]),'line':line,'member':member})
 selected=[c for c in candidates if c['member']]
 required=[c for c in selected if tuple(c['site'])==tuple(broken_site[:3])]
@@ -75,7 +75,7 @@ G={
  'later_counterevidence_opened_after_sealed_evaluation':phase_b['gates']['requests_was_sealed_until_phase_b'],
  'later_revision_or_revocation_enforced':decision in {'NARROW','REVOKE'} and (decision!='REVOKE' or not runtime_available),
 }
-R={'protocol':'protocols/IKKF_V4_VERIFIED_CAPABILITY_INVOCATION_PRECOMMIT.txt','capability_id':pkg['id'],'capability_sha256':pkg['canonical_sha256'],'operator':op,'scope':[list(x) for x in scope],'candidates':candidates,'selected':selected,'sealed':{'broken_site':list(broken_site[:3]),'invoked_ok':invoked_ok,'ablated_ok':ablated_ok},'later_decision':decision,'runtime_available_after_revision':runtime_available,'gates':G}
+R={'protocol':'protocols/IKKF_V4_VERIFIED_CAPABILITY_INVOCATION_PRECOMMIT.txt','capability_id':pkg['id'],'capability_sha256':pkg['canonical_sha256'],'operator':op,'scope':list(scope),'candidates':candidates,'selected':selected,'sealed':{'broken_site':list(broken_site[:3]),'invoked_ok':invoked_ok,'ablated_ok':ablated_ok},'later_decision':decision,'runtime_available_after_revision':runtime_available,'gates':G}
 R['verdict']='PASS_IKKF_V4_VERIFIED_CAPABILITY_INVOCATION' if all(G.values()) else 'FAIL_IKKF_V4_VERIFIED_CAPABILITY_INVOCATION'
 (OUT/'RESULT.json').write_text(json.dumps(R,indent=2)); print(json.dumps(R,indent=2),flush=True)
 if R['verdict'].startswith('FAIL'): raise SystemExit(1)
