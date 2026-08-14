@@ -48,10 +48,19 @@ def prepare(sorry):
     r=sorry.repo; name=repo_name(r.remote); path=Path('.lean_v77')/name/r.commit
     if not path.exists():
         path.parent.mkdir(parents=True,exist_ok=True)
-        rc,out=sh(['git','clone','-q',r.remote,str(path)],timeout=1200)
-        if rc: return None,'clone failed: '+out[-3000:]
-        rc,out=sh(['git','checkout','-q',r.commit],cwd=path,timeout=300)
+        path.mkdir(parents=True,exist_ok=True)
+        rc,out=sh(['git','init','-q'],cwd=path,timeout=60)
+        if rc: return None,'init failed: '+out[-3000:]
+        rc,out=sh(['git','remote','add','origin',r.remote],cwd=path,timeout=60)
+        if rc: return None,'remote failed: '+out[-3000:]
+        # Fetch the frozen target commit explicitly. A default clone may be shallow
+        # or omit the historical tree even when the commit hash is known.
+        rc,out=sh(['git','fetch','-q','--depth=1','origin',r.commit],cwd=path,timeout=1200)
+        if rc: return None,'fetch exact commit failed: '+out[-3000:]
+        rc,out=sh(['git','checkout','-q','--detach','FETCH_HEAD'],cwd=path,timeout=300)
         if rc: return None,'checkout failed: '+out[-3000:]
+        rc,out=sh(['git','rev-parse','HEAD'],cwd=path,timeout=60)
+        if rc or out.strip()!=r.commit: return None,'commit mismatch: '+out[-3000:]
     rc,out=sh(['lake','build'],cwd=path,timeout=2400)
     if rc: return None,'build failed: '+out[-5000:]
     return path.resolve(),''
