@@ -1,0 +1,28 @@
+{
+  "protocol": "V83_QUIXBUGS_NATURAL_IVAG_CENSUS",
+  "external_repo": "jkoppel/QuixBugs",
+  "external_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+  "correct_solutions_read_during_discovery": false,
+  "generic_schema_count": 26,
+  "stream_pool": ["powerset","find_first_in_sorted","quicksort","mergesort","breadth_first_search","detect_cycle","subsequences","hanoi","topological_ordering","rpn_eval","gcd","sqrt"],
+  "probe_set": ["sieve","find_in_sorted","possible_change","bucketsort","reverse_linked_list","minimum_spanning_tree","next_palindrome","shortest_path_length","depth_first_search","to_base"],
+  "retained_extensions_both_curricula": [["<=","<"],["<","<="]],
+  "frontiers_A": [[],[],[]],
+  "frontiers_B": [[],[],[]],
+  "gates": {
+    "natural_preexisting_corpus": true,
+    "at_least_one_minimal_extension_each": true,
+    "strict_probe_closure_growth_A": false,
+    "strict_probe_closure_growth_B": false,
+    "independent_extension_set_convergence": true,
+    "three_generation_developmental_causality": false
+  },
+  "verdict": "MIXED_NATURAL_IVAG_V83",
+  "provenance": {
+    "run_id": 31779917767,
+    "artifact_id": 9211349228,
+    "artifact_sha256": "a960ee85b4dacdb5c3a6780c1ef8761f57c3932e09e763096848186f5d2c3abe",
+    "head_sha": "e9e6f84eb63d99c20f777184e2ed709c0400c207"
+  },
+  "qualification": "Natural pre-existing repair census under a frozen generic one-token constructor. Two minimal repair schemas converged across independent curricula, but neither expanded the frozen held-out probe closure. The constructor exposes all token-pair schemas from the start, so descendant discoverability causality is false by design."
+}
