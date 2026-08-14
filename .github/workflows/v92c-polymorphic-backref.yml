@@ -1,0 +1,26 @@
+name: V92c Polymorphic BackRef
+on:
+  push:
+    branches: [v92c-polymorphic-backref]
+  workflow_dispatch:
+jobs:
+  v92c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch frozen nanoda
+        run: |
+          git clone -q https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          git -C nanoda_lib checkout -q 418320295890faed83a96fd97907b12a3b6728c2
+          cat > nanoda_lib/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":4}
+          JSON
+      - name: Run polymorphic quotient and hostile ablations
+        run: python3 experiments/v92c_polymorphic_backref.py
+      - name: Upload V92c audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v92c-polymorphic-backref
+          path: results/v92c/
