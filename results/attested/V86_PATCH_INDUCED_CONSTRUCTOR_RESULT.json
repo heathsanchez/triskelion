@@ -1,0 +1,16 @@
+{
+  "protocol":"V86_PATCH_INDUCED_CONSTRUCTOR",
+  "external_repo":"jkoppel/QuixBugs",
+  "external_commit":"4257f44b0ff1181dedaedee6a447e133219fcebf",
+  "training_correct_files_read":true,
+  "heldout_correct_files_read":false,
+  "learned_template_count":14,
+  "k0_solved":["find_first_in_sorted","quicksort"],
+  "k1_solved":["quicksort"],
+  "wrong_pair_solved":[],
+  "new_closure":[],
+  "gates":{"preexisting_external_corpus":true,"split_frozen_before_reading_training_fixes":true,"heldout_correct_solutions_never_read":true,"training_experience_induces_nonempty_constructor":true,"heldout_closure_strictly_expands":false,"induced_beats_wrong_pair_control":true,"at_least_one_template_causally_load_bearing":false},
+  "qualification":"Supervised external constructor induction: human fixes are read on the frozen training split only. Fourteen exact token-edit templates are induced, but they add zero held-out closure beyond K0. This is evidence that exact-token repair templates are too specific, not autonomous constructor invention.",
+  "verdict":"MIXED_PATCH_INDUCED_CONSTRUCTOR_V86",
+  "provenance":{"run_id":31784429088,"artifact_id":9213041932,"artifact_sha256":"436f6ab82d19719f3d6505ebe284124229fb370fa2dc5a4ea038e9c753d2adfa","head_sha":"bd8e555ff49710882dd7587c9ba9b45b0d638424"}
+}
