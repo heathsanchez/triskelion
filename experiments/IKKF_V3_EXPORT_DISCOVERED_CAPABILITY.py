@@ -30,8 +30,14 @@ pkg={
 }
 canon=json.dumps(pkg,sort_keys=True,separators=(',',':')).encode(); pkg['canonical_sha256']=hashlib.sha256(canon).hexdigest()
 text=json.dumps(pkg,sort_keys=True,indent=2)
+# Hygiene applies to transferable payload fields, not to the explicit declaration
+# naming material that was excluded. This preserves the frozen package itself and
+# prevents the guard from rejecting its own optimizer_state exclusion label.
+hygiene_payload={k:v for k,v in pkg.items() if k!='excluded'}
+hygiene_text=json.dumps(hygiene_payload,sort_keys=True,separators=(',',':'))
 for banned in ['checkpoint_uri','optimizer_state','gradient_buffer','trajectory_text','test_log_text']:
- assert banned not in text
+ assert banned not in hygiene_text
+assert all(x in pkg['excluded'] for x in ['discovery_source','trajectory','checkpoint','gradient','optimizer_state'])
 (OUT/'CAPABILITY.json').write_text(text)
 R={'verdict':'PASS_IKKF_V3_EXPORT','capability_id':pkg['id'],'canonical_sha256':pkg['canonical_sha256'],'excluded':pkg['excluded'],'source_phase_a':phase['verdict']}
 (OUT/'EXPORT_RESULT.json').write_text(json.dumps(R,indent=2)); print(json.dumps(R,indent=2))
