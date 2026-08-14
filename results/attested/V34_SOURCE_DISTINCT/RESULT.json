@@ -1,0 +1,29 @@
+{
+  "protocol": "V34 generic exact-frontier constructor; source-distinct fixed repositories",
+  "seed": "V34_20260814",
+  "function_count": 1025,
+  "triple_candidates": 9240,
+  "pair_candidates": 0,
+  "mode": "THREE_GENERATION",
+  "lineage": [
+    {"repo":"requests","commit":"8068356288978c4f54661ae6f95afe0e0831885e","path":"tests/testserver/server.py","function":"run","line":67,"seq":["Try"],"rank":"a1e4cefa5a67f1eaaeb9b1115794c2efb2fe69c0debbf3f71ffce1d2cc0b6814"},
+    {"repo":"rich","commit":"9d8f9a372cc5916fd4781fec207ced7ddac2f08f","path":"rich/emoji.py","function":"__init__","line":25,"seq":["Try","Raise"],"rank":"53d0ab51c79b5488705f1e896a421ec52ea1a0017508976db76834229062a6c8"},
+    {"repo":"flask","commit":"2a8a38b051fc248865730bf3511bf2e2ea325e81","path":"tests/test_appctx.py","function":"test_app_tearing_down_with_previous_exception","line":59,"seq":["Try","Raise","With"],"rank":"282da43d52687b5f8c329271ceecc49c8a7d1b20d5436cbf314d63cad2985cae"}
+  ],
+  "steps": [
+    {"generation":1,"repo":"requests","before":"Try","after_one_extension":null,"algebra_after":["Try"]},
+    {"generation":2,"repo":"rich","before":"Raise","after_one_extension":null,"algebra_after":["Raise","Try"]},
+    {"generation":3,"repo":"flask","before":"With","after_one_extension":null,"algebra_after":["Raise","Try","With"]}
+  ],
+  "controls": [
+    {"generation":1,"cold_frontier":"Try","warm_frontier":"Try","prior_algebra":[]},
+    {"generation":2,"cold_frontier":"Try","warm_frontier":"Raise","prior_algebra":["Try"]},
+    {"generation":3,"cold_frontier":"Try","warm_frontier":"With","prior_algebra":["Raise","Try"]}
+  ],
+  "ablations": [
+    {"removed":"Raise","frontier_after_ablation":"Raise"},
+    {"removed":"Try","frontier_after_ablation":"Try"}
+  ],
+  "gates": {"source_distinct":true,"each_generation_discovers_expected_new_frontier":true,"cold_later_targets_hide_new_frontier":true,"ancestor_ablation_changes_deep_frontier":true},
+  "verdict": "PASS_SOURCE_DISTINCT_DISCOVERABILITY_RATCHET_V34"
+}
