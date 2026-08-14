@@ -1,0 +1,26 @@
+name: V83 QuixBugs Natural Algebra Genesis Pilot
+
+on:
+  push:
+    branches: [v83-quixbugs-natural-genesis]
+  workflow_dispatch:
+
+jobs:
+  natural-genesis:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run V83
+        run: python experiments/V83_QUIXBUGS_NATURAL_ALGEBRA_GENESIS.py
+      - name: Collect
+        run: |
+          mkdir -p artifact
+          cp /tmp/v83_result.json artifact/RESULT.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v83-quixbugs-natural-genesis
+          path: artifact/RESULT.json
