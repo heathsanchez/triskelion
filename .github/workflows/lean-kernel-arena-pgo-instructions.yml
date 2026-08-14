@@ -1,0 +1,107 @@
+name: Lean Kernel Arena PGO instructions
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-pgo-instructions]
+  workflow_dispatch:
+
+jobs:
+  pgo-instructions:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare Arena and hybrid PGO by dynamic instructions
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq valgrind
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/pgo-instructions
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT/bin" arena-tests artifact
+
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          cat > soko/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('arena-tests')
+          fs=list((root/'good').rglob('*.ndjson'))+list((root/'bad').rglob('*.ndjson'))
+          largest=sorted(fs,key=lambda p:p.stat().st_size,reverse=True)[:24]
+          largest=sorted(largest,key=lambda p:hashlib.sha256(str(p.relative_to(root)).encode()).hexdigest())
+          init=list(root.rglob('init-prelude.ndjson')); assert len(init)==1
+          Path('results/pgo-instructions/arena-train.txt').write_text(str(init[0])+'\n')
+          Path('results/pgo-instructions/hybrid-train.txt').write_text(str(init[0])+'\n'+'\n'.join(str(p) for p in largest)+'\n')
+          valid=list((root/'good').rglob('*.ndjson'))
+          chosen=sorted(valid,key=lambda p:p.stat().st_size,reverse=True)[:3]
+          Path('results/pgo-instructions/cases.txt').write_text('\n'.join(str(p) for p in chosen)+'\n')
+          Path('results/pgo-instructions/cases.json').write_text(json.dumps([{'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in chosen],indent=2))
+          PY
+
+          rustup component add llvm-tools-preview
+          PROF="$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's/^host: //p')/bin/llvm-profdata"
+          mkdir -p soko/profiles
+          (cd soko && CARGO_TARGET_DIR=pgo-gen RUSTFLAGS="-C target-cpu=x86-64 -C profile-generate=$PWD/profiles" cargo build --release)
+
+          build_profile() {
+            local name=$1 list=$2
+            rm -f soko/profiles/*.profraw
+            while read -r f; do soko/pgo-gen/release/sokonanoda soko/config.json < "$f" >/dev/null 2>/dev/null || true; done < "$list"
+            "$PROF" merge -o "/tmp/${name}.profdata" soko/profiles/*.profraw
+            (cd soko && CARGO_TARGET_DIR="use-${name}" RUSTFLAGS="-C target-cpu=x86-64 -C profile-use=/tmp/${name}.profdata" cargo build --release)
+            cp "soko/use-${name}/release/sokonanoda" "$OUT/bin/${name}"
+          }
+          build_profile arena "$OUT/arena-train.txt"
+          build_profile hybrid "$OUT/hybrid-train.txt"
+
+          : > "$OUT/raw.tsv"
+          for variant in arena hybrid; do
+            i=0
+            while read -r f; do
+              i=$((i+1)); cg="$OUT/callgrind-${variant}-${i}.out"
+              set +e
+              valgrind --tool=callgrind --quiet --callgrind-out-file="$cg" "$OUT/bin/$variant" soko/config.json < "$f" >/dev/null 2>"$OUT/${variant}-${i}.stderr"
+              rc=$?
+              set -e
+              test "$rc" -eq 0
+              ir=$(awk '/^summary:/ {print $2; exit}' "$cg")
+              printf '%s\t%s\t%s\t%s\n' "$variant" "$i" "$ir" "$f" | tee -a "$OUT/raw.tsv"
+            done < "$OUT/cases.txt"
+          done
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          out=Path('results/pgo-instructions'); rows=[]
+          for line in (out/'raw.tsv').read_text().splitlines():
+              v,i,ir,f=line.split('\t',3); rows.append({'variant':v,'case':int(i),'instructions':int(ir),'file':f})
+          totals={v:sum(r['instructions'] for r in rows if r['variant']==v) for v in ['arena','hybrid']}
+          a=totals['arena']; h=totals['hybrid']
+          summary={'rows':rows,'total_instructions':totals,'hybrid_ratio':h/a,'instruction_reduction_percent':(1-h/a)*100}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-pgo-instructions
+          path: results/pgo-instructions/
