@@ -1,0 +1,19 @@
+{
+  "protocol": "V50_OUTCOME_LABELED_SEALED_20260814",
+  "phase": "A_OUTCOME_LABELED_CALIBRATION",
+  "episodes": [
+    {"id":"e1","site":[293,35,37],"line":"if length is None or len(name) <= length:","before":false,"after":true,"sign":"HELP","features":[[0,"t_05af66cb75d32b5a"],[1,"t_8ad537386f98a6dd"],[2,"t_3e71f94e470738f9"],[3,"t_e7a7420125d76a81"],[4,"t_4725e6e612e16104"],[5,"t_922ac89c3f4e2421"],[6,"t_1baaac2982350217"],[7,"t_8ad537386f98a6dd"]]},
+    {"id":"e2","site":[58,25,27],"line":"if self.per_page <= self.orphans:","before":false,"after":true,"sign":"HELP","features":[[0,"t_05af66cb75d32b5a"],[1,"t_05cb17477724ce4b"],[2,"t_8bd8b47cbc121e8b"],[3,"t_05cb17477724ce4b"],[4,"t_07e103273aba2d8d"]]},
+    {"id":"e3","site":[664,46,57],"line":"operator.le if self.min_open else operator.lt","before":true,"after":false,"sign":"HARM","features":[[0,"t_4416614cfee905ca"],[1,"t_3aeb0101cb01206a"],[2,"t_05af66cb75d32b5a"],[3,"t_05cb17477724ce4b"],[4,"t_04c600f81f9bd8fc"],[5,"t_8f0c0c8296896db5"],[6,"t_4416614cfee905ca"],[7,"t_a43ea6269ea45d25"]]},
+    {"id":"e4","site":[133,25,26],"line":"while cursor < len(plain):","before":true,"after":false,"sign":"HARM","features":[[0,"t_4c741f68dd117466"],[1,"t_81dd1490cdfc368b"],[2,"t_922ac89c3f4e2421"],[3,"t_b52e7f2718427c23"]]}
+  ],
+  "help_count":2,
+  "harm_count":2,
+  "candidate_count":23,
+  "survivor_count":1,
+  "selected":[0,"t_05af66cb75d32b5a"],
+  "posthoc_selected":[0,"if"],
+  "commitment":{"protocol":"V50_OUTCOME_LABELED_SEALED_20260814","selected":[0,"t_05af66cb75d32b5a"],"selected_hash":"b6ae7c5d735971188174a1d12afca85a09289bbb22ec7c7c27abd3c72c2cfd12","labels_generated_by":"verifier transition sign HELP/HARM","requests_forbidden_in_phase_a":true},
+  "gates":{"all_four_sites_resolved":true,"labels_not_supplied":true,"two_help_two_harm":true,"unique_relation_from_verifier_signs":true,"posthoc_relation_is_position0_if":true,"requests_unseen":true},
+  "verdict":"PASS_V50_PHASE_A_OUTCOME_LABELED"
+}
