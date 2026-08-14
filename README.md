@@ -61,12 +61,13 @@ Every headline transition should remain mechanically backed by verifier output, 
 - [`RESEARCH_STATE.md`](RESEARCH_STATE.md) — current synthesis, evidence boundaries and priorities.
 - [`results/CURRENT_FRONTIER_2026-08-14.md`](results/CURRENT_FRONTIER_2026-08-14.md) — concise current audit ledger.
 - [`results/PROGRESS_V49_V56_2026-08-14.md`](results/PROGRESS_V49_V56_2026-08-14.md) — explicit V49–V56 reconciliation, including branch-only passes, negatives, incompletes and harness failures.
+- [`results/BRANCH_RUN_INDEX_2026-08-14.md`](results/BRANCH_RUN_INDEX_2026-08-14.md) — exact branch/run pointers for scientifically relevant work not yet merged into `main`.
 - `results/` — immutable experiment-specific summaries where present.
 - `protocols/` — frozen/precommitted scientific protocols.
 - `experiments/` — executable harnesses currently merged on `main`.
 - `.github/workflows/` — reproducible CI paths currently merged on `main`.
 
-Some of the newest experiments remain on named branches rather than `main`; the current state/frontier/progress files deliberately record those branch names and run IDs so a ZIP of `main` still preserves the research record.
+Some of the newest experiments remain on named branches rather than `main`; the current state/frontier/progress/index files deliberately record those branch names and run IDs so a ZIP of `main` still preserves the research record.
 
 ## Research discipline
 
