@@ -1,0 +1,69 @@
+name: Lean Kernel Arena iota diagnostic
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-iota-diagnostic]
+
+jobs:
+  iota-diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instrument iota decision path
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/iota-diagnostic
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('soko/src/eval.rs'); s=p.read_text()
+          marker='use std::collections::hash_map::Entry;\n'
+          ins='''use std::sync::atomic::{AtomicU64, Ordering::Relaxed};\n\nstatic IOTA_CALLS: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_STUCK_HITS: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_CACHE_HITS: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_COMPUTE: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_SUCCESS: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_FAIL: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_RECURSOR: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_QUOT: AtomicU64 = AtomicU64::new(0);\nstatic IOTA_MAJOR_WHNF: AtomicU64 = AtomicU64::new(0);\n\npub(crate) fn reset_iota_stats() {\n    for x in [&IOTA_CALLS,&IOTA_STUCK_HITS,&IOTA_CACHE_HITS,&IOTA_COMPUTE,&IOTA_SUCCESS,&IOTA_FAIL,&IOTA_RECURSOR,&IOTA_QUOT,&IOTA_MAJOR_WHNF] { x.store(0, Relaxed); }\n}\npub(crate) fn iota_stats_json() -> String {\n    format!(r#"{{\"calls\":{},\"stuck_hits\":{},\"cache_hits\":{},\"compute\":{},\"success\":{},\"fail\":{},\"recursor\":{},\"quot\":{},\"major_whnf\":{}}}"#,\n      IOTA_CALLS.load(Relaxed),IOTA_STUCK_HITS.load(Relaxed),IOTA_CACHE_HITS.load(Relaxed),IOTA_COMPUTE.load(Relaxed),IOTA_SUCCESS.load(Relaxed),IOTA_FAIL.load(Relaxed),IOTA_RECURSOR.load(Relaxed),IOTA_QUOT.load(Relaxed),IOTA_MAJOR_WHNF.load(Relaxed))\n}\n'''
+          assert marker in s; s=s.replace(marker,marker+ins,1)
+          old='''    pub(crate) fn iota_value(&mut self, depth: u32, v: V<'t>) -> Option<V<'t>> {\n        let v_key = v as *const Value<'t> as usize;\n        if self.tc_cache.iota_stuck.contains(&v_key) {\n            return None;\n        }\n        if let Some(cached) = self.tc_cache.iota_cache.get(&v_key) {\n            return Some(*cached);\n        }\n        let result = match v {\n            Value::Rigid { head: RigidHead::Recursor(name, levels), spine, .. } => {\n                let args = self.spine_apps(depth, spine)?;\n                self.do_recursor_iota(depth, *name, *levels, &args)\n            }\n            Value::Rigid { head: RigidHead::QuotConst(name, _), spine, .. } => {\n                let args = self.spine_apps(depth, spine)?;\n                self.do_quot_iota(depth, *name, &args)\n            }\n            _ => None,\n        };\n        match result {\n            None => {\n                self.tc_cache.iota_stuck.insert(v_key);\n            }\n            Some(r) => {\n                self.tc_cache.iota_cache.insert(v_key, r);\n            }\n        }\n        result\n    }\n'''
+          new='''    pub(crate) fn iota_value(&mut self, depth: u32, v: V<'t>) -> Option<V<'t>> {\n        IOTA_CALLS.fetch_add(1, Relaxed);\n        let v_key = v as *const Value<'t> as usize;\n        if self.tc_cache.iota_stuck.contains(&v_key) {\n            IOTA_STUCK_HITS.fetch_add(1, Relaxed);\n            return None;\n        }\n        if let Some(cached) = self.tc_cache.iota_cache.get(&v_key) {\n            IOTA_CACHE_HITS.fetch_add(1, Relaxed);\n            return Some(*cached);\n        }\n        IOTA_COMPUTE.fetch_add(1, Relaxed);\n        let result = match v {\n            Value::Rigid { head: RigidHead::Recursor(name, levels), spine, .. } => {\n                IOTA_RECURSOR.fetch_add(1, Relaxed);\n                let args = self.spine_apps(depth, spine)?;\n                self.do_recursor_iota(depth, *name, *levels, &args)\n            }\n            Value::Rigid { head: RigidHead::QuotConst(name, _), spine, .. } => {\n                IOTA_QUOT.fetch_add(1, Relaxed);\n                let args = self.spine_apps(depth, spine)?;\n                self.do_quot_iota(depth, *name, &args)\n            }\n            _ => None,\n        };\n        match result {\n            None => { IOTA_FAIL.fetch_add(1, Relaxed); self.tc_cache.iota_stuck.insert(v_key); }\n            Some(r) => { IOTA_SUCCESS.fetch_add(1, Relaxed); self.tc_cache.iota_cache.insert(v_key, r); }\n        }\n        result\n    }\n'''
+          assert old in s; s=s.replace(old,new,1)
+          old='        let major = self.whnf_head(depth, args[rec.major_idx()]);'
+          new='        IOTA_MAJOR_WHNF.fetch_add(1, Relaxed);\n        let major = self.whnf_head(depth, args[rec.major_idx()]);'
+          assert old in s; s=s.replace(old,new,1)
+          p.write_text(s)
+          p=Path('soko/src/tc.rs'); s=p.read_text()
+          old='''    pub fn check_all_declars(&self) {\n        if self.config.num_threads > 1 {\n            self.check_all_declars_par(self.config.num_threads)\n        } else {\n            self.check_all_declars_serial()\n        }\n    }\n'''
+          new='''    pub fn check_all_declars(&self) {\n        crate::eval::reset_iota_stats();\n        if self.config.num_threads > 1 {\n            self.check_all_declars_par(self.config.num_threads)\n        } else {\n            self.check_all_declars_serial()\n        }\n        eprintln!("IOTA_STATS {}", crate::eval::iota_stats_json());\n    }\n'''
+          assert old in s; p.write_text(s.replace(old,new,1))
+          PY
+          cat > soko/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":1}
+          JSON
+          (cd soko && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          TEST=$(find arena-tests/good -type f -name 'grind-ring-5.ndjson' | head -n1)
+          soko/target/release/sokonanoda soko/config.json < "$TEST" >/dev/null 2> "$OUT/stderr.txt"
+          grep 'IOTA_STATS' "$OUT/stderr.txt" | tail -n1 | tee "$OUT/stats-line.txt"
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          line=Path('results/iota-diagnostic/stats-line.txt').read_text(); d=json.loads(re.search(r'IOTA_STATS (\{.*\})',line).group(1))
+          d['cached_fraction']=(d['stuck_hits']+d['cache_hits'])/d['calls'] if d['calls'] else 0
+          d['compute_fraction']=d['compute']/d['calls'] if d['calls'] else 0
+          d['success_rate_first_compute']=d['success']/d['compute'] if d['compute'] else 0
+          d['major_whnf_per_compute']=d['major_whnf']/d['compute'] if d['compute'] else 0
+          Path('results/iota-diagnostic/summary.json').write_text(json.dumps(d,indent=2,sort_keys=True)); print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-iota-diagnostic
+          path: results/iota-diagnostic/
