@@ -1,0 +1,27 @@
+name: V93 Multiscale Edit Ontology
+on:
+  push:
+    branches: [v93-multiscale-edit-ontology]
+jobs:
+  v93:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V93
+        env:
+          QUIXBUGS_DIR: /tmp/QuixBugs
+          OUT_DIR: results/v93
+        run: python experiments/METALOGIC_V93_MULTISCALE_EDIT_ONTOLOGY.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v93-multiscale-edit-ontology
+          path: results/v93/RESULT.json
