@@ -1,0 +1,54 @@
+IKKF V3 — EXTERNALLY INVENTED CAPABILITY -> MACHINE INSTINCT
+Date: 2026-08-14 NZST
+
+Purpose
+Close the full causal chain with a capability that is not preselected by the experimenter: independently authored external software must first force Triskelion to construct a new operator outside its frozen old closure; only the resulting compact commitment/package may cross into a fresh River compilation phase.
+
+Frozen discovery source
+- Reuse V51_OPERATOR_INVENTION_20260814 unchanged.
+- Phase A external worlds: fixed Django positives + independent Rich harm episode from V51.
+- Frozen old algebra, generic token-emission substrate, obstruction certificate, scope search, and sealed-world discipline remain exactly V51.
+- Requests transfer target and later Django counterexample remain forbidden until their original V51 phases.
+
+Required discovery gate
+V51 Phase A must independently return PASS_V51_PHASE_A_OPERATOR_CONSTRUCTION. The exported package is formed mechanically from COMMITMENT.json only and contains operator, scope, hashes, dependencies, verifier/provenance metadata, and status. It must not contain source trajectories, test logs, model outputs, checkpoints, gradients, or optimizer state.
+
+Neural compilation question
+Can that exported discovered capability, without replaying its discovery episodes and without inheriting a prior River checkpoint, be compiled into a fresh Qwen/Qwen3.5-9B LoRA such that it improves source-distinct heldout use of the operator while a wrong/scopeless control does not?
+
+Compiler construction rule
+Before any neural outcome is inspected, build a deterministic capability compiler that consumes only the exported package and mechanically creates practice examples from the package semantics. Practice examples may use generated/local synthetic Python snippets and executable micro-tests, but may not copy the V51 Django/Rich discovery snippets or the sealed Requests/later-Django evaluation snippets. Practice data must include positive in-scope examples and negative/out-of-scope examples sufficient to teach invocation rather than unconditional token emission.
+
+Heldout evaluation
+Primary positive external evaluation remains V51's sealed Requests target, with the V51 commitment fixed before opening Requests.
+Primary causal controls:
+- cold fresh neural substrate fails to choose/apply the learned capability on the sealed target;
+- correctly compiled capability succeeds;
+- ablation/uninstall restores failure;
+- independent fresh compilation from the same exported package succeeds again;
+- a matched wrong-operator or scope-stripped package fails the protected/selection criterion.
+
+Later counterevidence / revocation
+After the successful sealed transfer evaluation, open V51's precommitted later Django counterexample unchanged. If it invalidates the retained scope as in V51, the explicit package must transition to REVOKED and the package manager must disable/uninstall its compiled neural artifact. No neural erasure claim is required: reversion/detachment of the capability-specific adapter is sufficient.
+
+Frozen gates
+1. old_closure_obstruction_passes.
+2. external_operator_construction_passes.
+3. unique_scope_passes.
+4. export_contains_no_episode_or_checkpoint.
+5. no_inherited_neural_checkpoint.
+6. cold_sealed_target_fails.
+7. compiled_sealed_target_passes.
+8. capability_ablation_restores_failure.
+9. independent_recompile_from_same_package_passes.
+10. wrong_or_scopeless_control_fails_protected_criterion.
+11. later_counterevidence_is_source_distinct_and_precommitted.
+12. later_counterevidence_forces_explicit_revocation.
+13. revoked_package_is_not_available_to_runtime_after uninstall/detach.
+
+Primary verdict
+PASS_IKKF_V3_EXTERNAL_INVENTED_INSTINCT iff all 13 gates pass.
+No threshold, target, external source, scope vocabulary, or capability substitution is permitted after outcomes are inspected.
+
+Claim boundary if PASS
+Within this bounded Python-repair setting, independently authored executable experience can force construction of a capability absent from a frozen old algebra; the resulting compact verified package can be compiled independently into persistent neural competence on a sealed source-distinct target without replaying the discovery episodes; causal ablation removes the gain; and later external counterevidence can revoke and uninstall the capability. This does not establish arbitrary capability invention, arbitrary cross-model-family compilation, or open-ended recursive self-improvement.
