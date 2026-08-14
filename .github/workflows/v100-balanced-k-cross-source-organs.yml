@@ -1,0 +1,24 @@
+name: V100 Balanced-K Cross-Source Dynamic Organs
+on:
+  push:
+    branches: [v100-balanced-k-cross-source-organs]
+jobs:
+  v100:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V100
+        run: QUIXBUGS_DIR=/tmp/QuixBugs OUT_DIR=results/v100 python experiments/METALOGIC_V100_BALANCED_K_CROSS_SOURCE_ORGANS.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v100-balanced-k-cross-source-organs
+          path: results/v100/RESULT.json
