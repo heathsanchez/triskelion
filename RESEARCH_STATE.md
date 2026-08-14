@@ -1,148 +1,158 @@
 # Triskelion / Metalogic Research State
 
-_Last updated: 2026-08-14 NZST_
+_Last reconciled: 2026-08-14 13:33 NZST_
 
 ## Current strongest synthesis
 
-The project is converging on a **self-extending verified capability algebra** rather than a flat memory or fine-tuning system.
+Triskelion is testing a **self-extending verified capability algebra** with an explicit boundary between verified developmental knowledge and neural proceduralization.
 
-At developmental state `A_t`, the system has a verified set of operators, composition laws, scopes, provenance, and revision conditions. For a new target `T` it should first test whether `T` is already in bounded lawful closure. If yes, recompose rather than invent. If closure fails, the residual may justify a minimal new generator. Verification controls admission. Repeatedly useful verified explicit capabilities may then be consolidated into neural weights, while the explicit source/provenance remains authoritative.
+At state `A_t`, the system has verified operators/capabilities, permitted compositions, scoped laws, provenance, revision conditions, and an external verifier authority. For a target `T`, the discipline is:
 
-A useful distinction is now:
+`closure first -> residual/obstruction -> minimal construction -> external verification -> scoped retention -> causal reuse -> optional neural compilation -> revision/revocation`
 
-1. **Reuse** — invoke an existing capability.
-2. **New composition** — construct a new capability from existing generators.
-3. **New law** — learn a verified scoped rule about when compositions are legal/equivalent.
-4. **New generator** — add a genuinely closure-expanding primitive.
-5. **Compounding** — a verified generator changes what new generator is discoverable next.
-6. **Meta-growth** — verified operator experience produces/revises reusable constructor families which change what operators can subsequently be built.
+The strongest current distinction is:
 
-## Current cognitive IR hypothesis
+1. **Reuse** — invoke an existing verified capability.
+2. **Composition** — lawfully construct a capability from existing generators.
+3. **Law formation** — retain a scoped verified equivalence/composition rule.
+4. **Generator formation** — add a capability absent from the frozen old closure.
+5. **Discoverability growth** — retained capability changes what later obstruction can be exposed.
+6. **Constructor growth** — verified instances induce a reusable constructor family.
+7. **Compilation** — explicit verified capability is proceduralized into neural weights while the explicit package remains authoritative.
+8. **Routing** — select among installed capabilities without collapsing them into an indiscriminate reflex.
 
-Candidate semantic operators:
+The newest evidence separates the last two: **portable capability compilation now has a strong bounded pass; naive multi-capability co-neuralization has a clean negative.**
+
+## Current capability architecture hypothesis
+
+The evidence now favors a modular stack:
+
+`CapabilityGraph / Lawbook -> dependency + scope check -> router -> selected capability/module -> execution -> verifier -> retain/revise/revoke`
+
+rather than assuming that many capabilities can simply be merged into one shared adapter.
+
+This is an empirical hypothesis, not yet a proved general architecture. The IKKF V2b negative is the reason it is now the highest-value neural frontier.
+
+## Best verified / causal results
+
+### Neural development, composition, hierarchy
+
+- **V15**: primitive skills could be retained individually while unseen `AB/ABC` composition remained at 0%, localizing a missing composition mechanism.
+- **V16, fresh rerun**: direct `AB/ABC` attempts failed; the frozen verified composer recovered both; required primitive ablations destroyed success; composed capability survived reload. This is the canonical explicit-composition result.
+- **V17**: verified `AB` was promoted to reusable chunk `D`; `D+C` reached `ABC`; ablating either `D` or `C` killed success. Hierarchy reduced candidate evaluations from **56 to 24** with no accuracy loss.
+- **V18**: verified discovery produced correct supervision, but fixed replay damaged protected ancestors. Preserve as a consolidation-policy negative.
+- **V18b**: verifier-driven adaptive rehearsal closed the bounded discover -> verify -> compile loop while protecting prior skills, and a higher-order verified composition became direct neural competence after consolidation/reload.
+
+### IKKF portable capability sequence
+
+- **IKKF V1 strict portability — PASS.** Fresh Qwen base + fresh LoRA only; no inherited capability checkpoint; only the compact exported capability artifact crossed the boundary. Cold/base performance was **0%**. Correct capability compilation reached **100% on 32 source-distinct held-out cases**. A second independent fresh compilation also reached **100%**. Matched decoy remained **0%**. Uninstall returned performance to **0%**. Reload preserved **100%**. All 12 frozen gates passed.
+- **Claim boundary for V1:** within this bounded repair DSL/domain, a verified explicit capability can be exported and independently recompiled into persistent neural competence. This is not yet model-independent or domain-general installable intelligence.
+- **IKKF V2 — semantic-precondition negative.** The first multi-capability routing protocol was invalidated before neural interpretation because one decoy capability was not semantically valid on every frozen held-out program. Preserve; do not treat as a model-routing result.
+- **IKKF V2b — FAIL_IKKF_V2B_CAPABILITY_ROUTING.** After restricting to programs where both capabilities were semantically valid, cold/base was `C=0, J=0, route=0`. The jointly compiled LoRA produced `C=1.0, J=0.0, route_accuracy=0.5`; reload preserved the same collapse. The shuffled arm also failed. This is a scientifically useful negative: one shared adapter learned/reached for C rather than selectively routing C vs J.
+- **Current interpretation:** portable capabilities are supported; automatic modularity after co-neuralization is not. The next clean gate is separate installed capability modules plus a small router, tested on the same V2b distribution.
+
+### IKKF V3 whole-stack bridge
+
+Frozen target:
+
+`external obstruction -> invented operator/scope -> compact capability export -> fresh River compile -> sealed external transfer -> ablation -> independent recompile -> later counterevidence -> revoke/detach`
+
+**Current status: BLOCKED_BEFORE_SCIENTIFIC_GATE.** V51 Phase A passed, but the V3 export-hygiene guard failed before River compilation. Therefore there is currently **no V3 neural transfer result, positive or negative**. Do not interpret the failed GitHub job as a scientific failure of the architecture; fix/package-audit must happen without weakening the frozen scientific gates.
+
+### Cognitive alphabet / grammar
+
+Candidate semantic operators remain:
 
 `DISTINGUISH, GENERATE, RELATE, PROBE, CONSTRAIN, SELECT, COMPOSE, RETAIN, TRANSDUCE, RECURSE`
 
-The typed state space compresses strongly to three functional classes:
+The coarse state quotient remains useful but intentionally lossy:
 
-- **GROUNDED** — tied to an external boundary/reality.
-- **OPEN** — unresolved possibility, candidates, relations, evidence.
+- **GROUNDED** — tied to external boundary/reality.
+- **OPEN** — unresolved candidates/relations/evidence.
 - **MEMORY** — retained developmental structure.
 
-The three-state algebra is intentionally only a quotient: multiple semantically distinct operators share the same coarse state transition.
+Key established results include cross-domain reusable words, strong operator-order directionality, typed-program search pruning, continuation prediction above baseline, and MetaMath-style scoped precedence/rewrite candidates. The coarse state transition algebra is not sufficient to identify semantic equivalence.
 
-## Best verified/causal experimental results
+### V70–V74 motif / grammar frontier
 
-### River / neural-development sequence
+- **V70 — PASS_MULTISCALE_MOTIF_DISCOVERY_V70.** On the frozen manually normalized 51-program / 11-domain corpus, recurring cross-domain/cross-scale motifs were strongly above within-program order-shuffle controls. Held-out-domain compression was **30.28%** vs **16.32%** shuffled mean; every domain compressed positively.
+- **V71 — PASS_SCALE_HOLDOUT_GRAMMAR_V71.** Training with an entire scale omitted still transferred: aggregate whole-scale compression **23.94%** vs **12.37%** shuffled mean; next-op accuracy **48.35%** vs **23.08%** majority.
+- **V72 — PASS_MDL_MOTIF_BASIS_V72.** Exact MDL selected five reusable motifs, reducing corpus cost from 142 to 120 including motif-definition cost (**15.49%** net saving), well above shuffled controls.
+- **V73 — MIXED / scientifically useful negative.** Reifying the five V72 motifs did **not** yield stable second-level recurrent motifs under the frozen hierarchy criteria. This blocks a premature recursive/fractal-organ claim from the short retrospective corpus.
+- **V74 — MIXED_MATH_GRAMMAR_TRANSFER_V74.** Operator-order structure learned without math ranked all five held-out math traces strongly, but the macro/chunk layer did not outperform the primitive transition grammar and the frozen shuffle significance gate failed (`p=0.03498 > 0.01`). Do **not** count V74 as a positive motif-to-math result. The residual points instead toward the primitive typed-operator grammar as the candidate transferable control signal.
 
-- **V15**: retained primitive skills did not spontaneously compose. `A=B=C=100%` individually while unseen `AB/ABC=0%`. This localized a missing explicit composition function.
-- **V16**: frozen V15 neural primitives + explicit verifier-governed composition recovered `AB=100%`, `ABC=100%`; fresh reload preserved performance; primitive ablations destroyed the corresponding composite. No new gradients were required.
-- **V17**: promoted verified `D=A∘B`, then reused `D∘C` for the deeper composite. Hierarchical chunking reduced candidate evaluations from 56 to 24 (57.1%) with no accuracy loss.
-- **V18**: verified explicit discovery generated correct neural supervision, but fixed replay/consolidation damaged protected ancestors. Useful negative result: discovery/verification worked; fixed consolidation policy did not.
-- **V18b**: verifier-driven adaptive rehearsal closed the bounded discover→verify→compile loop. After regression-sensitive replay, `A=B=C=D=100%` survived close/reload; then verified higher-order `E=D∘C` became direct neural competence while `A=B=C=D=E=100%` survived reload.
+### External algebra / discoverability / construction
 
-### Cognitive alphabet / grammar sequence
+The canonical results still include:
 
-- Frozen 10-operator alphabet encoded all 51 manually normalized cross-layer transitions with mean program length 2.78 and max 4. Initial free-text LODO prediction was mixed, so the alphabet is not declared universal/verified.
-- Opaque-label semantic control: correct definitions materially outperformed shuffled/no-definition controls, suggesting the operator meanings carry usable information beyond names.
-- **V19**: cross-domain operator words learned from other domains compressed held-out programs by 29.6%; matched shuffled words gave ~1% compression. 16 cross-domain words found, 15 spanning multiple layers.
-- **V20**: held-out true operator order ranked above all permutations on 77.6% of multi-step programs. `CONSTRAIN→SELECT`, `SELECT→RETAIN`, and `RELATE→COMPOSE` showed strong directionality.
-- Cross-domain executable word test: `RELATE→COMPOSE→CONSTRAIN→SELECT→RETAIN` solved 90/90 finite proof, safe interpreted program-repair, and system-configuration instances. `SELECT` before `CONSTRAIN` and `RETAIN` before `SELECT` gave 0/90; swapping `COMPOSE` before `RELATE` preserved correctness but roughly doubled search.
-- **V21 typed IR**: all canonical programs type-check; target recovery 100%; critical reversal rejection 100%; mean search pruning 99.26%. Many 120–5,040 permutation searches collapse to one legal typed program.
-- Type minimization: many named internal types collapse while retaining most pruning. A three-state `GROUNDED / OPEN / MEMORY` view remains highly informative; further collapse loses substantial pruning.
-- Cross-domain continuation grammar: training on other domains predicts the hidden final operator at 61.2% vs 20.4% majority baseline; paired exact test approximately `p=3.6e-5`.
+- closure-before-invention negative (`even_pairs` / proposed `MAP_PAIRS` already expressible);
+- external `EXCEPTION_FLOW` formation and later source-distinct causal reuse;
+- scoped quotient/equivalence laws changing search topology;
+- V33/V34 recursive discoverability ratchets, including source-distinct Requests -> Rich -> Flask frontier exposure;
+- V35 bounded constructor-family abstraction, where verified exact instances compressed into a typed reusable constructor that causally constructed an unseen source-distinct operator while protected negatives rejected an over-general constructor;
+- V51 bounded external operator construction from a generic token-emission substrate after an old-closure invariant obstruction, with learned scope, sealed transfer, and later revision/revocation logic. Claim boundary remains construction inside a supplied meta-language, not invention outside all meta-languages.
 
-### MetaMath V23
+### V67–V68 lawbook frontier
 
-V23 passed all frozen internal gates on the 51-transition / 11-domain corpus.
+The repository contains the frozen V67 active separator audit and V68 incremental quotient-lawbook result. These remain part of the external-law sequence and should be read with the historical V45–V66 ledger rather than replacing it.
 
-- 17 leave-one-domain-out robust precedence laws.
-- Strong non-commutative rewrite candidates, including normalizing toward `RELATE→COMPOSE`, `COMPOSE→CONSTRAIN`, `TRANSDUCE→CONSTRAIN`, `CONSTRAIN→SELECT`, `SELECT→RETAIN`.
-- Reusable cross-domain words compress 142 raw operator tokens to 88 coded tokens: **38.0% compression**.
-- The semantic transition graph is recurrent rather than a single linear pipeline.
-- The coarse three-state transition algebra generates only **23 distinct state transformations**, with short normal forms, but is too lossy to identify semantic equivalence: e.g. `GENERATE`, `RELATE`, and `COMPOSE` can share a coarse `OPEN→OPEN` signature while executable experiments show they are causally distinct.
+## Current executable-math / SorryDB frontier
 
-### External algebra / recursive discoverability
+- V75 executable-math-control code is present on `main`, but at this reconciliation there is **no authoritative V75 result summary committed on main**. Do not infer a verdict from code presence alone.
+- **V77 SorryDB preflight:** pinned SorryDB checkout succeeded; required files verified; Lean/elan and dependencies installed; River secret present; the official SorryDB verifier gate reproduced successfully. The subsequent Triskelion V77 end-to-end preflight step failed. Therefore V77 is currently **infrastructure/preflight blocked**, not a positive scientific result. Preserve the official-verifier reproduction as a passed prerequisite and diagnose the final preflight separately.
 
-- **even_pairs negative**: apparent `MAP_PAIRS` novelty was already in closure through lawful recomposition, so primitive invention was correctly rejected. This remains the canonical closure-before-invention negative.
-- **EXCEPTION_FLOW external formation/reuse**: independently selected ffmpeg source exposed a missing exception-flow boundary; the operator was retained and later independently required by SHAP. Retained-library ACCEPT vs ablated-library REJECT established bounded causal reuse.
-- **V30b**: on fixed independently authored QuixBugs code, syntactic ambiguity became a scoped extensional-equivalence law; quotienting by the verified law changed composition-search topology and enabled a later chunked repair within the frozen horizon.
-- **V32**: global algebraic laws were mostly false. No CMP/BIN/CONST pair commuted over the full support, despite many local contexts collapsing all six triple orderings to one extensional class. Conclusion: equations must carry explicit scope/context.
-- **V33**: fixed external Rich source produced a causal frontier chain `Raise -> With -> GeneratorExp`. Each retained frontier handler exposed the next frontier; ancestor ablation hid the successor again. This established bounded within-source `Discoverable(A_t)` growth.
-- **V34**: source-distinct recursive discoverability ratchet across three independently authored fixed repositories. Deterministic lineage: Requests `Try` -> Rich `Raise` -> Flask `With`. Corpus contained 1,025 functions and 9,240 eligible three-generation lineages before hash selection. Cold later targets exposed only earlier frontiers; ancestor ablations on the deepest target moved discovery back to the missing ancestor. Verdict: `PASS_SOURCE_DISTINCT_DISCOVERABILITY_RATCHET_V34`.
+## Mathematical framing
 
-### V35 constructor-family formation — bounded meta-level result
+A developmental algebra can be represented approximately as
 
-Question: can exact operator instances be compressed into a reusable constructor family that then causally constructs a new source-distinct operator?
-
-Frozen V34 instances:
-
-- exact `Try` handler from Requests;
-- exact `Raise` handler from Rich;
-- held-out `With` handler from Flask.
-
-A naive generic `PARAMETRIC_AST_HANDLER` was **rejected** because it also admitted protected non-statement AST objects (`Constant`, `Name`, `Load`, `Store`, `Add`, `Eq`). This is a useful negative: compression alone is insufficient for constructor promotion.
-
-The smallest scoped repair tested was a typed `PARAMETRIC_STMT_HANDLER(node_type, declared_fields)`. Under the transparent description-length proxy it:
-
-- covered the exact Try and Raise handlers;
-- rejected the protected non-statement negatives;
-- constructed the unseen source-distinct With handler;
-- compressed the two exact handlers from cost 247 to 148 (gain 99);
-- when the constructor family was ablated, With construction disappeared while already-retained Try/Raise remained available.
-
-Interpretation: bounded evidence for
-
-`exact verified operator instances -> scoped constructor abstraction -> unseen operator construction`.
-
-Claim boundary: the constructor candidate language and type predicates are still supplied. This is **not** unrestricted constructor invention.
-
-## Current mathematical framing
-
-Let a developmental algebra be approximately
-
-`A_t = (O_t, L_t, V, D_t, K_t)`
+`A_t = (O_t, L_t, V, D_t, K_t, C_t, R_t)`
 
 where:
 
-- `O_t`: currently verified generators/capabilities;
-- `L_t`: verified scoped equations/rewrite/composition laws;
-- `V`: external verifier family / authority boundary;
-- `D_t`: frozen discovery procedure induced by the current algebra;
-- `K_t`: currently available constructor algebra for forming candidate operators/representations.
+- `O_t`: verified generators/capabilities;
+- `L_t`: scoped verified laws/composition rules;
+- `V`: external verifier authority;
+- `D_t`: frozen discovery procedure;
+- `K_t`: constructor algebra;
+- `C_t`: compilation mechanism from explicit capability to procedural/neural form;
+- `R_t`: routing/activation policy over available capabilities.
 
-Define:
+Useful distinctions:
 
-- `Closure(A)`: what can be constructed now by lawful composition.
-- `Discoverable(A)`: what new verified generators the frozen discovery process can reach from the current algebra.
-- `Constructible(K)`: what operator schemas the current constructor algebra can express.
+- `Closure(A_t)`: what is already reachable by lawful composition.
+- `Discoverable(A_t)`: what new obstruction/generator the frozen discovery process can expose.
+- `Constructible(K_t)`: what capability schemas the current constructor algebra can express.
+- `Compilable(C_t, O)`: whether an explicit capability can be proceduralized under a frozen compiler.
+- `Selectable(R_t, O_1...O_n, x)`: whether the correct installed capability is invoked for context `x` without destructive interference.
 
-V34 gives bounded external evidence that `Discoverable(A_0)`, `Discoverable(A_1)`, and `Discoverable(A_2)` differ causally.
+IKKF V1 supplies bounded evidence about `Compilable`; IKKF V2b is a negative result for naive shared-adapter `Selectable` behavior.
 
-The next stronger meta-level target is:
+## Scientific discipline / claim boundary
 
-`Constructible(K_0) ⊊ Constructible(K_1)`
+Current results support bounded mechanisms for closure-before-invention, verified operator formation, independent causal reuse, scoped law discovery, quotient search, source-distinct discoverability growth, explicit composition, hierarchical chunking, protected neural consolidation, typed cognitive programs, constructor abstraction, cross-domain motif/grammar structure, and portable capability compilation.
 
-with a later operator/constructor family discoverable only because the earlier verified constructor extension exists.
+Do **not** yet claim:
 
-## Scientific discipline / claims boundary
+- a universal cognitive algebra;
+- unrestricted operator or constructor invention;
+- open-ended autonomous self-improvement;
+- universal/model-independent capability installation;
+- that V72 motifs are recursive universal cognitive organs;
+- that motif chunks improve mathematical route ranking (V74 did not establish this);
+- that multiple installed capabilities can safely be merged into one shared neural adapter (V2b is evidence against that naive form);
+- that IKKF V3 has passed (it has not reached its neural scientific gate yet).
 
-Current results support bounded mechanisms: closure-before-invention, verified operator formation, independent causal reuse, scoped law discovery, quotient search, recursive source-distinct discoverability, explicit composition, hierarchical chunking, protected neural consolidation, typed cognitive programs, and bounded constructor-family abstraction.
+## Immediate priorities
 
-Do **not** yet claim a universal cognitive algebra, unrestricted operator invention, unrestricted constructor invention, or open-ended self-improvement.
+1. **Repair V3 export hygiene without changing its frozen scientific protocol**, then rerun the whole-stack external-invention -> package -> fresh-compile -> sealed-transfer -> revoke/detach gate.
+2. **IKKF V2c / Capability OS:** keep C and J as separate installed modules; train/construct only a router; use the same V2b held-out distribution and matched controls. The key causal comparison is monolithic co-neuralization vs modular capability selection.
+3. **Finish V77 preflight diagnosis** while preserving the already-passed official SorryDB verifier prerequisite; do not advance to scientific interpretation until the end-to-end harness is clean.
+4. For the math-grammar line, test the **primitive typed-operator grammar** prospectively rather than silently re-testing the failed V74 macro advantage.
+5. Continue treating negative gates and infrastructure blocks as explicit state transitions rather than hiding them behind CI status.
 
-## Immediate next experiment
+## Canonical status files
 
-**V36 — Constructor Discoverability Ratchet**
-
-Freeze an old constructor algebra `K0`, a generic meta-construction/search budget, protected negatives, and source-selection protocol. Require:
-
-1. a first residual/operator family is not expressible in `Closure(K0)`;
-2. a minimal constructor generator `k1` is synthesized and externally scoped/verified;
-3. `k1` enables construction of an operator family that was not constructible under `K0`;
-4. that new operator changes the frontier on a source-distinct target and exposes a residual requiring a second constructor family `k2`;
-5. `k2` is not constructible/discoverable under `K0` but is under `K1=<K0,k1>`;
-6. ablating `k1` removes discovery of `k2`, not merely final task success;
-7. all constructor laws carry provenance, scope, counterexamples, and explicit revision/removal conditions.
-
-This is the constructor-level analogue of V34 and is now the highest-value falsification target.
+- `RESEARCH_STATE.md` — current synthesis and frontier.
+- `results/CURRENT_FRONTIER_2026-08-14.md` — concise audit ledger for the newest results/blocks.
+- `results/V45_V66_LEDGER.txt` — historical external quotient sequence; do not rewrite retrospectively.
+- individual `results/V*.{txt,md,json}` — immutable experiment-specific summaries where present.
