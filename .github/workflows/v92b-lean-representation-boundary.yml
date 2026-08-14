@@ -1,0 +1,41 @@
+name: V92b Lean Representation Boundary
+
+on:
+  push:
+    branches: [v92b-lean-representation-boundary]
+  workflow_dispatch:
+
+jobs:
+  factorize-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch frozen nanoda
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone -q https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          git -C nanoda_lib checkout -q 418320295890faed83a96fd97907b12a3b6728c2
+          cat > nanoda_lib/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+      - name: Run boundary-isolating factorization
+        env:
+          NANODA_DIR: nanoda_lib
+          OUT_DIR: results/v92b
+          CORPUS_DIR: v92b-corpus
+        run: python3 experiments/V92B_LEAN_REPRESENTATION_BOUNDARY.py
+      - name: Upload V92b audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v92b-lean-representation-boundary
+          path: results/v92b/
