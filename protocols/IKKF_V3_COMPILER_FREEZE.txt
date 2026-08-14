@@ -1,0 +1,43 @@
+IKKF V3 NEURAL COMPILER FREEZE — 2026-08-14 NZST
+
+This file is committed before the first V3 neural run.
+
+Base model: Qwen/Qwen3.5-9B
+River LoRA rank: 32
+Optimizer steps per compiled arm: 8
+Batch size: 16
+Learning rate: 5e-5
+Gradient clip norm: 1.0
+Temperature at evaluation: 0.0
+Max output tokens: 12
+
+Compiler inputs permitted:
+- exported CAPABILITY.json produced mechanically from V51 Phase-A COMMITMENT.json;
+- deterministic synthetic micro-contexts generated solely from package operator/scope fields.
+
+Compiler inputs forbidden:
+- V51 Django/Rich discovery source lines or logs;
+- sealed Requests source or tests;
+- later Django counterexample source or tests;
+- prior River checkpoints;
+- V51 discovery trajectories beyond the compact package.
+
+Synthetic practice
+- 128 deterministic practice prompts per capability compilation: 64 in-scope IF contexts and 64 out-of-scope WHILE contexts.
+- Correct compiler target: opaque capability ID on in-scope contexts, NOOP on out-of-scope contexts.
+- Scope-inverted control: NOOP on IF and opaque capability ID on WHILE.
+- Variable names/constants are generated from fixed integer indices; no external repository text is copied.
+
+Arms
+- B0: fresh uncompiled base+LoRA.
+- C1: correct package compile, seed 20260921.
+- C2: independent correct package compile, seed 20260922.
+- W: matched scope-inverted compile, seed 20260923.
+- R: reload C1 checkpoint in new session.
+- U: fresh uncompiled substrate representing uninstall/reversion.
+
+External neural-selection threshold
+>= 0.75 exact selection of the opaque capability ID over 8 fixed presentation variants of the sealed Requests residual.
+Cold/wrong/uninstall must remain < 0.75.
+
+No budget/threshold/arm changes after observing V3 neural outcomes.
