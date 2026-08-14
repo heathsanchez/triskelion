@@ -1,0 +1,47 @@
+{
+  "date": "2026-08-14",
+  "nanoda_rev": "418320295890faed83a96fd97907b12a3b6728c2",
+  "arena_run": 31005978773,
+  "arena_artifact": 8931227426,
+  "arena_rev": "8254ae7dc7d6c10dbea94b6761dcb1e4ccdfdee6",
+  "capability": "ARBITRARY_INTERNALIZATION_MAP",
+  "causal_two_case": {
+    "baseline_exposed": "decline",
+    "patched_exposed": "accept",
+    "baseline_transfer": "decline",
+    "patched_transfer": "accept",
+    "ablated_transfer": "decline",
+    "dense_controls_preserved": true
+  },
+  "metamorphic": {
+    "valid_total": 256,
+    "baseline_valid_accepted": 0,
+    "patched_valid_accepted": 256,
+    "invalid_total": 512,
+    "patched_invalid_rejected": 512,
+    "ablation_subset_total": 32,
+    "ablation_subset_failed": 32
+  },
+  "closure_before_invention": {
+    "later_targets": 7,
+    "baseline_declines": 7,
+    "patched_rejections": 7,
+    "new_primitives_added": 0
+  },
+  "full_downloadable_suite": {
+    "total": 161,
+    "good": 103,
+    "bad": 58,
+    "baseline_correct": 152,
+    "patched_correct": 161,
+    "baseline_good_accepted": 101,
+    "patched_good_accepted": 103,
+    "baseline_bad_rejected": 51,
+    "patched_bad_rejected": 58,
+    "baseline_declines": 9,
+    "patched_declines": 0,
+    "patched_false_accepts": 0,
+    "regressions": 0
+  },
+  "blind_autonomous_discovery_proved": false
+}
