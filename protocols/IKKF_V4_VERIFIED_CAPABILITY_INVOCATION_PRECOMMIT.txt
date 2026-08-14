@@ -1,0 +1,41 @@
+IKKF V4 — VERIFIED CAPABILITY INVOCATION — PRECOMMIT
+
+Question
+Can an exported Verified Capability be invoked correctly by its explicit applicability/scope semantics on a sealed external target, without asking a neural router to infer when to use it?
+
+Frozen parent evidence
+- V51 operator construction and scope induction are rerun unchanged.
+- IKKF V3 export format is reused unchanged.
+- V3 neural compilation outcome is irrelevant to this gate.
+
+Frozen causal order
+1. Provision the same independently authored Django, Requests and Rich commits used by V51/V3.
+2. Run V51 Phase A unchanged to construct the operator and scope.
+3. Export only the compact capability package using the existing V3 exporter.
+4. Open the sealed Requests target.
+5. Enumerate every occurrence of the operator source token in the target file after inducing the unique broken strict-boundary site.
+6. For each candidate line, decide applicability ONLY by whether the capability's frozen scope signature is a subset of the line's frozen lexical-feature signature. No learned router and no repository/test outcome may enter selection.
+7. The runtime may apply the capability only at selected sites.
+8. Run the sealed external verifier.
+9. Ablate the capability and rerun the same verifier.
+10. Only after the sealed invocation result, open the precommitted later Django counterevidence via V51 Phase B and require the package to be revoked/detached if the V51 revision decision is REVOKE.
+
+Primary gates
+G1 old closure obstruction passes.
+G2 external operator construction passes.
+G3 unique learned scope exists.
+G4 compact exported package passes hygiene.
+G5 sealed Requests obstruction exists uniquely.
+G6 explicit applicability selects the required sealed site.
+G7 explicit applicability does not select any nonmember candidate site in the sealed target file.
+G8 capability invocation repairs the sealed verifier.
+G9 ablation restores verifier failure.
+G10 no neural router/checkpoint is used for selection or execution.
+G11 later precommitted source-distinct counterevidence is opened only after sealed evaluation.
+G12 later V51 decision revises or revokes the capability; if REVOKE, runtime availability becomes false.
+
+Verdict
+PASS_IKKF_V4_VERIFIED_CAPABILITY_INVOCATION iff all twelve gates pass.
+
+Claim boundary
+A pass establishes explicit verified invocation of one externally constructed scoped token-rewrite capability under one frozen external sequence. It does not establish general learned routing, arbitrary semantic applicability inference, or neural proceduralization.
