@@ -1,0 +1,20 @@
+{
+  "protocol": "V80_PROBE_TO_SURROGATE_COMPOUNDING",
+  "parent_result": "V79_EXTERNAL_BLACKBOX_PROBE",
+  "heldout_world_family": "mpmath",
+  "constructor": "generic Chebyshev fit degree 12 from verified samples",
+  "cold_all_constructed": false,
+  "cold_all_pass": false,
+  "warm_all_constructed": true,
+  "warm_all_pass": true,
+  "warm_probe_calls_each": 17,
+  "fresh_test_points_each": 41,
+  "warm_max_errors": [3.93574062229618e-14,1.5543122344752192e-15,2.4743454440923074e-07,1.8841286808513047e-08,1.8841286308912686e-08,4.1300296516055823e-14],
+  "ablation_all_constructed": false,
+  "ablation_all_pass": false,
+  "rebuild_from_capability_only_all_pass": true,
+  "rebuild_sample_interface_calls_each": 0,
+  "wrong_lineage_all_fail": true,
+  "gates": {"cold_no_O2": true, "O1_makes_O2_constructible": true, "O1_ablation_removes_O2": true, "O2_runs_without_future_probe": true, "wrong_lineage_fails": true},
+  "verdict": "PASS_EXTERNAL_O1_TO_O2_V80"
+}
