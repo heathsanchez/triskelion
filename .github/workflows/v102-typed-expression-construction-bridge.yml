@@ -1,0 +1,25 @@
+name: V102 Typed Expression Construction Bridge
+on:
+  push:
+    branches: [v102-typed-expression-construction-bridge]
+jobs:
+  v102:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V102
+        run: QUIXBUGS_DIR=/tmp/QuixBugs OUT_DIR=results/v102 python experiments/METALOGIC_V102_TYPED_EXPRESSION_CONSTRUCTION_BRIDGE.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v102-typed-expression-construction-bridge
+          path: results/v102/RESULT.json
