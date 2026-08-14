@@ -1,0 +1,35 @@
+name: V92P Functional Role Preflight NONCLAIM
+on:
+  push:
+    branches: [v92p-functional-role-preflight]
+jobs:
+  v92p:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Shrink diagnostic only
+        run: |
+          cp experiments/METALOGIC_V92_FUNCTIONAL_ROLE_ONTOLOGY.py /tmp/v92p.py
+          sed -i 's/BUDGET_TRAIN=110/BUDGET_TRAIN=25/' /tmp/v92p.py
+          sed -i 's/BUDGET_TEST=150/BUDGET_TEST=35/' /tmp/v92p.py
+          sed -i "s/train=names\[:12\]; test=names\[12:\]/train=names[:5]; test=names[5:10]/" /tmp/v92p.py
+          sed -i "s#OUT=Path(os.environ.get('OUT_DIR','results/v92'))#OUT=Path(os.environ.get('OUT_DIR','results/v92p'))#" /tmp/v92p.py
+      - name: Run NONCLAIM preflight
+        env:
+          QUIXBUGS_DIR: /tmp/QuixBugs
+          OUT_DIR: results/v92p
+        run: python /tmp/v92p.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v92p-functional-role-preflight-nonclaim
+          path: results/v92p/RESULT.json
