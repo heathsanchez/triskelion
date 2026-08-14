@@ -1,0 +1,38 @@
+name: IKKF V2E Verified Invocation Distillation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v2e-verified-invocation-distillation]
+    paths:
+      - '.github/workflows/ikkf-v2e-verified-invocation-distillation.yml'
+      - 'experiments/IKKF_V2E_VERIFIED_INVOCATION_DISTILLATION.py'
+      - 'protocols/IKKF_V2E_VERIFIED_INVOCATION_DISTILLATION_PRECOMMIT.txt'
+      - 'experiments/IKKF_V2_CAPABILITY_ROUTING.py'
+
+jobs:
+  verified-invocation-distillation-v2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Show frozen hashes
+        run: sha256sum protocols/IKKF_V2E_VERIFIED_INVOCATION_DISTILLATION_PRECOMMIT.txt experiments/IKKF_V2_CAPABILITY_ROUTING.py experiments/IKKF_V2E_VERIFIED_INVOCATION_DISTILLATION.py
+      - name: Run V2e verified invocation distillation gate
+        run: python experiments/IKKF_V2E_VERIFIED_INVOCATION_DISTILLATION.py
+      - name: Upload scientific artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v2e-verified-invocation-distillation
+          path: artifacts/ikkf_v2e_verified_invocation_distillation/
