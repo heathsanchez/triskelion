@@ -14,11 +14,10 @@ jobs:
       - run: python -m pip install -q pytest pytest-timeout
       - name: Fetch frozen QuixBugs
         run: |
-          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/quixbugs
-          cd /tmp/quixbugs && git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs && git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
       - name: Run NONCLAIM V101P
         env:
-          QUIXBUGS_ROOT: /tmp/quixbugs
           OUT_DIR: results/v101p
         run: python experiments/METALOGIC_V101P_DEPTH2_CLOSURE_PREFLIGHT.py
       - uses: actions/upload-artifact@v4
