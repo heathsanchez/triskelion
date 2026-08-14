@@ -1,0 +1,104 @@
+name: Lean Kernel Arena carry iota args
+on:
+  push:
+    branches: [agent/lean-kernel-arena-carry-iota-args]
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare baseline, carried args, and composition
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/carry-iota-args
+          rm -rf "$OUT" base carry combo arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git base
+          git -C base checkout "$SOKO_REV"
+          cp -a base carry
+          cp -a base combo
+          python3 - <<'PY'
+          from pathlib import Path
+          def carry_patch(root):
+              p=Path(root)/'src/eval.rs'; s=p.read_text()
+              old="enum ForceStep<'a> {\n    Reduced(V<'a>),\n    Descend(V<'a>),\n    Done,\n}"
+              new="enum ForceStep<'a> {\n    Reduced(V<'a>),\n    Descend(V<'a>, SpineArgs<'a>),\n    Done,\n}"
+              assert old in s; s=s.replace(old,new,1)
+              old="        let mut waiting: Vec<V<'t>> = Vec::new();"
+              new="        let mut waiting: Vec<(V<'t>, SpineArgs<'t>)> = Vec::new();"
+              assert old in s; s=s.replace(old,new,1)
+              old="                ForceStep::Descend(major) => {\n                    waiting.push(cur);\n                    cur = major;\n                    continue;\n                }"
+              new="                ForceStep::Descend(major, args) => {\n                    waiting.push((cur, args));\n                    cur = major;\n                    continue;\n                }"
+              assert old in s; s=s.replace(old,new,1)
+              old="                    Some(rec_val) => {\n                        let key = rec_val as *const Value<'t> as usize;\n                        match self.fire_value(depth, rec_val, cur) {"
+              new="                    Some((rec_val, args)) => {\n                        let key = rec_val as *const Value<'t> as usize;\n                        match self.fire_value(depth, rec_val, &args, cur) {"
+              assert old in s; s=s.replace(old,new,1)
+              s=s.replace("                    return ForceStep::Descend(major_h);","                    return ForceStep::Descend(major_h, args);",2)
+              old="    fn fire_value(&mut self, depth: u32, rec_val: V<'t>, major: V<'t>) -> Option<V<'t>> {"
+              new="    fn fire_value(&mut self, depth: u32, rec_val: V<'t>, args: &[V<'t>], major: V<'t>) -> Option<V<'t>> {"
+              assert old in s; s=s.replace(old,new,1)
+              old="                let rec = env.get_recursor(name)?;\n                let args = self.spine_apps(depth, spine)?;\n                if args.len() <= rec.major_idx() {\n                    return None;\n                }\n                self.fire_recursor(depth, &rec, *levels, &args, major)"
+              new="                let rec = env.get_recursor(name)?;\n                if args.len() <= rec.major_idx() {\n                    return None;\n                }\n                self.fire_recursor(depth, &rec, *levels, args, major)"
+              assert old in s; s=s.replace(old,new,1)
+              old="            Value::Rigid { head: RigidHead::QuotConst(name, _), spine , ..} => {\n                let args = self.spine_apps(depth, spine)?;\n                self.fire_quot(depth, *name, &args, major)\n            }"
+              new="            Value::Rigid { head: RigidHead::QuotConst(name, _), ..} => {\n                self.fire_quot(depth, *name, args, major)\n            }"
+              assert old in s; s=s.replace(old,new,1)
+              p.write_text(s)
+          carry_patch('carry')
+          carry_patch('combo')
+          p=Path('combo/src/eval.rs'); s=p.read_text()
+          old="        let major = self\n            .major_to_ctor(depth, major)\n            .or_else(|| self.try_k_reduce(depth, major, rec))\n            .or_else(|| self.try_struct_eta_reduce(depth, major, rec))\n            .unwrap_or(major);"
+          new="        let major = if matches!(major, Value::Rigid { head: RigidHead::Ctor(..), .. }) {\n            major\n        } else {\n            self.major_to_ctor(depth, major)\n                .or_else(|| self.try_k_reduce(depth, major, rec))\n                .or_else(|| self.try_struct_eta_reduce(depth, major, rec))\n                .unwrap_or(major)\n        };"
+          assert old in s; p.write_text(s.replace(old,new,1))
+          PY
+          for d in base carry combo; do
+            cat > "$d/config.json" <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
+          JSON
+            (cd "$d" && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,time,json,statistics,random,hashlib
+          root=Path.cwd(); out=root/'results/carry-iota-args'; vs=['base','carry','combo']
+          bins={v:root/v/'target/release/sokonanoda' for v in vs}; cfgs={v:root/v/'config.json' for v in vs}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          cases=[]
+          for kind,exp in [('good','accept'),('bad','reject')]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
+          correctness={}
+          for v in vs:
+              bad=[]
+              for p,exp in cases:
+                  with p.open('rb') as f: rc=subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+                  if status(rc)!=exp: bad.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'got':status(rc),'rc':rc})
+              correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
+          workload=sorted([p for p,_ in cases],key=lambda p:p.stat().st_size,reverse=True)[:24]
+          workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
+          samples={v:[] for v in vs}
+          for seed in range(14):
+              order=vs.copy(); random.Random(seed).shuffle(order)
+              for v in order:
+                  t=time.perf_counter()
+                  for p in workload:
+                      with p.open('rb') as f: subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                  samples[v].append(time.perf_counter()-t)
+          med={v:statistics.median(samples[v]) for v in vs}
+          summary={'correctness':correctness,'median_seconds':med,'speedup_carry_vs_base':med['base']/med['carry'],'speedup_combo_vs_base':med['base']/med['combo'],'samples_seconds':samples}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit('correctness regression')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-carry-iota-args
+          path: results/carry-iota-args/
