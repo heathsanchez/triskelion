@@ -51,21 +51,25 @@ def setup(repo,py):
   txt=decode_req(req); clean=repo/'.v52req.txt'; clean.write_text('\n'.join(s.strip() for s in txt.splitlines() if s.strip() and not s.lstrip().startswith('#')))
   rc,x=run(f'{pip} install -q -r .v52req.txt',repo,90);chunks.append(x)
   if rc:return False,'\n'.join(chunks)
- env=os.environ.copy();env['PATH']=str(repo/'.v52env/bin')+':'+env.get('PATH','');sh=repo/'bugsinpy_setup.sh'
+ e=os.environ.copy();e['PATH']=str(repo/'.v52env/bin')+':'+e.get('PATH','');sh=repo/'bugsinpy_setup.sh'
  if sh.exists():
-  rc,x=run('bash bugsinpy_setup.sh',repo,45,env);chunks.append(x)
+  rc,x=run('bash bugsinpy_setup.sh',repo,45,e);chunks.append(x)
   if rc:return False,'\n'.join(chunks)
  run(f'{pip} install -q coverage',repo,45)
  return True,'\n'.join(chunks)
 def env(repo):
  e=os.environ.copy();e['PATH']=str(repo/'.v52env/bin')+':'+e.get('PATH','');return e
 def test(repo,coverage=False):
+ harness=repo/'bugsinpy_run_test.sh'
+ if not harness.exists(): return False,'MISSING_BUGSINPY_RUN_TEST'
  cmd='bash bugsinpy_run_test.sh'
  if coverage:
-  # Prefix python/pytest invocations in the generated script with coverage where possible.
-  s=(repo/'bugsinpy_run_test.sh').read_text(errors='ignore'); s=s.replace('pytest ','coverage run --parallel-mode -m pytest ').replace('python -m pytest ','coverage run --parallel-mode -m pytest '); (repo/'.v52cov.sh').write_text(s);cmd='bash .v52cov.sh'
+  s=harness.read_text(errors='ignore'); s=s.replace('pytest ','coverage run --parallel-mode -m pytest ').replace('python -m pytest ','coverage run --parallel-mode -m pytest '); (repo/'.v52cov.sh').write_text(s);cmd='bash .v52cov.sh'
  return (lambda z:(z[0]==0,z[1]))(run(cmd,repo,35,env(repo)))
-def reset(repo):run('git reset --hard -q HEAD && git clean -fdxq -e .v52env',repo,20)
+def reset(repo):
+ # BugsInPy checkout writes the test/setup/requirements harness as untracked files.
+ # Preserve those plus the isolated environment while restoring only the historical source tree.
+ run("git reset --hard -q HEAD && git clean -fdxq -e .v52env -e 'bugsinpy_*' -e .v52req.txt",repo,20)
 def cov_sites(repo):
  reset(repo);ok,out=test(repo,True);run('.v52env/bin/coverage combine >/dev/null 2>&1 || true; .v52env/bin/coverage json -o .v52cov.json >/dev/null 2>&1 || true',repo,20,env(repo)); p=repo/'.v52cov.json';sites=[]
  if p.exists():
