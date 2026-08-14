@@ -1,0 +1,26 @@
+name: V78 Alphabet Collider Calibration
+
+on:
+  push:
+    branches: [v78-alphabet-collider]
+  workflow_dispatch:
+
+jobs:
+  alphabet-collider:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run calibration
+        run: python experiments/V78_ALPHABET_COLLIDER_CALIBRATION.py
+      - name: Copy result into artifact directory
+        run: |
+          mkdir -p artifact
+          cp /tmp/alphabet_collider_result.json artifact/RESULT.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v78-alphabet-collider-calibration
+          path: artifact/RESULT.json
