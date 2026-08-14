@@ -1,0 +1,183 @@
+name: Lean Kernel Arena mathlib composition
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-mathlib-composition]
+  workflow_dispatch:
+
+jobs:
+  mathlib-composition:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build four PGO checker variants
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=mathlib-composition
+          rm -rf "$OUT" soko arena-small artifact tests.zip
+          mkdir -p "$OUT" arena-small artifact
+
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-small
+
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          cp soko/src/tc.rs /tmp/tc.orig.rs
+          cat > soko/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root=Path('arena-small')
+          fs=list((root/'good').rglob('*.ndjson'))+list((root/'bad').rglob('*.ndjson'))
+          largest=sorted(fs,key=lambda p:p.stat().st_size,reverse=True)[:24]
+          largest=sorted(largest,key=lambda p:hashlib.sha256(str(p.relative_to(root)).encode()).hexdigest())
+          init=list(root.rglob('init-prelude.ndjson'))
+          assert len(init)==1, init
+          Path('mathlib-composition/arena-train.txt').write_text(str(init[0])+'\n')
+          Path('mathlib-composition/hybrid-train.txt').write_text(str(init[0])+'\n'+'\n'.join(str(p) for p in largest)+'\n')
+          PY
+
+          rustup component add llvm-tools-preview
+          PROF="$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's/^host: //p')/bin/llvm-profdata"
+          mkdir -p soko/profiles
+
+          patch_tc() {
+            local chunk=$1 budget=$2
+            cp /tmp/tc.orig.rs soko/src/tc.rs
+            python3 - "$chunk" "$budget" <<'PY'
+          from pathlib import Path
+          import sys
+          chunk,budget=sys.argv[1:3]
+          p=Path('soko/src/tc.rs'); s=p.read_text()
+          assert 'const CHUNK_SIZE: usize = 64;' in s
+          assert 'const SESSION_BUDGET: usize = 1 << 20;' in s
+          s=s.replace('const CHUNK_SIZE: usize = 64;',f'const CHUNK_SIZE: usize = {chunk};',1)
+          s=s.replace('const SESSION_BUDGET: usize = 1 << 20;',f'const SESSION_BUDGET: usize = {budget};',1)
+          p.write_text(s)
+          PY
+          }
+
+          build_variant() {
+            local name=$1 chunk=$2 budget=$3 train=$4
+            patch_tc "$chunk" "$budget"
+            rm -rf soko/profiles/* "soko/gen-$name" "soko/use-$name"
+            (cd soko && CARGO_TARGET_DIR="gen-$name" RUSTFLAGS="-C target-cpu=native -C profile-generate=$PWD/profiles" cargo build --release)
+            while read -r f; do "soko/gen-$name/release/sokonanoda" soko/config.json < "$f" >/dev/null 2>/dev/null || true; done < "$train"
+            "$PROF" merge -o "/tmp/${name}.profdata" soko/profiles/*.profraw
+            (cd soko && CARGO_TARGET_DIR="use-$name" RUSTFLAGS="-C target-cpu=native -C profile-use=/tmp/${name}.profdata" cargo build --release)
+            cp "soko/use-$name/release/sokonanoda" "$OUT/$name"
+          }
+
+          # Public Arena configuration.
+          build_variant baseline 64 1048576 "$OUT/arena-train.txt"
+          # Strongest isolated scheduling candidate.
+          build_variant chunk128 128 1048576 "$OUT/arena-train.txt"
+          # Add weak session-lifetime candidate, still Arena-style PGO.
+          build_variant composed_arena 128 2097152 "$OUT/arena-train.txt"
+          # Same source candidate, but hybrid profile discovered by MathGraph search.
+          build_variant composed_hybrid 128 2097152 "$OUT/hybrid-train.txt"
+
+          cp soko/config.json "$OUT/config.json"
+          sha256sum "$OUT"/baseline "$OUT"/chunk128 "$OUT"/composed_arena "$OUT"/composed_hybrid > "$OUT/binaries.sha256"
+          cp /tmp/tc.orig.rs "$OUT/original-tc.rs"
+          rm -rf soko arena-small artifact tests.zip
+          df -h . | tee "$OUT/disk-before-mathlib.txt"
+
+      - name: Build exact Arena mathlib export
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf arena
+          git clone https://github.com/leanprover/lean-kernel-arena.git arena
+          git -C arena checkout e1553db0d9ad58b6d7e0ca7de839191187aff0cb
+          if ! command -v elan >/dev/null; then
+            curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+            export PATH="$HOME/.elan/bin:$PATH"
+          fi
+          python3 -m pip install --quiet jinja2 jsonschema markdown pyyaml
+          (cd arena && python3 lka.py build-test mathlib)
+          MATHLIB=$(find arena/_build/tests -type f -name '*mathlib*.ndjson' | head -n1)
+          test -n "$MATHLIB"
+          echo "$MATHLIB" > mathlib-composition/mathlib-path.txt
+          sha256sum "$MATHLIB" | tee mathlib-composition/mathlib.sha256
+          stat -c '%s bytes' "$MATHLIB" | tee mathlib-composition/mathlib-size.txt
+
+      - name: Paired four-way mathlib benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$PWD/mathlib-composition"
+          MATHLIB=$(cat "$OUT/mathlib-path.txt")
+          CFG="$OUT/config.json"
+          chmod +x "$OUT"/baseline "$OUT"/chunk128 "$OUT"/composed_arena "$OUT"/composed_hybrid
+          : > "$OUT/raw.tsv"
+          run_one() {
+            local label=$1 exe=$2
+            local tf vals rc
+            tf=$(mktemp)
+            set +e
+            /usr/bin/time -f '%e\t%U\t%S\t%M' -o "$tf" "$exe" "$CFG" < "$MATHLIB" >/dev/null 2>"$OUT/${label}.stderr"
+            rc=$?
+            set -e
+            vals=$(cat "$tf"); rm -f "$tf"
+            printf '%s\t%s\t%s\n' "$label" "$rc" "$vals" | tee -a "$OUT/raw.tsv"
+            test "$rc" -eq 0
+          }
+          # Symmetric order reduces warmup/runner drift.
+          run_one baseline_1 "$OUT/baseline"
+          run_one chunk128_1 "$OUT/chunk128"
+          run_one composed_arena_1 "$OUT/composed_arena"
+          run_one composed_hybrid_1 "$OUT/composed_hybrid"
+          run_one composed_hybrid_2 "$OUT/composed_hybrid"
+          run_one composed_arena_2 "$OUT/composed_arena"
+          run_one chunk128_2 "$OUT/chunk128"
+          run_one baseline_2 "$OUT/baseline"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,statistics
+          out=Path('mathlib-composition')
+          rows=[]
+          for line in (out/'raw.tsv').read_text().splitlines():
+              label,rc,wall,user,sys,rss=line.split('\t')
+              rows.append({'label':label,'rc':int(rc),'wall_s':float(wall),'user_s':float(user),'sys_s':float(sys),'max_rss_kb':int(rss)})
+          names=['baseline','chunk128','composed_arena','composed_hybrid']
+          med={n:statistics.median([r['wall_s'] for r in rows if r['label'].startswith(n+'_')]) for n in names}
+          base=med['baseline']; winner=min(med,key=med.get)
+          summary={
+              'rows':rows,
+              'median_seconds':med,
+              'speedup_vs_public_baseline':{n:base/med[n] for n in names},
+              'winner':winner,
+              'winner_speedup_vs_public_baseline':base/med[winner],
+              'all_accept':all(r['rc']==0 for r in rows)
+          }
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True))
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          if not summary['all_accept']: raise SystemExit('mathlib correctness failure')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-mathlib-composition
+          path: mathlib-composition/
