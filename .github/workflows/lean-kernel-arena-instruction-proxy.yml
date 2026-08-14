@@ -1,0 +1,111 @@
+name: Lean Kernel Arena instruction proxy
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-instruction-proxy]
+  workflow_dispatch:
+
+jobs:
+  instruction-proxy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare dynamic instruction counts
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq valgrind
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/instruction-proxy
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT/bin" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          cat > soko/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+          cp soko/src/tc.rs /tmp/tc.orig
+          cp soko/src/conv.rs /tmp/conv.orig
+          build_variant() {
+            local name=$1 chunk=$2 probe=$3
+            cp /tmp/tc.orig soko/src/tc.rs
+            cp /tmp/conv.orig soko/src/conv.rs
+            python3 - "$chunk" "$probe" <<'PY'
+          from pathlib import Path
+          import sys
+          chunk,probe=sys.argv[1:3]
+          p=Path('soko/src/tc.rs'); s=p.read_text(); assert 'const CHUNK_SIZE: usize = 64;' in s
+          p.write_text(s.replace('const CHUNK_SIZE: usize = 64;',f'const CHUNK_SIZE: usize = {chunk};',1))
+          p=Path('soko/src/conv.rs'); s=p.read_text(); assert 'const PROBE_CAP: u32 = 2048;' in s
+          p.write_text(s.replace('const PROBE_CAP: u32 = 2048;',f'const PROBE_CAP: u32 = {probe};',1))
+          PY
+            (cd soko && RUSTFLAGS='-C target-cpu=x86-64' cargo build --release)
+            cp soko/target/release/sokonanoda "$OUT/bin/$name"
+          }
+          build_variant baseline 64 2048
+          build_variant chunk128 128 2048
+          build_variant probe512 64 512
+          build_variant combined 128 512
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,hashlib
+          root=Path('arena-tests')
+          fs=list((root/'good').rglob('*.ndjson'))
+          # Use three largest valid downloadable cases; this is a deterministic instruction proxy, not wall timing.
+          chosen=sorted(fs,key=lambda p:p.stat().st_size,reverse=True)[:3]
+          Path('results/instruction-proxy/cases.txt').write_text('\n'.join(str(p) for p in chosen)+'\n')
+          Path('results/instruction-proxy/cases.json').write_text(json.dumps([
+            {'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+            for p in chosen],indent=2))
+          PY
+
+          : > "$OUT/raw.tsv"
+          for variant in baseline chunk128 probe512 combined; do
+            i=0
+            while read -r f; do
+              i=$((i+1))
+              cg="$OUT/callgrind-${variant}-${i}.out"
+              set +e
+              valgrind --tool=callgrind --quiet --callgrind-out-file="$cg" "$OUT/bin/$variant" soko/config.json < "$f" >/dev/null 2>"$OUT/${variant}-${i}.stderr"
+              rc=$?
+              set -e
+              test "$rc" -eq 0
+              ir=$(awk '/^summary:/ {print $2; exit}' "$cg")
+              printf '%s\t%s\t%s\t%s\n' "$variant" "$i" "$ir" "$f" | tee -a "$OUT/raw.tsv"
+            done < "$OUT/cases.txt"
+          done
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          rows=[]
+          for line in Path('results/instruction-proxy/raw.tsv').read_text().splitlines():
+              v,i,ir,f=line.split('\t',3); rows.append({'variant':v,'case':int(i),'instructions':int(ir),'file':f})
+          totals={v:sum(r['instructions'] for r in rows if r['variant']==v) for v in ['baseline','chunk128','probe512','combined']}
+          b=totals['baseline']
+          summary={'rows':rows,'total_instructions':totals,'instruction_ratio_vs_baseline':{v:totals[v]/b for v in totals},
+                   'instruction_reduction_percent':{v:(1-totals[v]/b)*100 for v in totals},'winner':min(totals,key=totals.get)}
+          Path('results/instruction-proxy/summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-instruction-proxy
+          path: results/instruction-proxy/
