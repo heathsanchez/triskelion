@@ -1,0 +1,267 @@
+name: V92 Lean Representation Factorization
+
+on:
+  push:
+    branches: [v92-lean-representation-factorization]
+  workflow_dispatch:
+
+jobs:
+  factorize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Factor learned representation by causal subset ablation
+        shell: bash
+        run: |
+          set -euo pipefail
+          NANODA_REV=418320295890faed83a96fd97907b12a3b6728c2
+          git clone -q https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          git -C nanoda_lib checkout -q "$NANODA_REV"
+          cat > nanoda_lib/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+          mkdir -p v92-corpus/positive v92-corpus/negative results/v92
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, random, hashlib
+          out=Path('v92-corpus'); manifest=[]
+          meta={"meta":{"exporter":{"name":"v92-factorization","version":"0.1.0"},"format":{"version":"3.1.0"},"lean":{"githash":"2fcce7258eeb6e324366bc25f9058293b04b7547","version":"4.29.1"}}}
+          for seed in range(256):
+              r=random.Random(seed)
+              name_id=r.randrange(1,1_000_000)
+              level_a=r.randrange(1,1_000_000)
+              level_b=r.randrange(1,1_000_000)
+              while level_b==level_a: level_b=r.randrange(1,1_000_000)
+              expr_id=r.randrange(1,1_000_000)
+              rows=[meta,
+                    {"in":name_id,"str":{"pre":0,"str":"foo"}},
+                    {"il":level_b,"succ":0},
+                    {"il":level_a,"succ":level_b},
+                    {"ie":expr_id,"sort":level_a},
+                    {"axiom":{"isUnsafe":False,"levelParams":[],"name":name_id,"type":expr_id}}]
+              p=out/'positive'/f'{seed:03d}.ndjson'; p.write_text('\n'.join(json.dumps(x,separators=(',',':')) for x in rows)+'\n')
+              manifest.append({'kind':'positive','seed':seed,'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+              bad=[dict(x) for x in rows]
+              bad[4]={"ie":expr_id,"sort":1_000_001+seed}
+              q=out/'negative'/f'{seed:03d}-dangling-level.ndjson'; q.write_text('\n'.join(json.dumps(x,separators=(',',':')) for x in bad)+'\n')
+              manifest.append({'kind':'dangling-level','seed':seed,'path':str(q),'sha256':hashlib.sha256(q.read_bytes()).hexdigest()})
+              dup=rows[:-1]+[{"ie":expr_id,"bvar":0},rows[-1]]
+              q=out/'negative'/f'{seed:03d}-duplicate-expr.ndjson'; q.write_text('\n'.join(json.dumps(x,separators=(',',':')) for x in dup)+'\n')
+              manifest.append({'kind':'duplicate-expr','seed':seed,'path':str(q),'sha256':hashlib.sha256(q.read_bytes()).hexdigest()})
+          Path('results/v92/manifest.json').write_text(json.dumps(manifest,indent=2))
+          PY
+
+          cat > /tmp/patch_factor.py <<'PY'
+          import sys
+          from pathlib import Path
+          enabled=set(sys.argv[1].split(',')) if sys.argv[1] != 'NONE' else set()
+          guard=(sys.argv[2] != 'NO_GUARD')
+          p=Path('nanoda_lib/src/parser.rs'); s=p.read_text()
+          def rep(old,new,n=1):
+              global s
+              c=s.count(old)
+              if c!=n: raise SystemExit(f'anchor count {c}, expected {n}: {old[:100]!r}')
+              s=s.replace(old,new,n)
+
+          fields=[]
+          if 'NAME' in enabled: fields.append("    name_backrefs: FxHashMap<u32, NamePtr<'a>>")
+          if 'LEVEL' in enabled: fields.append("    level_backrefs: FxHashMap<u32, LevelPtr<'a>>")
+          if 'EXPR' in enabled: fields.append("    expr_backrefs: FxHashMap<u32, ExprPtr<'a>>")
+          if fields:
+              rep("    mutual_block_sizes: FxHashMap<NamePtr<'a>, (usize, usize)>\n}",
+                  "    mutual_block_sizes: FxHashMap<NamePtr<'a>, (usize, usize)>,\n" + ',\n'.join(fields) + "\n}")
+
+              pre=[]; extra=[]
+              if 'NAME' in enabled:
+                  pre += ["        let mut name_backrefs = new_fx_hash_map();", "        name_backrefs.insert(0, NamePtr::from(DagMarker::ExportFile, 0));"]
+                  extra.append("            name_backrefs")
+              if 'LEVEL' in enabled:
+                  pre += ["        let mut level_backrefs = new_fx_hash_map();", "        level_backrefs.insert(0, LevelPtr::from(DagMarker::ExportFile, 0));"]
+                  extra.append("            level_backrefs")
+              if 'EXPR' in enabled:
+                  pre += ["        let expr_backrefs = new_fx_hash_map();"]
+                  extra.append("            expr_backrefs")
+              old="""    pub fn new(buf_reader: R, config: Config) -> Self {
+        Self {
+            buf_reader,
+            line_num: 0usize,
+            dag: LeanDag::new(&config),
+            declars: new_fx_index_map(),
+            notations: new_fx_hash_map(),
+            config,
+            skipped: Vec::new(),
+            mutual_block_sizes: new_fx_hash_map()
+        }
+    }"""
+              new="    pub fn new(buf_reader: R, config: Config) -> Self {\n" + '\n'.join(pre) + "\n        Self {\n            buf_reader,\n            line_num: 0usize,\n            dag: LeanDag::new(&config),\n            declars: new_fx_index_map(),\n            notations: new_fx_hash_map(),\n            config,\n            skipped: Vec::new(),\n            mutual_block_sizes: new_fx_hash_map(),\n" + ',\n'.join(extra) + "\n        }\n    }"
+              rep(old,new)
+
+          if 'NAME' in enabled:
+              rep("""    fn get_name_ptr(&self, idx: u32) -> NamePtr<'a> {
+        let out = crate::util::Ptr::from(DagMarker::ExportFile, idx as usize);
+        assert!((idx as usize) < self.dag.names.len());
+        out
+    }""", """    fn get_name_ptr(&self, idx: u32) -> NamePtr<'a> {
+        *self.name_backrefs.get(&idx).unwrap_or_else(|| panic!("unknown Name back-reference {}", idx))
+    }""")
+              rep("""    fn get_names(&self, idxs: &[u32]) -> Vec<NamePtr<'a>> {
+        let mut names = Vec::new();
+        for idx in idxs.iter().copied() {
+            assert!(self.dag.names.get_index(idx as usize).is_some());
+            names.push(NamePtr::from(DagMarker::ExportFile, idx as usize));
+        }
+        names
+    }""", """    fn get_names(&self, idxs: &[u32]) -> Vec<NamePtr<'a>> {
+        idxs.iter().copied().map(|idx| self.get_name_ptr(idx)).collect()
+    }""")
+          if 'LEVEL' in enabled:
+              rep("""    fn get_level_ptr(&self, idx: u32) -> LevelPtr<'a> {
+        let out = crate::util::Ptr::from(DagMarker::ExportFile, idx as usize);
+        assert!((idx as usize) < self.dag.levels.len());
+        out
+    }""", """    fn get_level_ptr(&self, idx: u32) -> LevelPtr<'a> {
+        *self.level_backrefs.get(&idx).unwrap_or_else(|| panic!("unknown Level back-reference {}", idx))
+    }""")
+              rep("""    fn get_levels_ptr(&mut self, idxs: &[u32]) -> LevelsPtr<'a> {
+        let mut levels = Vec::new();
+        for idx in idxs.iter().copied() {
+            levels.push(LevelPtr::from(DagMarker::ExportFile, idx as usize));
+        }
+        LevelsPtr::from(DagMarker::ExportFile, self.dag.uparams.insert_full(Arc::from(levels)).0)
+    }""", """    fn get_levels_ptr(&mut self, idxs: &[u32]) -> LevelsPtr<'a> {
+        let levels = idxs.iter().copied().map(|idx| self.get_level_ptr(idx)).collect::<Vec<_>>();
+        LevelsPtr::from(DagMarker::ExportFile, self.dag.uparams.insert_full(Arc::from(levels)).0)
+    }""")
+          if 'EXPR' in enabled:
+              rep("""    fn get_expr_ptr(&self, idx: u32) -> ExprPtr<'a> {
+        let out = crate::util::Ptr::from(DagMarker::ExportFile, idx as usize);
+        assert!((idx as usize) < self.dag.exprs.len());
+        out
+    }""", """    fn get_expr_ptr(&self, idx: u32) -> ExprPtr<'a> {
+        *self.expr_backrefs.get(&idx).unwrap_or_else(|| panic!("unknown Expr back-reference {}", idx))
+    }""")
+
+          binders=[]
+          def binder(kind, br, mapname, ptr):
+              dup = f'''        if self.{mapname}.insert(ext, {ptr}::from(DagMarker::ExportFile, idx)).is_some() {{\n            panic!("duplicate {kind} back-reference {{}}", ext);\n        }}''' if guard else f'''        self.{mapname}.insert(ext, {ptr}::from(DagMarker::ExportFile, idx));'''
+              return f'''\n    fn bind_{kind.lower()}(&mut self, assigned: Option<BackRef>, (idx, _inserted): (usize, bool)) {{\n        let ext = match assigned.expect("missing {kind} back-reference") {{\n            BackRef::{br}(i) => i,\n            other => panic!("wrong {kind} back-reference kind: {{:?}}", other),\n        }};\n{dup}\n    }}\n'''
+          if 'NAME' in enabled: binders.append(binder('Name','In','name_backrefs','NamePtr'))
+          if 'LEVEL' in enabled: binders.append(binder('Level','Il','level_backrefs','LevelPtr'))
+          if 'EXPR' in enabled: binders.append(binder('Expr','Ie','expr_backrefs','ExprPtr'))
+          if binders:
+              anchor="    fn has_fvars(&self, e: ExprPtr<'a>) -> bool { self.dag.exprs.get_index(e.idx()).unwrap().has_fvars() }\n"
+              rep(anchor,anchor+''.join(binders))
+          if 'NAME' in enabled:
+              if s.count('assigned_idx.unwrap().assert_in(insert_result);')==0: raise SystemExit('no NAME binds')
+              s=s.replace('assigned_idx.unwrap().assert_in(insert_result);','self.bind_name(assigned_idx, insert_result);')
+          if 'LEVEL' in enabled:
+              if s.count('assigned_idx.unwrap().assert_il(insert_result);')==0: raise SystemExit('no LEVEL binds')
+              s=s.replace('assigned_idx.unwrap().assert_il(insert_result);','self.bind_level(assigned_idx, insert_result);')
+          if 'EXPR' in enabled:
+              if s.count('assigned_idx.unwrap().assert_ie(insert_result);')==0: raise SystemExit('no EXPR binds')
+              s=s.replace('assigned_idx.unwrap().assert_ie(insert_result);','self.bind_expr(assigned_idx, insert_result);')
+          p.write_text(s)
+          print('ENABLED',sorted(enabled),'GUARD',guard)
+          PY
+
+          cat > /tmp/eval_variant.py <<'PY'
+          import json, subprocess, sys
+          from pathlib import Path
+          label=sys.argv[1]
+          exe=Path('nanoda_lib/target/release/nanoda_bin'); cfg=Path('nanoda_lib/config.json')
+          def run_one(p):
+              with p.open('rb') as f:
+                  return subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+          pos=[run_one(p) for p in sorted(Path('v92-corpus/positive').glob('*.ndjson'))]
+          dang=[run_one(p) for p in sorted(Path('v92-corpus/negative').glob('*-dangling-level.ndjson'))]
+          dup=[run_one(p) for p in sorted(Path('v92-corpus/negative').glob('*-duplicate-expr.ndjson'))]
+          row={'label':label,'positive_total':len(pos),'positive_accepted':sum(x==0 for x in pos),
+               'dangling_total':len(dang),'dangling_rejected':sum(x!=0 for x in dang),
+               'duplicate_total':len(dup),'duplicate_rejected':sum(x!=0 for x in dup),
+               'all_positive_accept':all(x==0 for x in pos),
+               'all_dangling_reject':all(x!=0 for x in dang),
+               'all_duplicate_reject':all(x!=0 for x in dup)}
+          Path(f'results/v92/{label}.json').write_text(json.dumps(row,indent=2,sort_keys=True))
+          print(json.dumps(row,sort_keys=True))
+          PY
+
+          cd nanoda_lib && cargo build --release -q && cd ..
+          python3 /tmp/eval_variant.py NONE
+
+          variants=(NAME LEVEL EXPR NAME_LEVEL NAME_EXPR LEVEL_EXPR NAME_LEVEL_EXPR NAME_LEVEL_EXPR_NO_GUARD)
+          for v in "${variants[@]}"; do
+            git -C nanoda_lib checkout -q -- src/parser.rs
+            case "$v" in
+              NAME) enabled=NAME; guard=GUARD;;
+              LEVEL) enabled=LEVEL; guard=GUARD;;
+              EXPR) enabled=EXPR; guard=GUARD;;
+              NAME_LEVEL) enabled=NAME,LEVEL; guard=GUARD;;
+              NAME_EXPR) enabled=NAME,EXPR; guard=GUARD;;
+              LEVEL_EXPR) enabled=LEVEL,EXPR; guard=GUARD;;
+              NAME_LEVEL_EXPR) enabled=NAME,LEVEL,EXPR; guard=GUARD;;
+              NAME_LEVEL_EXPR_NO_GUARD) enabled=NAME,LEVEL,EXPR; guard=NO_GUARD;;
+            esac
+            python3 /tmp/patch_factor.py "$enabled" "$guard"
+            cd nanoda_lib && cargo build --release -q && cd ..
+            python3 /tmp/eval_variant.py "$v"
+          done
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,itertools
+          rows=[]
+          for p in sorted(Path('results/v92').glob('*.json')):
+              if p.name in ('manifest.json','RESULT.json'): continue
+              rows.append(json.loads(p.read_text()))
+          successful=[r['label'] for r in rows if r['all_positive_accept'] and r['all_dangling_reject'] and r['all_duplicate_reject']]
+          proper={'NONE':set(),'NAME':{'NAME'},'LEVEL':{'LEVEL'},'EXPR':{'EXPR'},'NAME_LEVEL':{'NAME','LEVEL'},'NAME_EXPR':{'NAME','EXPR'},'LEVEL_EXPR':{'LEVEL','EXPR'},'NAME_LEVEL_EXPR':{'NAME','LEVEL','EXPR'}}
+          exact=[x for x in successful if x in proper]
+          minimal=[]
+          for x in exact:
+              sx=proper[x]
+              if not any(proper[y] < sx for y in exact): minimal.append(x)
+          full=next(r for r in rows if r['label']=='NAME_LEVEL_EXPR')
+          nog=next(r for r in rows if r['label']=='NAME_LEVEL_EXPR_NO_GUARD')
+          necessity={k: not next(r for r in rows if r['label']==lbl)['all_positive_accept']
+                     for k,lbl in [('NAME','LEVEL_EXPR'),('LEVEL','NAME_EXPR'),('EXPR','NAME_LEVEL')]}
+          result={
+            'protocol':'V92_LEAN_REPRESENTATION_FACTORIZATION',
+            'nanoda_rev':'418320295890faed83a96fd97907b12a3b6728c2',
+            'corpus':{'positive':256,'dangling_level_negative':256,'duplicate_expr_negative':256},
+            'rows':rows,
+            'successful_representations':successful,
+            'minimal_successful_subsets':minimal,
+            'component_necessity_for_positive_closure':necessity,
+            'duplicate_guard_boundary_effect':{
+              'full_guard_duplicate_rejected':full['duplicate_rejected'],
+              'no_guard_duplicate_rejected':nog['duplicate_rejected'],
+              'guard_required_for_duplicate_boundary':nog['duplicate_rejected'] < full['duplicate_rejected']
+            },
+            'gates':{
+              'full_representation_768_of_768': full['all_positive_accept'] and full['all_dangling_reject'] and full['all_duplicate_reject'],
+              'all_three_backref_classes_individually_necessary_for_positive_closure': all(necessity.values()),
+              'full_is_unique_minimal_subset': minimal==['NAME_LEVEL_EXPR'],
+              'duplicate_binding_guard_has_independent_boundary_value': nog['duplicate_rejected'] < full['duplicate_rejected']
+            }
+          }
+          result['verdict']='PASS_MINIMUM_CAUSAL_REPRESENTATION_V92' if all(result['gates'].values()) else 'MIXED_REPRESENTATION_FACTORIZATION_V92'
+          result['qualification']='Finite causal factorization of the already-demonstrated Lean Kernel Arena external-ID representation capability. Tests all 2^3 subsets of Name/Level/Expr external back-reference maps on 256 positive and 512 hostile metamorphic cases, plus a duplicate-binding-guard ablation. Establishes minimum sufficiency only for this frozen corpus and representation family.'
+          Path('results/v92/RESULT.json').write_text(json.dumps(result,indent=2,sort_keys=True))
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload V92 factorization audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v92-lean-representation-factorization
+          path: results/v92/
