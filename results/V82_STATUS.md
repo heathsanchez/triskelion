@@ -1,3 +1,3 @@
 # V82 Status
 
-Protocol frozen; CI launch branch pending.
+Protocol frozen. CI launched on branch `v82-ivag`.
