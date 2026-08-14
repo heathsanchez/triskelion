@@ -1,0 +1,73 @@
+IKKF V2C — MODULAR CAPABILITY ROUTER VS MONOLITHIC CO-NEURALIZATION
+Date: 2026-08-14 NZST
+
+Question
+V2B established a bounded negative: one shared C+J LoRA collapsed onto C (C=1.0, J=0.0, route=0.5). Does keeping C and J as separate explicit verified capability modules and neuralizing only the selection policy recover source-distinct routing on the exact same semantic-valid heldout universe?
+
+This protocol is frozen before V2C neural outputs are observed. V2B outcomes motivate the architecture but do not alter the heldout worlds, threshold, capability definitions, training budget, or verifier.
+
+Frozen substrate
+- Base model: Qwen/Qwen3.5-9B.
+- Fresh River LoRA rank 32; no inherited checkpoint.
+- QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf.
+- Capability module C: exact explicit plan CMP@0;BIN@0.
+- Capability module J: exact explicit plan CMP@0;CONST@0.
+- Capability modules are not merged or gradient-updated in the modular arm. The router emits only C or J; the selected explicit module supplies the repair plan, which is then checked by the same executable verifier.
+
+Practice worlds
+- C practice: find_in_sorted, get_factors.
+- J practice: gcd, is_valid_parenthesization.
+- practice suffixes: 0..15.
+
+Heldout routing worlds — identical to V2B
+- possible_change
+- sieve
+- subsequences
+- heldout suffixes: 100..107.
+For every program/suffix, both a C-required and J-required independently mutated case are evaluated. Program identity therefore cannot determine the route.
+
+Frozen budget
+- At most 8 optimizer steps per trained arm.
+- Batch size 16, exactly 8 C + 8 J examples per step.
+- LR 5e-5, grad clip 1.0.
+- Heldout programs and suffixes never occur in gradient batches.
+- Same source/residual evidence is used for modular routing and the matched monolithic repair arm.
+
+Arms
+B0: fresh base router, no training.
+MONO: fresh base, matched V2B-style joint C+J repair-plan compilation under the same budget.
+ROUTER: fresh base, trained only to select module ID C or J. The selected explicit module is executed; no repair-plan generation is required from router weights.
+SHUFFLE: identical router budget but C practice evidence is labeled J and J evidence is labeled C.
+R: fresh River session reloading ROUTER checkpoint.
+
+Evaluation
+For each heldout case:
+1. router emits C or J;
+2. selected explicit module expands to its frozen repair plan;
+3. plan is executed against the mutated function;
+4. independently authored QuixBugs tests decide repair success.
+Metrics: C repair score, J repair score, joint=min(C,J), exact route accuracy.
+PASS threshold remains 0.75 for C, J, and route accuracy.
+
+Frozen gates
+1. practice_C_verified.
+2. practice_J_verified.
+3. heldout_C_semantically_verified.
+4. heldout_J_semantically_verified.
+5. cold_router_fails: B0 route < 0.75 or joint < 0.75.
+6. modular_C_passes: ROUTER C >= 0.75.
+7. modular_J_passes: ROUTER J >= 0.75.
+8. modular_routes: ROUTER route >= 0.75.
+9. selected_modules_execute: ROUTER joint >= 0.75 under executable tests.
+10. shuffled_router_fails: SHUFFLE route < 0.75 or joint < 0.75.
+11. reload_preserves_modular_routing: R C,J,route >= 0.75.
+12. matched_monolithic_does_not_dominate: MONO joint < 0.75 or MONO route < 0.75 OR ROUTER route > MONO route.
+13. heldout_never_trained.
+14. no_inherited_checkpoint.
+
+Primary verdict
+PASS_IKKF_V2C_MODULAR_CAPABILITY_ROUTER iff all 14 gates pass.
+Otherwise report exact failed gates without changing protocol, worlds, threshold, seeds, or budgets.
+
+Interpretation boundary if PASS
+Within this frozen two-capability repair domain, keeping verified capabilities modular and learning only a selection policy is causally better aligned with selective invocation than naive shared-adapter co-neuralization under the matched budget. This does not establish arbitrary capability routing, arbitrary model families, or a universal Capability OS.
