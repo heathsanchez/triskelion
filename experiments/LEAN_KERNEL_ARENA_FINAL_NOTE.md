@@ -1,0 +1,1 @@
+The experimental evidence on this branch is complete for the manually identified `ARBITRARY_INTERNALIZATION_MAP` capability. Additional evaluation of the same capability is unlikely to change the causal conclusion. The next meaningful scientific step is the separately specified blind autonomous discovery gate.
