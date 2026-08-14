@@ -1,0 +1,68 @@
+name: Lean Kernel Arena iota major shape
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-iota-major-shape]
+
+jobs:
+  major-shape:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instrument recursor major shapes
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/iota-major-shape
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('soko/src/eval.rs'); s=p.read_text()
+          marker='use std::collections::hash_map::Entry;\n'
+          ins='''use std::sync::atomic::{AtomicU64, Ordering::Relaxed};\nstatic MS_THUNK: AtomicU64 = AtomicU64::new(0);\nstatic MS_UNFOLD: AtomicU64 = AtomicU64::new(0);\nstatic MS_CTOR: AtomicU64 = AtomicU64::new(0);\nstatic MS_NAT: AtomicU64 = AtomicU64::new(0);\nstatic MS_STR: AtomicU64 = AtomicU64::new(0);\nstatic MS_RECURSOR: AtomicU64 = AtomicU64::new(0);\nstatic MS_OTHER_RIGID: AtomicU64 = AtomicU64::new(0);\nstatic MS_OTHER: AtomicU64 = AtomicU64::new(0);\nstatic MH_SAME: AtomicU64 = AtomicU64::new(0);\nstatic MH_CTOR: AtomicU64 = AtomicU64::new(0);\nstatic MH_NAT: AtomicU64 = AtomicU64::new(0);\nstatic MH_RECURSOR: AtomicU64 = AtomicU64::new(0);\nstatic MH_OTHER: AtomicU64 = AtomicU64::new(0);\nfn note_major_shape(v: V<'_>) { match v {\n Value::Thunk{..}=>{MS_THUNK.fetch_add(1,Relaxed);}, Value::Unfold{..}=>{MS_UNFOLD.fetch_add(1,Relaxed);},\n Value::NatLit{..}=>{MS_NAT.fetch_add(1,Relaxed);}, Value::StrLit{..}=>{MS_STR.fetch_add(1,Relaxed);},\n Value::Rigid{head:RigidHead::Ctor(..),..}=>{MS_CTOR.fetch_add(1,Relaxed);},\n Value::Rigid{head:RigidHead::Recursor(..),..}=>{MS_RECURSOR.fetch_add(1,Relaxed);},\n Value::Rigid{..}=>{MS_OTHER_RIGID.fetch_add(1,Relaxed);}, _=>{MS_OTHER.fetch_add(1,Relaxed);} } }\nfn note_major_head(raw: V<'_>, h: V<'_>) { if std::ptr::eq(raw,h){MH_SAME.fetch_add(1,Relaxed);} match h {\n Value::NatLit{..}=>{MH_NAT.fetch_add(1,Relaxed);}, Value::Rigid{head:RigidHead::Ctor(..),..}=>{MH_CTOR.fetch_add(1,Relaxed);},\n Value::Rigid{head:RigidHead::Recursor(..),..}=>{MH_RECURSOR.fetch_add(1,Relaxed);}, _=>{MH_OTHER.fetch_add(1,Relaxed);} } }\npub(crate) fn reset_major_stats(){ for x in [&MS_THUNK,&MS_UNFOLD,&MS_CTOR,&MS_NAT,&MS_STR,&MS_RECURSOR,&MS_OTHER_RIGID,&MS_OTHER,&MH_SAME,&MH_CTOR,&MH_NAT,&MH_RECURSOR,&MH_OTHER]{x.store(0,Relaxed);} }\npub(crate) fn major_stats_json()->String { format!(r#"{{\"raw_thunk\":{},\"raw_unfold\":{},\"raw_ctor\":{},\"raw_nat\":{},\"raw_str\":{},\"raw_recursor\":{},\"raw_other_rigid\":{},\"raw_other\":{},\"head_same\":{},\"head_ctor\":{},\"head_nat\":{},\"head_recursor\":{},\"head_other\":{}}}"#,MS_THUNK.load(Relaxed),MS_UNFOLD.load(Relaxed),MS_CTOR.load(Relaxed),MS_NAT.load(Relaxed),MS_STR.load(Relaxed),MS_RECURSOR.load(Relaxed),MS_OTHER_RIGID.load(Relaxed),MS_OTHER.load(Relaxed),MH_SAME.load(Relaxed),MH_CTOR.load(Relaxed),MH_NAT.load(Relaxed),MH_RECURSOR.load(Relaxed),MH_OTHER.load(Relaxed)) }\n'''
+          assert marker in s; s=s.replace(marker,marker+ins,1)
+          old='''        let major = self.whnf_head(depth, args[rec.major_idx()]);\n        self.fire_recursor(depth, &rec, levels, args, major)'''
+          new='''        let raw_major = args[rec.major_idx()];\n        note_major_shape(raw_major);\n        let major = self.whnf_head(depth, raw_major);\n        note_major_head(raw_major, major);\n        self.fire_recursor(depth, &rec, levels, args, major)'''
+          assert old in s; s=s.replace(old,new,1)
+          p.write_text(s)
+          p=Path('soko/src/tc.rs'); s=p.read_text()
+          old='''    pub fn check_all_declars(&self) {\n        if self.config.num_threads > 1 {\n            self.check_all_declars_par(self.config.num_threads)\n        } else {\n            self.check_all_declars_serial()\n        }\n    }\n'''
+          new='''    pub fn check_all_declars(&self) {\n        crate::eval::reset_major_stats();\n        if self.config.num_threads > 1 { self.check_all_declars_par(self.config.num_threads) } else { self.check_all_declars_serial() }\n        eprintln!("MAJOR_STATS {}", crate::eval::major_stats_json());\n    }\n'''
+          assert old in s; p.write_text(s.replace(old,new,1))
+          PY
+          cat > soko/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":1}
+          JSON
+          (cd soko && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          TEST=$(find arena-tests/good -type f -name 'grind-ring-5.ndjson' | head -n1)
+          soko/target/release/sokonanoda soko/config.json < "$TEST" >/dev/null 2> "$OUT/stderr.txt"
+          grep 'MAJOR_STATS' "$OUT/stderr.txt" | tail -n1 | tee "$OUT/stats-line.txt"
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          line=Path('results/iota-major-shape/stats-line.txt').read_text(); d=json.loads(re.search(r'MAJOR_STATS (\{.*\})',line).group(1))
+          raw=sum(v for k,v in d.items() if k.startswith('raw_')); head=sum(v for k,v in d.items() if k.startswith('head_') and k!='head_same')
+          d['raw_total']=raw; d['head_total']=head
+          for k in list(d):
+              if k.startswith('raw_') and k!='raw_total': d[k+'_fraction']=d[k]/raw if raw else 0
+              if k.startswith('head_') and k not in ('head_same','head_total'): d[k+'_fraction']=d[k]/head if head else 0
+          d['head_same_fraction']=d['head_same']/raw if raw else 0
+          Path('results/iota-major-shape/summary.json').write_text(json.dumps(d,indent=2,sort_keys=True)); print(json.dumps(d,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-iota-major-shape
+          path: results/iota-major-shape/
