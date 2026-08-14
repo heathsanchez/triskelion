@@ -27,63 +27,22 @@ jobs:
           tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
           git clone https://github.com/intgrah/sokonanoda.git soko
           git -C soko checkout "$SOKO_REV"
-
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('soko/src/parser.rs'); s=p.read_text()
-          old='''    #[inline(never)]
-    fn run_over(&mut self, input: &[u8]) -> Result<(), Box<dyn Error>> {
-        let mut idxs = std::mem::take(&mut self.scratch_idxs);
-        let mut pos = 0;
-        let out = loop {
-            if pos >= input.len() {
-                break Ok(())
-            }
-            pos = match self.fast_line(input, pos, &mut idxs) {
-                Ok(next) => next,
-                Err(FastError::Failed(e)) => break Err(e),
-                Err(FastError::Fallback) => match self.slow_line(input, pos) {
-                    Ok(next) => next,
-                    Err(e) => break Err(e),
-                },
-            };
-        };
-        self.scratch_idxs = idxs;
-        out
-    }
-'''
-          new='''    #[inline(never)]
-    fn run_over(&mut self, input: &[u8]) -> Result<(), Box<dyn Error>> {
-        let mut idxs = std::mem::take(&mut self.scratch_idxs);
-        let mut pos = 0;
-        let mut fast_lines: u64 = 0;
-        let mut fallback_lines: u64 = 0;
-        let out = loop {
-            if pos >= input.len() {
-                break Ok(())
-            }
-            pos = match self.fast_line(input, pos, &mut idxs) {
-                Ok(next) => { fast_lines += 1; next },
-                Err(FastError::Failed(e)) => break Err(e),
-                Err(FastError::Fallback) => {
-                    fallback_lines += 1;
-                    match self.slow_line(input, pos) {
-                        Ok(next) => next,
-                        Err(e) => break Err(e),
-                    }
-                },
-            };
-        };
-        eprintln!("PARSER_COUNTS fast={} fallback={}", fast_lines, fallback_lines);
-        self.scratch_idxs = idxs;
-        out
-    }
-'''
-          assert old in s
-          p.write_text(s.replace(old,new,1))
+          p=Path('soko/src/parser.rs')
+          s=p.read_text()
+          start=s.index('    #[inline(never)]\n    fn run_over(&mut self, input: &[u8])')
+          end=s.index('\n    fn finish(self)', start)
+          f=s[start:end]
+          f=f.replace('        let mut pos = 0;\n', '        let mut pos = 0;\n        let mut fast_lines: u64 = 0;\n        let mut fallback_lines: u64 = 0;\n', 1)
+          f=f.replace('                Ok(next) => next,\n', '                Ok(next) => { fast_lines += 1; next },\n', 1)
+          f=f.replace('                Err(FastError::Fallback) => match self.slow_line(input, pos) {\n', '                Err(FastError::Fallback) => {\n                    fallback_lines += 1;\n                    match self.slow_line(input, pos) {\n', 1)
+          f=f.replace('                    Err(e) => break Err(e),\n                },\n', '                    Err(e) => break Err(e),\n                    }\n                },\n', 1)
+          f=f.replace('        self.scratch_idxs = idxs;\n', '        eprintln!("PARSER_COUNTS fast={} fallback={}", fast_lines, fallback_lines);\n        self.scratch_idxs = idxs;\n', 1)
+          s=s[:start]+f+s[end:]
+          p.write_text(s)
           PY
           (cd soko && RUSTFLAGS='-C target-cpu=native' cargo build --release)
-
           cat > "$OUT/config.json" <<'JSON'
           {
             "use_stdin": true,
@@ -95,7 +54,6 @@ jobs:
             "parse_only": true
           }
           JSON
-
           python3 - <<'PY'
           from pathlib import Path
           import hashlib,json,subprocess,re
@@ -108,7 +66,7 @@ jobs:
           pat=re.compile(r'PARSER_COUNTS fast=(\d+) fallback=(\d+)')
           for p in fs:
               with p.open('rb') as f:
-                  r=subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=False)
+                  r=subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
               text=r.stderr.decode('utf-8','replace')
               m=pat.search(text)
               if not m: raise SystemExit(f'no parser counts for {p}: {text[:500]}')
