@@ -14,13 +14,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Run calibration
+      - name: Run alphabet calibration
         run: python experiments/V78_ALPHABET_COLLIDER_CALIBRATION.py
-      - name: Copy result into artifact directory
+      - name: Run grammar and organ calibration
+        run: python experiments/V78B_GRAMMAR_ORGAN_CALIBRATION.py
+      - name: Copy results into artifact directory
         run: |
           mkdir -p artifact
-          cp /tmp/alphabet_collider_result.json artifact/RESULT.json
+          cp /tmp/alphabet_collider_result.json artifact/RESULT_V78.json
+          cp /tmp/v78b_result.json artifact/RESULT_V78B.json
       - uses: actions/upload-artifact@v4
         with:
           name: v78-alphabet-collider-calibration
-          path: artifact/RESULT.json
+          path: artifact/*.json
