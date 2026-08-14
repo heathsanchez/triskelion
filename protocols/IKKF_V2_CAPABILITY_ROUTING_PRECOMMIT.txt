@@ -1,0 +1,68 @@
+IKKF V2 — CAPABILITY ROUTING / SELECTIVITY PRECOMMIT
+Date: 2026-08-14 NZST
+
+Question
+After two verified capabilities are compiled into the same fresh neural substrate, can the model selectively invoke the capability required by a residual rather than merely emitting one learned plan everywhere?
+
+Frozen substrate
+- Base model: Qwen/Qwen3.5-9B
+- Fresh River LoRA rank: 32; no inherited checkpoint.
+- QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+- Capability C: CMP@0;BIN@0
+- Capability J: CMP@0;CONST@0
+- DSL: CMP@i, BIN@i, CONST@i separated by semicolons.
+
+Practice worlds
+- C practice: find_in_sorted, get_factors
+- J practice: gcd, is_valid_parenthesization
+- practice suffixes: 0..15
+
+Held-out routing worlds
+The same program identities are used for both capability classes so program name cannot determine the route:
+- possible_change
+- quicksort
+- sieve
+- subsequences
+- held-out suffixes: 100..107
+For each held-out program/suffix there are two independently mutated versions: one requiring C and one requiring J.
+
+Frozen compiler
+- Mechanically generate supervised examples from the two capability artifacts only.
+- Equal C/J representation in every training cycle.
+- No discovery trajectories or prior neural checkpoint.
+- At most 8 optimizer steps, batch size 16, LR 5e-5, grad clip 1.0.
+- Held-out programs/suffixes never appear in gradient batches.
+
+Arms
+B0: fresh base, no capability compilation.
+CJ: fresh base with C and J compiled jointly.
+SHUFFLE: fresh base with practice prompts assigned the opposite capability target (C prompts -> J target; J prompts -> C target), otherwise identical budget.
+R: reload CJ checkpoint in a new River session.
+
+Evaluation
+- C-held score: fraction of C-mutated held-outs repaired by emitted plan.
+- J-held score: fraction of J-mutated held-outs repaired by emitted plan.
+- Joint routing score = min(C-held, J-held).
+- Route accuracy = fraction where emitted plan exactly matches the required capability plan.
+PASS threshold: each held score >= 0.75 and route accuracy >= 0.75.
+
+Frozen gates
+1. practice_C_verified.
+2. practice_J_verified.
+3. heldout_C_semantically_verified.
+4. heldout_J_semantically_verified.
+5. cold_joint_fails: B0 joint < 0.75.
+6. CJ_C_passes: CJ C-held >= 0.75.
+7. CJ_J_passes: CJ J-held >= 0.75.
+8. CJ_routes: CJ exact route accuracy >= 0.75.
+9. shuffled_control_fails: SHUFFLE joint < 0.75 or SHUFFLE route accuracy < 0.75.
+10. reload_preserves_routing: R satisfies both held thresholds and route threshold.
+11. heldout_never_trained.
+12. no_inherited_checkpoint.
+
+Primary verdict
+PASS_IKKF_V2_CAPABILITY_ROUTING iff all 12 gates pass.
+Otherwise report exact failed gates. No target, threshold, step, or program replacement after observing outcomes.
+
+Claim boundary if PASS
+Within this frozen two-capability repair-plan domain, a fresh neural model can compile multiple explicit verified capabilities and select between them from residual/context on source-distinct held-out programs. This does not establish arbitrary capability routing, arbitrary model families, or isolated neural uninstallation of one capability from a jointly compiled adapter.
