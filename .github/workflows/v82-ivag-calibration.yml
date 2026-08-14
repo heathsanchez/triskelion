@@ -1,0 +1,27 @@
+name: V82 Independent Verified Algebra Genesis Calibration
+
+on:
+  push:
+    branches: [v82-ivag]
+  workflow_dispatch:
+
+jobs:
+  ivag:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -q numpy scipy mpmath
+      - name: Run V82 IVAG calibration
+        run: python experiments/V82_IVAG_CALIBRATION.py
+      - name: Collect artifact
+        run: |
+          mkdir -p artifact
+          cp /tmp/v82_result.json artifact/RESULT.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v82-ivag-calibration
+          path: artifact/RESULT.json
