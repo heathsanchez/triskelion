@@ -1,0 +1,40 @@
+IKKF V4b — VERIFIER-INDUCED INVOCATION REFINEMENT — PRECOMMIT
+
+Parent negative
+IKKF V4 showed that the V51 lexical scope is causally useful but too coarse on sealed Requests: it selects the true iter_slices repair site and one unrelated mask-comparison site. That V4 result is preserved as a scientific negative.
+
+Question
+Can external behavior refine a coarse Verified Capability applicability class into a unique invokable site without changing the capability operator or hand-naming a new semantic feature?
+
+Frozen causal order
+1. Re-run V51 Phase A unchanged and export the same capability package.
+2. Open sealed Requests and recreate the unique failing strict-boundary obstruction.
+3. Enumerate all candidate sites admitted by the unchanged V51 scope.
+4. For each admitted candidate independently, start from the same broken target state, apply the capability at that candidate only, and query two fixed verifier channels:
+   a. target verifier: pytest -q tests/test_utils.py -k test_iter_slices
+   b. protected verifier: pytest -q tests/test_utils.py
+5. Define the refined applicability class mechanically as candidates that (i) repair the target verifier and (ii) preserve the protected verifier. No lexical/semantic feature may be added after seeing candidate identities.
+6. Require exactly one refined candidate.
+7. Invoke only that candidate; rerun target + protected verifiers.
+8. Ablate it and require target failure again.
+9. Only after sealed evaluation, open V51's precommitted later Django counterevidence and enforce revision/revocation.
+
+Primary gates
+G1 V51 old-closure obstruction passes.
+G2 V51 operator construction passes unchanged.
+G3 compact package export passes.
+G4 coarse scope reproduces ambiguity (at least two candidates, including required site).
+G5 verifier probing produces exactly one refined candidate.
+G6 refined candidate is the required sealed Requests obstruction site.
+G7 refined invocation repairs target verifier.
+G8 refined invocation preserves protected verifier.
+G9 ablation restores target failure.
+G10 no hand-added semantic feature, learned router, checkpoint, or gradient participates in refinement.
+G11 later counterevidence remains sealed until after invocation evaluation.
+G12 later revision/revocation is enforced.
+
+Verdict
+PASS_IKKF_V4B_VERIFIER_INDUCED_INVOCATION iff all twelve gates pass.
+
+Claim boundary
+A pass establishes bounded verifier-induced applicability refinement for one externally constructed token-rewrite capability. It does not establish general ontology induction, learned routing, or neural proceduralization.
