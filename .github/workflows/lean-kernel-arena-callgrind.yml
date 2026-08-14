@@ -1,0 +1,61 @@
+name: Lean Kernel Arena callgrind
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-callgrind]
+
+jobs:
+  callgrind:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Profile grind-ring checker instructions
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/callgrind
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq valgrind
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          cat > soko/config.json <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":1}
+          JSON
+          (cd soko && RUSTFLAGS='-C target-cpu=x86-64 -C debuginfo=1' cargo build --release)
+          TEST=$(find arena-tests/good -type f -name 'grind-ring-5.ndjson' | head -n1)
+          test -n "$TEST"
+          valgrind --tool=callgrind --callgrind-out-file="$OUT/callgrind.out" \
+            soko/target/release/sokonanoda soko/config.json < "$TEST" >/dev/null 2>"$OUT/valgrind.stderr"
+          callgrind_annotate --inclusive=yes --tree=both --threshold=0.2 "$OUT/callgrind.out" > "$OUT/annotate.txt"
+          head -220 "$OUT/annotate.txt" | tee "$OUT/top.txt"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,json
+          text=Path('results/callgrind/annotate.txt').read_text(errors='replace')
+          rows=[]
+          # Capture annotated percentage/instruction rows mentioning our crate.
+          for line in text.splitlines():
+              if 'sokonanoda' not in line: continue
+              m=re.match(r'\s*([0-9,]+)\s+\((\d+(?:\.\d+)?)%\)\s+(.*)',line)
+              if m:
+                  rows.append({'instructions':int(m.group(1).replace(',','')),'percent':float(m.group(2)),'symbol':m.group(3).strip()})
+          rows=sorted(rows,key=lambda r:r['instructions'],reverse=True)[:80]
+          Path('results/callgrind/top.json').write_text(json.dumps(rows,indent=2))
+          print(json.dumps(rows[:30],indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-callgrind
+          path: results/callgrind/
