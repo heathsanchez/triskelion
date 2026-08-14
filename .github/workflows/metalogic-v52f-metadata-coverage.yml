@@ -1,0 +1,30 @@
+name: Metalogic V52f Historical Metadata Coverage Ratchet
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v52f-metadata-coverage.yml'
+      - 'experiments/METALOGIC_V52F_HISTORICAL_METADATA_COVERAGE.py'
+  workflow_dispatch:
+jobs:
+  v52f:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze BugsInPy corpus
+        run: |
+          python -m pip install -q uv
+          git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+          cd /tmp/BugsInPy && git checkout -q 11c5f1eea954a42132cfd06bf257766a7963e0fd
+          chmod +x /tmp/BugsInPy/framework/bin/*
+      - name: Run V52f historical metadata coverage ratchet
+        run: python experiments/METALOGIC_V52F_HISTORICAL_METADATA_COVERAGE.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-v52f-historical-metadata-coverage
+          path: artifacts/v52f/
