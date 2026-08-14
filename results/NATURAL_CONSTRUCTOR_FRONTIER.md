@@ -1,6 +1,6 @@
 # Natural Constructor Frontier
 
-_Last updated 2026-08-14 NZST — audited through V91; V92/V93b/V94/V95/V96 primary runs live. V94C calibration attested separately._
+_Last updated 2026-08-14 NZST — primary artifacts audited through V97; V98/V99/V100 live. V92/V93b remain long-running legacy primaries and are not blocking the frontier._
 
 This file tracks the natural-world constructor-language programme separately from bounded authored calibrations. The external corpus is QuixBugs at commit `4257f44b0ff1181dedaedee6a447e133219fcebf`, a pre-existing program-repair benchmark. Correct implementations are treated according to each experiment's explicit train/test sealing rule.
 
@@ -10,141 +10,104 @@ This file tracks the natural-world constructor-language programme separately fro
 
 A claim about an irreducible operator is only meaningful relative to the constructor language `K_t`. The programme asks at what representation level external experience begins to induce reusable, causally specific, held-out closure-expanding structure.
 
-## V83 — one-token natural IVAG census
+## V83–V91: local/static constructor ladder
 
-Verdict: `MIXED_NATURAL_IVAG_V83`.
+The audited sequence progressively rejected shallow representations:
 
-Two minimum repair schemas recur across independent curricula, but the frozen held-out closure remains `0 -> 0 -> 0`. V84 later shows one apparent syntactic convergence was an equal-MDL tie. Recurrence/minimality alone does not make a developmental primitive.
+- V83 recurrence/minimality did not produce held-out closure growth.
+- V84 showed the one-token natural algebra reaches only two of 37 failing programs and one apparent syntactic convergence was an equal-MDL quotient tie.
+- V85 hand-named AST families received essentially no verifier support.
+- V86 exact token templates induced from training-side human fixes produced zero new held-out closure.
+- V87 broadened structural K from 1 to 4 solved held-out tasks, but the wrong-pair structural control solved the exact same four. Broader K is not learned development.
+- V88 produced a promising contextual signal but had protocol defects; V89 fresh-split confirmation failed to replicate it.
+- V90 test-suite contextual gain disappeared under protected agreement with independently authored human fixes.
+- V91 verifier gradients induced a repeated local site class `(OP, Compare, ops)`, but held-out closure did not expand and shuffled roles did better.
 
-## V84 — observational quotient/lattice
+See `NATURAL_CONSTRUCTOR_AUDIT_V87_V96_20260814.md` for pinned primary run/artifact/digest details.
 
-Run `31782263023`, artifact `9212227436`, SHA-256 `96a1be28ae8cefd478f6935c2f8461dbbc8d8209557e58472706468e20481969`.
+## V92 — verifier-induced functional roles
 
-Across 37 initially failing programs, the complete frozen 26-schema one-token constructor reaches only two tasks:
-- `{<= -> <}` -> `find_first_in_sorted`
-- `{< -> <=, > -> >=}` -> `quicksort`
+Primary run `31789737846` remains long-running. A NONCLAIM shortened diagnostic found only one improving training role (`INDEX_KEY` on `kth`), below the repeated-support threshold, and no new held-out closure. Functional-role vocabulary therefore has no positive natural evidence yet.
 
-No nontrivial inclusion/Hasse structure and no schema reaches multiple distinct tasks. The observational algebra under K0 is too impoverished.
+## V93b — anonymous whole-program static geometry
 
-## V85 — verifier-selected generic AST families
+Primary run `31790354759` remains long-running. The corrected control permutes graph-delta feature coordinates rather than merely reordering prototypes. A NONCLAIM shortened diagnostic had zero reachable repairs in its held-out candidate substrate, so no ranking interpretation is possible from that diagnostic.
 
-Run `31782743901`, artifact `9212772996`, SHA-256 `8d2aa8bacc9903520c6b1083fde4557e2fba5f9e1ec91ad21e7e183c3c1f808d`.
+## V94 — natural dynamic state invariants
 
-Ten of eleven supplied AST mutation families receive zero training support; `CALL_ARG_SWAP` receives support on one task, below threshold. No K1 is admitted and held-out closure does not expand.
+Run `31790728003`, artifact `9215561586`, SHA-256 `c9d972a88de12c7c9af64ac33ec3c894f1a6d98a4fc1f1ab40dfdeffc223a4c3`.
 
-## V86 — exact edit grammar from training-side human fixes
+Verdict: `MIXED_DYNAMIC_STATE_INVARIANTS_V94`.
 
-Run `31784429088`, artifact `9213041932`, SHA-256 `436f6ab82d19719f3d6505ebe284124229fb370fa2dc5a4ea038e9c753d2adfa`.
-
-Fourteen exact one-token templates are induced automatically from a frozen training half. They create zero new held-out closure beyond K0. Wrong-pair control solves none. Exact successful edits are real information but too specific to transfer.
-
-## V87 — structural edit-schema induction
-
-Run `31784802703`, artifact `9215089519`, SHA-256 `0181c97c3ce5f9efd9a39156491e64722715b2928165887702373e6a3ac1763c`.
-
-Training-side fixes induce abstract schemas including `CONST_ROLE(str)` and `NAME_ROLE`.
-
-Raw held-out reachability increases from:
-- K0: `knapsack`
-- K1: `minimum_spanning_tree`, `hanoi`, `knapsack`, `depth_first_search`
-
-However the wrong-pair constructor solves the **exact same four tasks**. Verdict: `MIXED_STRUCTURAL_CONSTRUCTOR_INDUCTION_V87`.
-
-Binding lesson: generic broadening of K can improve solving without constituting developmental learning. Learned K must beat a matched causally wrong constructor.
-
-## V88 — contextual edit-role induction
-
-Run `31785309780`, artifact `9213612717`, SHA-256 `41b274600d0f12c7389f8e320d68edc9ffcb31931c10a81b7075f6825e20b2c9`.
-
-`(parent node, field, change kind)` roles produced an apparent test-suite gain on `bucketsort` and `depth_first_search`; the original verdict also had a sealing-boolean bug and non-monotonic K1 comparison. Manual inspection showed `bucketsort` matched the human repair role, while DFS likely exploited incomplete tests. Promising mixed signal only.
-
-## V89 — fresh-split contextual confirmation
-
-Run `31786710386`, artifact `9213865127`, SHA-256 `79874f34040f87d4af7141e778b5b3076614c2ee92ab2bc4c7a650a5de5cf373`.
-
-K0, K0+learned-context and shuffled-context all solve exactly `knapsack`, `quicksort`. New closure is empty. Verdict: `MIXED_CONTEXTUAL_CONSTRUCTOR_CONFIRMATION_V89`.
-
-Conclusion: V88's local contextual signal does not replicate.
-
-## V90 — protected human-fix confirmation
-
-Run `31786981266`, artifact `9214010229`, SHA-256 `81b998b4f4827382f46b1c9e5208a606358abbbaf4931b28822075cd75e90aaa`.
-
-Ordinary tests again show a contextual gain on `bucketsort`:
-- K0: `quicksort`
-- K0+context: `quicksort`, `bucketsort`
-- context shuffle: `quicksort`
-
-But candidate patches are hash-committed before held-out fixes are revealed, and protected exact-AST agreement is false for both committed candidates. `protected_new_closure = []`.
-
-Verdict: `MIXED_PROTECTED_CONSTRUCTOR_CONFIRMATION_V90`.
-
-Binding lesson: benchmark test-passing is not sufficient evidence of natural constructor transfer.
-
-## V91 — verifier-induced local site ontology
-
-Run `31787205758`, artifact `9214285939`, SHA-256 `22d3966a0b6592fcd866ef115b677875c02ea6bccb6b4cd64c7ab9e53eaa1832`.
-
-No correct implementations are read. Verifier gradients induce a repeated operational class:
-
-`(OP, Compare, ops)` with support 2.
-
-But held-out closure does not expand:
-- K0: `find_first_in_sorted`, `knapsack`
-- learned roles: same two
-- shuffled roles: those two plus `next_permutation`
-
-Verdict: `MIXED_VERIFIER_INDUCED_SITE_ONTOLOGY_V91`.
-
-So verification can induce a nonempty local category, but this category is not yet transferable/closure-expanding.
-
-## V92 — verifier-induced functional-role ontology
-
-Primary run `31789737846` is live. Roles move above AST parent/field identity to coarse functional/dataflow categories such as `CONTROL_GUARD`, `ITERATION_SOURCE`, `STATE_UPDATE`, `RECURSIVE_ARGUMENT`, `INDEX_KEY`, `ACCUMULATE`, and `RETURN_FLOW`. Correct implementations are never read.
-
-A separately labelled NONCLAIM V92P prefix found only one improving training role (`INDEX_KEY` on `kth`), below support threshold, and no new held-out closure. This is an early negative diagnostic, not primary evidence.
-
-## V93 / V93b — anonymous whole-program change geometry
-
-Original V93 was invalidated before outcome inspection because its null merely reordered a prototype list under a max-similarity score and was therefore mathematically identical to the learned arm; the sealing gate also had wrong Boolean polarity.
-
-Corrected V93b run `31790354759` is live. Training-side human fixes are represented only as anonymous whole-program AST graph-delta vectors; the null permutes feature coordinates rather than prototype order. No semantic operator/site labels are supplied.
-
-A shortened V93BP diagnostic is also running and is explicitly NONCLAIM.
-
-## V94 — dynamic state-transition invariants
-
-Primary natural run `31790728003` is live. This moves above static source shape to execution-state delta signatures: event/call structure, collection growth/shrinkage, numerical progress, local-state growth and revisitation. Training-side correct implementations are used only to induce anonymous dynamic prototypes; held-out correct implementations remain sealed.
+Dynamic prototypes formed, but **0/8 held-out tasks had any successful repair in the fixed candidate language**. This is a constructor-reachability failure, not a dynamic-geometry falsification.
 
 ### V94C calibration
 
-Attested separately in `V94C_DYNAMIC_SIGNATURE_CALIBRATION_RESULT.md`.
-
 Run `31790849808`, artifact `9215374279`, SHA-256 `591574959c797a6467eac15447066be935b89937bd2f0dc29360a3106e882552`.
 
-Authored calibration result:
-- 15/15 held-out mechanism classifications correct
-- coordinate-permuted null 5/15
-
-Three known mechanisms separate cleanly as collection growth (retention), collection contraction (frontier shrinkage), and numerical descent (fixed-point progress). This validates the measurement language only; it is not natural evidence.
+Calibration only: 15/15 held-out mechanism classifications versus 5/15 for the coordinate-permuted null. The dynamic measurement language can distinguish known retention, frontier-contraction and numerical-descent mechanisms. This is not natural evidence.
 
 ## V95 — anonymous dynamic Collider
 
-Run `31791105193` is live. Training-side verified correct behavior yields anonymous execution-delta vectors. A frozen MDL objective chooses the number and medoids of dynamic clusters without semantic labels. Held-out repair candidates are ranked by similarity against those clusters versus a coordinate-shuffled null.
+Run `31791105193`, artifact `9215816964`, SHA-256 `e6e57f0baa1c76f322ea4482d5c7d58d8c711ff1b7d2d0a16e879798c2f35a20`.
 
-This is the closest current implementation of the old Collider idea at the execution-state level, but remains supervised on the training split.
+Verdict: `MIXED_DYNAMIC_COLLIDER_V95`.
+
+MDL selected five anonymous dynamic medoids from ten training-side external fixes, but again **0/8 held-out tasks were reachable in K**. The natural transfer value of those clusters was therefore not testable.
 
 ## V96 — verifier-only dynamic Collider
 
-Run `31791344169` is live.
+Run `31791344169`, artifact `9215945812`, SHA-256 `90ee045b12661bb34336b3560db31d32e043fdf2a594978462cbae8cae1e134e`.
 
-This removes human fixes entirely. On training tasks, generic mutations are retained only when they reduce externally measured failing-test counts. Their execution-state deltas are anonymously clustered under a frozen MDL rule. Held-out candidate syntax and verification budgets are identical for learned and coordinate-shuffled arms.
+Verdict: `MIXED_VERIFIER_DYNAMIC_COLLIDER_V96`.
 
-A positive result would be the strongest natural bridge in this sequence: `verifier improvement -> induced dynamic structure -> held-out causal search advantage`, without correct solutions anywhere in the developmental history.
+No correct implementation is read anywhere. Verifier-improving training deltas exist; an anonymous dynamic component forms; and two held-out repairs are genuinely reachable (`breadth_first_search`, `get_factors`). However the learned component recovers 0/2, equal to the coordinate null. All three training improvements come from one source task (`sqrt`), so the retained structure is one-task pathology, not a cross-world organ.
+
+Binding lesson: a candidate dynamic component requires support from at least two source-distinct training worlds, and raw execution scale must be normalized before clustering.
+
+## V97 — cheap probe / protected verifier separation
+
+Run `31792056360`, artifact `9216195928`, SHA-256 `1d354260dca95343b9e6bc1ad671bf0583632ec8e9830363e79e2f438c40d561`.
+
+Verdict: `MIXED_PROTECTED_DYNAMIC_RANKING_V97`.
+
+V97 correctly separates cheap probe tracing from expensive full-suite verification, so a ranking win could be economically causal. But all seven frozen training tasks produced **zero verifier-improving candidates**, so no dynamic prototype formed. The economic hypothesis was not reached under this constructor.
+
+## V98 — richer fixed K, protected dynamic ranking
+
+Live primary run `31792226436`.
+
+V98 holds a richer generic constructor K identical across learned, coordinate-null and hash arms, and requires a nonzero held-out reachability ceiling before ranking can count. Cheap probe traces rank candidates; expensive full-suite verification is spent only on top-B candidates per arm.
+
+Protocol review found a pre-outcome caveat: candidate generation is family-ordered and a global cap can be exhausted by early `NAME_SUB` mutations before later mutation families receive representation. Therefore a zero reachability result in V98 cannot prove the richer conceptual K is insufficient; V100 removes this ordering confound.
+
+## V99 — cross-source dynamic organs
+
+Live primary run `31792844444`.
+
+V99 adds source-distinct admission: a normalized dynamic component is retained only if similar verifier-improving cheap-probe deltas recur across at least two different training programs. Correct implementations are never read. The same richer K and protected top-B verifier evaluation are used.
+
+V99 inherits V98's candidate-family ordering caveat, so V100 is the stronger constructor-balanced confirmation.
+
+## V100 — balanced-K cross-source dynamic organs
+
+Live primary run `31793070377`.
+
+V100 freezes the strongest version so far. Before truncation, it enumerates a large generic candidate superset, then allocates approximately equal quota to every observed mutation family and fills remaining slots round-robin. This removes constructor-family ordering as a reachability confound while preserving V99's other gates:
+
+- pre-existing external corpus;
+- no correct implementations read;
+- fixed K identical across learned/null/hash arms;
+- cheap probe channel distinct from protected verifier;
+- normalized dynamic signatures;
+- source-distinct support from at least two training tasks;
+- nonzero held-out reachability ceiling;
+- protected success recovery within top-B;
+- advantage over coordinate-shuffled and hash baselines.
+
+If V100 passes all gates, it would support a bounded natural claim of **source-distinct verifier-induced dynamic components that causally reduce protected search under a fixed external corpus**. It would still not establish autonomous constructor genesis or the universal ten-operator alphabet.
 
 ## Current falsification ladder
-
-Natural evidence has rejected increasingly shallow interpretations:
 
 `recurring token patch != developmental primitive`
 
@@ -162,16 +125,18 @@ Natural evidence has rejected increasingly shallow interpretations:
 
 `verifier-induced local site class != held-out closure expansion`
 
-The live hypothesis has therefore moved above local repair syntax toward **functional and dynamic state transformations**.
+`dynamic prototypes + zero reachable held-out repairs -> constructor ceiling, not transfer evidence`
+
+`single-source dynamic pathology != reusable organ`
+
+`cheap-probe ranking + zero training improvements -> economic hypothesis not reached`
+
+The live hypothesis is now maximally specific: **source-distinct, normalized execution-state transformation motifs may be useful developmental components only when tested inside a fixed constructor language that demonstrably contains held-out solutions and against equally expressive null/search controls.**
 
 ## Crown-jewel boundary
 
-Even a positive V92–V96 bridge would not by itself establish autonomous constructor genesis. The maximal gate remains:
+Even a positive V100 bridge would not establish autonomous constructor genesis. The maximal gate remains:
 
 `frozen verifier residuals -> construct K1 -> strict natural held-out closure growth -> K1 makes K2 discoverable -> ancestor ablation moves the future developmental frontier backward`.
 
-The correct object may ultimately be a coupled algebra over:
-- semantic/epistemic transformations,
-- typed composition/control grammar,
-- executable state-transition motifs/organs,
-- constructors that generate those structures.
+The likely final object is a coupled developmental algebra over semantic/epistemic transformations, typed composition/control grammar, executable state-transition motifs/organs, and constructors that generate those structures.
