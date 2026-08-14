@@ -1,0 +1,17 @@
+{
+  "protocol": "V79_EXTERNAL_BLACKBOX_PROBE",
+  "families": {"cpython_math": 5, "numpy": 6, "scipy_special": 5, "mpmath": 6},
+  "source_families": ["cpython_math", "numpy", "scipy_special", "mpmath"],
+  "old_closure_indistinguishable": {"cpython_math": true, "numpy": true, "scipy_special": true, "mpmath": true},
+  "old_closure_all_target_success": {"cpython_math": 0, "numpy": 0, "scipy_special": 0, "mpmath": 0},
+  "hand_probe_success": {"cpython_math": 5, "numpy": 6, "scipy_special": 5, "mpmath": 6},
+  "meta_train_scores": {"SAMPLE_INTERFACE": [16,16], "DROP_LEFT": [2,16], "DROP_RIGHT": [2,16], "REVERSE_SET": [0,16], "CONST_ZERO": [0,16], "DUPLICATE_FIRST": [0,16]},
+  "selected_meta": "SAMPLE_INTERFACE",
+  "unique_best": true,
+  "holdout_family": "mpmath",
+  "holdout_success": [6,6],
+  "holdout_ablation_success": [0,6],
+  "semantic_shuffle_success": [0,6],
+  "gates": {"old_closure_obstruction_all_families": true, "hand_probe_all": true, "blind_extension_unique": true, "source_distinct_holdout_transfer": true, "ablation_restores_obstruction": true, "semantic_mapping_matters": true},
+  "verdict": "PASS_EXTERNAL_PROBE_RECONSTRUCTION_V79"
+}
