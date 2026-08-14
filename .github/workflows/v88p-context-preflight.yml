@@ -1,0 +1,26 @@
+name: V88P Context Preflight NONCLAIM
+on:
+  push:
+    branches: [v88p-context-preflight]
+  workflow_dispatch:
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Shrink diagnostic only
+        run: sed -i "s/test=names\[cut:\]/test=names[cut:][:6]/" experiments/METALOGIC_V88_CONTEXTUAL_CONSTRUCTOR_INDUCTION.py
+      - name: Run NONCLAIM preflight
+        run: QUIXBUGS_DIR=/tmp/QuixBugs OUT_DIR=$GITHUB_WORKSPACE/results/v88p python experiments/METALOGIC_V88_CONTEXTUAL_CONSTRUCTOR_INDUCTION.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v88p-context-preflight-nonclaim
+          path: results/v88p/RESULT.json
