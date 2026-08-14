@@ -1,0 +1,166 @@
+name: Lean Kernel Arena session retention
+on:
+  workflow_dispatch:
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare session resource retention operators
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/session-retention
+          rm -rf "$OUT" base arena tables both budget combo arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git base
+          git -C base checkout "$SOKO_REV"
+          for d in arena tables both budget combo; do cp -a base "$d"; done
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def patch_arena(root):
+              p=Path(root)/'src/util.rs'; s=p.read_text()
+              old="    pub(crate) fn reset(&mut self) { self.inner = bumpalo::Bump::new() }"
+              new="    pub(crate) fn reset(&mut self) { self.inner.reset() }"
+              assert old in s
+              p.write_text(s.replace(old,new,1))
+
+          def patch_tables(root):
+              p=Path(root)/'src/util.rs'; s=p.read_text()
+              old="""        if self.conv_uf.capacity() > KEEP_CAP {
+            self.conv_uf = crate::union_find::UnionFind::new();
+        } else {
+            self.conv_uf.clear();
+        }"""
+              new="""        self.conv_uf.clear();"""
+              assert old in s; s=s.replace(old,new,1)
+              old="""        if self.frames.capacity() > KEEP_CAP {
+            self.frames = hashbrown::HashTable::new();
+        } else {
+            self.frames.clear();
+        }"""
+              new="""        self.frames.clear();"""
+              assert old in s; s=s.replace(old,new,1)
+              old="""fn shrink_map<K, V>(m: &mut FxHashMap<K, V>) {
+    if m.capacity() > KEEP_CAP {
+        *m = FxHashMap::default();
+    } else {
+        m.clear();
+    }
+}
+
+fn shrink_set<K>(s: &mut FxHashSet<K>) {
+    if s.capacity() > KEEP_CAP {
+        *s = FxHashSet::default();
+    } else {
+        s.clear();
+    }
+}"""
+              new="""fn shrink_map<K, V>(m: &mut FxHashMap<K, V>) {
+    m.clear();
+}
+
+fn shrink_set<K>(s: &mut FxHashSet<K>) {
+    s.clear();
+}"""
+              assert old in s; s=s.replace(old,new,1)
+              p.write_text(s)
+
+          def patch_budget(root):
+              p=Path(root)/'src/tc.rs'; s=p.read_text()
+              old="const SESSION_BUDGET: usize = 1 << 20;"
+              new="""const PER_THREAD_BUDGET: usize = 6 << 20;
+const MACHINE_BUDGET: usize = 10 << 20;
+
+#[inline]
+fn session_budget(num_threads: usize) -> usize {
+    PER_THREAD_BUDGET.min(MACHINE_BUDGET / num_threads.max(1))
+}"""
+              assert old in s; s=s.replace(old,new,1)
+              old="if sbump.allocated_bytes() > SESSION_BUDGET {"
+              new="if sbump.allocated_bytes() > session_budget(self.config.num_threads) {"
+              assert old in s; s=s.replace(old,new,1)
+              p.write_text(s)
+
+          patch_arena('arena')
+          patch_tables('tables')
+          patch_arena('both'); patch_tables('both')
+          patch_budget('budget')
+          patch_arena('combo'); patch_tables('combo'); patch_budget('combo')
+          PY
+
+          for d in base arena tables both budget combo; do
+            (cd "$d" && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+            for n in 2 4; do
+              cat > "$d/config$n.json" <<JSON
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":$n}
+          JSON
+            done
+          done
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,time,json,statistics,random,hashlib,resource
+          root=Path.cwd(); out=root/'results/session-retention'
+          vs=['base','arena','tables','both','budget','combo']
+          bins={v:root/v/'target/release/sokonanoda' for v in vs}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          cases=[]
+          for kind,exp in [('good','accept'),('bad','reject')]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
+
+          # Full protected correctness at 2 threads for every causal arm.
+          correctness={}
+          for v in vs:
+              bad=[]
+              cfg=root/v/'config2.json'
+              for p,exp in cases:
+                  with p.open('rb') as f:
+                      rc=subprocess.run([str(bins[v]),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+                  if status(rc)!=exp:
+                      bad.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'got':status(rc),'rc':rc})
+              correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
+
+          workload=sorted([p for p,_ in cases],key=lambda p:p.stat().st_size,reverse=True)[:24]
+          workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
+          perf={}
+          for threads in (2,4):
+              samples={v:[] for v in vs}; rss={v:[] for v in vs}
+              for seed in range(10):
+                  order=vs.copy(); random.Random(1000*threads+seed).shuffle(order)
+                  for v in order:
+                      cfg=root/v/f'config{threads}.json'
+                      before=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+                      t=time.perf_counter()
+                      for p in workload:
+                          with p.open('rb') as f:
+                              subprocess.run([str(bins[v]),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                      elapsed=time.perf_counter()-t
+                      after=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+                      samples[v].append(elapsed); rss[v].append(max(before,after))
+              med={v:statistics.median(samples[v]) for v in vs}
+              perf[str(threads)]={
+                  'median_seconds':med,
+                  'speedup_vs_base':{v:med['base']/med[v] for v in vs if v!='base'},
+                  'samples_seconds':samples,
+                  'ru_maxrss_kb_observed':{v:max(rss[v]) for v in vs},
+              }
+          summary={'correctness':correctness,'performance':perf,'workload':[str(p.relative_to(root/'arena-tests')) for p in workload]}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit('correctness regression')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-session-retention
+          path: results/session-retention/
