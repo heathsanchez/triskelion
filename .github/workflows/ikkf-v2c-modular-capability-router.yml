@@ -1,0 +1,40 @@
+name: IKKF V2C Modular Capability Router
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v2c-modular-capability-router]
+    paths:
+      - '.github/workflows/ikkf-v2c-modular-capability-router.yml'
+      - 'experiments/IKKF_V2C_MODULAR_CAPABILITY_ROUTER.py'
+      - 'protocols/IKKF_V2C_MODULAR_CAPABILITY_ROUTER_PRECOMMIT.txt'
+      - 'experiments/IKKF_V2_CAPABILITY_ROUTING.py'
+      - 'capabilities/IKKF_C_CMP_BIN_V1.json'
+      - 'capabilities/IKKF_J_CMP_CONST_V1.json'
+
+jobs:
+  modular-capability-router-v2c:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Show frozen hashes
+        run: sha256sum protocols/IKKF_V2C_MODULAR_CAPABILITY_ROUTER_PRECOMMIT.txt experiments/IKKF_V2_CAPABILITY_ROUTING.py experiments/IKKF_V2C_MODULAR_CAPABILITY_ROUTER.py capabilities/IKKF_C_CMP_BIN_V1.json capabilities/IKKF_J_CMP_CONST_V1.json
+      - name: Run V2c modular router gate
+        run: python experiments/IKKF_V2C_MODULAR_CAPABILITY_ROUTER.py
+      - name: Upload scientific artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v2c-modular-capability-router
+          path: artifacts/ikkf_v2c_modular_router/
