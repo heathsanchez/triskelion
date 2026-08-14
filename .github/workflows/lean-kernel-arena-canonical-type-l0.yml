@@ -1,0 +1,94 @@
+name: Lean Kernel Arena canonical type L0
+on:
+  push:
+    branches: [agent/lean-kernel-arena-canonical-type-l0]
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sweep canonical type-cache L0 capacities
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/canonical-type-l0
+          rm -rf "$OUT" base dm64 dm256 dm1024 dm4096 arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git base
+          git -C base checkout "$SOKO_REV"
+          for n in 64 256 1024 4096; do cp -a base "dm$n"; done
+          python3 - <<'PY'
+          from pathlib import Path
+          for n in (64,256,1024,4096):
+              root=Path(f'dm{n}')
+              p=root/'src/util.rs'; s=p.read_text()
+              anchor="pub(crate) const PRUNE_DM_SHIFT: u32 = 64 - 10;\n\npub struct TcCache<'a, 't> {"
+              repl=f"pub(crate) const PRUNE_DM_SHIFT: u32 = 64 - 10;\npub(crate) const TYPE_DM_LEN: usize = {n};\n\npub struct TcCache<'a, 't> {{"
+              assert anchor in s; s=s.replace(anchor,repl,1)
+              anchor="    pub(crate) type_cache: FxHashMap<(usize, ExprPtr<'t>), crate::infer::CachedType<'a>>,"
+              repl=anchor+"\n    pub(crate) type_dm: Box<[(usize, Option<ExprPtr<'t>>, Option<crate::infer::CachedType<'a>>); TYPE_DM_LEN]>,"
+              assert anchor in s; s=s.replace(anchor,repl,1)
+              anchor="            type_cache: session_fx_hash_map(),"
+              repl=anchor+"\n            type_dm: Box::new([(0, None, None); TYPE_DM_LEN]),"
+              assert anchor in s; s=s.replace(anchor,repl,1)
+              p.write_text(s)
+
+              p=root/'src/infer.rs'; s=p.read_text()
+              old="        let key = (self.key_env(env, e) as *const value::Env<'t> as usize, e);\n        let scope = self.uparam_scope();\n        if let Some(cached) = self.tc_cache.type_cache.get(&key).copied() {\n            if flag == InferOnly || cached.checked_under == scope {\n                return cached.result;\n            }\n        }"
+              new="        let key = (self.key_env(env, e) as *const value::Env<'t> as usize, e);\n        let scope = self.uparam_scope();\n        let type_slot = ((key.0 as u64).wrapping_mul(0x9E3779B97F4A7C15)\n            ^ (e.as_ref() as *const Expr<'t> as usize as u64).wrapping_mul(0xD6E8FEB86659FD93)) as usize\n            & (crate::util::TYPE_DM_LEN - 1);\n        let ent = self.tc_cache.type_dm[type_slot];\n        if ent.0 == key.0 && ent.1 == Some(e) {\n            if let Some(cached) = ent.2 {\n                if flag == InferOnly || cached.checked_under == scope {\n                    return cached.result;\n                }\n            }\n        }\n        if let Some(cached) = self.tc_cache.type_cache.get(&key).copied() {\n            self.tc_cache.type_dm[type_slot] = (key.0, Some(e), Some(cached));\n            if flag == InferOnly || cached.checked_under == scope {\n                return cached.result;\n            }\n        }"
+              assert old in s; s=s.replace(old,new,1)
+              old="        let checked_under = if flag == Check { scope } else { CheckScope::Unchecked };\n        self.tc_cache.type_cache.insert(key, CachedType { result: r, checked_under });\n        r"
+              new="        let checked_under = if flag == Check { scope } else { CheckScope::Unchecked };\n        let cached = CachedType { result: r, checked_under };\n        self.tc_cache.type_cache.insert(key, cached);\n        self.tc_cache.type_dm[type_slot] = (key.0, Some(e), Some(cached));\n        r"
+              assert old in s; s=s.replace(old,new,1)
+              p.write_text(s)
+          PY
+          for d in base dm64 dm256 dm1024 dm4096; do
+            cat > "$d/config.json" <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
+          JSON
+            (cd "$d" && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,time,json,statistics,random,hashlib
+          root=Path.cwd(); out=root/'results/canonical-type-l0'; vs=['base','dm64','dm256','dm1024','dm4096']
+          bins={v:root/v/'target/release/sokonanoda' for v in vs}; cfgs={v:root/v/'config.json' for v in vs}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          cases=[]
+          for kind,exp in [('good','accept'),('bad','reject')]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
+          correctness={}
+          for v in vs:
+              bad=[]
+              for p,exp in cases:
+                  with p.open('rb') as f: rc=subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+                  if status(rc)!=exp: bad.append(str(p.relative_to(root/'arena-tests')))
+              correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
+          workload=sorted([p for p,_ in cases],key=lambda p:p.stat().st_size,reverse=True)[:24]
+          workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
+          samples={v:[] for v in vs}
+          for seed in range(10):
+              order=vs.copy(); random.Random(seed).shuffle(order)
+              for v in order:
+                  t=time.perf_counter()
+                  for p in workload:
+                      with p.open('rb') as f: subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                  samples[v].append(time.perf_counter()-t)
+          med={v:statistics.median(samples[v]) for v in vs}
+          summary={'correctness':correctness,'median_seconds':med,'speedup_vs_base':{v:med['base']/med[v] for v in vs if v!='base'},'samples_seconds':samples}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit('correctness regression')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-canonical-type-l0
+          path: results/canonical-type-l0/
