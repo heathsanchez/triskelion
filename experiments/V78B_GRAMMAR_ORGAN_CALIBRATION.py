@@ -2,7 +2,7 @@ import importlib.util, sys, random, heapq, itertools, json
 import types
 m=types.SimpleNamespace()
 ns={}
-src=open('/tmp/alphabet_collider.py').read().split('W=make_worlds()')[0]
+src=open('experiments/V78_ALPHABET_COLLIDER_CALIBRATION.py').read().split('W=make_worlds()')[0]
 exec(src,ns)
 for k,v in ns.items(): setattr(m,k,v)
 OPS=m.OPS; W=m.make_worlds(seed=7,n_per=20)
