@@ -1,0 +1,50 @@
+IKKF V2e — VERIFIED INVOCATION DISTILLATION — PRECOMMIT
+
+Parent evidence
+- V2c learned routing from program-confounded training sets and collapsed to C on the frozen held-out universe (route_accuracy=0.5).
+- V2d used authoritative verification to route the exact same held-out universe perfectly (route_accuracy=1.0).
+
+Question
+Can verifier-decided invocation experiences be distilled into a neural selector that generalizes to the exact V2c/V2d held-out universe, when capability labels are paired within the same training program identities rather than confounded by program identity?
+
+Frozen substrate
+- QuixBugs commit 4257f44b0ff1181dedaedee6a447e133219fcebf.
+- Capabilities unchanged: C=CMP@0;BIN@0, J=CMP@0;CONST@0.
+- Held-out programs unchanged: possible_change, sieve, subsequences.
+- Held-out suffixes unchanged: 100..107.
+- Base model Qwen/Qwen3.5-9B, fresh rank-32 LoRA, LR 5e-5, 8 optimizer steps.
+
+Frozen training-world selection BEFORE any neural output
+1. Consider every QuixBugs correct Python program in lexicographic filename order, excluding held-out programs.
+2. On suffixes 0..3, require BOTH C-mutated and J-mutated worlds to fail before repair and to pass after applying their respective capability.
+3. Keep the first 8 programs satisfying this paired semantic-validity criterion. If fewer than 4 exist, verdict is FAIL_INSUFFICIENT_PAIRED_WORLDS and no neural result is interpreted.
+4. For every selected program and suffix 0..15, generate both a C world and a J world. Authoritative QuixBugs execution must verify the corresponding capability repairs it and the other capability does not. Only verifier-unique decisions enter training.
+
+Frozen arms
+A. B0: fresh untrained router.
+B. PAIRED: train only on verifier-unique paired invocation decisions from selected training programs.
+C. SHUFFLE: identical examples/budget but swap C/J labels.
+D. Reload PAIRED checkpoint.
+
+Frozen evaluation
+Exact V2c/V2d held-out program/suffix universe. Selected module is executed explicitly; score route accuracy and joint execution accuracy.
+
+Primary gates
+G1 at least 4 paired training programs selected by the frozen semantic rule.
+G2 every training datum has exactly one verifier-admissible capability.
+G3 training labels are paired within each selected program identity.
+G4 held-out programs/suffixes never enter training.
+G5 cold router fails threshold 0.75.
+G6 PAIRED C execution >=0.75.
+G7 PAIRED J execution >=0.75.
+G8 PAIRED route accuracy >=0.75.
+G9 PAIRED joint execution >=0.75.
+G10 SHUFFLE fails route or joint threshold.
+G11 reload preserves PAIRED C/J/route >=0.75.
+G12 no inherited checkpoint and all routing supervision originates in executable verifier decisions.
+
+Verdict
+PASS_IKKF_V2E_VERIFIED_INVOCATION_DISTILLATION iff all twelve gates pass.
+
+Claim boundary
+A pass establishes bounded distillation of verifier-decided invocation into a neural selector across held-out QuixBugs program identities. It does not establish arbitrary capability routing, cross-repository routing, or that neural routing replaces verifier fallback.
