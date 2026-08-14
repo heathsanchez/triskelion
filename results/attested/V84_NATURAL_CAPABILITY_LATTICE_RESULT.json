@@ -1,0 +1,38 @@
+{
+  "protocol": "V84_QUIXBUGS_CAPABILITY_LATTICE",
+  "external_repo": "jkoppel/QuixBugs",
+  "external_commit": "4257f44b0ff1181dedaedee6a447e133219fcebf",
+  "correct_solutions_read": false,
+  "task_count": 37,
+  "baseline_fail_count": 37,
+  "reachable_by_constructor": 2,
+  "schema_count": 26,
+  "nonempty_extensional_classes": 2,
+  "quotient_classes": [
+    {"members": [["<=", "<"]], "solve_set": ["find_first_in_sorted"], "size": 1, "min_dl": 5},
+    {"members": [["<", "<="], [">", ">="]], "solve_set": ["quicksort"], "size": 1, "min_dl": 5}
+  ],
+  "hasse_covers": [],
+  "minimum_observational_basis": {
+    "cardinality": 2,
+    "dl": 10,
+    "classes": [0, 1],
+    "representatives": [["<=", "<"], ["<", "<="]]
+  },
+  "recurrent_schema_count": 0,
+  "gates": {
+    "natural_preexisting_corpus": true,
+    "nontrivial_quotient": true,
+    "at_least_one_strict_inclusion": false,
+    "exact_minimum_observational_basis_found": true,
+    "recurrence_distinguished_from_unique_value": false
+  },
+  "verdict": "MIXED_NATURAL_CAPABILITY_LATTICE_V84",
+  "provenance": {
+    "run_id": 31782263023,
+    "artifact_id": 9212227436,
+    "artifact_sha256": "96a1be28ae8cefd478f6935c2f8461dbbc8d8209557e58472706468e20481969",
+    "head_sha": "bd6419c845c3939ecc202b9609da54604f42dd05"
+  },
+  "qualification": "Empirical Post/ETP-style observational lattice for the frozen V83 one-token constructor. Only 2/37 natural tasks are reachable. <-><= and >->>= are extensionally equivalent on the frozen observational universe because both solve only quicksort. There is no strict inclusion/Hasse structure and no recurrent schema across tasks. The minimum basis is a minimum set cover of constructor-reachable tasks, not formal functional or universal completeness."
+}
