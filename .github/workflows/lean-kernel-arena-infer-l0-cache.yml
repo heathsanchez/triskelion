@@ -12,74 +12,70 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-      - name: Compare normal and no-store recursor-major WHNF
+      - name: Compare eager and lazy recursor spine extraction
         shell: bash
         run: |
           set -euo pipefail
           SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
           ARENA_ARTIFACT=8931227426
-          OUT=results/major-whnf-nostore
-          rm -rf "$OUT" base nostore arena-tests artifact tests.zip
+          OUT=results/lazy-iota-spine
+          rm -rf "$OUT" base lazy arena-tests artifact tests.zip
           mkdir -p "$OUT" arena-tests artifact
-          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
           unzip -q tests.zip -d artifact
           tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
           git clone https://github.com/intgrah/sokonanoda.git base
           git -C base checkout "$SOKO_REV"
-          cp -a base nostore
+          cp -a base lazy
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('nostore/src/eval.rs'); s=p.read_text()
-          marker="    pub(crate) fn whnf_head(&mut self, depth: u32, v: V<'t>) -> V<'t> {"
-          helper="    fn whnf_head_nostore(&mut self, depth: u32, v: V<'t>) -> V<'t> {\n        let mut cur = v;\n        loop {\n            cur = self.force_thunk(depth, cur);\n            match cur {\n                Value::Unfold { .. } => {\n                    let next = self.unfold_value(depth, cur);\n                    if std::ptr::eq(next, cur) { return cur; }\n                    cur = next;\n                }\n                Value::Rigid { head: RigidHead::Recursor(..) | RigidHead::QuotConst(..), .. } => match self.iota_value(depth, cur) {\n                    Some(next) => cur = next,\n                    None => return cur,\n                },\n                _ => return cur,\n            }\n        }\n    }\n\n"
-          assert marker in s
-          s=s.replace(marker,helper+marker,1)
-          old="        let major = self.whnf_head(depth, args[rec.major_idx()]);"
-          new="        let major = self.whnf_head_nostore(depth, args[rec.major_idx()]);"
-          assert old in s
-          p.write_text(s.replace(old,new,1))
+          p=Path('lazy/src/eval.rs'); s=p.read_text()
+          marker="    pub(crate) fn spine_apps(&mut self, depth: u32, spine: S<'t>) -> Option<SpineArgs<'t>> {"
+          helper="    fn spine_apps_lazy(&mut self, spine: S<'t>) -> Option<SpineArgs<'t>> {\n        let mut out = SpineArgs::with_capacity(spine.len() as usize);\n        let mut cur: &Spine<'t> = spine;\n        while let Spine::Snoc { prev, elim, .. } = cur {\n            match elim.view() {\n                ElimView::App(a) => out.push(a),\n                ElimView::Proj { .. } => return None,\n            }\n            cur = prev;\n        }\n        out.reverse();\n        Some(out)\n    }\n\n"
+          assert marker in s; s=s.replace(marker,helper+marker,1)
+          old="                let args = self.spine_apps(depth, spine)?;\n                self.do_recursor_iota(depth, *name, *levels, &args)"
+          new="                let args = self.spine_apps_lazy(spine)?;\n                self.do_recursor_iota(depth, *name, *levels, &args)"
+          assert old in s; s=s.replace(old,new,1)
+          p.write_text(s)
           PY
-          cat > base/config.json <<'JSON'
+          for d in base lazy; do
+            cat > "$d/config.json" <<'JSON'
           {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
           JSON
-          cp base/config.json nostore/config.json
-          (cd base && RUSTFLAGS='-C target-cpu=native' cargo build --release)
-          (cd nostore && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+            (cd "$d" && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          done
           python3 - <<'PY'
           from pathlib import Path
           import subprocess,time,json,statistics,random,hashlib
-          root=Path.cwd(); out=root/'results/major-whnf-nostore'
-          bins={'base':root/'base/target/release/sokonanoda','nostore':root/'nostore/target/release/sokonanoda'}
-          cfgs={'base':root/'base/config.json','nostore':root/'nostore/config.json'}
+          root=Path.cwd(); out=root/'results/lazy-iota-spine'; vs=['base','lazy']
+          bins={v:root/v/'target/release/sokonanoda' for v in vs}; cfgs={v:root/v/'config.json' for v in vs}
           def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
           cases=[]
           for kind,exp in [('good','accept'),('bad','reject')]:
-              for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
+            for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
           correctness={}
-          for v,e in bins.items():
-              bad=[]
-              for p,exp in cases:
-                  with p.open('rb') as f: rc=subprocess.run([str(e),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
-                  if status(rc)!=exp: bad.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'got':status(rc),'rc':rc})
-              correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
+          for v in vs:
+            bad=[]
+            for p,exp in cases:
+              with p.open('rb') as f: rc=subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+              if status(rc)!=exp: bad.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'got':status(rc),'rc':rc})
+            correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
           workload=sorted([p for p,_ in cases],key=lambda p:p.stat().st_size,reverse=True)[:24]
           workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
-          samples={v:[] for v in bins}
+          samples={v:[] for v in vs}
           for seed in range(18):
-              order=list(bins); random.Random(seed).shuffle(order)
-              for v in order:
-                  t=time.perf_counter()
-                  for p in workload:
-                      with p.open('rb') as f: subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
-                  samples[v].append(time.perf_counter()-t)
-          med={v:statistics.median(xs) for v,xs in samples.items()}
-          summary={'correctness':correctness,'median_seconds':med,'samples_seconds':samples,'speedup_nostore_vs_base':med['base']/med['nostore']}
-          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
-          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit('correctness regression')
+            order=vs.copy(); random.Random(seed).shuffle(order)
+            for v in order:
+              t=time.perf_counter()
+              for p in workload:
+                with p.open('rb') as f: subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+              samples[v].append(time.perf_counter()-t)
+          med={v:statistics.median(samples[v]) for v in vs}; summary={'correctness':correctness,'median_seconds':med,'speedup_lazy_vs_base':med['base']/med['lazy'],'samples_seconds':samples}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2)); print(json.dumps(summary,indent=2))
+          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit(1)
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lean-kernel-arena-major-whnf-nostore
-          path: results/major-whnf-nostore/
+          name: lean-kernel-arena-lazy-iota-spine
+          path: results/lazy-iota-spine/
