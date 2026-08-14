@@ -2,98 +2,116 @@
 
 _Last reconciled: 2026-08-14 NZST_
 
-This file is the authoritative evidence index for headline Triskelion / LOGOS claims. Top-level prose must not claim more than this ledger supports.
+This is the authoritative evidence index for headline Triskelion / LOGOS claims. Top-level prose must not claim more than this ledger supports.
 
 ## Evidence classes
 
-- **ATTESTED** — primary result artifact plus harness/protocol inspected; implemented predicate supports the exact sentence.
-- **ATTESTED WITH QUALIFICATION** — core behavioral predicate is supported, but an adjacent property (for example sealing or independence) is established structurally or remains weaker than the gate name suggests.
-- **BOUNDED PASS** — frozen run/result located and scientific verdict supports the bounded claim; full predicate-level audit may still be pending.
-- **LINEAGE LOCATED / CONTENT AUDIT PENDING** — branch/run/artifact exists, but artifact contents and implemented gates have not yet been checked against the prose claim.
-- **RESULT FILE PRESENT / RUN AUDIT PENDING** — result exists in `main`, but branch/run/artifact provenance has not yet been reconciled.
-- **REPORTED / NEEDS ATTESTATION** — currently supported by prose and/or scripts only; do not cite as settled.
-- **NEGATIVE** — scientific gate was reached and failed.
-- **INCOMPLETE / HARNESS / INFRASTRUCTURE** — mechanism was not actually tested to a scientific verdict.
+- **ATTESTED** — primary artifact and harness/predicate inspected; the exact allowed sentence is supported.
+- **ATTESTED WITH QUALIFICATION** — the core behavioral predicate is supported, but an adjacent property such as sealing or independence is weaker than a gate name suggests.
+- **BOUNDED PASS** — primary run/result lineage is pinned and the bounded verdict is supported; a fresh predicate-by-predicate audit has not necessarily been repeated in this reconciliation.
+- **RESULT FILE / NO CI PROVENANCE LOCATED** — a committed result exists, but no corresponding Actions run was located in this repo.
+- **NOT ATTESTED IN THIS REPO** — the claimed evidence is not present in this repository and must not be presented as repo-attested.
+- **NEGATIVE / MIXED** — the scientific gate was reached and failed or produced a mixed result.
+- **INCOMPLETE / HARNESS** — the intended mechanism was not reached because usable worlds or harness execution failed.
 
-## Naming collision rule
+## Naming rule
 
-Bare V-numbers are not unique identifiers. In particular, `V49`, `V50`, and `V51` refer to two different experiment families:
+Bare V-numbers are not unique identifiers. `V49`, `V50`, and `V51` are used by two unrelated lines. Use descriptive IDs such as `OPERATOR_INVENTION_V51` and `QUOTIENT_REFINEMENT_V51`.
 
-- `SEALED_TRANSFER_V49`, `OUTCOME_LABELED_V50`, `OPERATOR_INVENTION_V51`
-- `QUOTIENT_REFINEMENT_V49`, `QUOTIENT_REFINEMENT_V50`, `QUOTIENT_REFINEMENT_V51`
+## Headline developmental / model claims
 
-All new docs should use the descriptive slug plus V-number.
-
-## Highest-value current claims
-
-| Canonical ID | Current status | Primary evidence currently located | Exact claim allowed now |
+| Canonical ID | Status | Primary evidence | Exact allowed wording |
 |---|---|---|---|
-| `TWO_GENERATION_COMPOUNDING_V54` | **BOUNDED PASS** | branch `v54-compounding-ratchet`; run `31761530951`; head `2dd5f41b6c7cec1004b8deaee4f976dd2a9ed21c` | Under the frozen one-new-generator protocol, O2 had zero cold survivors before O1, became discoverable after O1, and final capability required both. |
-| `VERIFIER_MODEL_LAYER_V56C` | **BOUNDED PASS** | branch `v56-close-gaps`; suite run `31766446740`; head `14757f481d5873332c72a279c3337aec17d323ab` | On the frozen 12-case task, explicit verifier-controlled applicability scored 12/12 vs 6/12 no-memory and 6/12 raw-memory. |
-| `VERIFIER_INDUCED_INVOCATION_IKKF_V4B` | **BOUNDED PASS** | branch `ikkf-v4b-verifier-induced-invocation`; run `31763234925`; head `65be34273d2f717c57e5b4f919c9bad5d955d943` | External verification can refine a coarse admitted scope to the unique valid invocation in this bounded setting; ablation and later revocation pass. |
-| `VERIFIED_ROUTING_IKKF_V2D` | **BOUNDED PASS** | branch `ikkf-v2d-verified-capability-os`; run `31763593583`; head `773a73db5a3d4e143c2c0eed658475a2bdfcfe1d` | On the exact V2c worlds/modules, verifier-controlled invocation reached 100% routing/execution vs learned selector 50%/0% joint execution. |
-| `PORTABLE_CAPABILITY_IKKF_V1` | **ATTESTED WITH CORRECTION** | primary run `31759600559`; primary result/harness/protocol audited | Fresh capability compilation, second fresh compilation call, uninstall and reload are separately executed. Do **not** claim stochastic independence: C1/C2 curves are bit-identical and the `independent_recompile` predicate does not test independence. |
-| `ADAPTIVE_CONSOLIDATION_V18B` | **ATTESTED** | main; run `31740188434`; head `070dd7a14f288481c16c1cb33ca127a588da501f`; primary RESULT audited | Bounded protected consolidation preserves the measured ancestors/composites and reload persistence. |
-| `SORRYDB_V77` | **NEGATIVE AT CURRENT SOLVER/BUDGET** | main; repaired run `31761636184` | Exact-commit plumbing/official verifier/repo preparation work; five frozen solver arms solve 0/3 selected tasks. |
+| `TWO_GENERATION_COMPOUNDING_V54` | **BOUNDED PASS** | branch `v54-compounding-ratchet`; run `31761530951`; head `2dd5f41b6c7cec1004b8deaee4f976dd2a9ed21c` | Under the frozen one-new-generator protocol, O2 had zero cold survivors before O1, became discoverable after O1, and the final target required both. |
+| `VERIFIER_MODEL_LAYER_V56C` | **BOUNDED PASS** | branch `v56-close-gaps`; suite run `31766446740`; head `14757f481d5873332c72a279c3337aec17d323ab` | On the frozen 12-case small-model task, explicit verifier-controlled applicability scored 12/12 vs 6/12 no-memory and 6/12 raw-memory. |
+| `VERIFIER_INDUCED_INVOCATION_IKKF_V4B` | **BOUNDED PASS** | run `31763234925` | External verification refines a coarse admitted scope to the unique valid invocation in this bounded setting; ablation and later revocation pass. |
+| `VERIFIED_ROUTING_IKKF_V2D` | **BOUNDED PASS** | run `31763593583` | On the exact V2c C/J worlds/modules, verifier-controlled routing/execution reached 100%/100% vs learned selector 50% routing and 0% joint execution. |
+| `PORTABLE_CAPABILITY_IKKF_V1` | **ATTESTED WITH QUALIFICATION** | run `31759600559`; primary result/harness/protocol audited | Fresh capability compilation, a second fresh compilation call, uninstall and reload are separately executed. Do **not** claim stochastic independence: C1/C2 curves are bit-identical and the `independent_recompile` predicate does not test independence. |
+| `ADAPTIVE_CONSOLIDATION_V18B` | **ATTESTED** | run `31740188434`; head `070dd7a14f288481c16c1cb33ca127a588da501f`; primary RESULT audited | Bounded protected consolidation preserves the measured ancestors/composites and reload persistence. |
+| `SOURCE_DISTINCT_DISCOVERABILITY_V34` | **ATTESTED — BOUNDED** | run `31724783160`; head `9e89901b33c3de75923de0b5bfd1fad2cb2f609a`; artifact `metalogic-source-distinct-ratchet-v34`; digest `sha256:7cb14558b24f4a7894fa68e6ed5a2ec7d3fee56223af5901e2f38cf568e1256f`; harness audited | On fixed source-distinct Requests, Rich and Flask repositories under the supplied AST barrier vocabulary/frontier procedure, prior acquired operators change the next visible obstruction from cold `Try` to warm `Raise` and then `With`; ancestor ablations move the deepest frontier back accordingly. |
+| `EXTERNAL_FRONTIER_V33` | **BOUNDED PASS precursor** | run `31724613985`; artifact `metalogic-external-frontier-v33`; digest `sha256:6f836e70f2f34e6cc99525c96ab73371bbb360d77053ab7014f8fe57ddaa6f4f` | Precursor external-frontier result; use V34 for the stronger source-distinct headline. |
+| `SORRYDB_V77` | **NEGATIVE at current solver/budget** | repaired run `31761636184` | Exact-commit plumbing/official verifier/repo preparation works; five frozen solver arms solve 0/3 selected tasks. |
 
-## Reconciled V49–V51 operator line
+## V49–V51 sealed/operator line — fully reconciled
 
-| Canonical ID | Current status | Located lineage | Allowed wording now |
+| Canonical ID | Status | Primary evidence | Exact allowed wording |
 |---|---|---|---|
-| `SEALED_TRANSFER_V49` | **ATTESTED WITH SEALING QUALIFICATION** | branch `v49-sealed-run`; run `31749423209`; head `8c5797db33db01c4af8448f399fbea37f251e79c`; artifact `metalogic-v49-sealed`, digest `sha256:1b466db0231ed3042842dfb93a4b2794a68e5332084292bd3a54c1eaa66ed3dc`; `PHASE_A.json`, `COMMITMENT.json`, `PHASE_B.json` audited with calibration/transfer harnesses | The artifact records a unique learned lexical category, Requests cold FAIL → warm PASS → ablation FAIL, a unique later Django counterexample inside the category, and `REVOKE`. The transfer/counterexample predicates are implemented from executable tests. Temporal sealing is supported by the two-phase workflow/script structure, but the script field `requests_absent_from_phase_a_code` is hard-coded `True` rather than dynamically checked, so do not cite that boolean itself as the sealing proof. |
-| `OUTCOME_LABELED_V50` | **LINEAGE LOCATED / CONTENT AUDIT PENDING** | V50 code/workflow staged on the sealed/operator lineage; completed CI lineage located, but exact V50 result artifact/predicate audit still pending | Verifier-derived HELP/HARM is a reported result with executable lineage, not yet attested. |
-| `OPERATOR_INVENTION_V51` | **ATTESTED WITH SEALING QUALIFICATION** | branch `v51-operator-invention`; run `31759857216`; head `f739be68af3cd6695a1674225938961f3b69f7b2`; artifact `metalogic-v51-operator-invention`, digest `sha256:e3c10a4ba1011876e5df7248de4f3cb468e90195f6c331e625c3bb5d6c2f93d0`; `PHASE_A.json`, `COMMITMENT.json`, `PHASE_B.json`, workflow log and both harnesses audited | Under the supplied generic token-emission substrate, two executable obstructions had a unique common repair token `<=`; the frozen old token-position generators preserve token-value multisets, so `< -> <=` is outside that old closure. The committed operator then gives sealed Requests cold FAIL → warm PASS → ablation FAIL, and a later Django harm yields no surviving refined scope so the decision is `REVOKE`. The claim is **not** invention outside all meta-languages. Temporal sealing is supported by workflow order and phase-separated code, while `requests_forbidden_phase_a` / `requests_was_sealed_until_phase_b` are hard-coded fields rather than self-verifying predicates. |
+| `SEALED_TRANSFER_V49` | **ATTESTED WITH SEALING QUALIFICATION** | branch `v49-sealed-run`; audited run `31749682731`; head `79799fba8961645bcd20ba6f94bcf34011a8b629`; artifact `metalogic-v49-sealed`; digest `sha256:1079cae6f06085dc59bfa23cf548807d4219ecae811dd2d424dab5b9d3113a47` | The artifact records a unique learned lexical category, Requests cold FAIL → warm PASS → ablation FAIL, a unique later Django counterexample inside the category, and `REVOKE`. Behavioral predicates come from executable tests. Temporal sealing is supported by phase-separated workflow/code; the hard-coded `requests_absent_from_phase_a_code=True` flag is not itself sealing proof. |
+| `OUTCOME_LABELED_V50` | **ATTESTED WITH SEALING QUALIFICATION** | original run `31749833138`; head `929461fe989592f40f2e15cb0105d81785281817`; artifact `metalogic-v50-outcome-labeled`; digest `sha256:6a97a3e5978d03c5f495f01ca11c0620c822b12e13c963f7df31e01a7cdebddd`; Phase A/B + harnesses audited | Under supplied episodes/tests and one widening mutation family, HELP/HARM is derived from executable before/after transitions, not supplied class labels: 2 HELP + 2 HARM induce one lexical relation; Requests gives cold FAIL → warm PASS → ablation FAIL; later in-relation Django HARM causes `REVOKE`. Temporal sealing is supported structurally, not by hard-coded unseen flags. |
+| `OPERATOR_INVENTION_V51` | **ATTESTED WITH SEALING QUALIFICATION** | branch `v51-operator-invention`; run `31759857216`; head `f739be68af3cd6695a1674225938961f3b69f7b2`; artifact digest `sha256:e3c10a4ba1011876e5df7248de4f3cb468e90195f6c331e625c3bb5d6c2f93d0`; Phase A/B, workflow log and harnesses audited | Under the supplied generic token-emission substrate, two executable obstructions have the unique common repair `< -> <=`; that rewrite lies outside the frozen token-permutation closure; it causally repairs withheld Requests, ablation restores failure, and later contradictory Django evidence causes revocation. Do **not** claim invention outside all supplied meta-languages. |
+
+The files `results/V49_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.*`, `results/V50_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.txt`, and `results/V51_RESULT.txt` belong to the separate quotient-refinement sequence and are not evidence for this operator line.
 
 ## Natural / constructor frontier
 
-| Canonical ID | Status | Evidence |
+| Canonical ID | Status | Evidence boundary |
 |---|---|---|
-| `HISTORICAL_COMPOUNDING_V55A` | **INCOMPLETE** | branch `v55-natural-historical-compounding`; run `31764969750`; only two READY worlds, both Black; no unique O1. |
-| `CONSTRUCTOR_COMPOUNDING_V55B` | **NEGATIVE under tested substrate** | branch `v55-final-frontiers`; suite run `31764908603`; K0 obstruction reached, insertion meta-substrate failed to synthesize K1. |
-| `MODEL_CARD_V55C` | **MIXED / NEGATIVE** | same V55 suite; 6/12 no-memory, 5/12 raw-memory, 5/12 verified-card; protected negatives fail. |
-| `HISTORICAL_BLIND_EDIT_V56A` | **HARNESS FAILURE** | branch `v56-close-gaps`; suite run `31766446740`; stale/out-of-range edit coordinates caused `IndexError`. |
+| `HISTORICAL_COMPOUNDING_V55A` | **INCOMPLETE** | run `31764969750`; only two READY historical worlds, both Black; no unique O1; natural compounding not reached. |
+| `CONSTRUCTOR_COMPOUNDING_V55B` | **NEGATIVE under tested substrate** | suite run `31764908603`; K0 obstruction reached; frozen insertion meta-substrate failed to synthesize K1. |
+| `MODEL_CARD_V55C` | **MIXED / NEGATIVE** | same suite; 6/12 no-memory, 5/12 raw-memory, 5/12 verified-card; protected negatives fail. |
+| `HISTORICAL_BLIND_EDIT_V56A` | **HARNESS FAILURE** | suite run `31766446740`; `IndexError`; no scientific verdict. |
 | `CONSTRUCTOR_RETRY_V56B` | **HARNESS FAILURE** | same suite; malformed insertion caused `IndentationError`; no scientific verdict. |
+| `META_CONSTRUCTOR_V36_V37` | **RESULT FILE / NO CI PROVENANCE LOCATED** | committed `results/V36_V37_META_CONSTRUCTOR.txt`; checkpoint commit `32f3f9e5e280e81d017e3e502faee4e6b6a8ecd6`; no Actions run located for that checkpoint | The committed summary reports bounded constructor-level discoverability under a supplied Python AST type lattice/LCA meta-substrate. Treat as result-file evidence, not CI-attested. |
 
-## Historical claims that remain unaudited to the current standard
+## Scope / ontology progression
 
-These claims may be real and many have scripts/workflows/result summaries, but they should not be called ATTESTED until their primary evidence is reconciled.
-
-| Claim family | Current evidence state | Required action |
+| Canonical ID | Status | Primary lineage |
 |---|---|---|
-| `SOURCE_DISTINCT_DISCOVERABILITY_V33_V34` | scripts on `main`; no indexed branch/run/result currently tied to headline | Locate Actions run/artifact or downgrade to `REPORTED / NEEDS ATTESTATION`. |
-| `EXCEPTION_FLOW_EXTERNAL_STREAM` | repeatedly reported in synthesis; no canonical result/run pointer in current ZIP | Locate the ffmpeg→SHAP primary artifact or retain as `REPORTED / NEEDS ATTESTATION`. |
-| `META_CONSTRUCTOR_V36` | `results/V36_V37_META_CONSTRUCTOR.txt` summary present | Locate run/artifact and audit the constructor-discoverability predicates. |
-| `SCOPE_ONTOLOGY_V40_V43` | scripts and partial summaries/results present | Reconcile each headline step V40/V41/V42/V43 to run/result; do not compress the chain into one settled claim until done. |
-| `GRAMMAR_V70_V72` | quantitative result summary files present | Mark `RESULT FILE PRESENT / RUN AUDIT PENDING` until workflow provenance and predicates are reconciled. |
-| `GRAMMAR_NEGATIVE_V73`, `MATH_TRANSFER_V74` | result files present | Same: result present, run provenance not yet canonicalized. |
-| `COMPOSITION_V15_V17`, `OPERATORS_V19_V23` | scripts/workflows present; V18b separately attested | Historical conclusions remain `REPORTED / NEEDS ATTESTATION` until result/run audit. |
-| `QUOTIENT_REFINEMENT_V45_V68` | many result files + precommits on `main`; V68 result file present | Stronger than prose-only, but run-level provenance/predicate audit still needed before `ATTESTED`. |
+| `SCOPE_CONSTRUCTION_V40` | **BOUNDED PASS** | run `31738858678`, head `94549744273b934ff4f7dbe659e9a0483a03fc72` |
+| `RELATIONAL_SCOPE_V41` | **BOUNDED PASS** | fixed run `31741219608`, head `ce2d86201087aaea45ba9113deb6ae248ccc2aa5` |
+| `OPAQUE_LABEL_AUDIT_V42` | **BOUNDED PASS** | run `31741542315`, head `fa66c3ffff654239c1eae8b33e8f5e179f222bff` |
+| `CATEGORY_INDUCTION_V43` | **BOUNDED PASS** | run `31742025972`, head `e8316eaafa354f32e445b5cad1f85768df447ac5` |
 
-## Result-file namespaces that must not be confused
+These recovered lineages support bounded historical status; this reconciliation did not repeat a full predicate-by-predicate audit of every V40–V43 gate.
 
-The following files on `main` belong to the **external quotient-refinement** sequence, not the sealed-transfer/operator-invention sequence:
+## Grammar / motif line
 
-- `results/V49_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.md`
-- `results/V50_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.txt`
-- `results/V51_RESULT.txt`
+| Canonical ID | Status | Primary evidence / boundary |
+|---|---|---|
+| `MULTISCALE_MOTIFS_V70` | **BOUNDED PASS** | run `31741994569`; digest `26a1c4023211a21285b84a2233602e2ebb4b9271dfe02f9bd0724ab9358153fc`; manually normalized 51-event corpus only. |
+| `SCALE_HOLDOUT_GRAMMAR_V71` | **BOUNDED PASS** | run `31742125256`; digest `4508a8510366f021cfcb98a719d4b629cfb8005a1d3bc3b63470013a0216462c`; whole-scale transfer positive under frozen corpus. |
+| `MDL_MOTIF_BASIS_V72` | **BOUNDED PASS** | run `31742262476`; digest `ae432cc96822cdf05ebb4e14fc46d2aa371f496d0b0c991bade4c5829abdd21b`; exact MDL search: raw cost 142 → 120, 15.493% saving vs 5.632% shuffle mean. |
+| `HIERARCHICAL_MOTIF_V73` | **NEGATIVE / MIXED** | run `31742496354`; digest `c7fb4014978d7d4aedf09f9918d0a47b971f3e66d54314502d274e337bf9c58b`; zero qualifying second-level motifs, all hierarchy gates fail. |
+| `MATH_GRAMMAR_TRANSFER_V74` | **MIXED** | run `31743038770`; digest `6767cda6ec0e22f25301848d8d31129574283de586205fb6085005b5edc01d07`; primitive/operator order transfers strongly, but V72 macros do not establish incremental math value. |
 
-Those filenames must never be cited as primary evidence for `SEALED_TRANSFER_V49`, `OUTCOME_LABELED_V50`, or `OPERATOR_INVENTION_V51`.
+## Earlier operator / composition line
+
+These have primary successful Actions lineage and uploaded artifacts but were not all freshly predicate-audited in this reconciliation, so they remain bounded historical results.
+
+| ID | Status | Run / digest |
+|---|---|---|
+| `PRIMITIVE_COMPOSITION_V15` | **BOUNDED PASS** | run `31684670614`; digest `3a9632a69dda4a70f1ef2f8abe93732451450c3ff1b14a3acfa9e4de26016927` |
+| `VERIFIED_COMPOSER_V16` | **BOUNDED PASS** | run `31692092038` attempt 2; latest digest `59c7a143cde4c916a983394e25a049ee4b52953e5b3bce6a27e28765c049dad6` |
+| `HIERARCHICAL_CHUNKING_V17` | **BOUNDED PASS** | run `31692435978`; digest `4568a3bcd30dfc5794bb674c225b7b446c7ce853cba6e32d66a013d0f1b30dbc` |
+| `REUSABLE_WORDS_V19` | **BOUNDED PASS** | run `31693216278`; digest `f482d385cc51f2455aee87c6bd1f7a68d5c08c2942c0d13144399a7f87bc5318` |
+| `OPERATOR_ORDER_V20` | **BOUNDED PASS** | run `31693479066`; digest `3c3c78d4e12f1d9f917cd280c8c891b96723baebb83d8286a8b3e3fb38b5fc7a` |
+| `TYPED_IR_V21` | **BOUNDED PASS** | run `31701544954`; digest `64d18471430f7c34f6ee6daa99b95a1b1af24fe36f9b38a56baeea5a1e48db93` |
+| `FOUR_STATE_IR_V22` | **RESULT/SCRIPT ONLY — NO CI RUN LOCATED** | commit `1c67e9df6e60b9067de7c77213294986a321663c`; no Actions run found for that commit. |
+| `METAMATH_V23` | **BOUNDED PASS** | fixed rerun `31704158909`; digest `8ebb4d9e8f4e3349ced03b83d92c861e232d803ee3a6c4400bb24082a7d6c1a5` |
+
+## External quotient / Lawbook line
+
+| Canonical ID | Status | Evidence boundary |
+|---|---|---|
+| `QUOTIENT_REFINEMENT_V45_V66` | **BOUNDED RESULT LEDGER WITH PINNED PARENT ARTIFACT** | `results/V45_V66_LEDGER.txt`: parent artifact `9190497808`, digest `5e0af022d52fdc0a2d4262f1766ed4042f2e6803689b06cf2fa370314e095073`; 22 targets, 19 no-coarse-equivalence negatives, 3 reversible refinements (V54/V57/V66). Claim boundary: bounded external reversible equivalence, not autonomous separator invention. |
+| `INCREMENTAL_LAWBOOK_V68` | **RESULT FILE / NO CI PROVENANCE LOCATED** | precommit `fb6e0880a8a71ef6eb093e2e4bae13aa1da7da84`; committed result reports 3→6 classes, reversible partition/provenance restoration and no fake capability gain at V66; no Actions run located for result commit `f3c7448d9421b258785f87fe8da67a1abba0079b`. |
+
+## Evidence not contained in this repo
+
+`EXCEPTION_FLOW_EXTERNAL_STREAM` — **NOT ATTESTED IN THIS REPO.** No commit, indexed file, or code-search hit containing `EXCEPTION_FLOW` was found in this repository. The reported ffmpeg→SHAP result may exist in prior Library/external artifacts, but a Triskelion repo ZIP does not substantiate it and top-level repo docs must not present it as repo-attested.
+
+## Audit completion state
+
+The **provenance audit is complete to the current repository**: every headline family above is now either (a) tied to a primary run/artifact, (b) explicitly result-only/no-CI, (c) explicitly negative/incomplete, or (d) explicitly not attested in this repo. There is no remaining silent `PASS` category whose evidence location is unknown.
+
+This does **not** mean every historical result has been freshly predicate-audited. Only rows marked `ATTESTED` / `ATTESTED WITH QUALIFICATION` received that stronger treatment in this reconciliation. `BOUNDED PASS` remains deliberately weaker.
 
 ## Citation policy
 
-A headline is allowed in README/paper/demo only if this ledger supplies one of:
+A paper/demo/README headline may use only the exact bounded wording allowed here. A successful workflow is not by itself a scientific verdict; a gate name cannot claim more than its implemented predicate; declarative booleans are not empirical proof; and result-only/no-CI rows must retain that qualification.
 
-1. **ATTESTED / ATTESTED WITH QUALIFICATION** exact sentence;
-2. **BOUNDED PASS** with explicit bounded wording and branch/run pointer;
-3. **NEGATIVE/INCOMPLETE** with exact failure boundary.
+## Remaining scientific capstones — not attestation debt
 
-Anything else must carry `REPORTED / NEEDS ATTESTATION`, `LINEAGE LOCATED / CONTENT AUDIT PENDING`, or `RESULT FILE PRESENT / RUN AUDIT PENDING` in the same paragraph.
-
-## Next evidence work, before new capstones
-
-1. Locate and audit the exact `OUTCOME_LABELED_V50` result artifact and its HELP/HARM predicates.
-2. Locate primary run/artifact for `SOURCE_DISTINCT_DISCOVERABILITY_V33_V34` and `EXCEPTION_FLOW_EXTERNAL_STREAM`.
-3. Reconcile V36, V40–V43, V70–V74, V15–V23, and V45–V68 into this ledger.
-4. Only after those are classified should top-level docs promote any of them beyond the current evidence class.
-
-The purpose of this ledger is to make evidence boring: one claim, one canonical ID, one evidence chain, one exact allowed sentence.
+1. Natural heterogeneous V54-shaped development with solutions sealed.
+2. Constructor-language development: `Constructible(K0) ⊊ Constructible(K1)` under an externally meaningful protocol.
+3. Matched longitudinal economic/model A/B showing benefit per token/call/cost as developmental state accumulates.
