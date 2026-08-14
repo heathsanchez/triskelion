@@ -1,0 +1,30 @@
+name: V93BP Whole Program Preflight NONCLAIM
+on:
+  push:
+    branches: [v93bp-whole-program-preflight]
+jobs:
+  v93bp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Shrink diagnostic only
+        run: |
+          cp experiments/METALOGIC_V93B_WHOLE_PROGRAM_SIGNATURE_FIXED.py /tmp/v93bp.py
+          sed -i 's/BUDGET=120/BUDGET=30/' /tmp/v93bp.py
+          sed -i 's/cut=max(10,len(names)\/\/2); train,test=names\[:cut\],names\[cut:\]/train,test=names[:6],names[6:12]/' /tmp/v93bp.py
+      - name: Run NONCLAIM preflight
+        run: QUIXBUGS_DIR=/tmp/QuixBugs OUT_DIR=results/v93bp python /tmp/v93bp.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v93bp-whole-program-preflight-nonclaim
+          path: results/v93bp/RESULT.json
