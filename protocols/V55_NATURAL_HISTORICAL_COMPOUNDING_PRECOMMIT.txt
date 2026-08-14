@@ -1,0 +1,51 @@
+V55 NATURAL HISTORICAL TWO-GENERATION COMPOUNDING — PRECOMMIT
+Date: 2026-08-14
+
+Question
+Can the V54 developmental conjunction arise on independently authored historical bugs whose buggy/fixed commits predate this experiment, with human fixes sealed until terminal audit?
+
+Frozen substrate
+- BugsInPy metadata and buggy historical commits only during discovery.
+- Candidate stream and environment versions are inherited unchanged from V53.
+- Old effective algebra A0: IDENTITY, REVERSE_WINDOW, ROTATE_LEFT, ROTATE_RIGHT, SWAP_ADJACENT.
+- Generic constructor: single lexical operator rewrite over Python exact-token destinations. This constructor substrate is supplied; V55 does not claim constructor-language invention.
+- Localization: failing traceback source frames, +/-2 lines, hash-ordered, max 12 operator sites per episode.
+- Human fixed source / patch is forbidden until experiment terminates.
+
+Selection
+Use the frozen V53 candidate order. Prepare as many reproducible historical worlds as infrastructure permits, up to 8 READY worlds. No task may be selected using its human fix.
+
+Developmental protocol
+1. Starting at A0, process READY worlds in frozen order.
+2. On each world, test closure first. If an existing retained operator causally repairs the world, record reuse; do not invent.
+3. Otherwise search exactly one new lexical rewrite using the frozen generic constructor. A new operator may be retained only if the repair pair is unique and token-value multiset preservation certifies it is outside A0's old positional closure.
+4. After O1 is retained, continue to later independently authored worlds. For each later world measure a frozen one-new-generator horizon twice:
+   COLD: one new rewrite from A0 without O1 reuse.
+   WARM: first lawfully reuse O1 where it yields verified progress but does not solve; then search exactly one new rewrite.
+5. V55 passes only if a later DIFFERENT PROJECT historical world has zero cold one-rewrite survivors, but after verified O1 reuse has exactly one new operator pair O2, and causal execution satisfies:
+   A0 target FAIL;
+   A0+O1 target FAIL;
+   A0+O1+O2 target PASS;
+   A0+O2 with O1 ablated target FAIL.
+6. O2 must differ from O1 and be outside the old positional closure by token multiset obstruction.
+7. Only after termination may BugsInPy fixed_commit_id / human fixed source be opened for audit; human fixes are not scoring labels.
+
+Required PASS gates
+- >= 2 READY historical worlds from >= 2 projects (a stronger >=6 coverage statistic is reported separately; lack of 6 does not manufacture a pass).
+- O1 uniquely constructed outside old closure from a historical failure.
+- O1 retained before later project is opened for developmental evaluation.
+- later target project differs from O1 origin project.
+- cold one-new-generator survivors = 0 on later target.
+- O1 verified reuse produces progress/residual but not success.
+- exactly one O2 pair becomes discoverable after O1.
+- O2 is new and outside old positional closure.
+- O1+O2 passes.
+- O1 ablation with O2 present fails.
+- human fixes remained sealed until terminal audit.
+
+Outcomes
+PASS_V55_NATURAL_HISTORICAL_COMPOUNDING only if every required gate passes.
+INCOMPLETE_V55_NATURAL_HISTORICAL_COMPOUNDING if infrastructure/coverage prevents the causal test.
+FAIL_V55_NATURAL_HISTORICAL_COMPOUNDING if adequate worlds exist but the developmental conjunction is absent.
+
+No target swapping, threshold tuning, patch inspection, or semantic skipping after results are observed.
