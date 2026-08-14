@@ -1,0 +1,24 @@
+name: V94 Tagged BackRef Store
+
+on:
+  push:
+    branches: [v94-tagged-backref-store]
+  workflow_dispatch:
+
+jobs:
+  quotient:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run tagged-store quotient and hostile ablations
+        run: python3 experiments/v94_tagged_backref_store.py
+      - name: Upload V94 audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v94-tagged-backref-store
+          path: results/v94/
