@@ -1,46 +1,48 @@
 # Branch / Run Index — 2026-08-14
 
-This file preserves branch/run pointers for scientifically relevant work. It is **not** the evidence authority. Scientific status and allowed wording live in [`ATTESTATION_LEDGER.md`](ATTESTATION_LEDGER.md).
+This is the canonical provenance pointer table. Scientific status and exact allowed wording live in [`ATTESTATION_LEDGER.md`](ATTESTATION_LEDGER.md).
 
-| Canonical ID | Status | Branch | Workflow run / head | Current interpretation |
-|---|---|---|---|---|
-| `SEALED_TRANSFER_V49` | LINEAGE LOCATED / CONTENT AUDIT PENDING | `v49-sealed-run` | run `31749423209`, head `8c5797db33db01c4af8448f399fbea37f251e79c` | Artifact `metalogic-v49-sealed`, digest `sha256:1b466db0231ed3042842dfb93a4b2794a68e5332084292bd3a54c1eaa66ed3dc`. Exact scientific predicates still need content audit. |
-| `OUTCOME_LABELED_V50` | LINEAGE LOCATED / CONTENT AUDIT PENDING | staged across sealed/operator lineage | completed CI lineage exists; exact result-artifact pointer still to be canonicalized | Do not call verifier-derived HELP/HARM attested yet. |
-| `OPERATOR_INVENTION_V51` | LINEAGE LOCATED / CONTENT AUDIT PENDING | `v51-operator-invention` | run `31759857216`, head `f739be68af3cd6695a1674225938961f3b69f7b2` | Artifact `metalogic-v51-operator-invention`, digest `sha256:e3c10a4ba1011876e5df7248de4f3cb468e90195f6c331e625c3bb5d6c2f93d0`. `< -> <=` story remains content-audit pending. |
-| `TWO_GENERATION_COMPOUNDING_V54` | BOUNDED PASS | `v54-compounding-ratchet` | run `31761530951`, head `2dd5f41b6c7cec1004b8deaee4f976dd2a9ed21c` | O2 not cold-discoverable under frozen budget, discoverable after O1; lineage ablation destroys final capability. |
-| `HISTORICAL_COMPOUNDING_V55A` | INCOMPLETE | `v55-natural-historical-compounding` | run `31764969750`, head `5863f4d92bfbd535205e49fbe12b1f29fd463a4d` | Only two READY BugsInPy worlds, both Black; no unique O1; natural compounding not reached. |
-| `CONSTRUCTOR_COMPOUNDING_V55B` | NEGATIVE under tested substrate | `v55-final-frontiers` | suite run `31764908603`, head `89ad8010dccbe55c8549c06098cbbedadd580ac5` | K0 obstruction reached; frozen insertion substrate failed to synthesize K1. |
-| `MODEL_CARD_V55C` | MIXED / NEGATIVE | `v55-final-frontiers` | suite run `31764908603`, head `89ad8010dccbe55c8549c06098cbbedadd580ac5` | no memory 6/12, raw memory 5/12, verified card 5/12; protected negatives fail. |
-| `HISTORICAL_BLIND_EDIT_V56A` | HARNESS FAILURE | `v56-close-gaps` | suite run `31766446740`, head `14757f481d5873332c72a279c3337aec17d323ab` | `IndexError`; no scientific verdict. |
-| `CONSTRUCTOR_RETRY_V56B` | HARNESS FAILURE | `v56-close-gaps` | suite run `31766446740`, head `14757f481d5873332c72a279c3337aec17d323ab` | `IndentationError`; no scientific verdict. |
-| `VERIFIER_MODEL_LAYER_V56C` | BOUNDED PASS | `v56-close-gaps` | suite run `31766446740`, head `14757f481d5873332c72a279c3337aec17d323ab` | Frozen 12-case task: 6/12 no-memory, 6/12 raw-memory, 12/12 verifier-controlled layer. Overall suite CI failed because V56A/B crashed. |
-| `VERIFIER_INDUCED_INVOCATION_IKKF_V4B` | BOUNDED PASS | `ikkf-v4b-verifier-induced-invocation` | run `31763234925`, head `65be34273d2f717c57e5b4f919c9bad5d955d943` | Verifier refines coarse scope to unique valid invocation; ablation and later revocation pass. |
-| `VERIFIED_ROUTING_IKKF_V2D` | BOUNDED PASS | `ikkf-v2d-verified-capability-os` | run `31763593583`, head `773a73db5a3d4e143c2c0eed658475a2bdfcfe1d` | Same C/J modules and worlds: verifier-controlled route/execution 100%/100% vs learned selector 50%/0% joint. |
-| `PORTABLE_CAPABILITY_IKKF_V1` | ATTESTED WITH CORRECTION | `ikkf-v1-portable-capability` / related packaging branch | primary run `31759600559` | Fresh compile, second fresh compile call, uninstall and reload separately executed. Do not claim stochastic independence. |
-| `ADAPTIVE_CONSOLIDATION_V18B` | ATTESTED | `main` | run `31740188434`, head `070dd7a14f288481c16c1cb33ca127a588da501f` | Primary RESULT supports bounded protected consolidation and reload persistence. |
-| `IKKF_V3_SCOPE_BRIDGE` | NEGATIVE | `ikkf-v3-external-invented-instinct` | run `31761470384` | Frozen neural compiler fails to preserve applicability distinction. |
-| `SORRYDB_V77` | NEGATIVE AT CURRENT SOLVER/BUDGET | `main` | repaired run `31761636184` | Plumbing/verifier/repo preparation pass; five arms solve 0/3. |
-| `LOGOS_IKKF_DEMO` | DEMO / NOT SINGLE END-TO-END SCIENTIFIC RUN | `agent/logos-ikkf-demo` | draft PR #2 | Choreographed UI combining separate mechanisms; keep evidence boundary explicit. |
-
-## Not yet indexed to run-level provenance
-
-These are tracked in `ATTESTATION_LEDGER.md` and must not be promoted just because scripts/result summaries exist:
-
-- `SOURCE_DISTINCT_DISCOVERABILITY_V33_V34`
-- `EXCEPTION_FLOW_EXTERNAL_STREAM`
-- `META_CONSTRUCTOR_V36`
-- `SCOPE_ONTOLOGY_V40_V43`
-- `GRAMMAR_V70_V74`
-- older V15–V17 / V19–V23
-- portions of `QUOTIENT_REFINEMENT_V45_V68`
-
-## Naming collision warning
-
-`V49`, `V50`, and `V51` are used by two unrelated experiment families. Result files named `V49_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.*`, `V50_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.txt`, and `V51_RESULT.txt` are **not** evidence for `SEALED_TRANSFER_V49`, `OUTCOME_LABELED_V50`, or `OPERATOR_INVENTION_V51`.
+| Canonical ID | Status | Run / head / artifact |
+|---|---|---|
+| `PRIMITIVE_COMPOSITION_V15` | BOUNDED PASS | run `31684670614`; head `f8f0f92b994188baeb5d7af5ecc54543e6b14c98`; digest `3a9632a69dda4a70f1ef2f8abe93732451450c3ff1b14a3acfa9e4de26016927` |
+| `VERIFIED_COMPOSER_V16` | BOUNDED PASS | run `31692092038` attempt 2; head `3b95d53395bba5a9f3699f700929c210ee2053a2`; digest `59c7a143cde4c916a983394e25a049ee4b52953e5b3bce6a27e28765c049dad6` |
+| `HIERARCHICAL_CHUNKING_V17` | BOUNDED PASS | run `31692435978`; digest `4568a3bcd30dfc5794bb674c225b7b446c7ce853cba6e32d66a013d0f1b30dbc` |
+| `ADAPTIVE_CONSOLIDATION_V18B` | ATTESTED | run `31740188434`; head `070dd7a14f288481c16c1cb33ca127a588da501f` |
+| `REUSABLE_WORDS_V19` | BOUNDED PASS | run `31693216278`; digest `f482d385cc51f2455aee87c6bd1f7a68d5c08c2942c0d13144399a7f87bc5318` |
+| `OPERATOR_ORDER_V20` | BOUNDED PASS | run `31693479066`; digest `3c3c78d4e12f1d9f917cd280c8c891b96723baebb83d8286a8b3e3fb38b5fc7a` |
+| `TYPED_IR_V21` | BOUNDED PASS | run `31701544954`; digest `64d18471430f7c34f6ee6daa99b95a1b1af24fe36f9b38a56baeea5a1e48db93` |
+| `FOUR_STATE_IR_V22` | NO CI LOCATED | commit `1c67e9df6e60b9067de7c77213294986a321663c`; no Actions run found |
+| `METAMATH_V23` | BOUNDED PASS | fixed rerun `31704158909`; head `8dd53f74230b1a779f00d8bf02b02d3c158a5338`; digest `8ebb4d9e8f4e3349ced03b83d92c861e232d803ee3a6c4400bb24082a7d6c1a5` |
+| `EXTERNAL_FRONTIER_V33` | BOUNDED PASS precursor | run `31724613985`; head `16f115ef233f3476452339626966218cfea153ca`; digest `6f836e70f2f34e6cc99525c96ab73371bbb360d77053ab7014f8fe57ddaa6f4f` |
+| `SOURCE_DISTINCT_DISCOVERABILITY_V34` | ATTESTED — BOUNDED | run `31724783160`; head `9e89901b33c3de75923de0b5bfd1fad2cb2f609a`; digest `7cb14558b24f4a7894fa68e6ed5a2ec7d3fee56223af5901e2f38cf568e1256f` |
+| `META_CONSTRUCTOR_V36_V37` | RESULT FILE / NO CI | result `results/V36_V37_META_CONSTRUCTOR.txt`; checkpoint `32f3f9e5e280e81d017e3e502faee4e6b6a8ecd6`; no run located |
+| `SCOPE_CONSTRUCTION_V40` | BOUNDED PASS | run `31738858678`; head `94549744273b934ff4f7dbe659e9a0483a03fc72` |
+| `RELATIONAL_SCOPE_V41` | BOUNDED PASS | fixed run `31741219608`; head `ce2d86201087aaea45ba9113deb6ae248ccc2aa5` |
+| `OPAQUE_LABEL_AUDIT_V42` | BOUNDED PASS | run `31741542315`; head `fa66c3ffff654239c1eae8b33e8f5e179f222bff` |
+| `CATEGORY_INDUCTION_V43` | BOUNDED PASS | run `31742025972`; head `e8316eaafa354f32e445b5cad1f85768df447ac5` |
+| `SEALED_TRANSFER_V49` | ATTESTED WITH QUALIFICATION | branch `v49-sealed-run`; audited run `31749682731`; head `79799fba8961645bcd20ba6f94bcf34011a8b629`; digest `1079cae6f06085dc59bfa23cf548807d4219ecae811dd2d424dab5b9d3113a47` |
+| `OUTCOME_LABELED_V50` | ATTESTED WITH QUALIFICATION | original run `31749833138`; head `929461fe989592f40f2e15cb0105d81785281817`; digest `6a97a3e5978d03c5f495f01ca11c0620c822b12e13c963f7df31e01a7cdebddd` |
+| `OPERATOR_INVENTION_V51` | ATTESTED WITH QUALIFICATION | branch `v51-operator-invention`; run `31759857216`; head `f739be68af3cd6695a1674225938961f3b69f7b2`; digest `e3c10a4ba1011876e5df7248de4f3cb468e90195f6c331e625c3bb5d6c2f93d0` |
+| `TWO_GENERATION_COMPOUNDING_V54` | BOUNDED PASS | branch `v54-compounding-ratchet`; run `31761530951`; head `2dd5f41b6c7cec1004b8deaee4f976dd2a9ed21c` |
+| `HISTORICAL_COMPOUNDING_V55A` | INCOMPLETE | run `31764969750` |
+| `CONSTRUCTOR_COMPOUNDING_V55B` / `MODEL_CARD_V55C` | NEGATIVE / MIXED | suite `31764908603` |
+| `HISTORICAL_BLIND_EDIT_V56A` / `CONSTRUCTOR_RETRY_V56B` | HARNESS FAILURE | suite `31766446740` |
+| `VERIFIER_MODEL_LAYER_V56C` | BOUNDED PASS | suite `31766446740`; head `14757f481d5873332c72a279c3337aec17d323ab` |
+| `MULTISCALE_MOTIFS_V70` | BOUNDED PASS | run `31741994569`; digest `26a1c4023211a21285b84a2233602e2ebb4b9271dfe02f9bd0724ab9358153fc` |
+| `SCALE_HOLDOUT_GRAMMAR_V71` | BOUNDED PASS | run `31742125256`; digest `4508a8510366f021cfcb98a719d4b629cfb8005a1d3bc3b63470013a0216462c` |
+| `MDL_MOTIF_BASIS_V72` | BOUNDED PASS | run `31742262476`; digest `ae432cc96822cdf05ebb4e14fc46d2aa371f496d0b0c991bade4c5829abdd21b` |
+| `HIERARCHICAL_MOTIF_V73` | NEGATIVE / MIXED | run `31742496354`; digest `c7fb4014978d7d4aedf09f9918d0a47b971f3e66d54314502d274e337bf9c58b` |
+| `MATH_GRAMMAR_TRANSFER_V74` | MIXED | run `31743038770`; digest `6767cda6ec0e22f25301848d8d31129574283de586205fb6085005b5edc01d07` |
+| `VERIFIER_INDUCED_INVOCATION_IKKF_V4B` | BOUNDED PASS | run `31763234925` |
+| `VERIFIED_ROUTING_IKKF_V2D` | BOUNDED PASS | run `31763593583` |
+| `PORTABLE_CAPABILITY_IKKF_V1` | ATTESTED WITH CORRECTION | run `31759600559` |
+| `IKKF_V3_SCOPE_BRIDGE` | NEGATIVE | run `31761470384` |
+| `SORRYDB_V77` | NEGATIVE | repaired run `31761636184` |
+| `QUOTIENT_REFINEMENT_V45_V66` | BOUNDED RESULT LEDGER | parent artifact `9190497808`; digest `5e0af022d52fdc0a2d4262f1766ed4042f2e6803689b06cf2fa370314e095073` |
+| `INCREMENTAL_LAWBOOK_V68` | RESULT FILE / NO CI | precommit `fb6e0880...`; result commit `f3c7448d...`; no Actions run located |
+| `EXCEPTION_FLOW_EXTERNAL_STREAM` | NOT ATTESTED IN THIS REPO | no commit/file/code-search hit containing `EXCEPTION_FLOW` |
+| `LOGOS_IKKF_DEMO` | DEMO, NOT SINGLE SCIENTIFIC RUN | branch `agent/logos-ikkf-demo`; draft PR #2 |
 
 ## Integrity rules
 
-- GitHub Actions `conclusion=success` means workflow completion, not automatically scientific success.
-- Overall suite `failure` does not automatically invalidate a subexperiment if another subexperiment crashed; use the primary result.
-- A gate name cannot claim more than its predicate.
-- Branch/run provenance is necessary but not sufficient for `ATTESTED`: artifact contents and implemented predicates must support the exact sentence.
+A successful Actions conclusion is not automatically a scientific PASS. Gate names cannot exceed implemented predicates. Hard-coded booleans do not prove sealing. Bare V-numbers are not identifiers. Use the attestation ledger for scientific wording.
