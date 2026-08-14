@@ -1,0 +1,28 @@
+name: V104H Bytecode-Safe Generic Constructor Synthesis
+on:
+  push:
+    branches: [v104h-bytecode-safe-generic-constructor-synthesis]
+jobs:
+  v104h:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs && git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V104H
+        env:
+          QUIXBUGS_ROOT: /tmp/QuixBugs
+          OUT_DIR: results/v104h
+        run: python experiments/METALOGIC_V104H_BYTECODE_SAFE_GENERIC_CONSTRUCTOR_SYNTHESIS.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v104h-bytecode-safe-generic-constructor-synthesis
+          path: results/v104h
