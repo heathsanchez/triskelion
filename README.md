@@ -2,89 +2,91 @@
 
 Private experimental harness for Metalogic / LOGOS verified-learning research.
 
-The project tests whether externally verified experience can change an explicit capability system: compose what already exists, construct capability when old closure is insufficient, learn applicability, revise/revoke under counterevidence, change future discoverability, and optionally compile verified competence into neural form.
+Triskelion tests whether externally verified experience can change an explicit capability system: compose what already exists, construct capability when old closure is insufficient, learn applicability, revise/revoke under counterevidence, change future discoverability, and optionally compile verified competence into neural form.
 
 ## Evidence policy
 
-**The canonical authority is [`results/ATTESTATION_LEDGER.md`](results/ATTESTATION_LEDGER.md).** A prose summary, successful CI job, V-number, or result filename is not sufficient by itself. Headline claims are classified as `ATTESTED`, `BOUNDED PASS`, `LINEAGE LOCATED / CONTENT AUDIT PENDING`, `RESULT FILE PRESENT / RUN AUDIT PENDING`, `REPORTED / NEEDS ATTESTATION`, `NEGATIVE`, or `INCOMPLETE/HARNESS`.
+**The canonical authority is [`results/ATTESTATION_LEDGER.md`](results/ATTESTATION_LEDGER.md).** A prose summary, successful CI job, V-number, or result filename is never sufficient by itself. Every headline is now classified as primary-attested, bounded with pinned lineage, result-only/no-CI, negative/incomplete, or not attested in this repo.
 
-Bare V-numbers are not unique identifiers. In particular V49/V50/V51 are used by both the sealed-transfer/operator-invention line and an unrelated quotient-refinement sequence. Use descriptive canonical IDs such as `OPERATOR_INVENTION_V51`.
+The provenance audit is **complete to the current repository**. This does not mean every historical experiment has been freshly predicate-audited; only claims marked `ATTESTED` received that stronger treatment. There are no remaining silently asserted PASSes with unknown evidence location.
 
-## Current strongest evidence — 2026-08-14
+Bare V-numbers are not unique identifiers. In particular, V49/V50/V51 are used by both the sealed/operator line and an unrelated quotient-refinement line. Use descriptive canonical IDs.
 
-**`TWO_GENERATION_COMPOUNDING_V54` — BOUNDED PASS.** Branch `v54-compounding-ratchet`, run `31761530951`: under the frozen one-new-generator budget O2 had zero cold survivors before O1, became discoverable after O1, and the final target required both. This supports the bounded causal statement `O2 ∉ Discoverable(A0)` but `O2 ∈ Discoverable(A0 + O1)`.
+## Strongest current evidence
 
-**`VERIFIER_MODEL_LAYER_V56C` — BOUNDED PASS.** On the frozen 12-case small-Qwen applicability task: no-memory 6/12, raw-memory 6/12, structurally verifier-controlled capability layer 12/12. The supported architectural statement is `model proposes -> explicit capability/scope layer -> external verifier -> admit/block`.
+**`TWO_GENERATION_COMPOUNDING_V54` — BOUNDED PASS.** Run `31761530951`: under the frozen one-new-generator budget O2 had zero cold survivors before O1, became discoverable after O1, and the final target required both. This is the strongest bounded developmental result.
 
-**`VERIFIER_INDUCED_INVOCATION_IKKF_V4B` and `VERIFIED_ROUTING_IKKF_V2D` — BOUNDED PASS.** External verification can refine applicability in the bounded V4b setting; on the exact V2c C/J worlds/modules, verifier-controlled routing/execution reached 100%/100% where the learned selector reached 50% routing and 0% joint execution.
+**`SOURCE_DISTINCT_DISCOVERABILITY_V34` — ATTESTED, BOUNDED.** Run `31724783160`: on fixed source-distinct Requests → Rich → Flask functions under a supplied AST frontier vocabulary, prior acquired operators causally expose later `Raise` then `With` frontiers; ancestor ablation moves the deepest frontier backward.
 
-**`PORTABLE_CAPABILITY_IKKF_V1` — ATTESTED WITH CORRECTION.** Fresh compilation, a second fresh compilation call, uninstall and reload are separately executed. Do not claim stochastic independence: C1/C2 training trajectories are bit-identical and the implemented `independent_recompile` predicate does not test independence.
+**`VERIFIER_MODEL_LAYER_V56C` — BOUNDED PASS.** Frozen 12-case small-model applicability task: 6/12 no-memory, 6/12 raw-memory, 12/12 explicit verifier-controlled capability layer.
 
-**`ADAPTIVE_CONSOLIDATION_V18B` — ATTESTED.** Primary artifact supports bounded protected consolidation and reload persistence on the measured skill set; it does not prove arbitrary regression-free neural editing.
+**`VERIFIER_INDUCED_INVOCATION_IKKF_V4B` / `VERIFIED_ROUTING_IKKF_V2D` — BOUNDED PASS.** External verification can refine applicability in V4b; on the exact V2c C/J worlds, verifier-controlled routing/execution reached 100%/100% vs learned selector 50% routing and 0% joint execution.
 
-## V49–V51 operator line: provenance repaired, content audit still pending
+**`PORTABLE_CAPABILITY_IKKF_V1` — ATTESTED WITH CORRECTION.** Fresh compilation, a second fresh compilation call, uninstall and reload are separately executed. Do not claim stochastic independence: C1/C2 training trajectories are bit-identical and the gate does not test it.
 
-The earlier README overstated these as settled PASSes. The underlying lineages are real, but the exact headline predicates have not yet been audited to the same standard as IKKF V1/V18b.
+**`ADAPTIVE_CONSOLIDATION_V18B` — ATTESTED.** Primary artifact supports bounded protected consolidation and reload persistence on the measured skill set.
 
-- **`SEALED_TRANSFER_V49` — LINEAGE LOCATED / CONTENT AUDIT PENDING.** Branch `v49-sealed-run`; run `31749423209`; artifact `metalogic-v49-sealed`, digest recorded in the attestation ledger.
-- **`OUTCOME_LABELED_V50` — LINEAGE LOCATED / CONTENT AUDIT PENDING.** Executable V50 calibration/transfer code and CI lineage exist; exact result-artifact/predicate audit remains open.
-- **`OPERATOR_INVENTION_V51` — LINEAGE LOCATED / CONTENT AUDIT PENDING.** Branch `v51-operator-invention`; run `31759857216`; artifact `metalogic-v51-operator-invention`, digest recorded in the ledger. The `< -> <=` obstruction/construction/transfer/ablation/revocation story must not be called ATTESTED until artifact contents and gates are checked directly.
+## V49–V51 sealed/operator line — audited
 
-The `results/V49_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.*`, `V50...`, and `V51_RESULT.txt` files belong to a **different quotient-refinement experiment family** and must not be cited for the operator line.
+The earlier README overstated these before direct artifact inspection. They have now been audited.
+
+- **`SEALED_TRANSFER_V49` — ATTESTED WITH SEALING QUALIFICATION.** Audited run `31749682731`: Requests cold FAIL → warm PASS → ablation FAIL; later in-category Django counterevidence → `REVOKE`. Sealing is supported by phase-separated workflow/code, not by hard-coded sealing flags.
+- **`OUTCOME_LABELED_V50` — ATTESTED WITH SEALING QUALIFICATION.** Original run `31749833138`: HELP/HARM is genuinely derived from executable before/after transitions (2 HELP + 2 HARM), not supplied labels; Requests transfers causally and later Django HARM revokes. Same sealing qualification.
+- **`OPERATOR_INVENTION_V51` — ATTESTED WITH SEALING QUALIFICATION.** Run `31759857216`: two executable obstruction episodes have unique common repair `< -> <=`; it is outside the frozen token-permutation closure, causally repairs withheld Requests, ablation restores failure, and later Django evidence causes revocation. This is **not** invention outside every supplied meta-language.
+
+The files named `V49_EXTERNAL_QUOTIENT_REFINEMENT_RESULT.*`, `V50...`, and `V51_RESULT.txt` belong to a different experiment family.
+
+## Other reconciled historical evidence
+
+The repo now preserves primary lineage for V15–V17, V19–V21, V23, V33/V34, V40–V43 and V70–V74. Those are classified in the ledger rather than lumped together as “historical claims awaiting audit.” Important boundaries:
+
+- V70–72 are bounded positives on a manually normalized 51-event corpus; V73 is a clean hierarchy negative; V74 is mixed and does **not** establish macro-level incremental math value.
+- V45–V66 has a bounded external quotient ledger pinned to parent artifact `9190497808`; V68 has a committed result/precommit but no CI run located.
+- V36/V37 has a committed constructor checkpoint but no CI run located for that checkpoint.
+- V22 has no Actions run located.
+- The reported ffmpeg→SHAP **`EXCEPTION_FLOW_EXTERNAL_STREAM` is not attested in this repo**: no commit/file/code-search hit containing `EXCEPTION_FLOW` was found. Do not use a Triskelion ZIP as evidence for it.
 
 ## Natural / constructor frontier
 
-**`HISTORICAL_COMPOUNDING_V55A` — INCOMPLETE.** Only two usable frozen BugsInPy worlds survived, both Black; neither yielded a unique O1. Natural compounding was never reached.
+**`HISTORICAL_COMPOUNDING_V55A` — INCOMPLETE.** Only two usable historical worlds survived, both Black; neither yielded a unique O1.
 
-**`CONSTRUCTOR_COMPOUNDING_V55B` — NEGATIVE under the tested meta-substrate.** K0 could not repair the deletion obstruction and the frozen insertion meta-substrate failed to synthesize K1.
+**`CONSTRUCTOR_COMPOUNDING_V55B` — NEGATIVE under tested substrate.** K0 obstruction was reached but the frozen insertion meta-substrate failed to synthesize K1.
 
-**`HISTORICAL_BLIND_EDIT_V56A` and `CONSTRUCTOR_RETRY_V56B` — HARNESS FAILURES.** They crashed before scientific verdicts and do not supersede V55A/V55B.
+**`HISTORICAL_BLIND_EDIT_V56A` / `CONSTRUCTOR_RETRY_V56B` — HARNESS FAILURES.** No scientific verdict.
 
-**`MODEL_CARD_V55C` — MIXED/NEGATIVE.** Describing verified scope in prompt text did not control applicability: 5/12 and protected negatives failed.
+**`MODEL_CARD_V55C` — MIXED/NEGATIVE.** Prompt-level scope text over-applied the capability; protected negatives failed.
 
-**`SORRYDB_V77` — NEGATIVE at current solver/budget.** Exact-commit plumbing, official verifier and repository preparation work; five frozen solver arms solve 0/3 selected tasks.
-
-## Historical claims awaiting full reconciliation
-
-The following are intentionally not promoted beyond their present evidence state until branch/run/artifact/predicate reconciliation is completed in the canonical ledger:
-
-- source-distinct V33/V34 discoverability;
-- ffmpeg→SHAP `EXCEPTION_FLOW` external stream;
-- V36 meta-constructor claim;
-- parts of V40–V43 scope/ontology progression;
-- V70–V74 grammar/motif sequence (result files exist, run-level audit pending);
-- older V15–V17 and V19–V23 conclusions (scripts/workflows exist, current attestation audit incomplete);
-- portions of V45–V68 quotient/refinement sequence (result/precommit files exist; run/predicate audit still being canonicalized).
-
-See the attestation ledger for exact allowed wording.
+**`SORRYDB_V77` — NEGATIVE at current solver/budget.** Exact-commit/verifier plumbing works; five frozen solver arms solve 0/3 selected tasks.
 
 ## Current thesis
 
-A useful research state is
+A useful research state is:
 
 `A_t = (O_t, L_t, S_t, Π_t, K_t, D_t, V)`
 
 where `O` are capabilities, `L` scoped laws, `S` applicability/revision/lifecycle conditions, `Π` operational distinctions/quotients, `K` constructor machinery, `D` discovery policy and `V` external authority. Neural realizations are downstream implementations rather than automatically authoritative state.
 
-The strongest current bounded developmental result is V54-shaped compounding: verified capability structure can change which later capability is discoverable under a frozen search protocol.
+The central bounded result is V54-shaped compounding: acquired capability structure can change which later capability becomes discoverable under a frozen search protocol.
 
-## Remaining capstone gates
+## Remaining scientific capstones
+
+These are now scientific gaps, not documentation/provenance debt:
 
 1. **Natural development:** reproduce V54-shaped compounding on pre-existing heterogeneous worlds with solutions sealed.
-2. **Constructor development:** establish `Constructible(K0) ⊊ Constructible(K1)` and ideally a K1→K2 lineage.
-3. **Scale/economic value:** compare base, memory, ordinary adaptation and LOGOS under matched sequential budgets on meaningful coding workloads.
+2. **Constructor development:** establish `Constructible(K0) ⊊ Constructible(K1)` under an externally meaningful protocol.
+3. **Scale/economic value:** matched sequential comparison of base, episodic memory, ordinary adaptation and LOGOS on meaningful coding-agent workloads.
 
-**Attestation is a precondition for all three counting.**
+Attestation remains a precondition for any capstone claim counting.
 
 ## Canonical navigation
 
-- [`results/ATTESTATION_LEDGER.md`](results/ATTESTATION_LEDGER.md) — **authoritative claim/evidence ledger**.
-- [`RESEARCH_STATE.md`](RESEARCH_STATE.md) — current synthesis and open questions; must defer to the ledger.
-- [`results/CURRENT_FRONTIER_2026-08-14.md`](results/CURRENT_FRONTIER_2026-08-14.md) — concise frontier summary; must defer to the ledger.
-- [`results/BRANCH_RUN_INDEX_2026-08-14.md`](results/BRANCH_RUN_INDEX_2026-08-14.md) — branch/run pointers, not a scientific verdict source.
-- [`results/PROGRESS_V49_V56_2026-08-14.md`](results/PROGRESS_V49_V56_2026-08-14.md) — chronology, subordinate to the ledger.
+- [`results/ATTESTATION_LEDGER.md`](results/ATTESTATION_LEDGER.md) — authoritative scientific status and allowed wording.
+- [`results/BRANCH_RUN_INDEX_2026-08-14.md`](results/BRANCH_RUN_INDEX_2026-08-14.md) — canonical provenance pointers.
+- [`RESEARCH_STATE.md`](RESEARCH_STATE.md) — synthesis, subordinate to ledger.
+- [`results/CURRENT_FRONTIER_2026-08-14.md`](results/CURRENT_FRONTIER_2026-08-14.md) — concise frontier.
+- [`results/PROGRESS_V49_V56_2026-08-14.md`](results/PROGRESS_V49_V56_2026-08-14.md) — chronology.
 - `results/`, `protocols/`, `experiments/`, `.github/workflows/` — primary/reproducibility material.
 
 ## Research discipline
 
-Closure first. Preserve negatives. Do not infer scientific success from CI success or scientific failure from harness failure. A gate name cannot claim more than its implemented predicate. If the canonical ledger says `NEEDS ATTESTATION`, all downstream prose must say so too.
+Closure first. Preserve negatives. Do not infer scientific success from CI success or scientific failure from a harness crash. A gate name cannot claim more than its predicate. Hard-coded booleans do not prove experimental properties. If the ledger says result-only/no-CI or not attested in this repo, downstream prose must preserve that boundary.
