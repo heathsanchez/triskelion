@@ -1,0 +1,103 @@
+name: Lean Kernel Arena parser residual
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-parser-residual]
+
+jobs:
+  parser-residual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Measure parse-only share
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/parser-residual
+          rm -rf "$OUT" soko arena-tests artifact tests.zip
+          mkdir -p "$OUT" arena-tests artifact
+
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout "$SOKO_REV"
+          (cd soko && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+
+          cat > "$OUT/config-check.json" <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 2
+          }
+          JSON
+          cat > "$OUT/config-parse.json" <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 2,
+            "parse_only": true
+          }
+          JSON
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,subprocess,time,statistics,random
+          root=Path.cwd(); out=root/'results/parser-residual'
+          files=list((root/'arena-tests'/'good').rglob('*.ndjson'))+list((root/'arena-tests'/'bad').rglob('*.ndjson'))
+          largest=sorted(files,key=lambda p:p.stat().st_size,reverse=True)[:24]
+          largest=sorted(largest,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
+          exe=root/'soko/target/release/sokonanoda'
+          cfgs={'parse':out/'config-parse.json','check':out/'config-check.json'}
+          samples={k:[] for k in cfgs}
+          per_case=[]
+          for seed in range(12):
+              order=['parse','check']; random.Random(seed).shuffle(order)
+              for mode in order:
+                  t=time.perf_counter()
+                  for p in largest:
+                      with p.open('rb') as f:
+                          subprocess.run([str(exe),str(cfgs[mode])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                  samples[mode].append(time.perf_counter()-t)
+          for p in largest:
+              row={'path':str(p.relative_to(root/'arena-tests')),'bytes':p.stat().st_size}
+              for mode in ['parse','check']:
+                  vals=[]
+                  for _ in range(3):
+                      t=time.perf_counter()
+                      with p.open('rb') as f:
+                          subprocess.run([str(exe),str(cfgs[mode])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                      vals.append(time.perf_counter()-t)
+                  row[mode+'_median_s']=statistics.median(vals)
+              row['parse_fraction']=row['parse_median_s']/row['check_median_s'] if row['check_median_s'] else None
+              per_case.append(row)
+          med={k:statistics.median(v) for k,v in samples.items()}
+          summary={
+              'samples_seconds':samples,
+              'median_seconds':med,
+              'parse_fraction_total':med['parse']/med['check'],
+              'nonparse_fraction_total':1-med['parse']/med['check'],
+              'per_case':per_case
+          }
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True))
+          (out/'workload.json').write_text(json.dumps([{'path':str(p.relative_to(root/'arena-tests')),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in largest],indent=2))
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-parser-residual
+          path: results/parser-residual/
