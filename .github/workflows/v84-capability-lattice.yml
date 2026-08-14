@@ -1,0 +1,29 @@
+name: V84 Natural Capability Lattice
+on:
+  push:
+    branches: [v84-capability-lattice]
+  workflow_dispatch:
+jobs:
+  lattice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V84
+        env:
+          QUIXBUGS_DIR: /tmp/QuixBugs
+          V84_RESULT: /tmp/v84_result.json
+        run: python experiments/V84_QUIXBUGS_CAPABILITY_LATTICE.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v84-capability-lattice
+          path: /tmp/v84_result.json
