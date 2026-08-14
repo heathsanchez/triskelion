@@ -1,0 +1,32 @@
+name: IKKF V2d Verified Capability OS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v2d-verified-capability-os]
+    paths:
+      - '.github/workflows/ikkf-v2d-verified-capability-os.yml'
+      - 'experiments/IKKF_V2D_VERIFIED_CAPABILITY_OS.py'
+      - 'protocols/IKKF_V2D_VERIFIED_CAPABILITY_OS_PRECOMMIT.txt'
+
+jobs:
+  verified-capability-os:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Show frozen hashes
+        run: sha256sum protocols/IKKF_V2D_VERIFIED_CAPABILITY_OS_PRECOMMIT.txt experiments/IKKF_V2D_VERIFIED_CAPABILITY_OS.py
+      - name: Run exact V2c heldout worlds with verifier-routed capability selection
+        run: python experiments/IKKF_V2D_VERIFIED_CAPABILITY_OS.py
+      - name: Upload V2d evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v2d-verified-capability-os
+          path: artifacts/ikkf_v2d_verified_capability_os/
