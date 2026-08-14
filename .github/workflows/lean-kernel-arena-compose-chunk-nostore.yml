@@ -1,0 +1,90 @@
+name: Lean Kernel Arena compose chunk and nostore
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-compose-chunk-nostore]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Four-way composition benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
+          ARENA_ARTIFACT=8931227426
+          OUT=results/compose-chunk-nostore
+          rm -rf "$OUT" base chunk nostore both arena-tests artifact tests.zip
+          mkdir -p "$OUT/bin" arena-tests artifact
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          git clone https://github.com/intgrah/sokonanoda.git base
+          git -C base checkout "$SOKO_REV"
+          cp -a base chunk
+          cp -a base nostore
+          cp -a base both
+          python3 - <<'PY'
+          from pathlib import Path
+          for d in ['chunk','both']:
+              p=Path(d)/'src/tc.rs'; s=p.read_text(); assert 'const CHUNK_SIZE: usize = 64;' in s
+              p.write_text(s.replace('const CHUNK_SIZE: usize = 64;','const CHUNK_SIZE: usize = 128;',1))
+          for d in ['nostore','both']:
+              p=Path(d)/'src/eval.rs'; s=p.read_text()
+              marker="    pub(crate) fn whnf_head(&mut self, depth: u32, v: V<'t>) -> V<'t> {"
+              helper="    fn whnf_head_nostore(&mut self, depth: u32, v: V<'t>) -> V<'t> {\n        let mut cur = v;\n        loop {\n            cur = self.force_thunk(depth, cur);\n            match cur {\n                Value::Unfold { .. } => {\n                    let next = self.unfold_value(depth, cur);\n                    if std::ptr::eq(next, cur) { return cur; }\n                    cur = next;\n                }\n                Value::Rigid { head: RigidHead::Recursor(..) | RigidHead::QuotConst(..), .. } => match self.iota_value(depth, cur) {\n                    Some(next) => cur = next,\n                    None => return cur,\n                },\n                _ => return cur,\n            }\n        }\n    }\n\n"
+              assert marker in s; s=s.replace(marker,helper+marker,1)
+              old="        let major = self.whnf_head(depth, args[rec.major_idx()]);"
+              assert old in s; s=s.replace(old,"        let major = self.whnf_head_nostore(depth, args[rec.major_idx()]);",1)
+              p.write_text(s)
+          PY
+          for d in base chunk nostore both; do
+            cat > "$d/config.json" <<'JSON'
+          {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
+          JSON
+            (cd "$d" && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+            cp "$d/target/release/sokonanoda" "$OUT/bin/$d"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,time,json,statistics,random,hashlib
+          root=Path.cwd(); out=root/'results/compose-chunk-nostore'
+          variants=['base','chunk','nostore','both']
+          bins={v:out/'bin'/v for v in variants}; cfgs={v:root/v/'config.json' for v in variants}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          cases=[]
+          for kind,exp in [('good','accept'),('bad','reject')]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,exp))
+          correctness={}
+          for v in variants:
+              bad=[]
+              for p,exp in cases:
+                  with p.open('rb') as f: rc=subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+                  if status(rc)!=exp: bad.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'got':status(rc),'rc':rc})
+              correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
+          workload=sorted([p for p,_ in cases],key=lambda p:p.stat().st_size,reverse=True)[:24]
+          workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
+          samples={v:[] for v in variants}
+          for seed in range(14):
+              order=variants.copy(); random.Random(seed).shuffle(order)
+              for v in order:
+                  t=time.perf_counter()
+                  for p in workload:
+                      with p.open('rb') as f: subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                  samples[v].append(time.perf_counter()-t)
+          med={v:statistics.median(xs) for v,xs in samples.items()}; base=med['base']
+          summary={'correctness':correctness,'median_seconds':med,'samples_seconds':samples,'speedup_vs_base':{v:base/med[v] for v in variants},'composition_efficiency':(base/med['both'])/((base/med['chunk'])*(base/med['nostore']))}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit('correctness regression')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-compose-chunk-nostore
+          path: results/compose-chunk-nostore/
