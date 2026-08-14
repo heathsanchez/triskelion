@@ -1,0 +1,109 @@
+name: Lean Kernel Arena blind Vow diagnose
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-growth]
+  workflow_dispatch:
+
+jobs:
+  diagnose-exposed-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: read
+    env:
+      CHECKER_REV: 514ab33fc0262c491a0af1846cc3887f48411e36
+      VOW_REV: 15c1b933f87eed2b23c176665730baea37706daa
+      ARENA_ARTIFACT: 8931227426
+      EXPOSED_REL: good/undecidability/alg-conv-trans-acc-left.ndjson
+      EXPOSED_SHA256: 323a6140d9acc906193ddc22fa4f3391a3f259357853427c2f82382c71a1e051
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch only exposed case and frozen source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git clone https://github.com/pmatos/vow-lean-kernel checker
+          git -C checker checkout "$CHECKER_REV"
+          git clone https://github.com/vow-lang/vow checker/vow
+          git -C checker/vow checkout "$VOW_REV"
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o arena.zip
+          mkdir artifact exposed-only blind-vow-diagnose-results
+          unzip -q arena.zip -d artifact
+          tar -xOf artifact/lean-arena-tests.tar.gz "$EXPOSED_REL" > exposed-only/exposed.ndjson
+          echo "$EXPOSED_SHA256  exposed-only/exposed.ndjson" | sha256sum -c -
+
+      - name: Instrument theorem boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('checker/kernel/infer.vow')
+          s=p.read_text()
+          old='''fn check_theorem(env: Environment, ty: u64, val: u64) -> u64 {
+    let ty_sort: u64 = ensure_sort(env, infer(env, ty));
+    if is_err(ty_sort) > 0 {
+        return 1;
+    }
+    if is_level_zero(env, ty_sort) == 0 {
+        return 1;
+    }
+    let val_ty: u64 = infer(env, val);
+    if is_err(val_ty) > 0 {
+        return 2;
+    }
+    if is_def_eq_pi(env, val_ty, ty) == 0 {
+        return 1;
+    }
+    return 0;
+}'''
+          new='''fn check_theorem(env: Environment, ty: u64, val: u64) -> u64 {
+    print_str(String::from("TRISK_DIAG theorem ty=")); print_u64(ty); print_str(String::from(" val=")); print_u64(val); print_str(String::from("\\n"));
+    let inferred_ty_ty: u64 = infer(env, ty);
+    print_str(String::from("TRISK_DIAG infer_ty=")); print_u64(inferred_ty_ty); print_str(String::from(" err=")); print_u64(is_err(inferred_ty_ty)); print_str(String::from("\\n"));
+    let ty_sort: u64 = ensure_sort(env, inferred_ty_ty);
+    print_str(String::from("TRISK_DIAG ty_sort=")); print_u64(ty_sort); print_str(String::from(" err=")); print_u64(is_err(ty_sort));
+    if is_err(ty_sort) == 0 { print_str(String::from(" zero=")); print_u64(is_level_zero(env, ty_sort)); }
+    print_str(String::from("\\n"));
+    if is_err(ty_sort) > 0 { return 1; }
+    if is_level_zero(env, ty_sort) == 0 { return 1; }
+    let val_ty: u64 = infer(env, val);
+    print_str(String::from("TRISK_DIAG val_ty=")); print_u64(val_ty); print_str(String::from(" err=")); print_u64(is_err(val_ty)); print_str(String::from("\\n"));
+    if is_err(val_ty) > 0 { return 2; }
+    let wv: u64 = whnf(env, val_ty); let wt: u64 = whnf(env, ty);
+    print_str(String::from("TRISK_DIAG whnf_val_ty=")); print_u64(wv); print_str(String::from(" tag=")); print_u64(env.exprs.tags[wv]);
+    print_str(String::from(" whnf_decl_ty=")); print_u64(wt); print_str(String::from(" tag=")); print_u64(env.exprs.tags[wt]); print_str(String::from("\\n"));
+    let d12: u64 = is_def_eq(env, val_ty, ty); let d21: u64 = is_def_eq(env, ty, val_ty); let dpi: u64 = is_def_eq_pi(env, val_ty, ty);
+    print_str(String::from("TRISK_DIAG deq_val_decl=")); print_u64(d12); print_str(String::from(" deq_decl_val=")); print_u64(d21); print_str(String::from(" deq_pi=")); print_u64(dpi); print_str(String::from("\\n"));
+    if dpi == 0 { return 1; }
+    return 0;
+}'''
+          if old not in s: raise SystemExit('check_theorem anchor mismatch')
+          p.write_text(s.replace(old,new))
+          PY
+
+      - name: Build and run exposed case only
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$(pwd)/checker"
+          ( cd checker/vow && cargo build --all )
+          ( cd checker/vow && bash scripts/concat_vow.sh clif > "$ROOT/compiler_clif.vow" )
+          ( cd checker/vow && ulimit -v 2000000 && ./target/debug/vow build --no-verify --no-cache "$ROOT/compiler_clif.vow" -o "$ROOT/vowc" )
+          ( cd checker && VOWC="$ROOT/vowc" bash scripts/build.sh )
+          set +e
+          checker/lean_checker "$(pwd)/exposed-only/exposed.ndjson" > blind-vow-diagnose-results/stdout.txt 2> blind-vow-diagnose-results/stderr.txt
+          rc=$?
+          set -e
+          echo "$rc" > blind-vow-diagnose-results/rc.txt
+          grep 'TRISK_DIAG\|FAIL decl' blind-vow-diagnose-results/stdout.txt | tail -80 | tee blind-vow-diagnose-results/diagnostic.txt
+
+      - name: Upload exposed-only diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-kernel-arena-blind-vow-diagnose
+          path: blind-vow-diagnose-results/
