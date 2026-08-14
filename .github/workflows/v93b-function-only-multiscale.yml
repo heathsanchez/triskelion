@@ -1,0 +1,27 @@
+name: V93b Function-Only Multiscale
+on:
+  push:
+    branches: [v93b-function-only-multiscale]
+jobs:
+  v93b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V93b
+        env:
+          QUIXBUGS_DIR: /tmp/QuixBugs
+          OUT_DIR: results/v93b
+        run: python experiments/METALOGIC_V93B_FUNCTION_ONLY_MULTISCALE.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v93b-function-only-multiscale
+          path: results/v93b/RESULT.json
