@@ -1,0 +1,32 @@
+name: V85P Constructor Preflight NONCLAIM
+on:
+  push:
+    branches: [v85p-constructor-preflight]
+  workflow_dispatch:
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Shrink diagnostic only
+        run: |
+          sed -i 's/N_TRAIN=12; N_TEST=12; SUPPORT=2; CAP=30/N_TRAIN=6; N_TEST=6; SUPPORT=1; CAP=12/' experiments/V85_QUIXBUGS_CONSTRUCTOR_GENESIS.py
+      - name: Run NONCLAIM diagnostic
+        env:
+          QUIXBUGS_DIR: /tmp/QuixBugs
+          V85_RESULT: /tmp/v85p_result.json
+        run: python experiments/V85_QUIXBUGS_CONSTRUCTOR_GENESIS.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v85p-constructor-preflight-nonclaim
+          path: /tmp/v85p_result.json
