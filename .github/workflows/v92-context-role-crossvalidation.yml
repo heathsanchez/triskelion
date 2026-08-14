@@ -1,0 +1,27 @@
+name: V92 Context Role Crossvalidation
+on:
+  push:
+    branches: [v92-context-role-crossvalidation]
+jobs:
+  v92:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V92
+        env:
+          QUIXBUGS_DIR: /tmp/QuixBugs
+          OUT_DIR: results/v92
+        run: python experiments/METALOGIC_V92_CONTEXT_ROLE_CROSSVALIDATION.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v92-context-role-crossvalidation
+          path: results/v92/RESULT.json
