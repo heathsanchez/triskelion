@@ -1,0 +1,76 @@
+name: Metalogic V55 Final Frontiers
+on:
+  push:
+    paths:
+      - '.github/workflows/metalogic-v55-final-frontiers.yml'
+      - 'experiments/METALOGIC_HISTORICAL_BROAD_CONSTRUCTOR_V55A.py'
+      - 'experiments/METALOGIC_CONSTRUCTOR_COMPOUNDING_V55B.py'
+      - 'experiments/METALOGIC_MODEL_LAYER_AB_V55C.py'
+  workflow_dispatch:
+jobs:
+  historical-natural-v55a:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze historical corpus
+        run: |
+          python -m pip install -q uv
+          git clone -q https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+          cd /tmp/BugsInPy && git checkout -q 11c5f1eea954a42132cfd06bf257766a7963e0fd
+          chmod +x /tmp/BugsInPy/framework/bin/*
+      - name: Run historical natural-world gate
+        run: python experiments/METALOGIC_HISTORICAL_BROAD_CONSTRUCTOR_V55A.py
+      - name: Upload V55A evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-v55a-historical
+          path: artifacts/v55a/
+
+  constructor-compounding-v55b:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Provision fixed external worlds
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/v55b_django
+          cd /tmp/v55b_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
+          git clone -q https://github.com/psf/requests.git /tmp/v55b_requests
+          cd /tmp/v55b_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . 'pytest<8'
+      - name: Run constructor-level compounding gate
+        run: python experiments/METALOGIC_CONSTRUCTOR_COMPOUNDING_V55B.py
+      - name: Upload V55B evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-v55b-constructor-compounding
+          path: artifacts/v55b/
+
+  model-layer-v55c:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen model stack
+        run: python -m pip install -q 'torch>=2.4,<3' 'transformers>=4.46,<5' accelerate sentencepiece
+      - name: Run model layer A/B/C smoke gate
+        env:
+          TOKENIZERS_PARALLELISM: 'false'
+        run: python experiments/METALOGIC_MODEL_LAYER_AB_V55C.py
+      - name: Upload V55C evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metalogic-v55c-model-layer
+          path: artifacts/v55c/
