@@ -1,0 +1,39 @@
+name: Lean Kernel Arena layout probe
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-layout-probe]
+
+jobs:
+  layout-probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Measure hot structure sizes
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf soko results/layout-probe
+          mkdir -p results/layout-probe
+          git clone https://github.com/intgrah/sokonanoda.git soko
+          git -C soko checkout 0fab8874080e379a774a9a27f7538d8a1ddd786b
+          mkdir -p soko/examples
+          cat > soko/examples/layout.rs <<'RS'
+          use std::mem::{align_of,size_of};
+          use sokonanoda::value::{Value,Closure,Env,Spine,Elim,RigidHead,UnfoldHead};
+          fn main() {
+              println!("Value size={} align={}", size_of::<Value<'static>>(), align_of::<Value<'static>>());
+              println!("Closure size={} align={}", size_of::<Closure<'static>>(), align_of::<Closure<'static>>());
+              println!("Env size={} align={}", size_of::<Env<'static>>(), align_of::<Env<'static>>());
+              println!("Spine size={} align={}", size_of::<Spine<'static>>(), align_of::<Spine<'static>>());
+              println!("Elim size={} align={}", size_of::<Elim<'static>>(), align_of::<Elim<'static>>());
+              println!("RigidHead size={} align={}", size_of::<RigidHead<'static>>(), align_of::<RigidHead<'static>>());
+              println!("UnfoldHead size={} align={}", size_of::<UnfoldHead<'static>>(), align_of::<UnfoldHead<'static>>());
+          }
+          RS
+          (cd soko && cargo run --release --example layout) | tee results/layout-probe/layout.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lean-kernel-arena-layout-probe
+          path: results/layout-probe/
