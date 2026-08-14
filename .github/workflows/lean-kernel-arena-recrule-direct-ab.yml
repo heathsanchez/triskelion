@@ -1,9 +1,8 @@
-name: Lean Kernel Arena recrule direct A/B
+name: Lean Kernel Arena recrule direct AB
 
 on:
   push:
-    branches:
-      - agent/lean-kernel-arena-recrule-direct-ab
+    branches: [agent/lean-kernel-arena-recrule-direct-ab]
 
 jobs:
   benchmark:
