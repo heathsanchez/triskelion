@@ -1,0 +1,68 @@
+IKKF V2B — CAPABILITY ROUTING ON SEMANTIC-VALID HELDOUTS
+Date: 2026-08-14 NZST
+
+Why V2B exists
+IKKF V2 exited before any neural training/evaluation because its precommitted decoy capability J (CMP@0;CONST@0) was not a semantically valid repair on quicksort heldouts. V2 therefore produced no neural routing outcome. V2B is a new protocol whose heldout universe is selected only by V2's pre-neural semantic-validity census: retain every original V2 heldout program for which BOTH C and J explicitly repair all suffixes 100..107; exclude only the semantically invalid program. No neural result from V2 is available or used for this selection.
+
+Frozen substrate
+- Base model: Qwen/Qwen3.5-9B
+- Fresh River LoRA rank: 32; no inherited checkpoint.
+- QuixBugs commit: 4257f44b0ff1181dedaedee6a447e133219fcebf
+- Capability C: CMP@0;BIN@0
+- Capability J: CMP@0;CONST@0
+- DSL: CMP@i, BIN@i, CONST@i separated by semicolons.
+
+Practice worlds
+- C practice: find_in_sorted, get_factors
+- J practice: gcd, is_valid_parenthesization
+- practice suffixes: 0..15
+
+Heldout routing worlds
+Selected solely by V2 semantic-validity census, requiring BOTH capabilities to be valid on all original suffixes:
+- possible_change
+- sieve
+- subsequences
+Excluded: quicksort, because V2 established J semantic invalidity before neural evaluation.
+- heldout suffixes: 100..107
+For each heldout program/suffix there are two independently mutated versions: one requiring C and one requiring J. The same program identity occurs in both classes, so program name cannot determine the route.
+
+Frozen compiler
+- Mechanically generate supervised examples from the two capability artifacts only.
+- Equal C/J representation in every training cycle.
+- No discovery trajectories or prior neural checkpoint.
+- At most 8 optimizer steps, batch size 16, LR 5e-5, grad clip 1.0.
+- Heldout programs/suffixes never appear in gradient batches.
+
+Arms
+B0: fresh base, no capability compilation.
+CJ: fresh base with C and J compiled jointly.
+SHUFFLE: fresh base with practice prompts assigned the opposite capability target (C prompts -> J target; J prompts -> C target), otherwise identical budget.
+R: reload CJ checkpoint in a new River session.
+
+Evaluation
+- C-held score: fraction of C-mutated heldouts repaired by emitted plan.
+- J-held score: fraction of J-mutated heldouts repaired by emitted plan.
+- Joint routing score = min(C-held, J-held).
+- Route accuracy = fraction where emitted plan exactly matches the required capability plan.
+PASS threshold: each held score >= 0.75 and route accuracy >= 0.75.
+
+Frozen gates
+1. practice_C_verified.
+2. practice_J_verified.
+3. heldout_C_semantically_verified.
+4. heldout_J_semantically_verified.
+5. cold_joint_fails: B0 joint < 0.75.
+6. CJ_C_passes: CJ C-held >= 0.75.
+7. CJ_J_passes: CJ J-held >= 0.75.
+8. CJ_routes: CJ exact route accuracy >= 0.75.
+9. shuffled_control_fails: SHUFFLE joint < 0.75 or SHUFFLE route accuracy < 0.75.
+10. reload_preserves_routing: R satisfies both held thresholds and route threshold.
+11. heldout_never_trained.
+12. no_inherited_checkpoint.
+
+Primary verdict
+PASS_IKKF_V2B_CAPABILITY_ROUTING iff all 12 gates pass.
+Otherwise report exact failed gates. No target, threshold, step, or program replacement after observing V2B outcomes.
+
+Claim boundary if PASS
+Within this frozen two-capability repair-plan domain, a fresh neural model can compile multiple explicit verified capabilities and selectively invoke the capability required by residual/context on source-distinct heldout programs, while a matched shuffled-label control fails. This does not establish arbitrary capability routing, arbitrary model families, or isolated neural uninstallation of one capability from a jointly compiled adapter.
