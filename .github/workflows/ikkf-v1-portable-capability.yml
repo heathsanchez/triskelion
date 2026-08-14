@@ -1,0 +1,39 @@
+name: IKKF V1 Portable Capability
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v1-portable-capability]
+    paths:
+      - '.github/workflows/ikkf-v1-portable-capability.yml'
+      - 'experiments/IKKF_V1_PORTABLE_CAPABILITY.py'
+      - 'protocols/IKKF_V1_PORTABLE_CAPABILITY_PRECOMMIT.txt'
+      - 'capabilities/IKKF_C_CMP_BIN_V1.json'
+      - 'capabilities/IKKF_J_CMP_CONST_V1.json'
+
+jobs:
+  portable-capability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Show frozen precommit hash
+        run: sha256sum protocols/IKKF_V1_PORTABLE_CAPABILITY_PRECOMMIT.txt capabilities/IKKF_C_CMP_BIN_V1.json capabilities/IKKF_J_CMP_CONST_V1.json
+      - name: Run portable capability gate
+        run: python experiments/IKKF_V1_PORTABLE_CAPABILITY.py
+      - name: Upload scientific artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v1-portable-capability
+          path: artifacts/ikkf_v1_portable_capability/
