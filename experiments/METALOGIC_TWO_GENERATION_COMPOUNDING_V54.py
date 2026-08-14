@@ -75,7 +75,6 @@ def emission_survivors(repo, path, site, broken_token, test):
     for d in DESTS:
         if d == broken_token: continue
         reset(repo)
-        # recreate one broken site from the correct source
         good = tuple(site[:3]) + (site[3],)
         mutate(path, good, broken_token)
         cur=[s for s in sites(path, broken_token, site[0]) if s[1] == site[1]]
@@ -109,11 +108,10 @@ O1_DST=common[0] if len(common)==1 else None
 O1={'kind':'TOKEN_REWRITE','src':'<','dst':O1_DST} if O1_DST else None
 old_closure_obstruction_O1=bool(O1 and Counter(['<']) != Counter([O1_DST]))
 
-# Learn a minimal lexical scope for O1 from two HELP and one HARM line.
 reset(RH); assert test_rich()
 rh_bads=[]
 for s in sites(rich,'<'):
-    reset(RH); line=mutate(rich,s,'<=');
+    reset(RH); line=mutate(rich,s,'<=')
     if not test_rich(): rh_bads.append((s,line))
 reset(RH)
 assert len(rh_bads)==1
@@ -125,14 +123,12 @@ scope_word=next(iter(help_first)) if len(help_first)==1 and next(iter(help_first
 # ---------- Phase B target: two simultaneous missing operators ----------
 rq_path=RQ/'src/requests/utils.py'
 reset(RQ); assert test_rq()
-# Locate the exact tested branch mechanically by finding the only <= whose mutation breaks the test.
 rq_break=unique_breaking_site(RQ,rq_path,'<=','<',test_rq)
 assert len(rq_break)==1
 rq_le_site,rq_line=rq_break[0]
 line_no=rq_le_site[0]
 or_sites=sites(rq_path,'or',line_no)
 assert len(or_sites)>=1
-# Pick the 'or' on the same conditional line; there is one in this expression.
 rq_or_site=or_sites[0]
 
 def make_double_broken():
@@ -142,10 +138,11 @@ def make_double_broken():
     if len(cur_or)!=1: raise RuntimeError('lost OR site')
     mutate(rq_path,cur_or[0],'and')
 
-# Frozen one-new-generator discovery from a given state: one token rewrite anywhere on the target line.
+# Frozen one-new-generator discovery from A0. Tokenize the actual double-broken
+# state so character-width changes cannot invalidate stored coordinates.
 def one_rewrite_discovery():
-    src=rq_path.read_text()
-    line=src.splitlines()[line_no-1]
+    make_double_broken()
+    line=rq_path.read_text().splitlines()[line_no-1]
     ts=[t for t in tokenize.generate_tokens(io.StringIO(line+'\n').readline) if t.type in (tokenize.NAME,tokenize.OP)]
     survivors=[]
     for t in ts:
@@ -153,12 +150,9 @@ def one_rewrite_discovery():
         for d in DESTS:
             if d == t.string: continue
             make_double_broken()
-            # recompute position within line after fixed-width source mutations where possible
             ls=rq_path.read_text().splitlines(True); current=ls[line_no-1]
             c0,c1=t.start[1],t.end[1]
-            if c1 > len(current): continue
-            old=current[c0:c1]
-            if old != t.string: continue
+            if c1 > len(current) or current[c0:c1] != t.string: continue
             ls[line_no-1]=current[:c0]+d+current[c1:]
             rq_path.write_text(''.join(ls))
             if test_rq(): survivors.append({'src':t.string,'dst':d,'col':c0})
@@ -167,11 +161,12 @@ def one_rewrite_discovery():
 
 cold_survivors=one_rewrite_discovery()
 
-# Warm A1: lawful closure reuse of O1 is automatic wherever learned scope matches.
+# Warm A1: lawful closure reuse of O1. Re-tokenize the current state and require
+# a unique source token on the target line instead of using a stale column.
 make_double_broken()
 warm_line=rq_path.read_text().splitlines()[line_no-1]
 if O1 and scope_word and line_first_word(warm_line)==scope_word:
-    cur=[s for s in sites(rq_path,'<',line_no) if s[1] == rq_le_site[1]]
+    cur=sites(rq_path,'<',line_no)
     assert len(cur)==1
     mutate(rq_path,cur[0],O1['dst'])
 assert not test_rq(), 'O1 alone should expose residual rather than solve target'
@@ -199,25 +194,23 @@ def discover_after_O1():
 warm_survivors=discover_after_O1()
 unique_pairs=sorted(set((x['src'],x['dst']) for x in warm_survivors))
 O2={'kind':'TOKEN_REWRITE','src':unique_pairs[0][0],'dst':unique_pairs[0][1]} if len(unique_pairs)==1 else None
-# A1 can reorder tokens and apply <-><= only; it preserves the multiset over {'and','or'}.
 old_A1_obstruction_O2=bool(O2 and O2['src'] in {'and','or'} and O2['dst'] in {'and','or'} and O2['src']!=O2['dst'])
 
 # Causal final execution with O1 then O2.
 make_double_broken(); cold=test_rq()
-# O1
-cur=[s for s in sites(rq_path,'<',line_no) if s[1]==rq_le_site[1]]
+cur=sites(rq_path,'<',line_no)
 if O1 and len(cur)==1: mutate(rq_path,cur[0],O1['dst'])
 mid=test_rq()
-# O2
 if O2:
-    cur2=[s for s in sites(rq_path,O2['src'],line_no)]
-    if cur2: mutate(rq_path,cur2[0],O2['dst'])
+    cur2=sites(rq_path,O2['src'],line_no)
+    if len(cur2)==1: mutate(rq_path,cur2[0],O2['dst'])
 warm=test_rq()
-# Ablate O1 but keep opportunity for O2: O2 alone should not solve.
+
+# Ablate O1 but keep O2 present.
 make_double_broken()
 if O2:
-    cur2=[s for s in sites(rq_path,O2['src'],line_no)]
-    if cur2: mutate(rq_path,cur2[0],O2['dst'])
+    cur2=sites(rq_path,O2['src'],line_no)
+    if len(cur2)==1: mutate(rq_path,cur2[0],O2['dst'])
 ablated_O1=test_rq()
 
 R={
