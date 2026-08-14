@@ -1,0 +1,17 @@
+{
+  "schema": "metalogic.verified_capability.v1",
+  "id": "IKKF_C_CMP_BIN_V1",
+  "name": "COMPARE_AND_BINARY_REPAIR",
+  "kind": "repair_plan",
+  "plan": [["CMP", 0], ["BIN", 0]],
+  "scope": "Python functions whose verified residual is caused by first-eligible comparison and binary-operator mutations",
+  "dependencies": ["CMP", "BIN"],
+  "provenance": {
+    "derived_from": "V16/V17 verified composition line",
+    "discovery_episodes_embedded": false
+  },
+  "compilation": {
+    "requires_original_episode": false,
+    "target_format": "CMP@i;BIN@i"
+  }
+}
