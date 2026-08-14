@@ -1,129 +1,116 @@
 # Current Frontier Audit — 2026-08-14 NZST
 
-This file is a concise reconciliation of the newest scientific results and blocked gates. Historical result files remain immutable and authoritative for their own experiments.
+This file is the concise reconciliation of the newest scientific results and blocked/live gates. Historical result files remain immutable and authoritative for their own experiments.
 
 ## Confirmed positive results
 
 ### V16 — verified composition
 
-Fresh rerun confirms:
-
-- direct AB and ABC fail;
-- verified composer recovers both;
-- primitive ablations remove the corresponding composite success;
-- composed capability survives reload.
+Fresh rerun confirms direct AB/ABC failure, verified composer recovery, causal primitive ablations, and reload persistence.
 
 ### V17 — hierarchical chunking
 
-- verified AB promoted to reusable chunk D;
-- D + C reaches ABC;
-- ablating D or C destroys success;
-- candidate evaluations fall from 56 to 24 with no accuracy loss.
+Verified AB promoted to reusable D; D+C reaches ABC; ablating D or C destroys success; candidate evaluations fall from 56 to 24 with no accuracy loss.
 
 ### IKKF V1 strict portability — PASS
 
-Frozen strict portability protocol:
+Fresh Qwen base + fresh LoRA, no inherited capability checkpoint, only the compact verified capability package crosses the boundary. Cold 0%; two independent correct compilations 100% on 32 source-distinct held-out cases; decoy 0%; uninstall 0%; reload 100%; all 12 frozen gates pass.
 
-- fresh Qwen base;
-- fresh LoRA;
-- no inherited capability checkpoint;
-- only compact exported capability artifact crosses the boundary;
-- held-out programs and suffixes never trained.
+Bounded conclusion: one explicit verified capability can be exported and independently recompiled into persistent neural competence in this repair domain.
 
-Observed:
+### V70–V72 grammar / motif sequence — PASS
 
-- cold/base: 0%;
-- correct capability compile: 100% on 32 source-distinct held-out cases;
-- independent second compile: 100%;
-- matched decoy: 0%;
-- uninstall: 0%;
-- reload: 100%;
-- 12/12 frozen gates pass.
-
-Bounded conclusion: an explicit verified capability can be exported and independently recompiled into persistent neural competence in this repair domain.
-
-### V70 — PASS_MULTISCALE_MOTIF_DISCOVERY_V70
-
-Cross-domain/cross-scale operator motifs are non-random in the frozen manually normalized 51-program corpus. Held-out-domain compression: 30.2817% vs 16.3162% shuffled-control mean.
-
-### V71 — PASS_SCALE_HOLDOUT_GRAMMAR_V71
-
-Whole-scale omission transfer passes. Aggregate compression: 23.9437% vs 12.3676% shuffled mean; next-op accuracy: 48.3516% vs 23.0769% majority.
-
-### V72 — PASS_MDL_MOTIF_BASIS_V72
-
-Exact MDL search selects five reusable motifs. Raw cost 142 -> encoded cost 120 including motif definitions; 15.493% net saving; shuffled mean 5.632%.
+- V70: held-out-domain compression 30.2817% vs 16.3162% shuffled mean.
+- V71: whole-scale compression 23.9437% vs 12.3676% shuffled mean; next-op 48.3516% vs 23.0769% majority.
+- V72: exact MDL raw cost 142 -> 120 including motif definitions; 15.493% saving vs 5.632% shuffled mean.
 
 ## Scientifically useful negatives / mixed results
 
-### IKKF V2
+### IKKF V2 — invalid semantic precondition
 
-The first routing protocol failed its semantic precondition because one frozen decoy capability was not valid on every held-out program. No neural routing conclusion should be drawn from V2.
+The first routing protocol had a decoy capability that was not semantically valid on every frozen held-out program. No neural routing conclusion is drawn from V2.
 
-### IKKF V2b — FAIL_IKKF_V2B_CAPABILITY_ROUTING
+### IKKF V2b — `FAIL_IKKF_V2B_CAPABILITY_ROUTING`
 
-Branch: `ikkf-v2b-capability-routing`
+Run `31760408272`, branch head `5eaed144166c16f97dcbc3c5130795bce73b4767`.
 
-Frozen semantically valid held-out set; no inherited checkpoint.
+- joint C+J LoRA: `C=1.0, J=0.0, joint=0.0, route=.5`;
+- reload preserves the C-only collapse.
 
-Observed:
+Interpretation: naive shared-adapter co-neuralization does not selectively route C vs J in the frozen semantically valid setup.
 
-- cold/base: C=0.0, J=0.0, joint=0.0, route=0.0;
-- joint C+J LoRA: C=1.0, J=0.0, joint=0.0, route=0.5;
-- shuffled control: C=0.6667, J=0.3333, joint=0.3333, route=0.5;
-- reload: C=1.0, J=0.0, joint=0.0, route=0.5.
+### IKKF V2c — `FAIL_IKKF_V2C_MODULAR_CAPABILITY_ROUTER`
 
-Interpretation: a single jointly trained adapter collapsed onto C rather than learning selective C/J routing. This supports testing modular installed capabilities plus a router rather than naive co-neuralization.
+Run `31761615178`, branch `ikkf-v2c-modular-capability-router`, head `aeffa5de16960d12a7873a0687b268e851b24484`.
 
-Actions run: `31760408272`
-Branch head used by run: `5eaed144166c16f97dcbc3c5130795bce73b4767`
-Protocol SHA-256: `8f9791ee90129ced7dba7d5c1a91b5cd012cd557163d2cd50625895efa2230c3`
+All practice and held-out semantic-precondition gates pass. C and J remain separate explicit verified modules; only the selector is learned.
 
-### V73 — MIXED_HIERARCHICAL_MOTIF_REIFICATION_V73
+- cold router: `C=.6667, J=0, joint=0, route=.3333`;
+- matched monolithic: `C=1, J=0, joint=0, route=.5`;
+- modular learned router: `C=1, J=0, joint=0, route=.5` — emits C for every held-out case;
+- shuffled-label router: `C=0, J=1, joint=0, route=.5` — emits J for every held-out case;
+- reload: `C=1, J=0, joint=0, route=.5`.
 
-No qualifying stable second-level motifs emerged after reifying the five V72 motifs. This blocks a recursive/fractal-organ claim from this short corpus.
+Thus modular execution alone does not solve selection. The selector itself collapses to one learned label under the frozen evidence representation and budget.
 
-### V74 — MIXED_MATH_GRAMMAR_TRANSFER_V74
+Canonical result: [`IKKF_V2C_MODULAR_ROUTER_NEGATIVE_20260814.md`](IKKF_V2C_MODULAR_ROUTER_NEGATIVE_20260814.md).
 
-Non-math operator-order grammar ranks held-out math traces strongly, but the macro layer does not beat the primitive transition grammar and the frozen shuffle gate fails (`p=0.03498 > 0.01`). Do not count as positive motif-to-math evidence.
+### IKKF V3 — `FAIL_IKKF_V3_EXTERNAL_INVENTED_INSTINCT`
 
-## Blocked / infrastructure states
+Rerun `31761470384`, branch `ikkf-v3-external-invented-instinct`, head `304327cb6a14029f442fb540b251cc1c688daf12`.
 
-### IKKF V3 — blocked before scientific gate
+The previous export block was diagnosed as a self-triggering hygiene check: the package named `optimizer_state` only in its explicit excluded-material declaration, then rejected that label. The repair changed only hygiene inspection, not the package, frozen targets, controls, budget or scientific gates.
 
-Frozen intended chain:
+The rerun reached the full endpoint.
 
-`external invention -> compact package -> fresh River compile -> sealed transfer -> ablation -> independent recompile -> later counterevidence -> revoke/detach`
+**Explicit verified half passes:** V51 Phase A passes; compact export passes; the sealed explicit capability repairs the unseen Requests target; ablation restores failure; later source-distinct counterevidence lands inside scope; no valid refinement survives; capability is revoked/detached.
 
-Branch: `ikkf-v3-external-invented-instinct`
+**Neural bridge fails:** cold `.75`; correct compile C1 `0.0`; independent correct compile C2 `0.0`; both emit `NOOP` throughout. The inverted-scope control scores `1.0` and activates everywhere. Reload of the correct compile remains `0.0`.
 
-Run `31760625899` reached V51 Phase A successfully, then the capability export-hygiene guard failed before River compilation. Therefore the neural/sealed-transfer portion never ran. Status is **infrastructure/package-export blocked**, not scientific FAIL.
+Interpretation: explicit scoped construction/transfer/revision is supported in this bounded test, but the frozen compiler does not preserve verified scope/applicability semantics.
+
+Canonical result: [`IKKF_V3_EXTERNAL_INVENTED_INSTINCT_NEGATIVE_20260814.md`](IKKF_V3_EXTERNAL_INVENTED_INSTINCT_NEGATIVE_20260814.md).
+
+### V73 — hierarchy negative
+
+No qualifying stable second-level motifs emerged after reifying the five V72 motifs. This blocks a recursive/fractal-organ claim from the short retrospective corpus.
+
+### V74 — `MIXED_MATH_GRAMMAR_TRANSFER_V74`
+
+Non-math operator-order grammar ranks held-out math traces strongly, but the macro layer does not beat the primitive transition grammar and the frozen shuffle gate fails (`p=.03498 > .01`). Do not count as positive motif-to-math evidence.
+
+## Infrastructure / live states
 
 ### V75 executable math control
 
-Experiment code is present on `main`, but no authoritative V75 result summary was committed on `main` at this reconciliation. Code presence is not a verdict.
+Experiment code is present on `main`, but no authoritative V75 result summary is committed. Code presence is not a verdict.
 
-### V77 SorryDB preflight
+### V77 SorryDB preflight — repaired exact-commit plumbing, live rerun
 
-Run `31759304935`:
+Original run `31759304935` reproduced the official SorryDB verifier but only prepared one of three selected external tasks. Two historical repositories were shallow-cloned without their frozen commit trees, producing `unable to read tree`.
+
+The checkout implementation was repaired on `main` to initialize each repository and fetch the exact frozen commit directly before detached checkout. Selection seed, selected commits, model, retry schedules, arms, budgets and verifier criteria were unchanged.
+
+Repaired run: `31761636184`, head `4eac4818156c65c8cf75f0fea242308540513485`.
+
+Current verified prerequisites in that rerun:
 
 - pinned SorryDB checkout: pass;
-- pinned files verification: pass;
-- Lean/elan setup: pass;
-- frozen dependencies: pass;
-- River secret check: pass;
+- pinned files: pass;
+- Lean/elan/dependencies: pass;
+- River secret: pass;
 - official SorryDB verifier reproduction: pass;
-- Triskelion end-to-end V77 preflight: fail.
+- repaired Triskelion end-to-end step: currently executing pending final artifact.
 
-Status: harness/preflight blocked after successful reproduction of the official verifier prerequisite. Do not interpret as a scientific result yet.
+Do not assign a V77 scientific verdict until that artifact is final.
 
 ## Highest-value next gates
 
-1. Fix V3 package/export hygiene without changing the frozen scientific protocol; rerun whole-stack invention-to-instinct gate.
-2. IKKF V2c / Capability OS: separate C and J modules, tiny router only, same V2b held-out distribution, matched monolithic baseline.
-3. Diagnose V77 end-to-end preflight while preserving the already-passed official verifier reproduction.
-4. For math, test the primitive typed-operator grammar prospectively rather than retuning the failed V74 macro hypothesis.
+1. Preserve V2c and V3 unchanged as falsification precedents; do not tune them.
+2. Precommit a **scope-preserving activation** experiment that compares explicit verified dispatch, neural proposal + explicit scope check, and unconstrained neural routing. It must address both V2c one-label collapse and V3 inverted-scope activation.
+3. Finish and record V77's repaired preflight.
+4. Test the primitive typed-operator grammar prospectively for math rather than retuning V74's failed macro hypothesis.
 
 ## Claim boundary
 
-Current evidence supports bounded portable capability compilation and many components of a verified developmental algebra. It does not establish universal/model-independent installable intelligence, automatic multi-capability neural modularity, universal recursive cognitive organs, or open-ended self-improvement.
+Current evidence supports bounded portable single-capability compilation and many components of a verified developmental algebra, including explicit scoped construction, causal transfer, revision and revocation. It does **not** establish reliable learned multi-capability selection, preservation of verified scope through arbitrary neural compilation, universal/model-independent installable intelligence, recursive universal cognitive organs, or open-ended self-improvement.
