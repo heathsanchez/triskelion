@@ -12,14 +12,14 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-      - name: Compare linear and guarded direct recursor rule lookup
+      - name: Compare normal and no-store recursor-major WHNF
         shell: bash
         run: |
           set -euo pipefail
           SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
           ARENA_ARTIFACT=8931227426
-          OUT=results/recrule-direct
-          rm -rf "$OUT" base direct arena-tests artifact tests.zip
+          OUT=results/major-whnf-nostore
+          rm -rf "$OUT" base nostore arena-tests artifact tests.zip
           mkdir -p "$OUT" arena-tests artifact
           curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
@@ -27,27 +27,31 @@ jobs:
           tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
           git clone https://github.com/intgrah/sokonanoda.git base
           git -C base checkout "$SOKO_REV"
-          cp -a base direct
+          cp -a base nostore
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('direct/src/eval.rs'); s=p.read_text()
-          old="        let rec_rule = rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?;"
-          new="        let rec_rule = if let Some(cd) = self.env.get_constructor(&ctor_name) {\n            match rec.rec_rules.get(usize::from(cd.ctor_idx)).copied() {\n                Some(r) if r.ctor_name == ctor_name => r,\n                _ => rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?,\n            }\n        } else {\n            rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?\n        };"
+          p=Path('nostore/src/eval.rs'); s=p.read_text()
+          marker="    pub(crate) fn whnf_head(&mut self, depth: u32, v: V<'t>) -> V<'t> {"
+          helper="    fn whnf_head_nostore(&mut self, depth: u32, v: V<'t>) -> V<'t> {\n        let mut cur = v;\n        loop {\n            cur = self.force_thunk(depth, cur);\n            match cur {\n                Value::Unfold { .. } => {\n                    let next = self.unfold_value(depth, cur);\n                    if std::ptr::eq(next, cur) { return cur; }\n                    cur = next;\n                }\n                Value::Rigid { head: RigidHead::Recursor(..) | RigidHead::QuotConst(..), .. } => match self.iota_value(depth, cur) {\n                    Some(next) => cur = next,\n                    None => return cur,\n                },\n                _ => return cur,\n            }\n        }\n    }\n\n"
+          assert marker in s
+          s=s.replace(marker,helper+marker,1)
+          old="        let major = self.whnf_head(depth, args[rec.major_idx()]);"
+          new="        let major = self.whnf_head_nostore(depth, args[rec.major_idx()]);"
           assert old in s
           p.write_text(s.replace(old,new,1))
           PY
           cat > base/config.json <<'JSON'
           {"use_stdin":true,"nat_extension":true,"string_extension":true,"unpermitted_axiom_hard_error":false,"unsafe_permit_all_axioms":true,"num_threads":2}
           JSON
-          cp base/config.json direct/config.json
+          cp base/config.json nostore/config.json
           (cd base && RUSTFLAGS='-C target-cpu=native' cargo build --release)
-          (cd direct && RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          (cd nostore && RUSTFLAGS='-C target-cpu=native' cargo build --release)
           python3 - <<'PY'
           from pathlib import Path
           import subprocess,time,json,statistics,random,hashlib
-          root=Path.cwd(); out=root/'results/recrule-direct'
-          bins={'base':root/'base/target/release/sokonanoda','direct':root/'direct/target/release/sokonanoda'}
-          cfgs={'base':root/'base/config.json','direct':root/'direct/config.json'}
+          root=Path.cwd(); out=root/'results/major-whnf-nostore'
+          bins={'base':root/'base/target/release/sokonanoda','nostore':root/'nostore/target/release/sokonanoda'}
+          cfgs={'base':root/'base/config.json','nostore':root/'nostore/config.json'}
           def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
           cases=[]
           for kind,exp in [('good','accept'),('bad','reject')]:
@@ -70,12 +74,12 @@ jobs:
                       with p.open('rb') as f: subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
                   samples[v].append(time.perf_counter()-t)
           med={v:statistics.median(xs) for v,xs in samples.items()}
-          summary={'correctness':correctness,'median_seconds':med,'samples_seconds':samples,'speedup_direct_vs_base':med['base']/med['direct']}
+          summary={'correctness':correctness,'median_seconds':med,'samples_seconds':samples,'speedup_nostore_vs_base':med['base']/med['nostore']}
           (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
           if any(x['correct']!=x['total'] for x in correctness.values()): raise SystemExit('correctness regression')
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lean-kernel-arena-recrule-direct
-          path: results/recrule-direct/
+          name: lean-kernel-arena-major-whnf-nostore
+          path: results/major-whnf-nostore/
