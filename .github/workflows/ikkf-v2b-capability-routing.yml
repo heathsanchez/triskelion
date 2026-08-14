@@ -1,0 +1,37 @@
+name: IKKF V2B Capability Routing
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v2b-capability-routing]
+    paths:
+      - '.github/workflows/ikkf-v2b-capability-routing.yml'
+      - 'experiments/IKKF_V2B_CAPABILITY_ROUTING.py'
+      - 'protocols/IKKF_V2B_CAPABILITY_ROUTING_PRECOMMIT.txt'
+
+jobs:
+  capability-routing-v2b:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Show frozen hashes
+        run: sha256sum protocols/IKKF_V2B_CAPABILITY_ROUTING_PRECOMMIT.txt experiments/IKKF_V2_CAPABILITY_ROUTING.py experiments/IKKF_V2B_CAPABILITY_ROUTING.py
+      - name: Run V2b routing gate
+        run: python experiments/IKKF_V2B_CAPABILITY_ROUTING.py
+      - name: Upload scientific artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v2b-capability-routing
+          path: artifacts/ikkf_v2b_capability_routing/
