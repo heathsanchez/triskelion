@@ -1,0 +1,28 @@
+name: V94 Dynamic State Invariants
+on:
+  push:
+    branches: [v94-dynamic-state-invariants]
+jobs:
+  v94:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -q pytest pytest-timeout
+      - name: Fetch frozen QuixBugs
+        run: |
+          git clone -q https://github.com/jkoppel/QuixBugs.git /tmp/QuixBugs
+          cd /tmp/QuixBugs
+          git checkout -q 4257f44b0ff1181dedaedee6a447e133219fcebf
+      - name: Run V94
+        env:
+          QUIXBUGS_DIR: /tmp/QuixBugs
+          OUT_DIR: results/v94
+        run: python experiments/METALOGIC_V94_DYNAMIC_STATE_INVARIANTS.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v94-dynamic-state-invariants
+          path: results/v94/RESULT.json
