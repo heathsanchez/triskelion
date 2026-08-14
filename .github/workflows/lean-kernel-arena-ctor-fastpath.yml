@@ -1,4 +1,4 @@
-name: Lean Kernel Arena ctor fastpath
+name: Lean Kernel Arena unfold SmallVec
 on:
   push:
     branches: [agent/lean-kernel-arena-ctor-fastpath]
@@ -27,46 +27,19 @@ jobs:
           cp -a base small
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('small/src/eval.rs'); s=p.read_text()
-          old='''            let spine = *spine;
-            let mut cur = head_value;
-            let mut run: SpineArgs<'t> = SpineArgs::new();
-            for e in spine.to_vec() {
-                match e.view() {
-                    ElimView::App(a) => run.push(a),
-                    ElimView::Proj { ty_name, idx } => {
-                        if !run.is_empty() {
-                            cur = self.apply_many(depth, cur, &run);
-                            run.clear();
-                        }
-                        cur = self.do_proj(depth, ty_name, idx, cur);
-                    }
-                }
-            }
-'''
-          new='''            let spine = *spine;
-            let mut cur = head_value;
-            let mut run: SpineArgs<'t> = SpineArgs::new();
-            let mut elims: smallvec::SmallVec<[Elim<'t>; 8]> = smallvec::SmallVec::with_capacity(spine.len() as usize);
-            let mut scur: &Spine<'t> = spine;
-            while let Spine::Snoc { prev, elim, .. } = scur {
-                elims.push(*elim);
-                scur = prev;
-            }
-            for e in elims.iter().rev() {
-                match e.view() {
-                    ElimView::App(a) => run.push(a),
-                    ElimView::Proj { ty_name, idx } => {
-                        if !run.is_empty() {
-                            cur = self.apply_many(depth, cur, &run);
-                            run.clear();
-                        }
-                        cur = self.do_proj(depth, ty_name, idx, cur);
-                    }
-                }
-            }
-'''
-          assert old in s
+          p=Path('small/src/eval.rs')
+          s=p.read_text()
+          old="            for e in spine.to_vec() {"
+          new="\n".join([
+              "            let mut elims: smallvec::SmallVec<[Elim<'t>; 8]> = smallvec::SmallVec::with_capacity(spine.len() as usize);",
+              "            let mut scur: &Spine<'t> = spine;",
+              "            while let Spine::Snoc { prev, elim, .. } = scur {",
+              "                elims.push(*elim);",
+              "                scur = prev;",
+              "            }",
+              "            for e in elims.iter().rev() {",
+          ])
+          assert s.count(old) >= 1
           p.write_text(s.replace(old,new,1))
           PY
           for d in base small; do
@@ -89,7 +62,7 @@ jobs:
             bad=[]
             for p,exp in cases:
               with p.open('rb') as f: rc=subprocess.run([str(bins[v]),str(cfgs[v])],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
-              if status(rc)!=exp: bad.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'got':status(rc),'rc':rc})
+              if status(rc)!=exp: bad.append(str(p.relative_to(root/'arena-tests')))
             correctness[v]={'correct':len(cases)-len(bad),'total':len(cases),'failures':bad}
           workload=sorted([p for p,_ in cases],key=lambda p:p.stat().st_size,reverse=True)[:24]
           workload=sorted(workload,key=lambda p:hashlib.sha256(str(p.relative_to(root/'arena-tests')).encode()).hexdigest())
