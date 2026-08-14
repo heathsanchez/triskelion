@@ -1,0 +1,50 @@
+name: IKKF V4 Verified Capability Invocation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ikkf-v4-verified-capability-invocation]
+    paths:
+      - '.github/workflows/ikkf-v4-verified-capability-invocation.yml'
+      - 'experiments/IKKF_V4_VERIFIED_CAPABILITY_INVOCATION.py'
+      - 'protocols/IKKF_V4_VERIFIED_CAPABILITY_INVOCATION_PRECOMMIT.txt'
+
+jobs:
+  verified-capability-invocation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Show frozen hashes
+        run: sha256sum protocols/IKKF_V4_VERIFIED_CAPABILITY_INVOCATION_PRECOMMIT.txt experiments/IKKF_V4_VERIFIED_CAPABILITY_INVOCATION.py
+      - name: Provision V51 independently authored external worlds
+        run: |
+          git clone -q https://github.com/django/django.git /tmp/v50_django
+          cd /tmp/v50_django && git checkout -q c6be0bf3bb744d234947cefd6def9f31d9655800 && python -m pip install -q -e .
+          git clone -q https://github.com/psf/requests.git /tmp/v50_requests
+          cd /tmp/v50_requests && git checkout -q 8068356288978c4f54661ae6f95afe0e0831885e && python -m pip install -q -e . 'pytest<8'
+          git clone -q https://github.com/Textualize/rich.git /tmp/v50_rich
+          cd /tmp/v50_rich && git checkout -q 9d8f9a372cc5916fd4781fec207ced7ddac2f08f && python -m pip install -q -e . 'pytest<8' pytest-cov attrs 'typing-extensions<5'
+          ln -s /tmp/v50_django /tmp/v51_django
+          ln -s /tmp/v50_requests /tmp/v51_requests
+          ln -s /tmp/v50_rich /tmp/v51_rich
+      - name: V51 Phase A — construct capability outside old closure
+        run: python experiments/METALOGIC_V51_OPERATOR_CONSTRUCTION.py
+      - name: Export compact verified capability
+        run: python experiments/IKKF_V3_EXPORT_DISCOVERED_CAPABILITY.py
+      - name: Run explicit verified invocation gate
+        run: python experiments/IKKF_V4_VERIFIED_CAPABILITY_INVOCATION.py
+      - name: Upload V4 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v4-verified-capability-invocation
+          path: |
+            artifacts/ikkf_v4/
+            artifacts/ikkf_v3/
+            artifacts/v51/
