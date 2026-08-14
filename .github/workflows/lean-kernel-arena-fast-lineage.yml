@@ -20,21 +20,24 @@ jobs:
           NANODA_REV=418320295890faed83a96fd97907b12a3b6728c2
           SOKO_REV=0fab8874080e379a774a9a27f7538d8a1ddd786b
           ARENA_ARTIFACT=8931227426
-          mkdir results artifact arena-tests
+          rm -rf artifact arena-tests results/fast-lineage
+          mkdir -p artifact arena-tests results/fast-lineage
+          OUT=results/fast-lineage
           curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
           unzip -q tests.zip -d artifact
           tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
           python3 - <<'PY'
           from pathlib import Path
-          import hashlib,json
+          import hashlib
           root=Path('arena-tests')
           fs=list((root/'good').rglob('*.ndjson'))+list((root/'bad').rglob('*.ndjson'))
           largest=sorted(fs,key=lambda p:p.stat().st_size,reverse=True)[:24]
           largest=sorted(largest,key=lambda p:hashlib.sha256(str(p.relative_to(root)).encode()).hexdigest())
-          Path('results/workload.txt').write_text('\n'.join(str(p) for p in largest)+'\n')
+          Path('results/fast-lineage/workload.txt').write_text('\n'.join(str(p) for p in largest)+'\n')
           PY
 
+          rm -rf nanoda soko
           git clone https://github.com/ammkrn/nanoda_lib.git nanoda
           git -C nanoda checkout "$NANODA_REV"
           git clone https://github.com/intgrah/sokonanoda.git soko
@@ -52,7 +55,6 @@ jobs:
           JSON
           done
 
-          # Retained MathGraph representation capability on nanoda lineage.
           python3 - <<'PY'
           from pathlib import Path
           src=Path('.github/workflows/lean-kernel-arena-growth.yml').read_text().splitlines(); marker='Repair only the representation identified by T1'; start=end=None
@@ -63,6 +65,7 @@ jobs:
                   break
           for j in range(start,len(src)):
               if src[j].strip()=='PY': end=j; break
+          if start is None or end is None: raise SystemExit('repair program not found')
           Path('/tmp/map.py').write_text('\n'.join(line[10:] if line.startswith('          ') else line for line in src[start:end])+'\n')
           PY
           (cd nanoda && python3 /tmp/map.py)
@@ -70,12 +73,11 @@ jobs:
           rustup component add llvm-tools-preview
           PROF="$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's/^host: //p')/bin/llvm-profdata"
 
-          # Common PGO training corpus for both checker lineages.
           build_pgo() {
             local d=$1 bin=$2
             rm -rf "$d/pgo" "$d/tgen" "$d/tuse"; mkdir -p "$d/pgo"
             (cd "$d" && CARGO_TARGET_DIR=tgen RUSTFLAGS="-C target-cpu=native -C profile-generate=$PWD/pgo" cargo build --release)
-            while read -r f; do "$d/tgen/release/$bin" "$d/config.json" < "$f" >/dev/null 2>/dev/null || true; done < results/workload.txt
+            while read -r f; do "$d/tgen/release/$bin" "$d/config.json" < "$f" >/dev/null 2>/dev/null || true; done < "$OUT/workload.txt"
             "$PROF" merge -o "$d/pgo/merged.profdata" "$d/pgo"
             (cd "$d" && CARGO_TARGET_DIR=tuse RUSTFLAGS="-C target-cpu=native -C profile-use=$PWD/pgo/merged.profdata" cargo build --release)
           }
@@ -85,7 +87,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import subprocess,time,json,statistics
-          root=Path.cwd(); workload=[Path(x) for x in Path('results/workload.txt').read_text().splitlines()]
+          root=Path.cwd(); out=root/'results/fast-lineage'; workload=[Path(x) for x in (out/'workload.txt').read_text().splitlines()]
           bins={
             'mathgraph_pgo':(root/'nanoda/tuse/release/nanoda_bin',root/'nanoda/config.json'),
             'sokonanoda_pgo':(root/'soko/tuse/release/sokonanoda',root/'soko/config.json'),
@@ -101,8 +103,7 @@ jobs:
               with p.open('rb') as f: rc=subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
               rows.append({'file':str(p.relative_to(root/'arena-tests')),'expected':exp,'status':status(rc),'rc':rc,'correct':status(rc)==exp})
             corr[name]={'correct':sum(x['correct'] for x in rows),'total':len(rows),'declines':sum(x['status']=='decline' for x in rows),'failures':[x for x in rows if not x['correct']]}
-            Path(f'results/{name}-correctness.json').write_text(json.dumps(rows,indent=2))
-          # Six paired timing rounds.
+            (out/f'{name}-correctness.json').write_text(json.dumps(rows,indent=2))
           samples={k:[] for k in bins}
           orders=[['mathgraph_pgo','sokonanoda_pgo'],['sokonanoda_pgo','mathgraph_pgo']]*3
           for order in orders:
@@ -113,11 +114,11 @@ jobs:
               samples[name].append(time.perf_counter()-t)
           med={k:statistics.median(v) for k,v in samples.items()}
           summary={'correctness':corr,'samples_seconds':samples,'median_seconds':med,'relative_speed_soko_over_mathgraph':med['mathgraph_pgo']/med['sokonanoda_pgo']}
-          Path('results/summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
           PY
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: lean-kernel-arena-fast-lineage
-          path: results/
+          path: results/fast-lineage/
