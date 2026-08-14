@@ -1,6 +1,6 @@
 # LOGOS Alphabet / Grammar State
 
-_Last updated: 2026-08-14 NZST — through V81_
+_Last updated: 2026-08-14 NZST — through V85_
 
 This is the canonical compact state for the alphabet / grammar / organ-discovery programme. Primary result payloads live under `results/attested/`. `results/ATTESTATION_LEDGER.md` remains the authority for global headline claims.
 
@@ -11,7 +11,8 @@ The evidence no longer favors ten peer atoms. The best current decomposition is:
 1. **semantic / epistemic transforms** — currently supported candidates include `PROBE`, `RELATE`, `DISTINGUISH`, `GENERATE`, `TRANSDUCE`, `CONSTRAIN`, `SELECT`, `COMPOSE`, `RETAIN`;
 2. **typed composition grammar** — causal ordering laws such as `CONSTRAIN -> SELECT`, `TRANSDUCE -> CONSTRAIN`, `COMPOSE -> RETAIN`;
 3. **higher-order control combinators** — `RECURSE` currently fits generic fixed-point / reapplication control better than a peer semantic atom;
-4. **macros / organs** — repeated programs become organs only after matched-budget causal benefit, transfer, scope and ablation.
+4. **constructors / representation language** — natural-world V83–V85 now show that the language for constructing candidate transformations is itself a bottleneck and cannot be treated as fixed background machinery;
+5. **macros / organs** — repeated programs become organs only after matched-budget causal benefit, transfer, scope and ablation.
 
 This is a working developmental ontology, not a claim of a universal final cognitive basis.
 
@@ -95,28 +96,56 @@ Branch `v81-probe-program-synthesis`; run `31777426878`; head `fe25611b87f6896ca
 
 Primary result: `results/attested/V81_PROBE_PROGRAM_SYNTHESIS_RESULT.json`.
 
-V81 removes the high-level PROBE/SAMPLE_INTERFACE candidate. It exhaustively searches 36 programs over a generic typed I/O/dataflow substrate:
-
-- query selectors: `FIRST`, `LAST`, `MIDDLE`, `MAX_PARTITION`;
-- value sources: `OPAQUE_PORT`, `CANDIDATE_ZERO`, `CONSTANT_ZERO`;
-- sinks: `RECORD_EVIDENCE`, `WRITE_DATA`, `DISCARD`.
-
-After quotienting query-coordinate choice into a parameter, the unique best schema is:
-
-`SELECT_QUERY -> OPAQUE_PORT -> RECORD_EVIDENCE`.
-
-Results:
+V81 removes the high-level PROBE/SAMPLE_INTERFACE candidate. It exhaustively searches 36 programs over a generic typed I/O/dataflow substrate. After quotienting query-coordinate choice into a parameter, the unique best schema is `SELECT_QUERY -> OPAQUE_PORT -> RECORD_EVIDENCE`.
 
 - training: 16/16 source-distinct numeric targets;
 - held-out mpmath: 6/6;
 - cross-type transfer to Python string transformations: 5/5;
-- source ablation (`CANDIDATE_ZERO` instead of external port): 1/6;
-- evidence-recording ablation (`DISCARD`): 0/6;
+- source ablation: 1/6;
+- evidence-recording ablation: 0/6;
 - semantic mapping shuffle: 0/6;
-- all frozen gates pass;
 - verdict `PASS_EPISTEMIC_PROGRAM_SYNTHESIS_V81`.
 
-Qualification: V81 **synthesizes the reusable epistemic program rather than selecting a high-level PROBE candidate**, but the low-level substrate necessarily supplies generic external I/O (`OPAQUE_PORT`) and dataflow operations. The supported claim is cognitive/operator construction over a supplied generic interaction substrate, not invention of new physical sensing/action channels.
+Qualification: V81 synthesizes the reusable epistemic program over a supplied generic interaction substrate; it does not invent new physical sensing/action channels.
+
+## V83 — Natural IVAG census
+
+Primary result: `results/attested/V83_NATURAL_IVAG_RESULT.json`; run `31779917767`; artifact `9211349228`; SHA-256 `a960ee85b4dacdb5c3a6780c1ef8761f57c3932e09e763096848186f5d2c3abe`.
+
+- pre-existing frozen QuixBugs corpus;
+- two independent curricula retain `<= -> <` and `< -> <=` under the one-token constructor;
+- held-out frontier remains `0 -> 0 -> 0` in both curricula;
+- three-generation developmental causality is false by construction because every token-pair schema is available from the start;
+- later V84 shows the `quicksort` `< -> <=` choice tied at equal minimum description length with `> -> >=`, so syntactic convergence must not be treated as quotient convergence;
+- verdict `MIXED_NATURAL_IVAG_V83`.
+
+Interpretation: recurrent minimal repair is not sufficient evidence for a developmentally valuable primitive.
+
+## V84 — Natural observational capability lattice
+
+Run `31782263023`; artifact `9212227436`; SHA-256 `96a1be28ae8cefd478f6935c2f8461dbbc8d8209557e58472706468e20481969`.
+
+Across 37 initially failing QuixBugs programs, the full frozen 26-schema one-token constructor reaches only two programs. The only nonempty extensional classes are:
+
+- `{<= -> <}` solving only `find_first_in_sorted`;
+- `{< -> <=, > -> >=}` solving only `quicksort`.
+
+There is no nontrivial inclusion/Hasse structure among those classes and no recurring schema solving multiple distinct natural tasks.
+
+Interpretation: under K0 the natural observational lattice is too impoverished to support claims about a broad primitive basis. Extensional quotienting is mandatory; syntax is not identity.
+
+## V85 — Natural constructor genesis from verifier support
+
+Primary result: `results/attested/V85_NATURAL_CONSTRUCTOR_GENESIS_RESULT.json`; run `31782743901`; artifact `9212772996`; SHA-256 `8d2aa8bacc9903520c6b1083fde4557e2fba5f9e1ec91ad21e7e183c3c1f808d`.
+
+- 11 supplied generic AST mutation families;
+- correct QuixBugs implementations never read;
+- frozen training support is zero for ten families and one task for `CALL_ARG_SWAP`, below the support threshold of two;
+- therefore no K1 family is admitted;
+- held-out closure does not expand;
+- verdict `MIXED_NATURAL_CONSTRUCTOR_GENESIS_V85`.
+
+Interpretation: the guessed AST family vocabulary is not yet an empirically supported constructor language. The next bridge must induce candidate construction structure from external successful experience rather than hand-naming more families.
 
 ## Current strongest bounded chain
 
@@ -126,14 +155,21 @@ Qualification: V81 **synthesizes the reusable epistemic program rather than sele
 `-> retained epistemic operation makes a later standalone capability constructible`
 `-> ancestor ablation removes later constructibility`.
 
-This is materially stronger than the original historical 9 -> 10 narrative, but it remains a bounded bridge to the crown-jewel experiment.
+Natural QuixBugs then supplies the complementary negative:
+
+`natural failure`
+`-> tiny one-token repair closure`
+`-> impoverished observational lattice`
+`-> guessed AST constructor families fail to gain training support`
+`-> constructor / representation language becomes the active frontier`.
 
 ## What remains open
 
-1. **Natural heterogeneous pressure:** pre-existing tasks, not black-box-identification worlds designed around epistemic uncertainty, must force the same new evidence-producing program.
-2. **Natural O1 -> O2 -> O3 lineage:** downstream discoverability must compound across independently authored heterogeneous tasks, with ancestor ablations moving the frontier backward.
-3. **Broader external alphabet audit:** determine which other historical labels survive causal external testing as semantic primitives and which move into grammar, types, lifecycle or organs.
-4. **Verified organ formation:** promote recurrent causal programs only when callable unit status gives matched-budget benefit, source-distinct transfer, scope and ablation.
-5. **Constructor development:** eventually show the constructor language itself grows, not only objects constructed inside a frozen meta-substrate.
+1. **Constructor-language induction:** determine whether successful independently authored repairs contain a transferable compact construction grammar.
+2. **Verifier-only constructor reconstruction:** if such a grammar exists, reconstruct it without reading human fixes on the discovery stream.
+3. **Natural O1 -> O2 -> O3 lineage:** downstream discoverability must compound across independently authored heterogeneous tasks, with ancestor ablations moving the frontier backward.
+4. **Broader external alphabet audit:** determine which historical labels survive causal external testing as semantic primitives and which move into grammar, types, lifecycle or organs.
+5. **Verified organ formation:** promote recurrent causal programs only when callable unit status gives matched-budget benefit, source-distinct transfer, scope and ablation.
+6. **Coupled lattice growth:** ultimately track both constructor closure `Expressible(K_t)` and capability closure `Cl(A_t)` because primitive status is relative to K.
 
-The target is therefore not to protect ten words. It is to recover and revise the smallest typed instruction set, composition grammar and higher-order components that external verification keeps forcing the system to retain.
+The target is not to protect ten words. It is to recover and revise the smallest typed instruction set, composition grammar, constructor language and higher-order components that external verification keeps forcing the system to retain.
