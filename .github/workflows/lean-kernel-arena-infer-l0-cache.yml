@@ -31,15 +31,8 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           p=Path('direct/src/eval.rs'); s=p.read_text()
-          old="""        let rec_rule = rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?;"""
-          new="""        let rec_rule = if let Some(cd) = self.env.get_constructor(&ctor_name) {
-            match rec.rec_rules.get(usize::from(cd.ctor_idx)).copied() {
-                Some(r) if r.ctor_name == ctor_name => r,
-                _ => rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?,
-            }
-        } else {
-            rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?
-        };"""
+          old="        let rec_rule = rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?;"
+          new="        let rec_rule = if let Some(cd) = self.env.get_constructor(&ctor_name) {\n            match rec.rec_rules.get(usize::from(cd.ctor_idx)).copied() {\n                Some(r) if r.ctor_name == ctor_name => r,\n                _ => rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?,\n            }\n        } else {\n            rec.rec_rules.iter().find(|r| r.ctor_name == ctor_name).copied()?\n        };"
           assert old in s
           p.write_text(s.replace(old,new,1))
           PY
