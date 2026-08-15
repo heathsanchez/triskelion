@@ -1,0 +1,171 @@
+name: CP3 protected four-arm v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cp3-canonical-demo-20260815
+    paths:
+      - cp3/run_protected_four_arm_v1.py
+      - .github/workflows/cp3-protected-four-arm-v1.yml
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: cp3-protected-four-arm-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    name: protected-${{ matrix.slug }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - case: thefuck/32
+            slug: thefuck-32
+          - case: keras/32
+            slug: keras-32
+          - case: spacy/2
+            slug: spacy-2
+          - case: fastapi/5
+            slug: fastapi-5
+          - case: black/18
+            slug: black-18
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+    steps:
+      - name: Checkout frozen evaluator branch
+        uses: actions/checkout@v4
+
+      - name: Download final acquisition capability freeze
+        uses: actions/download-artifact@v4
+        with:
+          name: cp3-acquisition-capability-final-v5
+          path: frozen
+          repository: heathsanchez/triskelion
+          run-id: 31881660390
+          github-token: ${{ github.token }}
+
+      - name: Checkout exact sealed CP1 runtime source
+        uses: actions/checkout@v4
+        with:
+          ref: private/verified-capability-runtime-cp1
+          path: cp1source
+
+      - name: Recompute sealed runtime source hash
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cp1runtime runtime_provenance
+          unzip -q cp1source/private_runtime/TRISKELION_VERIFIED_CAPABILITY_RUNTIME_CHECKPOINT_1_READY.zip -d cp1runtime
+          find cp1runtime/triskelion -maxdepth 1 -type f -name '*.py' -print0 \
+            | sort -z | xargs -0 sha256sum > runtime_provenance/RUNTIME_SOURCE_SHA256SUMS.txt
+          sha256sum runtime_provenance/RUNTIME_SOURCE_SHA256SUMS.txt | awk '{print $1}' \
+            > runtime_provenance/RUNTIME_SOURCE_SHA256.txt
+          test "$(cat runtime_provenance/RUNTIME_SOURCE_SHA256.txt)" = "aef1cd1f5b6ba27ba8f869909e49eb059e3128504aaca012a43a6e01a1e6daef"
+          test "$(sha256sum frozen/acquisition/CAPABILITY_PAYLOAD.json | awk '{print $1}')" = "b59ec323ef03138319c0ae440586ab0d9bf19ff46a054826d9b82b11d9ddd5d7"
+
+      - name: Set up Python provider client
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install River client
+        run: python -m pip install river-client
+
+      - name: Execute exactly four frozen arms
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cp3_results
+          python cp3/run_protected_four_arm_v1.py \
+            --case '${{ matrix.case }}' \
+            --capability frozen/acquisition/CAPABILITY_PAYLOAD.json \
+            --runtime-sha-file runtime_provenance/RUNTIME_SOURCE_SHA256.txt \
+            --out 'cp3_results/${{ matrix.slug }}'
+
+      - name: Upload protected case evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-protected-${{ matrix.slug }}-v1
+          path: cp3_results/${{ matrix.slug }}/
+          retention-days: 90
+          if-no-files-found: error
+
+  aggregate:
+    name: aggregate-protected-four-arm-v1
+    needs: evaluate
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout frozen evaluator branch
+        uses: actions/checkout@v4
+
+      - name: Download all five protected evidence artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cp3-protected-*-v1
+          path: downloaded
+
+      - name: Aggregate without post-hoc gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p aggregate
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cases=['thefuck/32','keras/32','spacy/2','fastapi/5','black/18']
+          arms=['COLD','RAW_MEMORY','ALWAYS_ON','VERIFIED']
+          rows=[]
+          summaries=[]
+          for summary_path in sorted(Path('downloaded').rglob('SUMMARY.json')):
+              x=json.loads(summary_path.read_text())
+              summaries.append(x)
+              root=summary_path.parent
+              for arm in arms:
+                  p=root/f'{arm}.json'
+                  if p.exists(): rows.append(json.loads(p.read_text()))
+          counts={arm:sum(r.get('arm')==arm and r.get('terminal_status')=='PASS' for r in rows) for arm in arms}
+          total_scored={arm:sum(r.get('arm')==arm for r in rows) for arm in arms}
+          infra=[s for s in summaries if s.get('status')=='INFRASTRUCTURE_FAILURE']
+          verified=[r for r in rows if r.get('arm')=='VERIFIED']
+          activation={
+              'activated_cells':sum(bool(r.get('activation',{}).get('activated')) for r in verified),
+              'nonactivated_cells':sum(not bool(r.get('activation',{}).get('activated')) for r in verified),
+              'details':[{'case':r.get('case'),'activated':r.get('activation',{}).get('activated'),'matched':r.get('activation',{}).get('matched',[])} for r in verified],
+          }
+          result={
+              'canonical_id':'TRISKELION_CP3_PROTECTED_FOUR_ARM_RESULT_V1',
+              'protocol':'TRISKELION_CP3_FOUR_ARM_V1',
+              'protected_cases':cases,
+              'arms':arms,
+              'pass_counts':counts,
+              'scored_counts':total_scored,
+              'primary_comparison':{'always_on_passes':counts['ALWAYS_ON'],'verified_passes':counts['VERIFIED']},
+              'descriptive_controls':{'cold_passes':counts['COLD'],'raw_memory_passes':counts['RAW_MEMORY']},
+              'activation':activation,
+              'infrastructure_failures':infra,
+              'case_summaries':summaries,
+              'posthoc_success_gate':None,
+              'capability_sha256':'b59ec323ef03138319c0ae440586ab0d9bf19ff46a054826d9b82b11d9ddd5d7',
+              'runtime_source_sha256':'aef1cd1f5b6ba27ba8f869909e49eb059e3128504aaca012a43a6e01a1e6daef',
+          }
+          Path('aggregate/CP3_PROTECTED_FOUR_ARM_RESULT_V1.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+
+      - name: Upload aggregate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-protected-four-arm-aggregate-v1
+          path: aggregate/CP3_PROTECTED_FOUR_ARM_RESULT_V1.json
+          retention-days: 90
+          if-no-files-found: error
