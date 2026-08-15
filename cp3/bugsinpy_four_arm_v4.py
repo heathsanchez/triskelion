@@ -34,10 +34,24 @@ def _image_for(work: Path) -> tuple[str, str]:
     return version, image
 
 
+def _ensure_tools(work: Path) -> Path:
+    tools = work / ".cp3_tools"
+    tools.mkdir(exist_ok=True)
+    dos2unix = tools / "dos2unix"
+    dos2unix.write_text(
+        "#!/bin/sh\n"
+        "if [ \"${1:-}\" = \"--version\" ]; then echo 'dos2unix CP3 deterministic shim 1'; exit 0; fi\n"
+        "for f in \"$@\"; do sed -i 's/\\r$//' \"$f\" || exit $?; done\n"
+    )
+    dos2unix.chmod(0o755)
+    return tools
+
+
 def _docker_shell(bugsinpy: Path, work: Path, image: str, script: str, timeout: int):
     # The model/provider remains on the host. Only the native verifier executes
     # inside the exact historical interpreter image. Run as the host uid/gid so
     # temporary checkout artifacts remain removable by the host controller.
+    tools = _ensure_tools(work)
     cmd = [
         "docker", "run", "--rm",
         "--user", f"{os.getuid()}:{os.getgid()}",
@@ -48,7 +62,7 @@ def _docker_shell(bugsinpy: Path, work: Path, image: str, script: str, timeout: 
         "-w", "/work",
         image,
         "bash", "-lc",
-        "export PATH=/bugsinpy/framework/bin:$PATH; " + script,
+        "export PATH=/work/.cp3_tools:/bugsinpy/framework/bin:$PATH; " + script,
     ]
     return base.run(cmd, timeout=timeout)
 
