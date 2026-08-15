@@ -87,8 +87,6 @@ def _score_file(path: Path, work: Path, token_counts: Counter[str], traced: set[
     low = text.lower()
     rel = str(path.relative_to(work))
     score = 10_000 if path.resolve() in traced else 0
-    # Production code is preferred over tests, while tests can still be selected
-    # when they are the only repository frame available.
     rel_low = rel.lower()
     if "/test" in "/" + rel_low or rel_low.startswith("test"):
         score -= 150
@@ -107,6 +105,13 @@ def _score_file(path: Path, work: Path, token_counts: Counter[str], traced: set[
 
 
 def _focused_excerpt(path: Path, tokens: list[str], max_chars: int = 6500) -> str:
+    """Return exact source substrings only; never decorate lines.
+
+    Structured-edit transport requires the model's `old` field to be an exact
+    substring of the repository file. Display-only line-number prefixes would
+    corrupt that contract, so long-file windows preserve source bytes/text as
+    presented, apart from joining disjoint windows with a sentinel between them.
+    """
     text = path.read_text(encoding="utf-8", errors="replace")
     if len(text) <= max_chars:
         return text
@@ -131,14 +136,14 @@ def _focused_excerpt(path: Path, tokens: list[str], max_chars: int = 6500) -> st
     chunks: list[str] = []
     remaining = max_chars
     for start, end in ranges:
-        numbered = "\n".join(f"{j+1:05d}: {lines[j]}" for j in range(start, end))
-        if len(numbered) > remaining:
-            numbered = numbered[:remaining]
-        chunks.append(numbered)
-        remaining -= len(numbered)
+        exact = "\n".join(lines[start:end])
+        if len(exact) > remaining:
+            exact = exact[:remaining]
+        chunks.append(exact)
+        remaining -= len(exact)
         if remaining <= 0:
             break
-    return "\n...\n".join(chunks)
+    return "\n# ... CP3 CONTEXT WINDOW GAP ...\n".join(chunks)
 
 
 def collect_context(work: Path, baseline_output: str, *, max_files: int = 6, max_chars: int = 36000) -> tuple[str, list[str]]:
@@ -156,7 +161,6 @@ def collect_context(work: Path, baseline_output: str, *, max_files: int = 6, max
     ranked.reverse()
 
     chosen: list[Path] = []
-    # Keep repository traceback frames first, then semantic identifier matches.
     for p in traced_paths:
         if p not in chosen:
             chosen.append(p)
