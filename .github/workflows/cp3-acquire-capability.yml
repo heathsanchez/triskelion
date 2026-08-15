@@ -1,6 +1,6 @@
 name: CP3 acquisition-only capability freeze
 
-# v9: exact historical verifier + source-aware structured edits + Qwen3.5 chat-template provider boundary.
+# v10: exact verifier + source-aware edits + Qwen3.5 chat template + syntax-only JSON closure recovery.
 on:
   push:
     branches: [cp3-recovery-20260815]
@@ -76,7 +76,7 @@ jobs:
         run: |
           export PATH="$PWD/BugsInPy/framework/bin:$PATH"
           rm -rf cp3_out/acquisition
-          python -B cp3/acquire_bugsinpy_capability_v7.py \
+          python -B cp3/acquire_bugsinpy_capability_v8.py \
             --bugsinpy "$PWD/BugsInPy" \
             --known "$PWD/cp3/KNOWN_QUALIFIED.json" \
             --out "$PWD/cp3_out/acquisition"
