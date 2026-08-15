@@ -1,0 +1,38 @@
+{
+  "canonical_id": "TRISKELION_CP3_PROTECTED_MATRIX_V1",
+  "cases": ["thefuck/32", "keras/32", "spacy/2", "fastapi/5", "black/18"],
+  "arms": ["COLD", "RAW MEMORY", "ALWAYS-ON", "VERIFIED"],
+  "cell_count": 20,
+  "model": "Qwen3.5-9B",
+  "temperature": 0,
+  "max_calls_per_cell": 2,
+  "max_tokens_per_call": 2048,
+  "evaluation_repetitions_per_cell": 1,
+  "shared_mutable_state_between_cells": false,
+  "post_hoc_exclusions": false,
+  "post_hoc_tuning": false,
+  "record_per_cell": [
+    "case",
+    "arm",
+    "seed",
+    "input_hash",
+    "model_output_hash",
+    "candidate_patch_hash",
+    "capability_available",
+    "capability_invoked",
+    "activation_reason",
+    "verifier_decision",
+    "native_test_result",
+    "local_regression_result",
+    "calls_used",
+    "tokens_used",
+    "elapsed_seconds",
+    "infrastructure_status"
+  ],
+  "primary_contrasts": {
+    "COLD_vs_RAW_MEMORY": "passive experience or memory effect",
+    "RAW_MEMORY_vs_ALWAYS_ON": "extracted executable capability effect",
+    "ALWAYS_ON_vs_VERIFIED": "applicability and verifier-gated activation effect"
+  },
+  "strong_result_pattern": "ALWAYS-ON gains capability-related success but incurs inappropriate activations, while VERIFIED preserves competence and reduces false or harmful activation."
+}
