@@ -1,0 +1,1 @@
+Fixed project/candidate order. Fixed-pass + buggy-fail admission. Infrastructure negatives recorded. No semantic skipping. No protected tuning.
