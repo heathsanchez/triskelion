@@ -1,0 +1,25 @@
+name: V110 Historical Quotient Repair
+on:
+  push:
+    paths:
+      - 'protocols/V110_HISTORICAL_QUOTIENT_REPAIR_PRECOMMIT.md'
+      - 'experiments/V110_HISTORICAL_QUOTIENT_REPAIR.py'
+      - '.github/workflows/v110-historical-quotient-repair.yml'
+  workflow_dispatch:
+jobs:
+  v110:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+      - name: Run blind historical comparator repair search
+        run: python experiments/V110_HISTORICAL_QUOTIENT_REPAIR.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v110-historical-quotient-repair
+          path: artifacts/v110_historical_quotient_repair/
