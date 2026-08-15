@@ -1,0 +1,14 @@
+{
+  "arms": ["COLD", "RAW MEMORY", "ALWAYS-ON", "VERIFIED"],
+  "model": "Qwen3.5-9B",
+  "temperature": 0,
+  "identical_seeds": true,
+  "identical_budgets": true,
+  "max_calls_per_case_arm": 2,
+  "max_tokens_per_call": 2048,
+  "protected_evaluations_per_case_arm": 1,
+  "post_hoc_exclusions": false,
+  "post_hoc_tuning": false,
+  "primary_causal_comparison": "ALWAYS-ON_vs_VERIFIED",
+  "required_activation_accounting": true
+}
