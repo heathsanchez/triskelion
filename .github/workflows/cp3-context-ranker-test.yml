@@ -1,0 +1,21 @@
+name: CP3 source-context ranker tests
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-context-ranker-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run source-context ranker tests
+        run: |
+          cd cp3
+          python -B -m unittest -v test_source_context_ranker.py
