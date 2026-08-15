@@ -1,0 +1,23 @@
+name: V105 GF4 Capability Lattice
+on:
+  push:
+    paths:
+      - 'protocols/V105_GF4_CAPABILITY_LATTICE_PRECOMMIT.md'
+      - 'experiments/V105_GF4_CAPABILITY_LATTICE.py'
+      - '.github/workflows/v105-gf4-capability-lattice.yml'
+  workflow_dispatch:
+jobs:
+  v105:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python experiments/V105_GF4_CAPABILITY_LATTICE.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v105-gf4-capability-lattice
+          path: artifacts/v105_gf4_lattice/
