@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://triskelion.local/schemas/developmental_run_record_v1.schema.json",
+  "title": "Triskelion Developmental Run Record V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "checkpoint",
+    "experiment_id",
+    "timestamp_utc",
+    "state",
+    "case_identity",
+    "harness_manifest",
+    "arm_identity",
+    "apparatus_checks",
+    "verifier_evidence",
+    "replay_provenance",
+    "verdict"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "checkpoint": {"enum": ["CP3", "CP4", "CP5", "CP5_R", "CP6"]},
+    "timestamp_utc": {"type": "string", "format": "date-time"},
+    "state": {
+      "enum": ["PROPOSED", "PRECOMMITTED", "APPARATUS_VALID", "EXECUTED", "VERDICT", "REPLAYED"]
+    },
+    "supersedes_run_id": {"type": ["string", "null"]},
+    "supersession_reason": {"type": ["string", "null"]},
+    "case_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "repository", "case_id", "case_commit", "split"],
+      "properties": {
+        "domain": {"type": "string"},
+        "repository": {"type": "string"},
+        "case_id": {"type": "string"},
+        "case_commit": {"type": "string"},
+        "split": {"enum": ["acquisition", "protected", "transfer", "counterexample", "replay", "other"]},
+        "source_separation_class": {"type": ["string", "null"]}
+      }
+    },
+    "harness_manifest": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["runner_commit", "runtime", "verifier_command", "environment_fingerprint"],
+      "properties": {
+        "runner_commit": {"type": "string"},
+        "runtime": {"type": "string"},
+        "verifier_command": {"type": "string"},
+        "environment_fingerprint": {"type": "string"},
+        "dependency_manifest_sha256": {"type": ["string", "null"]},
+        "container_image_digest": {"type": ["string", "null"]},
+        "seed": {"type": ["integer", "string", "null"]},
+        "model_id": {"type": ["string", "null"]},
+        "model_config_sha256": {"type": ["string", "null"]}
+      }
+    },
+    "arm_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["arm_name", "intervention_enabled", "ablation", "information_boundary"],
+      "properties": {
+        "arm_name": {"type": "string"},
+        "intervention_enabled": {"type": "boolean"},
+        "operator_ids": {"type": "array", "items": {"type": "string"}},
+        "operator_hashes": {"type": "array", "items": {"type": "string"}},
+        "law_ids": {"type": "array", "items": {"type": "string"}},
+        "ablation": {"type": "string"},
+        "information_boundary": {"type": "string"}
+      }
+    },
+    "apparatus_checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expected_case_commit_checked_out",
+        "historical_runtime_launched",
+        "buggy_baseline_reproduced",
+        "native_verifier_executed",
+        "arm_information_boundary_respected",
+        "operator_identity_matches",
+        "ablation_state_confirmed",
+        "complete_run_record_present"
+      ],
+      "properties": {
+        "expected_case_commit_checked_out": {"type": "boolean"},
+        "historical_runtime_launched": {"type": "boolean"},
+        "buggy_baseline_reproduced": {"type": "boolean"},
+        "qualifying_reference_reproduced": {"type": ["boolean", "null"]},
+        "native_verifier_executed": {"type": "boolean"},
+        "arm_information_boundary_respected": {"type": "boolean"},
+        "operator_identity_matches": {"type": "boolean"},
+        "ablation_state_confirmed": {"type": "boolean"},
+        "complete_run_record_present": {"type": "boolean"}
+      }
+    },
+    "cost": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "primary_metric": {"type": "string"},
+        "primary_value": {"type": "number"},
+        "model_calls": {"type": ["integer", "null"], "minimum": 0},
+        "verifier_calls": {"type": ["integer", "null"], "minimum": 0},
+        "candidate_count": {"type": ["integer", "null"], "minimum": 0},
+        "tokens": {"type": ["integer", "null"], "minimum": 0},
+        "wall_time_seconds": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "verifier_evidence": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["executed", "semantic_result"],
+      "properties": {
+        "executed": {"type": "boolean"},
+        "semantic_result": {"enum": ["PASS", "FAIL", "NOT_DECIDED"]},
+        "exit_code": {"type": ["integer", "null"]},
+        "stdout_sha256": {"type": ["string", "null"]},
+        "stderr_sha256": {"type": ["string", "null"]},
+        "artifact_ids": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "replay_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["replay_status", "manifest_sha256"],
+      "properties": {
+        "replay_status": {"enum": ["NOT_RUN", "PASS", "FAIL", "INFRASTRUCTURE_NULL"]},
+        "manifest_sha256": {"type": "string"},
+        "replay_run_id": {"type": ["string", "null"]}
+      }
+    },
+    "verdict": {
+      "enum": [
+        "ADMITTED",
+        "REJECTED",
+        "NO_TRANSFER",
+        "NON_CAUSAL_GAIN",
+        "INFRASTRUCTURE_NULL",
+        "INCONCLUSIVE",
+        "OBSTRUCTED"
+      ]
+    },
+    "primary_residual": {
+      "enum": ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", null]
+    },
+    "retained_state_change": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+    "notes": {"type": ["string", "null"]}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "apparatus_checks": {
+            "anyOf": [
+              {"properties": {"expected_case_commit_checked_out": {"const": false}}},
+              {"properties": {"historical_runtime_launched": {"const": false}}},
+              {"properties": {"buggy_baseline_reproduced": {"const": false}}},
+              {"properties": {"native_verifier_executed": {"const": false}}},
+              {"properties": {"arm_information_boundary_respected": {"const": false}}},
+              {"properties": {"operator_identity_matches": {"const": false}}},
+              {"properties": {"ablation_state_confirmed": {"const": false}}},
+              {"properties": {"complete_run_record_present": {"const": false}}}
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "verdict": {"const": "INFRASTRUCTURE_NULL"},
+          "primary_residual": {"const": "R10"}
+        }
+      }
+    }
+  ]
+}
