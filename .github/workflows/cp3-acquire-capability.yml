@@ -37,21 +37,24 @@ jobs:
       - name: Clone current official BugsInPy
         run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
 
-      - name: Build official BugsInPy environment
-        run: docker build -t cp3-bugsinpy BugsInPy
+      - name: Verify exact historical CPython images
+        run: |
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+          docker run --rm 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5' python --version
+          docker run --rm 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e' python --version
+
+      - name: Install acquisition provider
+        run: python -m pip install --quiet river-client
 
       - name: Acquire and freeze capability from acquisition cases only
         run: |
-          mkdir -p cp3_out
+          export PATH="$PWD/BugsInPy/framework/bin:$PATH"
           rm -rf cp3_out/acquisition
-          docker run --rm \
-            -e RIVER_API_KEY \
-            -e PYTHONDONTWRITEBYTECODE=1 \
-            -v "$PWD:/work/triskelion" \
-            -v "$PWD/BugsInPy:/work/BugsInPy" \
-            -w /work/triskelion/cp3 \
-            cp3-bugsinpy \
-            bash -lc 'python -m pip install --quiet river-client && python -B acquire_bugsinpy_capability_v3.py --bugsinpy /work/BugsInPy --known /work/triskelion/cp3/KNOWN_QUALIFIED.json --out /work/triskelion/cp3_out/acquisition'
+          python -B cp3/acquire_bugsinpy_capability_v4.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --known "$PWD/cp3/KNOWN_QUALIFIED.json" \
+            --out "$PWD/cp3_out/acquisition"
 
       - name: Verify frozen artifact has no protected lineage
         if: always()
