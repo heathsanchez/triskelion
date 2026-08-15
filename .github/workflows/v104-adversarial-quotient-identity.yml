@@ -1,0 +1,26 @@
+name: V104 Adversarial Quotient Identity
+on:
+  push:
+    paths:
+      - 'protocols/V104_ADVERSARIAL_QUOTIENT_IDENTITY_PRECOMMIT.md'
+      - 'experiments/V104_ADVERSARIAL_QUOTIENT_IDENTITY.py'
+      - '.github/workflows/v104-adversarial-quotient-identity.yml'
+  workflow_dispatch:
+
+jobs:
+  v104:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen adversarial quotient-identity test
+        run: python experiments/V104_ADVERSARIAL_QUOTIENT_IDENTITY.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v104-adversarial-quotient-identity
+          path: artifacts/v104_quotient_identity/
