@@ -1,0 +1,63 @@
+name: CP3 runtime source inventory
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-runtime-inventory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout recovery branch
+        uses: actions/checkout@v4
+      - name: Checkout sealed CP1 runtime source branch
+        uses: actions/checkout@v4
+        with:
+          ref: private/verified-capability-runtime-cp1
+          path: cp1source
+      - name: Unpack sealed runtime and inventory entry points
+        run: |
+          mkdir -p cp1runtime cp3_inventory
+          unzip -q cp1source/private_runtime/TRISKELION_VERIFIED_CAPABILITY_RUNTIME_CHECKPOINT_1_READY.zip -d cp1runtime
+          find cp1runtime -type f | sort > cp3_inventory/files.txt
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
+          root=Path('cp1runtime')
+          rows=[]
+          for p in sorted(root.rglob('*')):
+            if not p.is_file(): continue
+            rel=str(p.relative_to(root))
+            if p.suffix.lower() not in {'.py','.json','.md','.txt','.yml','.yaml','.toml'}: continue
+            try: text=p.read_text(encoding='utf-8',errors='replace')
+            except Exception: continue
+            rows.append({
+              'path':rel,
+              'size':p.stat().st_size,
+              'mentions':{
+                'river': bool(re.search(r'\briver\b',text,re.I)),
+                'capability': bool(re.search(r'capabilit',text,re.I)),
+                'verified': bool(re.search(r'verif',text,re.I)),
+                'qwen': bool(re.search(r'qwen',text,re.I)),
+                'cold': bool(re.search(r'\bcold\b',text,re.I)),
+                'raw': bool(re.search(r'raw memory|raw_memory|\braw\b',text,re.I)),
+                'always_on': bool(re.search(r'always.?on',text,re.I)),
+                'registry': bool(re.search(r'registr',text,re.I)),
+              }
+            })
+          Path('cp3_inventory/inventory.json').write_text(json.dumps(rows,indent=2,sort_keys=True)+'\n')
+          for r in rows:
+            if any(r['mentions'].values()): print(r)
+          PY
+      - name: Upload runtime inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-runtime-inventory
+          path: cp3_inventory/
+          retention-days: 90
