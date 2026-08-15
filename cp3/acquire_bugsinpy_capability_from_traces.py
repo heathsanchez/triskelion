@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -96,27 +97,50 @@ def acquire_case(provider, bugsinpy: Path, project: str, bug_id: int, case_index
         }
 
 
-def _scope_properties(scope: dict[str, Any]) -> tuple[set[str], bool]:
-    fields: set[str] = set()
-    has_source_contains = False
-    def walk(node: Any) -> None:
-        nonlocal has_source_contains
-        if not isinstance(node, dict):
-            return
-        for key in ("all", "any"):
-            if key in node and isinstance(node[key], list):
-                for child in node[key]:
-                    walk(child)
-                return
-        if "not" in node:
-            walk(node["not"]); return
-        field = node.get("field")
-        if isinstance(field, str):
-            fields.add(field)
-            if field == "source" and "contains" in node:
-                has_source_contains = True
-    walk(scope)
-    return fields, has_source_contains
+def _added_lines(diff: str) -> list[str]:
+    return [
+        line[1:] for line in diff.splitlines()
+        if line.startswith("+") and not line.startswith("+++")
+    ]
+
+
+def _api_prefixes(diff: str) -> set[str]:
+    text = "\n".join(_added_lines(diff))
+    return set(re.findall(r"\b([A-Za-z_][A-Za-z0-9_]*)\.[A-Za-z_][A-Za-z0-9_]*\b", text))
+
+
+def induce_scope(episodes: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Induce applicability from acquisition evidence only, with no model choice.
+
+    Rule frozen here before protected exposure:
+    1. Extract API/module prefixes used in ADDED lines of each verified intervention.
+    2. Intersect across all acquisition episodes.
+    3. Remove generic pseudo-prefixes that cannot identify a mechanism.
+    4. Select the lexicographically first remaining shared prefix.
+    5. Scope is exactly `source contains <prefix>.`.
+
+    This intentionally does not inspect protected source or outcomes and does not
+    use project/task identities. For the current acquisition traces the derived
+    shared prefix is expected to be `re`, reflecting regex-based boundary parsing.
+    """
+    if not episodes:
+        raise ValueError("cannot induce scope without acquisition episodes")
+    per_episode = [_api_prefixes(e["successful_diff"]) for e in episodes]
+    shared = set.intersection(*per_episode) if per_episode else set()
+    shared -= {"self", "str", "dict", "list", "set", "tuple", "os", "sys"}
+    if not shared:
+        raise ValueError(f"no shared added-line API prefix across acquisition traces: {per_episode!r}")
+    chosen = sorted(shared)[0]
+    scope = {"field": "source", "contains": chosen + "."}
+    provenance = {
+        "method": "intersection_of_added_line_api_prefixes_v1",
+        "per_episode_api_prefixes": [sorted(x) for x in per_episode],
+        "shared_api_prefixes": sorted(shared),
+        "chosen_prefix": chosen,
+        "scope": scope,
+        "protected_information_used": False,
+    }
+    return scope, provenance
 
 
 def synthesize(provider, episodes: list[dict[str, Any]]) -> dict[str, Any]:
@@ -129,36 +153,31 @@ def synthesize(provider, episodes: list[dict[str, Any]]) -> dict[str, Any]:
             "failing_test_tail": e["baseline"].get("test_output", "")[-6000:],
             "successful_intervention": e["successful_diff"],
         })
+    scope, scope_provenance = induce_scope(episodes)
     prompt = (
         "Compress ONLY the two independently replayed, native-verified acquisition interventions below into one portable repair capability. "
-        "Return ONLY JSON with exactly these keys: name, instruction, preconditions, postconditions, applicability_test, scope. "
+        "Return ONLY JSON with exactly these five keys: name, instruction, preconditions, postconditions, applicability_test. "
         "The instruction must be a concise reusable repair policy, not either case-specific patch. "
-        "The scope MUST be a non-empty source-distinct applicability rule derived only from observable acquisition evidence. "
-        "Scope leaves may use ONLY fields `source` and `metadata.failure_class`; `metadata.project` and `task_id` are forbidden. "
-        "Scope must contain at least one leaf of the form {\"field\":\"source\",\"contains\":\"...\"}. "
-        "Combine leaves only with all/any/not. Do not name HTTPie, youtube-dl, acquisition case IDs, protected tasks, or any unseen project. "
-        "Choose lexical/semantic source indicators that reflect the shared repair mechanism, and keep the scope selective rather than universal. "
-        "Do not invent protected evidence.\n\nACQUISITION EVIDENCE:\n" + json.dumps(payload, indent=2, sort_keys=True)
+        "Do not name acquisition projects/case IDs, protected tasks, or any unseen project. "
+        "Do not invent protected evidence. Applicability scope is induced separately by a deterministic verifier-side rule and must NOT be proposed here.\n\n"
+        "ACQUISITION EVIDENCE:\n" + json.dumps(payload, indent=2, sort_keys=True)
     )
     response = provider.sample(prompt, seed=acquisition.SEED + 9000, max_tokens=acquisition.MAX_TOKENS)
     value = json_transport._json_object(response.text)
-    required = {"name", "instruction", "preconditions", "postconditions", "applicability_test", "scope"}
+    required = {"name", "instruction", "preconditions", "postconditions", "applicability_test"}
     if set(value) != required:
         raise ValueError(f"synthesis keys must be exactly {sorted(required)}; got {sorted(value)}")
-    acquisition.validate_scope(value["scope"])
-    fields, has_source_contains = _scope_properties(value["scope"])
-    if not fields or not fields.issubset({"source", "metadata.failure_class"}):
-        raise ValueError(f"scope uses forbidden fields: {sorted(fields)}")
-    if not has_source_contains:
-        raise ValueError("scope must contain at least one source-contains predicate")
-    lowered = json.dumps(value["scope"], sort_keys=True).lower()
+    serialized = json.dumps(value, sort_keys=True).lower()
     for forbidden in ("httpie", "youtube-dl", "youtube_dl", "httpie/5", "youtube-dl/32"):
-        if forbidden in lowered:
-            raise ValueError(f"scope contains acquisition identity {forbidden!r}")
+        if forbidden in serialized:
+            raise ValueError(f"capability synthesis contains acquisition identity {forbidden!r}")
+    value["scope"] = scope
+    acquisition.validate_scope(value["scope"])
     return {
         "manifest": value,
         "response": response.to_dict(),
         "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+        "scope_provenance": scope_provenance,
     }
 
 
