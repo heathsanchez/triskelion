@@ -1,0 +1,26 @@
+name: V114 Z4 Horizon Indexed Identity
+on:
+  push:
+    paths:
+      - 'protocols/V114_Z4_HORIZON_INDEXED_IDENTITY_PRECOMMIT.md'
+      - 'experiments/V114_Z4_HORIZON_INDEXED_IDENTITY.py'
+      - '.github/workflows/v114-z4-horizon-indexed-identity.yml'
+  workflow_dispatch:
+
+jobs:
+  v114:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run exact V114 horizon-indexed identity test
+        run: python experiments/V114_Z4_HORIZON_INDEXED_IDENTITY.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v114-z4-horizon-indexed-identity
+          path: artifacts/v114_z4_horizon_identity/
