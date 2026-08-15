@@ -1,0 +1,43 @@
+name: CP3 acquisition freeze schema diagnostic v4
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cp3-canonical-demo-20260815
+    paths:
+      - cp3/freeze_acquisition_capability_v4_diag.py
+      - .github/workflows/cp3-freeze-acquisition-v4-diag.yml
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+    steps:
+      - name: Checkout canonical demo branch
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install provider client
+        run: python -m pip install river-client
+      - name: Record acquisition response before validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cp3_freeze
+          python cp3/freeze_acquisition_capability_v4_diag.py cp3_freeze/acquisition
+      - name: Upload diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-acquisition-prevalidation-diagnostic-v4
+          path: cp3_freeze/
+          retention-days: 90
+          if-no-files-found: warn
