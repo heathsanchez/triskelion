@@ -51,7 +51,7 @@ jobs:
             -v "$PWD/BugsInPy:/work/BugsInPy" \
             -w /work/triskelion/cp3 \
             cp3-bugsinpy \
-            bash -lc 'python -m pip install --quiet river-client && python -B acquire_bugsinpy_capability_v2.py --bugsinpy /work/BugsInPy --known /work/triskelion/cp3/KNOWN_QUALIFIED.json --out /work/triskelion/cp3_out/acquisition'
+            bash -lc 'python -m pip install --quiet river-client && python -B acquire_bugsinpy_capability_v3.py --bugsinpy /work/BugsInPy --known /work/triskelion/cp3/KNOWN_QUALIFIED.json --out /work/triskelion/cp3_out/acquisition'
 
       - name: Verify frozen artifact has no protected lineage
         if: always()
