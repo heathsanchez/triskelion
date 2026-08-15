@@ -1,0 +1,24 @@
+name: V106B Natural Code Quotient LOPO
+on:
+  push:
+    paths:
+      - 'protocols/V106B_NATURAL_CODE_QUOTIENT_LOPO_PRECOMMIT.md'
+      - 'experiments/V106B_NATURAL_CODE_QUOTIENT_LOPO.py'
+      - '.github/workflows/v106b-natural-code-quotient-lopo.yml'
+  workflow_dispatch:
+jobs:
+  v106b:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+      - run: python experiments/V106B_NATURAL_CODE_QUOTIENT_LOPO.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v106b-natural-code-quotient-lopo
+          path: artifacts/v106b_natural_code_quotient_lopo/
