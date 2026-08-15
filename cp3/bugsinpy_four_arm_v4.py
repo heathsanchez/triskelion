@@ -36,10 +36,12 @@ def _image_for(work: Path) -> tuple[str, str]:
 
 def _docker_shell(bugsinpy: Path, work: Path, image: str, script: str, timeout: int):
     # The model/provider remains on the host. Only the native verifier executes
-    # inside the exact historical interpreter image. The checked-out buggy tree
-    # and BugsInPy framework are mounted into the container.
+    # inside the exact historical interpreter image. Run as the host uid/gid so
+    # temporary checkout artifacts remain removable by the host controller.
     cmd = [
         "docker", "run", "--rm",
+        "--user", f"{os.getuid()}:{os.getgid()}",
+        "-e", "HOME=/tmp",
         "-e", "PYTHONDONTWRITEBYTECODE=1",
         "-v", f"{work.resolve()}:/work",
         "-v", f"{bugsinpy.resolve()}:/bugsinpy:ro",
