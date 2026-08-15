@@ -1,0 +1,13 @@
+{
+  "acquisition": [
+    {"case":"httpie/5","status":"QUALIFIED"},
+    {"case":"youtube-dl/32","status":"QUALIFIED"}
+  ],
+  "protected": [
+    {"case":"thefuck/32","status":"QUALIFIED"},
+    {"case":"keras/32","status":"QUALIFIED"},
+    {"case":"spacy/2","status":"QUALIFIED"},
+    {"case":"fastapi/5","status":"QUALIFIED"},
+    {"case":"black/18","status":"QUALIFIED"}
+  ]
+}
