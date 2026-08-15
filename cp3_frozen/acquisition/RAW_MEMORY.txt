@@ -1,0 +1,3 @@
+Unstructured acquisition memory; no executable patch or scoped capability follows.
+- httpie/5: failure class AssertionError; a repair touching httpie/cli.py passed the native verifier.
+- youtube-dl/32: failure class TEST_FAILURE; a repair touching youtube_dl/extractor/npo.py, youtube_dl/utils.py passed the native verifier.
