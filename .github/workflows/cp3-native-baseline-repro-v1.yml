@@ -1,0 +1,189 @@
+name: CP3 protected native baseline reproduction v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cp3-canonical-demo-20260815
+    paths:
+      - .github/workflows/cp3-native-baseline-repro-v1.yml
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - project: thefuck
+            bug: '32'
+            tag: '3.7.0'
+          - project: keras
+            bug: '32'
+            tag: '3.7.3'
+          - project: spacy
+            bug: '2'
+            tag: '3.7.7'
+          - project: fastapi
+            bug: '5'
+            tag: '3.8.3'
+          - project: black
+            bug: '18'
+            tag: '3.8.3'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone exact BugsInPy corpus
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+          git -C /tmp/BugsInPy checkout 11c5f1eea954a42132cfd06bf257766a7963e0fd
+          test "$(git -C /tmp/BugsInPy rev-parse HEAD)" = "11c5f1eea954a42132cfd06bf257766a7963e0fd"
+          mkdir -p /tmp/BugsInPy/workspace /tmp/cp3-shims cp3_baseline
+
+      - name: Install deterministic dos2unix compatibility shim
+        shell: bash
+        run: |
+          cat >/tmp/cp3-shims/dos2unix <<'PY'
+          #!/usr/bin/env python
+          from __future__ import print_function
+          import io, os, sys
+          if len(sys.argv) == 1 or '--version' in sys.argv:
+              print('cp3-dos2unix-shim 1')
+              raise SystemExit(0)
+          for name in sys.argv[1:]:
+              if name.startswith('-'):
+                  continue
+              with io.open(name, 'rb') as f:
+                  data = f.read()
+              data = data.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+              with io.open(name, 'wb') as f:
+                  f.write(data)
+          PY
+          chmod +x /tmp/cp3-shims/dos2unix
+
+      - name: Reproduce buggy native verifier in exact historical Python
+        id: repro
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -uo pipefail
+          PROJECT='${{ matrix.project }}'
+          BUG='${{ matrix.bug }}'
+          TAG='${{ matrix.tag }}'
+          CASE="$PROJECT/$BUG"
+          OUT="cp3_baseline/${PROJECT}-${BUG}.log"
+          JSON="cp3_baseline/${PROJECT}-${BUG}.json"
+
+          docker pull "python:$TAG" >"$OUT" 2>&1 || true
+
+          docker run --rm \
+            -v /tmp/BugsInPy:/home/bugsinpy \
+            -v /tmp/cp3-shims:/cp3-shims:ro \
+            -e BUGSINPY_HOME=/home/bugsinpy \
+            -e PATH=/cp3-shims:/home/bugsinpy/framework/bin:/usr/local/bin:/usr/bin:/bin \
+            "python:$TAG" bash -lc '
+              set +e
+              export PATH=/cp3-shims:/home/bugsinpy/framework/bin:/usr/local/bin:/usr/bin:/bin
+              echo "__PYTHON__=$(python --version 2>&1)"
+              echo "__CASE__='"$CASE"'"
+              rm -rf /home/bugsinpy/workspace/'"$PROJECT"'
+              bugsinpy-checkout -p '"$PROJECT"' -i '"$BUG"' -v 0 -w /home/bugsinpy/workspace
+              CHECKOUT_RC=$?
+              echo "__CHECKOUT_RC__=$CHECKOUT_RC"
+              if [ $CHECKOUT_RC -ne 0 ]; then exit 41; fi
+              bugsinpy-compile -w /home/bugsinpy/workspace/'"$PROJECT"'
+              COMPILE_RC=$?
+              echo "__COMPILE_RC__=$COMPILE_RC"
+              if [ $COMPILE_RC -ne 0 ] || [ ! -f /home/bugsinpy/workspace/'"$PROJECT"'/bugsinpy_compile_flag ]; then exit 42; fi
+              rm -f /home/bugsinpy/workspace/'"$PROJECT"'/bugsinpy_fail.txt
+              bugsinpy-test -r -w /home/bugsinpy/workspace/'"$PROJECT"'
+              TEST_RC=$?
+              echo "__TEST_WRAPPER_RC__=$TEST_RC"
+              if [ -s /home/bugsinpy/workspace/'"$PROJECT"'/bugsinpy_fail.txt ]; then
+                echo "__NATIVE_RESULT__=FAIL"
+                cat /home/bugsinpy/workspace/'"$PROJECT"'/bugsinpy_fail.txt
+                exit 0
+              else
+                echo "__NATIVE_RESULT__=PASS"
+                exit 0
+              fi
+            ' >>"$OUT" 2>&1
+          CONTAINER_RC=$?
+
+          python - "$CASE" "$TAG" "$CONTAINER_RC" "$OUT" "$JSON" <<'PY'
+          import hashlib, json, pathlib, sys
+          case, tag, rc, log_path, out_path = sys.argv[1:]
+          text = pathlib.Path(log_path).read_text(errors='replace')
+          infra_markers = [
+              'No such file or directory', 'command not found', 'ModuleNotFoundError',
+              'Could not find a version that satisfies', 'No matching distribution found',
+              'ERROR: Could not install', 'This is not a checkout project folder',
+              '__CHECKOUT_RC__=1', '__COMPILE_RC__=1', '__COMPILE_RC__=2',
+          ]
+          native = 'FAIL' if '__NATIVE_RESULT__=FAIL' in text else ('PASS' if '__NATIVE_RESULT__=PASS' in text else None)
+          obvious_infra = [m for m in infra_markers if m in text]
+          result = {
+              'protocol': 'TRISKELION_CP3_NATIVE_BASELINE_REPRO_V1',
+              'case': case,
+              'python_tag': tag,
+              'container_rc': int(rc),
+              'native_result': native,
+              'obvious_infrastructure_markers': obvious_infra,
+              'baseline_gate': 'REPRODUCED_FAIL' if native == 'FAIL' and not obvious_infra else ('UNEXPECTED_PASS' if native == 'PASS' else 'INFRASTRUCTURE_OR_UNRESOLVED'),
+              'log_sha256': hashlib.sha256(text.encode()).hexdigest(),
+          }
+          pathlib.Path(out_path).write_text(json.dumps(result, indent=2, sort_keys=True)+'\n')
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload baseline evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-native-baseline-${{ matrix.project }}-${{ matrix.bug }}-v1
+          path: cp3_baseline/
+          retention-days: 90
+          if-no-files-found: error
+
+  aggregate:
+    needs: reproduce
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cp3-native-baseline-*-v1
+          path: downloaded
+          merge-multiple: true
+      - name: Aggregate baseline gate
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for p in sorted(Path('downloaded').glob('*.json')):
+              rows.append(json.loads(p.read_text()))
+          result={
+              'protocol':'TRISKELION_CP3_NATIVE_BASELINE_REPRO_V1',
+              'cases':rows,
+              'reproduced_fail_count':sum(r.get('baseline_gate')=='REPRODUCED_FAIL' for r in rows),
+              'all_five_reproduced':len(rows)==5 and all(r.get('baseline_gate')=='REPRODUCED_FAIL' for r in rows),
+              'next_gate':'EXACT_ENV_FOUR_ARM_RERUN' if len(rows)==5 and all(r.get('baseline_gate')=='REPRODUCED_FAIL' for r in rows) else 'INFRASTRUCTURE_REPAIR_OR_CASE_AUDIT',
+          }
+          Path('CP3_NATIVE_BASELINE_AGGREGATE_V1.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cp3-native-baseline-aggregate-v1
+          path: CP3_NATIVE_BASELINE_AGGREGATE_V1.json
+          retention-days: 90
