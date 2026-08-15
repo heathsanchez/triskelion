@@ -1,6 +1,7 @@
 from __future__ import annotations
-# V107 hosted-validation trigger; protocol and algorithm unchanged.
-import ast, json, subprocess, sys, tempfile
+# Harness repair after failed run: purge Python bytecode caches between rapid same-size source variants.
+# Frozen scientific protocol, candidate family, gates, and held-out structure are unchanged.
+import ast, json, shutil, subprocess, sys, tempfile
 from pathlib import Path
 
 COMMIT='4257f44b0ff1181dedaedee6a447e133219fcebf'
@@ -46,14 +47,21 @@ class SiteTransform(ast.NodeTransformer):
 def variant(src,idx,mode):
     tr=SiteTransform(idx,mode).visit(ast.parse(src));ast.fix_missing_locations(tr);return ast.unparse(tr)+'\n'
 
+def purge_pycache(root):
+    for d in (root/'correct_python_programs'/ '__pycache__', root/'python_testcases'/'__pycache__'):
+        if d.exists(): shutil.rmtree(d,ignore_errors=True)
+
 def verify(root,p,path,content,timeout=45):
     old=path.read_text()
     try:
+        purge_pycache(root)
         path.write_text(content);tf=root/'python_testcases'/f'test_{p}.py'
         if not tf.exists():return None
-        c,_=run([sys.executable,'-m','pytest','--correct','-q',str(tf)],cwd=root,timeout=timeout)
+        c,_=run([sys.executable,'-B','-m','pytest','--correct','-q',str(tf)],cwd=root,timeout=timeout)
         return c==0
-    finally:path.write_text(old)
+    finally:
+        path.write_text(old)
+        purge_pycache(root)
 
 def main():
   with tempfile.TemporaryDirectory(prefix='v107_') as td:
@@ -82,11 +90,10 @@ def main():
     P=sorted({q['program'] for q in Q});folds=[]
     for hold in P:
       ac=[q for q in Q if q['program']!=hold];ht=[q for q in Q if q['program']==hold]
-      scores={k:0 for k in CANDS};attempts={k:0 for k in CANDS}
+      scores={k:0 for k in CANDS}
       for q in ac:
         sp=root/'correct_python_programs'/f"{q['program']}.py";src=q['source']
         for k in CANDS:
-          attempts[k]+=1
           try:
             if verify(root,q['program'],sp,variant(src,q['site'],k)) is True:scores[k]+=1
           except subprocess.TimeoutExpired:pass
@@ -99,7 +106,7 @@ def main():
     total=len(Q);lit=sum(f['literal_solves'] for f in folds);quo=sum(f['quotient_solves'] for f in folds);abl=sum(f['ablation_failures'] for f in folds)
     gates={'G1_natural_qualification':total>=8 and len(P)>=4,'G2_fold_coverage':len(folds)==len(P) and all(f['heldout_program'] not in f['acquisition_programs'] for f in folds),'G3_relation_discovery':len(folds)>0 and all(f['selected'] is not None and len(f['perfect_candidates'])==1 for f in folds),'G4_relation_consistency':len(set(selecteds))==1 and selecteds[0] is not None,'G5_literal_baseline_failure':total>0 and lit==0,'G6_discovered_quotient_transfer':total>0 and quo==total,'G7_causal_ablation':total>0 and abl==total,'G8_heldout_independence':all(f['heldout_program'] not in f['acquisition_programs'] for f in folds),'G9_negative_controls':len(folds)>0 and all(f['loser_fails'] for f in folds)}
     PASS=all(gates.values())
-    R={'canonical_id':'V107_VERIFIER_DISCOVERED_QUOTIENT','external_commit':COMMIT,'candidate_family':CANDS,'qualified_task_count':total,'qualified_programs':P,'folds':folds,'selected_relations':selecteds,'literal_total_solves':lit,'quotient_total_solves':quo,'ablation_total_failures':abl,'gates':gates,'verdict':'PASS_V107_VERIFIER_DISCOVERED_QUOTIENT' if PASS else 'FAIL_V107_VERIFIER_DISCOVERED_QUOTIENT','claim_boundary':'Relation selected from a frozen three-template invertible comparison meta-family using acquisition-only verifier evidence; not arbitrary relation invention.','audit':audit}
+    R={'canonical_id':'V107_VERIFIER_DISCOVERED_QUOTIENT','external_commit':COMMIT,'candidate_family':CANDS,'harness_note':'bytecode caches purged between same-size variants after first hosted run revealed cache contamination','qualified_task_count':total,'qualified_programs':P,'folds':folds,'selected_relations':selecteds,'literal_total_solves':lit,'quotient_total_solves':quo,'ablation_total_failures':abl,'gates':gates,'verdict':'PASS_V107_VERIFIER_DISCOVERED_QUOTIENT' if PASS else 'FAIL_V107_VERIFIER_DISCOVERED_QUOTIENT','claim_boundary':'Relation selected from a frozen three-template invertible comparison meta-family using acquisition-only verifier evidence; not arbitrary relation invention.','audit':audit}
     (OUT/'RESULT.json').write_text(json.dumps(R,indent=2,sort_keys=True)+'\n');print(json.dumps(R,indent=2,sort_keys=True))
     if not PASS:raise SystemExit(1)
 if __name__=='__main__':main()
