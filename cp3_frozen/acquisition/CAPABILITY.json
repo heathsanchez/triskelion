@@ -1,0 +1,62 @@
+{
+  "ablation_status": "pending_protected_eval",
+  "acquired_from": [
+    "httpie/5",
+    "youtube-dl/32"
+  ],
+  "applicability_test": "A deterministic verifier checks if the current test failure involves a parsing assertion error where the expected key-value boundary differs from the actual boundary due to an unescaped separator being treated as a delimiter.",
+  "artifact": {
+    "execution_order": 100,
+    "instruction": "When parsing key-value pairs or extracting data from strings using separators, first identify all escape sequences (backslash followed by a separator) and record their byte spans. During separator matching, skip any match that falls entirely within a recorded escape sequence span to prevent premature splitting of escaped characters.",
+    "name": "prompt_module"
+  },
+  "artifact_sha256": "82c91b5a067309afe50db2ab0697b7620549de4e213e727bfd29fb6c53270c59",
+  "capability_id": "CP3.BUGSINPY.ACQUIRED.V1",
+  "composes_with": [],
+  "conflicts_with": [],
+  "counterexamples": [],
+  "dependencies": [],
+  "discovery_cost": {
+    "max_model_calls_per_case": 2,
+    "synthesis_calls": 1
+  },
+  "enabled": true,
+  "evidence": [
+    {
+      "case": "httpie/5",
+      "diff_sha256": "b7f419e7993e92164969b7a99689f01dfa279ce2d1615e25fce0bb21486f472d",
+      "status": "VERIFIED_REPAIR"
+    },
+    {
+      "case": "youtube-dl/32",
+      "diff_sha256": "8f5e4ab591494840d5adfebd31981892ab1cd2cd6e59cf040b1894d7cb18c878",
+      "status": "VERIFIED_REPAIR"
+    }
+  ],
+  "execution_cost": {},
+  "interface": {
+    "input": "buggy repository context",
+    "output": "repair-policy prompt module"
+  },
+  "name": "escape_aware_separator_parsing",
+  "postconditions": [
+    "Separators are correctly identified only when they are not part of an escape sequence.",
+    "The resulting parsed data structure accurately reflects the intended key-value boundaries."
+  ],
+  "preconditions": [
+    "The system is parsing structured data (e.g., CLI arguments, JSONP wrappers) using regex or string splitting based on specific separators.",
+    "The input string may contain escaped separators (e.g., 'key\\\\:value' where ':' is the separator)."
+  ],
+  "protected_tests": [],
+  "revocation_conditions": [],
+  "scope": {
+    "contains": "re.",
+    "field": "source"
+  },
+  "source_distinct_transfer": [],
+  "status": "verified",
+  "token_cost": {},
+  "type": "verified_prompt_module",
+  "verifier": "bugsinpy-native-test-v1",
+  "version": "1"
+}
