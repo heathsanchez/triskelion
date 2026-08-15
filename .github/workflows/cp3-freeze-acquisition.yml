@@ -1,0 +1,96 @@
+name: CP3 freeze acquisition capability
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cp3-canonical-demo-20260815
+    paths:
+      - cp3/freeze_acquisition_capability.py
+      - .github/workflows/cp3-freeze-acquisition.yml
+
+permissions:
+  contents: read
+
+jobs:
+  freeze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+    steps:
+      - name: Checkout canonical demo branch
+        uses: actions/checkout@v4
+
+      - name: Checkout sealed CP1 source branch
+        uses: actions/checkout@v4
+        with:
+          ref: private/verified-capability-runtime-cp1
+          path: cp1source
+
+      - name: Recover and hash exact sealed CP1 runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cp1runtime cp3_freeze
+          unzip -q cp1source/private_runtime/TRISKELION_VERIFIED_CAPABILITY_RUNTIME_CHECKPOINT_1_READY.zip -d cp1runtime
+          test -f cp1runtime/triskelion/runtime.py
+          test -f cp1runtime/triskelion/registry.py
+          test -f cp1runtime/triskelion/scope.py
+          find cp1runtime/triskelion -maxdepth 1 -type f -name '*.py' -print0 \
+            | sort -z | xargs -0 sha256sum > cp3_freeze/RUNTIME_SOURCE_SHA256SUMS.txt
+          sha256sum cp3_freeze/RUNTIME_SOURCE_SHA256SUMS.txt | awk '{print $1}' \
+            > cp3_freeze/RUNTIME_SOURCE_SHA256.txt
+          printf 'source_branch=%s\nsource_commit=%s\nzip_blob=%s\n' \
+            'private/verified-capability-runtime-cp1' \
+            '591c7d0119251699d33f908afe54de6f2cc77945' \
+            '6f753051fbc8e3066f3e9ce9028cb4c62139642f' \
+            > cp3_freeze/RUNTIME_PROVENANCE.txt
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install frozen provider dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install river-client
+
+      - name: Freeze capability from acquisition evidence only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python cp3/freeze_acquisition_capability.py cp3_freeze/acquisition
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('cp3_freeze')
+          payload = json.loads((root/'acquisition'/'CAPABILITY_PAYLOAD.json').read_text())
+          runtime_sha = (root/'RUNTIME_SOURCE_SHA256.txt').read_text().strip()
+          manifest = {
+              'canonical_id': 'TRISKELION_CP3_FREEZE_MANIFEST_V1',
+              'status': 'FROZEN',
+              'protocol': 'TRISKELION_CP3_ACQUISITION_FREEZE_V1',
+              'acquisition_cases': ['httpie/5', 'youtube-dl/32'],
+              'protected_cases_opened': False,
+              'capability_sha256': (root/'acquisition'/'CAPABILITY_SHA256.txt').read_text().strip(),
+              'runtime_source_sha256': runtime_sha,
+              'runtime_source_commit': '591c7d0119251699d33f908afe54de6f2cc77945',
+              'freeze_rule': 'No semantic changes before protected sanitization and four-arm evaluation.',
+          }
+          text = json.dumps(manifest, indent=2, sort_keys=True) + '\n'
+          (root/'FREEZE_MANIFEST.json').write_text(text)
+          (root/'FREEZE_MANIFEST_SHA256.txt').write_text(hashlib.sha256(text.encode()).hexdigest()+'\n')
+          print(text)
+          PY
+
+      - name: Upload frozen acquisition artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-acquisition-capability-freeze
+          path: cp3_freeze/
+          retention-days: 90
+          if-no-files-found: error
