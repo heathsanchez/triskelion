@@ -1,0 +1,30 @@
+name: V115B BugsInPy Third-ID Prospective
+on:
+  push:
+    paths:
+      - 'protocols/V115B_BUGSINPY_THIRD_ID_PROSPECTIVE_PRECOMMIT.md'
+      - 'experiments/V115B_BUGSINPY_THIRD_ID_PROSPECTIVE.py'
+      - '.github/workflows/v115b-bugsinpy-third-id-prospective.yml'
+  workflow_dispatch:
+
+jobs:
+  v115b:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install BugsInPy framework prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y dos2unix
+      - name: Run fresh disjoint prospective BugsInPy search
+        run: python experiments/V115B_BUGSINPY_THIRD_ID_PROSPECTIVE.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v115b-bugsinpy-third-id-prospective
+          path: artifacts/v115b_bugsinpy_third_id_prospective/
