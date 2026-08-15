@@ -1,0 +1,24 @@
+name: V107 Verifier Discovered Quotient
+on:
+  push:
+    paths:
+      - 'protocols/V107_VERIFIER_DISCOVERED_QUOTIENT_PRECOMMIT.md'
+      - 'experiments/V107_VERIFIER_DISCOVERED_QUOTIENT.py'
+      - '.github/workflows/v107-verifier-discovered-quotient.yml'
+  workflow_dispatch:
+jobs:
+  v107:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+      - run: python experiments/V107_VERIFIER_DISCOVERED_QUOTIENT.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v107-verifier-discovered-quotient
+          path: artifacts/v107_verifier_discovered_quotient/
