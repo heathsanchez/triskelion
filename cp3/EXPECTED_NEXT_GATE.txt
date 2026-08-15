@@ -1,0 +1,1 @@
+qualification merge -> acquisition capability freeze -> protected sanitization -> COLD/RAW MEMORY/ALWAYS-ON/VERIFIED
