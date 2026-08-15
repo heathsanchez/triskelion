@@ -1,0 +1,27 @@
+name: V102 Boundary Robustness + Compression Audit
+on:
+  push:
+    paths:
+      - '.github/workflows/v102-boundary-compression-audit.yml'
+      - 'experiments/V102_BOUNDARY_COMPRESSION_AUDIT.py'
+      - 'results/attested/V51_OPERATOR_INVENTION/PRIMARY_ARTIFACT_SNAPSHOT.md'
+      - 'results/V101P_DEPTH2_CLOSURE_DIAGNOSTIC_20260814.md'
+      - 'results/V101F_CLOSURE_INVARIANT_AUDIT_20260814.md'
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run boundary/compression falsification audit
+        run: python experiments/V102_BOUNDARY_COMPRESSION_AUDIT.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v102-boundary-compression-audit
+          path: artifacts/v102_boundary_compression/
