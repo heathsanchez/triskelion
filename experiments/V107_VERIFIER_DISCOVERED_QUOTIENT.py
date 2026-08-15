@@ -1,4 +1,5 @@
 from __future__ import annotations
+# V107 hosted-validation trigger; protocol and algorithm unchanged.
 import ast, json, subprocess, sys, tempfile
 from pathlib import Path
 
@@ -75,7 +76,6 @@ def main():
           if not(r['base_lt_pass'] and r['base_gt_pass']):r['status']='presentation_not_invariant';audit.append(r);continue
           r['relaxed_lt_fails']=verify(root,p,sp,lr) is False;r['relaxed_gt_fails']=verify(root,p,sp,gr) is False
           if not(r['relaxed_lt_fails'] and r['relaxed_gt_fails']):r['status']='mutation_not_causal_both';audit.append(r);continue
-          # strict canonical sources are repairs by construction
           r['repair_lt_pass']=r['base_lt_pass'];r['repair_gt_pass']=r['base_gt_pass'];r['source']=src;r['status']='QUALIFIED';Q.append(r);audit.append({k:v for k,v in r.items() if k!='source'})
         except subprocess.TimeoutExpired:r['status']='timeout';audit.append(r)
         except Exception as e:r['status']='error';r['error']=repr(e);audit.append(r)
@@ -93,25 +93,13 @@ def main():
       perfect=[k for k in CANDS if scores[k]==len(ac)]
       selected=perfect[0] if len(perfect)==1 else None
       transported=(selected=='SWAP_AND_FLIP')
-      literal=0
-      quotient=len(ht) if transported else 0
-      ablation=sum(1 for q in ht if q['relaxed_gt_fails'])
+      literal=0;quotient=len(ht) if transported else 0;ablation=sum(1 for q in ht if q['relaxed_gt_fails'])
       folds.append({'heldout_program':hold,'acquisition_programs':sorted({q['program'] for q in ac}),'acquisition_tasks':len(ac),'heldout_tasks':len(ht),'scores':scores,'perfect_candidates':perfect,'selected':selected,'literal_solves':literal,'quotient_solves':quotient,'ablation_failures':ablation,'loser_fails':all(scores[k]<len(ac) for k in CANDS if k!=selected) if selected else False})
     selecteds=[f['selected'] for f in folds]
     total=len(Q);lit=sum(f['literal_solves'] for f in folds);quo=sum(f['quotient_solves'] for f in folds);abl=sum(f['ablation_failures'] for f in folds)
-    gates={
-      'G1_natural_qualification':total>=8 and len(P)>=4,
-      'G2_fold_coverage':len(folds)==len(P) and all(f['heldout_program'] not in f['acquisition_programs'] for f in folds),
-      'G3_relation_discovery':len(folds)>0 and all(f['selected'] is not None and len(f['perfect_candidates'])==1 for f in folds),
-      'G4_relation_consistency':len(set(selecteds))==1 and selecteds[0] is not None,
-      'G5_literal_baseline_failure':total>0 and lit==0,
-      'G6_discovered_quotient_transfer':total>0 and quo==total,
-      'G7_causal_ablation':total>0 and abl==total,
-      'G8_heldout_independence':all(f['heldout_program'] not in f['acquisition_programs'] for f in folds),
-      'G9_negative_controls':len(folds)>0 and all(f['loser_fails'] for f in folds),
-    }
+    gates={'G1_natural_qualification':total>=8 and len(P)>=4,'G2_fold_coverage':len(folds)==len(P) and all(f['heldout_program'] not in f['acquisition_programs'] for f in folds),'G3_relation_discovery':len(folds)>0 and all(f['selected'] is not None and len(f['perfect_candidates'])==1 for f in folds),'G4_relation_consistency':len(set(selecteds))==1 and selecteds[0] is not None,'G5_literal_baseline_failure':total>0 and lit==0,'G6_discovered_quotient_transfer':total>0 and quo==total,'G7_causal_ablation':total>0 and abl==total,'G8_heldout_independence':all(f['heldout_program'] not in f['acquisition_programs'] for f in folds),'G9_negative_controls':len(folds)>0 and all(f['loser_fails'] for f in folds)}
     PASS=all(gates.values())
-    R={'canonical_id':'V107_VERIFIER_DISCOVERED_QUOTIENT','external_commit':COMMIT,'candidate_family':CANDS,'qualified_task_count':total,'qualified_programs':P,'folds':folds,'selected_relations':selecteds,'literal_total_solves':lit,'quotient_total_solves':quo,'ablation_total_failures':abl,'gates':gates,'verdict':'PASS_V107_VERIFIER_DISCOVERED_QUOTIENT' if PASS else 'FAIL_V107_VERIFIER_DISCOVERED_QUOTIENT','claim_boundary':'Relation selected from a frozen three-template invertible comparison meta-family using acquisition-only verifier evidence; not arbitrary relation invention.' ,'audit':audit}
+    R={'canonical_id':'V107_VERIFIER_DISCOVERED_QUOTIENT','external_commit':COMMIT,'candidate_family':CANDS,'qualified_task_count':total,'qualified_programs':P,'folds':folds,'selected_relations':selecteds,'literal_total_solves':lit,'quotient_total_solves':quo,'ablation_total_failures':abl,'gates':gates,'verdict':'PASS_V107_VERIFIER_DISCOVERED_QUOTIENT' if PASS else 'FAIL_V107_VERIFIER_DISCOVERED_QUOTIENT','claim_boundary':'Relation selected from a frozen three-template invertible comparison meta-family using acquisition-only verifier evidence; not arbitrary relation invention.','audit':audit}
     (OUT/'RESULT.json').write_text(json.dumps(R,indent=2,sort_keys=True)+'\n');print(json.dumps(R,indent=2,sort_keys=True))
     if not PASS:raise SystemExit(1)
 if __name__=='__main__':main()
