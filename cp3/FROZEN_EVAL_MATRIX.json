@@ -1,0 +1,33 @@
+{
+  "protocol": "TRISKELION_CP3_FOUR_ARM_V1",
+  "model": "Qwen3.5-9B",
+  "temperature": 0,
+  "max_calls_per_case_arm": 2,
+  "max_tokens_per_call": 2048,
+  "cases": ["thefuck/32", "keras/32", "spacy/2", "fastapi/5", "black/18"],
+  "arms": ["COLD", "RAW_MEMORY", "ALWAYS_ON", "VERIFIED"],
+  "cells": [
+    {"case":"thefuck/32","arm":"COLD"},{"case":"thefuck/32","arm":"RAW_MEMORY"},{"case":"thefuck/32","arm":"ALWAYS_ON"},{"case":"thefuck/32","arm":"VERIFIED"},
+    {"case":"keras/32","arm":"COLD"},{"case":"keras/32","arm":"RAW_MEMORY"},{"case":"keras/32","arm":"ALWAYS_ON"},{"case":"keras/32","arm":"VERIFIED"},
+    {"case":"spacy/2","arm":"COLD"},{"case":"spacy/2","arm":"RAW_MEMORY"},{"case":"spacy/2","arm":"ALWAYS_ON"},{"case":"spacy/2","arm":"VERIFIED"},
+    {"case":"fastapi/5","arm":"COLD"},{"case":"fastapi/5","arm":"RAW_MEMORY"},{"case":"fastapi/5","arm":"ALWAYS_ON"},{"case":"fastapi/5","arm":"VERIFIED"},
+    {"case":"black/18","arm":"COLD"},{"case":"black/18","arm":"RAW_MEMORY"},{"case":"black/18","arm":"ALWAYS_ON"},{"case":"black/18","arm":"VERIFIED"}
+  ],
+  "arm_semantics": {
+    "COLD": "No acquisition memory and no installed capability.",
+    "RAW_MEMORY": "Acquisition evidence available as raw memory only; no executable capability installed.",
+    "ALWAYS_ON": "The exact frozen acquisition capability is installed and injected unconditionally.",
+    "VERIFIED": "The exact same frozen acquisition capability is installed; activation is gated only by the recovered CP1 verifier/scope mechanism."
+  },
+  "isolation": {
+    "fresh_state_per_cell": true,
+    "no_shared_mutable_cache": true,
+    "no_cross_arm_memory": true,
+    "identical_case_input_across_arms": true,
+    "one_protected_evaluation_per_cell": true
+  },
+  "primary_comparison": "ALWAYS_ON_vs_VERIFIED",
+  "secondary_comparisons": ["COLD_vs_RAW_MEMORY", "RAW_MEMORY_vs_ALWAYS_ON"],
+  "post_hoc_exclusions": false,
+  "post_hoc_tuning": false
+}
