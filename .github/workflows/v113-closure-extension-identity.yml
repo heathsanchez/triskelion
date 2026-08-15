@@ -1,0 +1,26 @@
+name: V113 Closure Extension Identity
+on:
+  push:
+    paths:
+      - 'protocols/V113_CLOSURE_EXTENSION_IDENTITY_PRECOMMIT.md'
+      - 'experiments/V113_CLOSURE_EXTENSION_IDENTITY.py'
+      - '.github/workflows/v113-closure-extension-identity.yml'
+  workflow_dispatch:
+
+jobs:
+  v113:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run exact V113 closure-extension identity test
+        run: python experiments/V113_CLOSURE_EXTENSION_IDENTITY.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v113-closure-extension-identity
+          path: artifacts/v113_closure_extension_identity/
