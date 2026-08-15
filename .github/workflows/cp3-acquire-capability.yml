@@ -1,0 +1,78 @@
+name: CP3 acquisition-only capability freeze
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-acquire-capability.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cp3-acquisition-freeze
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify frozen acquisition boundary
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('cp3/KNOWN_QUALIFIED.json'))
+          assert [r['case'] for r in x['acquisition'] if r['status']=='QUALIFIED'] == ['httpie/5','youtube-dl/32']
+          assert [r['case'] for r in x['protected'] if r['status']=='QUALIFIED'] == ['thefuck/32','keras/32','spacy/2','fastapi/5','black/18']
+          print('ACQUISITION BOUNDARY VERIFIED; protected cases are not passed to acquisition code')
+          PY
+
+      - name: Clone current official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Build official BugsInPy environment
+        run: docker build -t cp3-bugsinpy BugsInPy
+
+      - name: Acquire and freeze capability from acquisition cases only
+        run: |
+          mkdir -p cp3_out/acquisition
+          docker run --rm \
+            -e RIVER_API_KEY \
+            -e PYTHONDONTWRITEBYTECODE=1 \
+            -v "$PWD:/work/triskelion" \
+            -v "$PWD/BugsInPy:/work/BugsInPy" \
+            -w /work/triskelion/cp3 \
+            cp3-bugsinpy \
+            bash -lc 'python -m pip install --quiet river-client && python -B acquire_bugsinpy_capability.py --bugsinpy /work/BugsInPy --known /work/triskelion/cp3/KNOWN_QUALIFIED.json --out /work/triskelion/cp3_out/acquisition'
+
+      - name: Verify frozen artifact has no protected lineage
+        if: always()
+        run: |
+          if [ -f cp3_out/acquisition/CAPABILITY.json ]; then
+            python - <<'PY'
+          import hashlib,json
+          p='cp3_out/acquisition/CAPABILITY.json'
+          c=json.load(open(p))
+          assert c['acquired_from']==['httpie/5','youtube-dl/32']
+          forbidden={'thefuck/32','keras/32','spacy/2','fastapi/5','black/18'}
+          assert forbidden.isdisjoint(c['acquired_from'])
+          print('CAPABILITY FILE SHA256',hashlib.sha256(open(p,'rb').read()).hexdigest())
+          print('ARTIFACT SHA256',c['artifact_sha256'])
+          PY
+          fi
+
+      - name: Upload immutable acquisition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-acquisition-freeze
+          path: cp3_out/acquisition/
+          if-no-files-found: warn
+          retention-days: 90
