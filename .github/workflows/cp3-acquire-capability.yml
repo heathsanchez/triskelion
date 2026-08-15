@@ -1,6 +1,6 @@
 name: CP3 acquisition-only capability freeze
 
-# v11: exact verifier + source-aware context + Qwen3.5 chat template + AST-targeted function replacements.
+# v12: replay frozen acquisition-only successful intervention traces, verify natively, then compress into capability.
 on:
   push:
     branches: [cp3-recovery-20260815]
@@ -25,14 +25,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify frozen acquisition boundary
+      - name: Verify frozen acquisition boundary and mechanism
         run: |
           python - <<'PY'
           import json
           x=json.load(open('cp3/KNOWN_QUALIFIED.json'))
+          b=json.load(open('cp3_frozen/ACQUISITION_BOUNDARY.json'))
           assert [r['case'] for r in x['acquisition'] if r['status']=='QUALIFIED'] == ['httpie/5','youtube-dl/32']
           assert [r['case'] for r in x['protected'] if r['status']=='QUALIFIED'] == ['thefuck/32','keras/32','spacy/2','fastapi/5','black/18']
-          print('ACQUISITION BOUNDARY VERIFIED; protected cases are not passed to acquisition code')
+          assert 'acquisition-only successful intervention traces' in b['allowed_capability_inputs']
+          assert 'protected developer patches' in b['forbidden_capability_inputs']
+          print('ACQUISITION BOUNDARY VERIFIED; successful acquisition intervention traces are admissible; protected developer patches remain forbidden')
           PY
 
       - name: Clone current official BugsInPy
@@ -72,11 +75,11 @@ jobs:
           print('rendered_probe_tail', repr(rendered[-300:]))
           PY
 
-      - name: Acquire and freeze capability from acquisition cases only
+      - name: Replay, verify and compress acquisition-only intervention traces
         run: |
           export PATH="$PWD/BugsInPy/framework/bin:$PATH"
           rm -rf cp3_out/acquisition
-          python -B cp3/acquire_bugsinpy_capability_v9.py \
+          python -B cp3/acquire_bugsinpy_capability_from_traces.py \
             --bugsinpy "$PWD/BugsInPy" \
             --known "$PWD/cp3/KNOWN_QUALIFIED.json" \
             --out "$PWD/cp3_out/acquisition"
