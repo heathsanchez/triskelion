@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: cp3-acquisition-freeze
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   acquire:
@@ -42,7 +42,8 @@ jobs:
 
       - name: Acquire and freeze capability from acquisition cases only
         run: |
-          mkdir -p cp3_out/acquisition
+          mkdir -p cp3_out
+          rm -rf cp3_out/acquisition
           docker run --rm \
             -e RIVER_API_KEY \
             -e PYTHONDONTWRITEBYTECODE=1 \
