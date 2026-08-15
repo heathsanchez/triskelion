@@ -1,0 +1,36 @@
+name: CP3 exact Python 3.7 image probe
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-python37-image-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Probe archived official CPython Docker tags
+        run: |
+          set +e
+          : > probe.txt
+          for tag in 3.7.3-stretch 3.7.3 3.7.4-stretch 3.7.4; do
+            echo "=== python:$tag ===" | tee -a probe.txt
+            if docker pull "python:$tag" >>probe.txt 2>&1; then
+              docker run --rm "python:$tag" python --version 2>&1 | tee -a probe.txt
+              echo "AVAILABLE $tag" | tee -a probe.txt
+            else
+              echo "UNAVAILABLE $tag" | tee -a probe.txt
+            fi
+          done
+          cat probe.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cp3-python37-image-probe
+          path: probe.txt
+          retention-days: 30
