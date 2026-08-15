@@ -1,6 +1,6 @@
 name: CP3 acquisition-only capability freeze
 
-# v6: exact historical CPython verifier with host UID/GID and deterministic dos2unix shim.
+# v7: exact historical CPython verifier + deterministic utility shim + source-aware acquisition context.
 on:
   push:
     branches: [cp3-recovery-20260815]
@@ -52,7 +52,7 @@ jobs:
         run: |
           export PATH="$PWD/BugsInPy/framework/bin:$PATH"
           rm -rf cp3_out/acquisition
-          python -B cp3/acquire_bugsinpy_capability_v4.py \
+          python -B cp3/acquire_bugsinpy_capability_v5.py \
             --bugsinpy "$PWD/BugsInPy" \
             --known "$PWD/cp3/KNOWN_QUALIFIED.json" \
             --out "$PWD/cp3_out/acquisition"
