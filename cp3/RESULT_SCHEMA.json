@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Triskelion CP3 protected cell result",
+  "type": "object",
+  "required": [
+    "protocol", "case", "arm", "model", "seed", "input_sha256",
+    "capability_sha256", "runtime_source_sha256", "calls", "activation",
+    "verifier", "patch_sha256", "native_verifier", "terminal_status"
+  ],
+  "properties": {
+    "protocol": {"const": "TRISKELION_CP3_FOUR_ARM_V1"},
+    "case": {"enum": ["thefuck/32", "keras/32", "spacy/2", "fastapi/5", "black/18"]},
+    "arm": {"enum": ["COLD", "RAW_MEMORY", "ALWAYS_ON", "VERIFIED"]},
+    "model": {"const": "Qwen3.5-9B"},
+    "seed": {"type": "integer"},
+    "input_sha256": {"type": "string"},
+    "capability_sha256": {"type": ["string", "null"]},
+    "runtime_source_sha256": {"type": "string"},
+    "calls": {"type": "array", "maxItems": 2},
+    "activation": {
+      "type": "object",
+      "required": ["requested", "activated", "reason"],
+      "properties": {
+        "requested": {"type": "boolean"},
+        "activated": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    },
+    "verifier": {
+      "type": "object",
+      "required": ["consulted", "decision"],
+      "properties": {
+        "consulted": {"type": "boolean"},
+        "decision": {"type": ["string", "null"]}
+      }
+    },
+    "patch_sha256": {"type": ["string", "null"]},
+    "native_verifier": {
+      "type": "object",
+      "required": ["ran", "passed", "log_sha256"],
+      "properties": {
+        "ran": {"type": "boolean"},
+        "passed": {"type": ["boolean", "null"]},
+        "log_sha256": {"type": ["string", "null"]}
+      }
+    },
+    "terminal_status": {"enum": ["PASS", "FAIL", "ABSTAIN", "INFRASTRUCTURE_FAILURE"]}
+  },
+  "additionalProperties": true
+}
