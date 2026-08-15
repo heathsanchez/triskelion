@@ -1,0 +1,56 @@
+name: CP3 protected preflight
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-protected-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify exact frozen acquisition bytes
+        run: |
+          test "$(sha256sum cp3_frozen/acquisition/CAPABILITY.json | awk '{print $1}')" = "d550b49d855681b3ec68944249265fabb8d4da59b160af15f98a6ed96b2e0380"
+          test "$(sha256sum cp3_frozen/acquisition/RAW_MEMORY.txt | awk '{print $1}')" = "f0852bd16fc45f0080be8d0ba9391d4c14746f3126b66a1d448413117313b212"
+          python - <<'PY'
+          import hashlib,json
+          c=json.load(open('cp3_frozen/acquisition/CAPABILITY.json'))
+          blob=json.dumps(c['artifact'],sort_keys=True,separators=(',',':')).encode()
+          assert hashlib.sha256(blob).hexdigest() == '82c91b5a067309afe50db2ab0697b7620549de4e213e727bfd29fb6c53270c59'
+          assert c['scope'] == {'field':'source','contains':'re.'}
+          print('FROZEN ACQUISITION BYTES OK')
+          PY
+
+      - name: Run protected preflight without opening protected semantics
+        run: |
+          mkdir -p cp3_out
+          python -B cp3_frozen/protected_preflight.py \
+            --acquisition-dir cp3_frozen/acquisition \
+            --expected-capability-sha256 d550b49d855681b3ec68944249265fabb8d4da59b160af15f98a6ed96b2e0380 \
+            --expected-raw-memory-sha256 f0852bd16fc45f0080be8d0ba9391d4c14746f3126b66a1d448413117313b212 \
+            --out cp3_out/PROTECTED_PREFLIGHT.json
+
+      - name: Assert protected semantics remain unopened
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('cp3_out/PROTECTED_PREFLIGHT.json'))
+          assert x['status']=='CP3_PROTECTED_PREFLIGHT_OK'
+          assert x['protected_semantics_opened'] is False
+          assert x['cell_count']==20
+          print('CP3 PROTECTED PREFLIGHT OK')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cp3-protected-preflight
+          path: cp3_out/PROTECTED_PREFLIGHT.json
+          retention-days: 90
