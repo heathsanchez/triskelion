@@ -1,0 +1,30 @@
+name: V111 BugsInPy Prospective Quotient
+on:
+  push:
+    paths:
+      - 'protocols/V111_BUGSINPY_PROSPECTIVE_QUOTIENT_PRECOMMIT.md'
+      - 'experiments/V111_BUGSINPY_PROSPECTIVE_QUOTIENT.py'
+      - '.github/workflows/v111-bugsinpy-prospective-quotient.yml'
+  workflow_dispatch:
+
+jobs:
+  v111:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      - name: Install system prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dos2unix
+      - name: Run frozen prospective cross-corpus search
+        run: python experiments/V111_BUGSINPY_PROSPECTIVE_QUOTIENT.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v111-bugsinpy-prospective-quotient
+          path: artifacts/v111_bugsinpy_prospective_quotient/
