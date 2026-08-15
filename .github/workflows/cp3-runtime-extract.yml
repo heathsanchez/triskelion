@@ -1,0 +1,48 @@
+name: CP3 runtime source extract
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-runtime-extract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout recovery branch
+        uses: actions/checkout@v4
+      - name: Checkout sealed CP1 source branch
+        uses: actions/checkout@v4
+        with:
+          ref: private/verified-capability-runtime-cp1
+          path: cp1source
+      - name: Extract sealed runtime source
+        run: |
+          rm -rf cp1runtime
+          mkdir -p cp1runtime
+          unzip -q cp1source/private_runtime/TRISKELION_VERIFIED_CAPABILITY_RUNTIME_CHECKPOINT_1_READY.zip -d cp1runtime
+          test -f cp1runtime/triskelion/runtime.py
+          test -f cp1runtime/triskelion/registry.py
+          test -f cp1runtime/triskelion/scope.py
+          test -f cp1runtime/triskelion/verifier.py
+          test -f cp1runtime/triskelion/providers.py
+          test -f cp1runtime/experiments/river_checkpoint_1/run.py
+          sha256sum \
+            cp1runtime/triskelion/runtime.py \
+            cp1runtime/triskelion/registry.py \
+            cp1runtime/triskelion/scope.py \
+            cp1runtime/triskelion/verifier.py \
+            cp1runtime/triskelion/providers.py \
+            cp1runtime/experiments/river_checkpoint_1/run.py \
+            > cp1runtime/CP1_SOURCE_SHA256.txt
+      - name: Upload exact CP1 source tree
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-cp1-extracted-source
+          path: cp1runtime/
+          retention-days: 90
