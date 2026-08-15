@@ -1,5 +1,6 @@
 name: CP3 acquisition-only capability freeze
 
+# v5: exact historical CPython verifier with host UID/GID ownership preservation.
 on:
   push:
     branches: [cp3-recovery-20260815]
