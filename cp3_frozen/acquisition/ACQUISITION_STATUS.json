@@ -1,0 +1,10 @@
+{
+  "acquisition": [
+    "httpie/5",
+    "youtube-dl/32"
+  ],
+  "capability_sha256": "d550b49d855681b3ec68944249265fabb8d4da59b160af15f98a6ed96b2e0380",
+  "protected_information_used": false,
+  "raw_memory_sha256": "f0852bd16fc45f0080be8d0ba9391d4c14746f3126b66a1d448413117313b212",
+  "status": "CAPABILITY_FROZEN"
+}
