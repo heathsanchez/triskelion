@@ -1,6 +1,6 @@
 name: CP3 acquisition-only capability freeze
 
-# v13: replay verified acquisition-only intervention traces, then synthesize a non-empty source-distinct scope.
+# v14: replay verified acquisition-only intervention traces; LLM compresses policy while verifier deterministically induces applicability scope.
 on:
   push:
     branches: [cp3-recovery-20260815]
