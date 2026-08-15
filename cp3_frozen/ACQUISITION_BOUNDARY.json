@@ -1,0 +1,23 @@
+{
+  "canonical_id": "TRISKELION_CP3_ACQUISITION_BOUNDARY_V1",
+  "status": "BOUNDARY_FROZEN_PAYLOAD_PENDING_RUNTIME_RECOVERY",
+  "acquisition_cases": ["httpie/5", "youtube-dl/32"],
+  "protected_cases": ["thefuck/32", "keras/32", "spacy/2", "fastapi/5", "black/18"],
+  "allowed_capability_inputs": [
+    "buggy source/context from acquisition cases",
+    "acquisition failing-test evidence",
+    "acquisition verifier outcomes",
+    "acquisition-only successful intervention traces"
+  ],
+  "forbidden_capability_inputs": [
+    "protected production source beyond the later sanitized evaluation input",
+    "protected fixed implementations",
+    "protected developer patches",
+    "protected prior solution traces",
+    "protected outcome labels",
+    "protected verifier feedback during capability construction"
+  ],
+  "capability_payload": null,
+  "payload_rule": "Populate only after the original CP1 runtime artifact format and acquisition traces are recovered; do not infer or synthesize a replacement capability from protected evidence.",
+  "freeze_rule": "Once capability_payload is populated and hashed, no semantic changes are permitted before the protected four-arm evaluation."
+}
