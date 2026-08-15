@@ -21,43 +21,34 @@ jobs:
         with:
           ref: private/verified-capability-runtime-cp1
           path: cp1source
-      - name: Unpack sealed runtime and inventory entry points
+      - name: Unpack sealed runtime and export exact CP1 source
+        shell: bash
         run: |
-          mkdir -p cp1runtime cp3_inventory
+          set -euo pipefail
+          mkdir -p cp1runtime cp3_inventory cp1_export/triskelion cp1_export/experiments/river_checkpoint_1
           unzip -q cp1source/private_runtime/TRISKELION_VERIFIED_CAPABILITY_RUNTIME_CHECKPOINT_1_READY.zip -d cp1runtime
           find cp1runtime -type f | sort > cp3_inventory/files.txt
-          python - <<'PY'
-          from pathlib import Path
-          import json, re
-          root=Path('cp1runtime')
-          rows=[]
-          for p in sorted(root.rglob('*')):
-            if not p.is_file(): continue
-            rel=str(p.relative_to(root))
-            if p.suffix.lower() not in {'.py','.json','.md','.txt','.yml','.yaml','.toml'}: continue
-            try: text=p.read_text(encoding='utf-8',errors='replace')
-            except Exception: continue
-            rows.append({
-              'path':rel,
-              'size':p.stat().st_size,
-              'mentions':{
-                'river': bool(re.search(r'\briver\b',text,re.I)),
-                'capability': bool(re.search(r'capabilit',text,re.I)),
-                'verified': bool(re.search(r'verif',text,re.I)),
-                'qwen': bool(re.search(r'qwen',text,re.I)),
-                'cold': bool(re.search(r'\bcold\b',text,re.I)),
-                'raw': bool(re.search(r'raw memory|raw_memory|\braw\b',text,re.I)),
-                'always_on': bool(re.search(r'always.?on',text,re.I)),
-                'registry': bool(re.search(r'registr',text,re.I)),
-              }
-            })
-          Path('cp3_inventory/inventory.json').write_text(json.dumps(rows,indent=2,sort_keys=True)+'\n')
-          for r in rows:
-            if any(r['mentions'].values()): print(r)
-          PY
+          cp cp1runtime/triskelion/*.py cp1_export/triskelion/
+          cp cp1runtime/experiments/river_checkpoint_1/run.py cp1_export/experiments/river_checkpoint_1/
+          cp cp1runtime/experiments/river_checkpoint_1/PROTOCOL.md cp1_export/experiments/river_checkpoint_1/
+          for f in BENCHMARK_PROTOCOL.md PRODUCT_API.md CAPABILITY_REGISTRY.json pyproject.toml; do
+            [ ! -f "cp1runtime/$f" ] || cp "cp1runtime/$f" cp1_export/
+          done
+          find cp1_export -type f -print0 | sort -z | xargs -0 sha256sum > cp1_export/SHA256SUMS.txt
+          printf 'source_branch=%s\nsource_commit=%s\nzip_blob=%s\n' \
+            'private/verified-capability-runtime-cp1' \
+            '591c7d0119251699d33f908afe54de6f2cc77945' \
+            '6f753051fbc8e3066f3e9ce9028cb4c62139642f' > cp1_export/PROVENANCE.txt
       - name: Upload runtime inventory
         uses: actions/upload-artifact@v4
         with:
           name: cp3-runtime-inventory
           path: cp3_inventory/
           retention-days: 90
+      - name: Upload exact sealed runtime source
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp1-sealed-runtime-source
+          path: cp1_export/
+          retention-days: 90
+          if-no-files-found: error
