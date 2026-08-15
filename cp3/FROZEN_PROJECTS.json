@@ -1,0 +1,15 @@
+{
+  "corpus": "BugsInPy",
+  "bug_count": 501,
+  "project_count": 17,
+  "corpus_lock_sha256": "760b73f87bbe79b76c970c1b2ac4cdd83e5eb18ee3f4b9f2304a915fddbbd5ad",
+  "acquisition_projects": ["pandas", "youtube-dl", "httpie", "PySnooper", "cookiecutter"],
+  "protected_projects": ["ansible", "spacy", "sanic", "keras", "matplotlib", "thefuck", "black", "scrapy", "luigi", "fastapi", "tornado", "tqdm"],
+  "known_qualified": {
+    "acquisition": ["httpie/5", "youtube-dl/32"],
+    "protected": ["thefuck/32", "keras/32", "spacy/2", "fastapi/5", "black/18"]
+  },
+  "last_unresolved_projects": ["pandas", "scrapy", "luigi"],
+  "admission": "fixed_pass_and_buggy_fail",
+  "semantic_skipping": false
+}
