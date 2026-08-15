@@ -1,0 +1,58 @@
+name: CP3 export sealed CP1 runtime
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cp3-recovery-20260815
+    paths:
+      - .github/workflows/cp3-export-sealed-runtime.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout recovery branch
+        uses: actions/checkout@v4
+      - name: Checkout sealed CP1 source branch
+        uses: actions/checkout@v4
+        with:
+          ref: private/verified-capability-runtime-cp1
+          path: cp1source
+      - name: Extract exact runtime source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p cp1runtime cp1_export
+          unzip -q cp1source/private_runtime/TRISKELION_VERIFIED_CAPABILITY_RUNTIME_CHECKPOINT_1_READY.zip -d cp1runtime
+          mkdir -p cp1_export/triskelion cp1_export/experiments/river_checkpoint_1
+          cp cp1runtime/triskelion/__init__.py cp1_export/triskelion/
+          cp cp1runtime/triskelion/models.py cp1_export/triskelion/
+          cp cp1runtime/triskelion/providers.py cp1_export/triskelion/
+          cp cp1runtime/triskelion/registry.py cp1_export/triskelion/
+          cp cp1runtime/triskelion/runtime.py cp1_export/triskelion/
+          cp cp1runtime/triskelion/scope.py cp1_export/triskelion/
+          cp cp1runtime/triskelion/verifier.py cp1_export/triskelion/
+          if [ -f cp1runtime/triskelion/artifacts.py ]; then cp cp1runtime/triskelion/artifacts.py cp1_export/triskelion/; fi
+          cp cp1runtime/experiments/river_checkpoint_1/run.py cp1_export/experiments/river_checkpoint_1/
+          cp cp1runtime/experiments/river_checkpoint_1/PROTOCOL.md cp1_export/experiments/river_checkpoint_1/
+          cp cp1runtime/BENCHMARK_PROTOCOL.md cp1_export/
+          cp cp1runtime/PRODUCT_API.md cp1_export/
+          cp cp1runtime/CAPABILITY_REGISTRY.json cp1_export/
+          cp cp1runtime/pyproject.toml cp1_export/
+          find cp1_export -type f -print0 | sort -z | xargs -0 sha256sum > cp1_export/SHA256SUMS.txt
+          printf 'source_branch=%s\nsource_commit=%s\nzip_blob=%s\n' \
+            'private/verified-capability-runtime-cp1' \
+            '591c7d0119251699d33f908afe54de6f2cc77945' \
+            '6f753051fbc8e3066f3e9ce9028cb4c62139642f' > cp1_export/PROVENANCE.txt
+      - name: Upload exact source
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp1-sealed-runtime-source
+          path: cp1_export/
+          retention-days: 90
+          if-no-files-found: error
