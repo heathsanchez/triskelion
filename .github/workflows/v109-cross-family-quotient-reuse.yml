@@ -1,0 +1,24 @@
+name: V109 Cross Family Quotient Reuse
+on:
+  push:
+    paths:
+      - 'protocols/V109_CROSS_FAMILY_QUOTIENT_REUSE_PRECOMMIT.md'
+      - 'experiments/V109_CROSS_FAMILY_QUOTIENT_REUSE.py'
+      - '.github/workflows/v109-cross-family-quotient-reuse.yml'
+  workflow_dispatch:
+jobs:
+  v109:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+      - run: python experiments/V109_CROSS_FAMILY_QUOTIENT_REUSE.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v109-cross-family-quotient-reuse
+          path: artifacts/v109_cross_family_quotient_reuse/
