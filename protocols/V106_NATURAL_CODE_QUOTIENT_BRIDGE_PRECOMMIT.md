@@ -55,7 +55,9 @@ Under `DUAL_CMP`, these two literal repairs are hypothesized to be one capabilit
 
 ## Task generation
 
-For every eligible single-comparator `<` or `>` site in the frozen program list:
+Eligible sites are single-comparator `<` or `>` AST comparisons. To keep the unchanged external verifier tractable, qualification is prospectively capped to the **first three eligible sites in deterministic AST preorder per frozen program**. Sites after the first three are not inspected or used.
+
+For each selected site:
 
 1. start from the externally authored correct program;
 2. create canonical-LT presentation by dualizing the site if necessary;
