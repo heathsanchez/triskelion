@@ -96,7 +96,74 @@ def acquire_case(provider, bugsinpy: Path, project: str, bug_id: int, case_index
         }
 
 
+def _scope_properties(scope: dict[str, Any]) -> tuple[set[str], bool]:
+    fields: set[str] = set()
+    has_source_contains = False
+    def walk(node: Any) -> None:
+        nonlocal has_source_contains
+        if not isinstance(node, dict):
+            return
+        for key in ("all", "any"):
+            if key in node and isinstance(node[key], list):
+                for child in node[key]:
+                    walk(child)
+                return
+        if "not" in node:
+            walk(node["not"]); return
+        field = node.get("field")
+        if isinstance(field, str):
+            fields.add(field)
+            if field == "source" and "contains" in node:
+                has_source_contains = True
+    walk(scope)
+    return fields, has_source_contains
+
+
+def synthesize(provider, episodes: list[dict[str, Any]]) -> dict[str, Any]:
+    payload = []
+    for e in episodes:
+        payload.append({
+            "case": e["case"],
+            "failure_class": e["failure_class"],
+            "changed_files": e["changed_files"],
+            "failing_test_tail": e["baseline"].get("test_output", "")[-6000:],
+            "successful_intervention": e["successful_diff"],
+        })
+    prompt = (
+        "Compress ONLY the two independently replayed, native-verified acquisition interventions below into one portable repair capability. "
+        "Return ONLY JSON with exactly these keys: name, instruction, preconditions, postconditions, applicability_test, scope. "
+        "The instruction must be a concise reusable repair policy, not either case-specific patch. "
+        "The scope MUST be a non-empty source-distinct applicability rule derived only from observable acquisition evidence. "
+        "Scope leaves may use ONLY fields `source` and `metadata.failure_class`; `metadata.project` and `task_id` are forbidden. "
+        "Scope must contain at least one leaf of the form {\"field\":\"source\",\"contains\":\"...\"}. "
+        "Combine leaves only with all/any/not. Do not name HTTPie, youtube-dl, acquisition case IDs, protected tasks, or any unseen project. "
+        "Choose lexical/semantic source indicators that reflect the shared repair mechanism, and keep the scope selective rather than universal. "
+        "Do not invent protected evidence.\n\nACQUISITION EVIDENCE:\n" + json.dumps(payload, indent=2, sort_keys=True)
+    )
+    response = provider.sample(prompt, seed=acquisition.SEED + 9000, max_tokens=acquisition.MAX_TOKENS)
+    value = json_transport._json_object(response.text)
+    required = {"name", "instruction", "preconditions", "postconditions", "applicability_test", "scope"}
+    if set(value) != required:
+        raise ValueError(f"synthesis keys must be exactly {sorted(required)}; got {sorted(value)}")
+    acquisition.validate_scope(value["scope"])
+    fields, has_source_contains = _scope_properties(value["scope"])
+    if not fields or not fields.issubset({"source", "metadata.failure_class"}):
+        raise ValueError(f"scope uses forbidden fields: {sorted(fields)}")
+    if not has_source_contains:
+        raise ValueError("scope must contain at least one source-contains predicate")
+    lowered = json.dumps(value["scope"], sort_keys=True).lower()
+    for forbidden in ("httpie", "youtube-dl", "youtube_dl", "httpie/5", "youtube-dl/32"):
+        if forbidden in lowered:
+            raise ValueError(f"scope contains acquisition identity {forbidden!r}")
+    return {
+        "manifest": value,
+        "response": response.to_dict(),
+        "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+    }
+
+
 acquisition.acquire_case = acquire_case
+acquisition.synthesize = synthesize
 
 if __name__ == "__main__":
     acquisition.main()
