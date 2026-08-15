@@ -1,0 +1,131 @@
+name: Checkpoint 3 frozen recovery qualification
+
+on:
+  push:
+    branches:
+      - cp3-recovery-20260815
+    paths:
+      - 'cp3/**'
+      - '.github/workflows/cp3-recovery-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cp3-frozen-recovery-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    name: qualify-${{ matrix.project }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        project: [pandas, scrapy, luigi]
+    steps:
+      - name: Checkout frozen recovery branch
+        uses: actions/checkout@v4
+
+      - name: Record runner provenance
+        run: |
+          python --version
+          docker --version
+          git rev-parse HEAD
+          sha256sum cp3/FROZEN_PROJECTS.json cp3/qualify_remaining.py
+
+      - name: Qualify remaining frozen shard
+        id: qualify
+        continue-on-error: true
+        run: |
+          mkdir -p cp3_out
+          python cp3/qualify_remaining.py \
+            --project '${{ matrix.project }}' \
+            --out 'cp3_out/${{ matrix.project }}.json'
+
+      - name: Preserve outcome if harness aborts before JSON
+        if: always()
+        run: |
+          if [ ! -f 'cp3_out/${{ matrix.project }}.json' ]; then
+            python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path('cp3_out/${{ matrix.project }}.json')
+          p.parent.mkdir(parents=True, exist_ok=True)
+          p.write_text(json.dumps({
+            'status':'HARNESS_ABORT',
+            'project':'${{ matrix.project }}',
+            'semantic_classification':None,
+            'note':'No qualification JSON was produced; treat only as infrastructure failure.'
+          }, indent=2, sort_keys=True)+'\n')
+          PY
+          fi
+          cat 'cp3_out/${{ matrix.project }}.json'
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-qualification-${{ matrix.project }}
+          path: cp3_out/${{ matrix.project }}.json
+          if-no-files-found: error
+          retention-days: 90
+
+  merge:
+    name: merge-frozen-corpus-evidence
+    needs: qualify
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cp3-qualification-*
+          path: downloaded
+          merge-multiple: true
+      - name: Merge without changing selection
+        run: |
+          mkdir -p cp3_out
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          known = {
+            'acquisition': ['httpie/5','youtube-dl/32'],
+            'protected': ['thefuck/32','keras/32','spacy/2','fastapi/5','black/18'],
+          }
+          partition = {
+            'pandas':'acquisition',
+            'scrapy':'protected',
+            'luigi':'protected',
+          }
+          shards = {}
+          for p in sorted(Path('downloaded').glob('*.json')):
+            x=json.loads(p.read_text())
+            shards[x.get('project', p.stem)] = x
+          merged={k:list(v) for k,v in known.items()}
+          for project,x in shards.items():
+            if x.get('status')=='QUALIFIED' and x.get('selected'):
+              merged[partition[project]].append(x['selected'])
+          result={
+            'canonical_id':'TRISKELION_CP3_QUALIFICATION_RECOVERY',
+            'frozen_known':known,
+            'remaining_shards':shards,
+            'qualified':merged,
+            'acquisition_count':len(merged['acquisition']),
+            'protected_count':len(merged['protected']),
+            'next_gate':'PROTECTED_SANITIZATION_AND_FOUR_ARM' if len(merged['acquisition'])>=2 and len(merged['protected'])>=5 else 'INSUFFICIENT_QUALIFIED_CORPUS',
+            'no_semantic_skipping':True,
+            'corpus_lock_sha256':'760b73f87bbe79b76c970c1b2ac4cdd83e5eb18ee3f4b9f2304a915fddbbd5ad',
+          }
+          Path('cp3_out/QUALIFICATION_MERGED.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+      - name: Upload merged frozen evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-qualification-merged
+          path: cp3_out/QUALIFICATION_MERGED.json
+          retention-days: 90
