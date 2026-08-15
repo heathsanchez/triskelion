@@ -1,0 +1,26 @@
+name: V112 V110 Recurrence Null
+on:
+  push:
+    paths:
+      - 'protocols/V112_V110_RECURRENCE_NULL_PRECOMMIT.md'
+      - 'experiments/V112_V110_RECURRENCE_NULL.py'
+      - '.github/workflows/v112-v110-recurrence-null.yml'
+  workflow_dispatch:
+
+jobs:
+  v112:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run frozen conditional recurrence null
+        run: python experiments/V112_V110_RECURRENCE_NULL.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v112-v110-recurrence-null
+          path: artifacts/v112_v110_recurrence_null/
