@@ -1,0 +1,30 @@
+name: CP3 protected runtime digest probe
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-protected-runtime-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull exact historical Python tags and record immutable digests
+        run: |
+          set -euo pipefail
+          for v in 3.7.0 3.7.7 3.8.3; do
+            docker pull "python:$v"
+            docker run --rm "python:$v" python --version
+            digest=$(docker image inspect "python:$v" --format '{{index .RepoDigests 0}}')
+            echo "$v $digest"
+          done | tee protected_python_digests.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cp3-protected-python-digests
+          path: protected_python_digests.txt
+          retention-days: 90
