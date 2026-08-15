@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0",
+  "name": "Triskelion developmental ladder",
+  "companion_protocol": "protocols/DEVELOPMENTAL_CONTROLLER_CONSTITUTION_V1.md",
+  "inherits": [
+    "protocols/RGRS_OPERATING_MANUAL_V1.md",
+    "existing frozen CP3 split/capability/model/verifier artifacts"
+  ],
+  "state_machine": {
+    "ordered_states": [
+      "PROPOSED",
+      "PRECOMMITTED",
+      "APPARATUS_VALID",
+      "EXECUTED",
+      "VERDICT",
+      "REPLAYED"
+    ],
+    "terminal_verdicts": [
+      "ADMITTED",
+      "REJECTED",
+      "NO_TRANSFER",
+      "NON_CAUSAL_GAIN",
+      "INFRASTRUCTURE_NULL",
+      "INCONCLUSIVE",
+      "OBSTRUCTED"
+    ]
+  },
+  "evidence_object": {
+    "required_components": ["case_identity", "harness_manifest", "arm_identity", "verifier_evidence", "replay_provenance"],
+    "symbolic_form": "E=(C,H,A,V,R)"
+  },
+  "apparatus_gate": {
+    "required": [
+      "expected_case_commit_checked_out",
+      "historical_runtime_launched",
+      "buggy_baseline_reproduced",
+      "qualifying_reference_reproduced_if_parent_protocol_requires",
+      "native_verifier_executed",
+      "arm_information_boundary_respected",
+      "operator_hash_and_enablement_match",
+      "ablation_absence_confirmed",
+      "complete_run_record_present"
+    ],
+    "failure_verdict": "INFRASTRUCTURE_NULL",
+    "semantic_hypothesis_update_on_failure": false
+  },
+  "checkpoints": {
+    "CP3": {
+      "name": "causal real-artifact competence",
+      "question": "Does a previously acquired verified capability causally improve unfamiliar real software-artifact repair under a protected protocol?",
+      "inherits_existing_freezes": true,
+      "required_gates": [
+        "apparatus_valid",
+        "external_verifier_passes",
+        "primary_endpoint_improves_over_frozen_baseline",
+        "causal_ablation_weakens_or_removes_gain",
+        "no_protected_semantic_retuning",
+        "replay_passes"
+      ]
+    },
+    "CP4": {
+      "name": "source-distinct operator transfer",
+      "question": "Does an admitted operator survive beyond the source from which it was acquired?",
+      "required_gates": [
+        "operator_frozen_before_transfer_target_exposure",
+        "source_separation_rule_passes",
+        "protected_transfer_endpoint_improves",
+        "operator_ablation_weakens_or_removes_gain",
+        "retrieval_alternative_tested_or_marked_unresolved",
+        "apparatus_valid",
+        "replay_passes"
+      ]
+    },
+    "CP5": {
+      "name": "developmental acceleration",
+      "question": "Does verified developmental state causally reduce the cost of discovering a subsequent capability that the prior capability cannot directly solve?",
+      "direct_solution_exclusion_required": true,
+      "discovery_cost_vector": [
+        "model_calls",
+        "verifier_calls",
+        "candidate_count",
+        "tokens",
+        "wall_time"
+      ],
+      "primary_cost_measure_must_be_precommitted": true,
+      "preferred_arms": [
+        "COLD",
+        "RAW_HISTORY",
+        "O1_ONLY",
+        "L1_ONLY",
+        "O1_PLUS_L1",
+        "FULL_DEVELOPMENTAL_STATE",
+        "SHUFFLED_EQUAL_SIZE_STATE"
+      ],
+      "required_gates": [
+        "direct_solution_exclusion_holds",
+        "subsequent_capability_verifies",
+        "primary_discovery_cost_improves_over_cold",
+        "causal_carrier_identified_by_prespecified_ablation",
+        "trajectory_claim_survives_shuffled_equal_size_control_if_claimed",
+        "apparatus_valid",
+        "replay_passes"
+      ]
+    },
+    "CP5_R": {
+      "name": "counterexample-driven revision",
+      "question": "Can the controller revise or withdraw a retained law when externally verified counterevidence appears?",
+      "required_gates": [
+        "counterexample_externally_verified",
+        "contradicted_law_revised_narrowed_or_withdrawn",
+        "historical_evidence_unchanged",
+        "prior_valid_replay_obligations_preserved_within_revised_scope",
+        "revised_state_replayable"
+      ]
+    },
+    "CP6": {
+      "name": "verified recompression",
+      "question": "Can accumulated operators and laws be compressed without loss of frozen verified capability?",
+      "tracked_complexity_measures": [
+        "operator_count",
+        "law_count",
+        "serialized_description_size",
+        "activation_complexity",
+        "verifier_cost",
+        "memory_runtime_overhead",
+        "future_discovery_cost"
+      ],
+      "required_gates": [
+        "all_covered_protected_replay_obligations_pass",
+        "original_causal_obligations_remain_in_replay_set",
+        "precommitted_complexity_or_system_cost_strictly_improves",
+        "total_cost_gate_passes",
+        "separate_protected_test_required_for_search_acceleration_claim"
+      ]
+    }
+  },
+  "immutability": {
+    "scientific_outcomes_append_only": true,
+    "infrastructure_repair_replaces_prior_run": false,
+    "counterexamples_retained": true,
+    "negative_results_retained": true,
+    "obstructions_retained": true
+  },
+  "forbidden_post_hoc_changes": [
+    "protected_case_selection_from_correctness_outcomes",
+    "target_operator_retuning_from_protected_semantics",
+    "primary_metric_switching",
+    "protected_failure_denominator_removal",
+    "verifier_replacement_because_of_rejection",
+    "activation_tuning_from_protected_source_or_labels"
+  ]
+}
