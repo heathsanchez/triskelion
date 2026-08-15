@@ -1,0 +1,64 @@
+name: CP3 exact-env protected baseline probe v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cp3-canonical-demo-20260815
+    paths:
+      - .github/workflows/cp3-exact-env-baseline-probe-v1.yml
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - case: thefuck/32
+            tag: 3.7.0
+          - case: keras/32
+            tag: 3.7.3
+          - case: spacy/2
+            tag: 3.7.7
+          - case: fastapi/5
+            tag: 3.8.3
+          - case: black/18
+            tag: 3.8.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe exact historical Python image and basic tooling
+        shell: bash
+        run: |
+          set -u
+          mkdir -p cp3_env_probe
+          CASE='${{ matrix.case }}'
+          TAG='${{ matrix.tag }}'
+          OUT="cp3_env_probe/${CASE//\//-}.txt"
+          {
+            echo "case=$CASE"
+            echo "tag=$TAG"
+            echo "=== pull ==="
+            docker pull "python:$TAG"
+            echo "=== python ==="
+            docker run --rm "python:$TAG" python --version
+            echo "=== base tools ==="
+            docker run --rm "python:$TAG" bash -lc 'command -v git || true; command -v pip || true; command -v python || true; cat /etc/os-release || true'
+            echo "=== pip bootstrap ==="
+            docker run --rm "python:$TAG" bash -lc 'python -m pip --version; python -m venv /tmp/v; /tmp/v/bin/python -m pip --version'
+          } >"$OUT" 2>&1
+          cat "$OUT"
+
+      - name: Upload exact-env probe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp3-exact-env-${{ matrix.tag }}-${{ strategy.job-index }}
+          path: cp3_env_probe/
+          retention-days: 30
+          if-no-files-found: warn
