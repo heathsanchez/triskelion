@@ -1,0 +1,47 @@
+name: CP3 FastAPI protected environment diagnostic
+
+on:
+  push:
+    branches: [cp3-recovery-20260815]
+    paths:
+      - '.github/workflows/cp3-fastapi-env-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+      - name: Pull exact FastAPI runtime
+        run: docker pull 'python:3.8.3@sha256:dd6cd8191ccbced2a6af5d0ddb51e6057c1444df14e14bcfd5c7b3ef78738050'
+      - name: Run native environment diagnostic only
+        run: |
+          export PATH="$PWD/BugsInPy/framework/bin:$PATH"
+          mkdir -p cp3_out
+          python -B - <<'PY'
+          import json,tempfile
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'cp3')
+          import bugsinpy_four_arm as base
+          import protected_exact_runtime as rt
+          with tempfile.TemporaryDirectory(prefix='cp3-fastapi-env-') as raw:
+              work=base.checkout_buggy(Path('BugsInPy').resolve(),'fastapi',5,Path(raw))
+              result=rt.native_test(Path('BugsInPy').resolve(),work)
+              Path('cp3_out/FASTAPI_ENV_DIAGNOSTIC.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+              print(json.dumps(result,indent=2,sort_keys=True))
+              assert result.get('infrastructure_error') == 'test_environment_error'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cp3-fastapi-env-diagnostic
+          path: cp3_out/FASTAPI_ENV_DIAGNOSTIC.json
+          if-no-files-found: warn
+          retention-days: 90
