@@ -37,7 +37,6 @@ def synth_o1(provider, bugs:Path)->dict:
         fixed=exact.native_test(bugs,w)
         if fixed.get('infrastructure_error') or not fixed.get('passed'):
             return {'status':'R10_OR_INTERVENTION_NOT_VERIFIED','baseline':base,'fixed':fixed}
-        context,_=acq.collect_context(w,base.get('test_output',''))
         payload={'failure_class':acq.failure_class(base.get('test_output','')),
                  'failing_test_tail':base.get('test_output','')[-6000:],
                  'successful_intervention':diff,
@@ -47,19 +46,30 @@ def synth_o1(provider, bugs:Path)->dict:
                 'Do not name the source project, bug ID, test path, or copy a case-specific patch. Do not infer unseen tasks.\n\n'+json.dumps(payload,sort_keys=True))
         r=provider.sample(prompt,seed=20269815,max_tokens=MAX_TOKENS)
         blocks=re.findall(r'```(?:json)?\s*(.*?)```',r.text,flags=re.S|re.I)
-        value=json.loads((blocks[0] if len(blocks)==1 else r.text).strip())
-        if set(value)!={'name','instruction','preconditions','postconditions'}: raise ValueError('bad O1 keys')
+        raw_value=json.loads((blocks[0] if len(blocks)==1 else r.text).strip())
+        required=['name','instruction','preconditions','postconditions']
+        if not all(k in raw_value for k in required):
+            raise ValueError('O1 JSON missing required policy fields')
+        value={k:raw_value[k] for k in required}
         low=json.dumps(value).lower()
         if any(x in low for x in ['httpie','httpie/5']): raise ValueError('O1 leaks acquisition identity')
         artifact={'capability_id':'V146.O1','artifact':value,'source_case':'httpie/5',
                   'source_diff_sha256':hashlib.sha256(diff.encode()).hexdigest(),
                   'synthesis_prompt_sha256':hashlib.sha256(prompt.encode()).hexdigest(),
+                  'synthesis_returned_keys':sorted(raw_value),
                   'response':r.to_dict(),'source_verified':True}
         artifact['artifact_sha256']=hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
         return {'status':'O1_FROZEN','o1':artifact,'baseline':base,'fixed':fixed}
 
 def sham(text:str)->str:
-    words=text.split(); return ' '.join(reversed(words))
+    parts=re.split(r'(\s+)',text)
+    token_idx=list(range(0,len(parts),2))
+    tokens=[parts[i] for i in token_idx]
+    tokens.reverse()
+    for i,tok in zip(token_idx,tokens): parts[i]=tok
+    out=''.join(parts)
+    assert len(out.encode())==len(text.encode())
+    return out
 
 def run_youtube(provider, bugs:Path, arm:str, seed:int, memory:str)->dict:
     t0=time.perf_counter()
