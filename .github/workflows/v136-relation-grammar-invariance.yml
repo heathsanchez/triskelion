@@ -1,0 +1,26 @@
+name: V136 Relation Grammar Invariance
+on:
+  push:
+    branches:
+      - agent/v136-developmental-capstone-followups
+    paths:
+      - 'protocols/V136_RELATION_GRAMMAR_AND_ORIENTATION_PRECOMMIT.md'
+      - 'experiments/V136_RELATION_GRAMMAR_INVARIANCE.py'
+      - '.github/workflows/v136-relation-grammar-invariance.yml'
+  workflow_dispatch:
+jobs:
+  v136:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+      - run: python experiments/V136_RELATION_GRAMMAR_INVARIANCE.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v136-relation-grammar-invariance
+          path: artifacts/v136_relation_grammar_invariance/
