@@ -16,6 +16,10 @@ assert spec.loader is not None
 spec.loader.exec_module(v138)
 
 EXPECTED_COMMIT = '4257f44b0ff1181dedaedee6a447e133219fcebf'
+EXPECTED_PROGRAMS = 17
+EXPECTED_SITES = 24
+EXPECTED_VERIFIER_CALLS = 281
+EXPECTED_LABEL_COUNTS = {'RELAX_SAFE': 8, 'RELAX_SENSITIVE': 16}
 
 
 def label(r):
@@ -83,12 +87,21 @@ def paired_scope_test(rows):
 
 def main():
     rows, calls, programs, head = v138.collect_natural_records()
+    counts = dict(sorted(Counter(label(r) for r in rows).items()))
+    replay_identity = {
+        'commit': head == EXPECTED_COMMIT,
+        'program_count': len(programs) == EXPECTED_PROGRAMS,
+        'site_count': len(rows) == EXPECTED_SITES,
+        'verifier_calls': calls == EXPECTED_VERIFIER_CALLS,
+        'label_counts': counts == EXPECTED_LABEL_COUNTS,
+    }
+
     support = program_support(rows)
     single_evaluable = sum(int(x['single_program_o3_evaluable']) for x in support)
-    groups, folds, vals, median = paired_scope_test(rows)
+    groups, folds, vals, median = paired_scope_test(rows) if all(replay_identity.values()) else ([], [], [], None)
 
-    if head != EXPECTED_COMMIT:
-        verdict = 'R10_COMMIT_MISMATCH'
+    if not all(replay_identity.values()):
+        verdict = 'R10_V138_REPLAY_IDENTITY_MISMATCH'
     elif len(vals) < 8:
         verdict = 'CORPUS_CEILING_V153_PAIRED_SUPPORT'
     elif single_evaluable == 0 and median is not None and median >= 0.75:
@@ -101,12 +114,14 @@ def main():
     result = {
         'canonical_id': 'V153_V138_O3_SUPPORT_DIAGNOSTIC',
         'protocol': 'protocols/V153_V138_O3_SUPPORT_DIAGNOSTIC_PRECOMMIT.md',
+        'apparatus_addendum': 'protocols/V153A_V138_RUNTIME_APPARATUS_ADDENDUM.md',
         'external_commit_expected': EXPECTED_COMMIT,
         'external_commit_observed': head,
+        'v138_replay_identity': replay_identity,
         'verifier_calls': calls,
         'program_count': len(programs),
         'site_count': len(rows),
-        'global_label_counts': dict(sorted(Counter(label(r) for r in rows).items())),
+        'global_label_counts': counts,
         'program_support': support,
         'single_program_evaluable': single_evaluable,
         'pair_order_method': 'SHA256(program_name) ascending; consecutive pairs',
@@ -120,15 +135,16 @@ def main():
     (OUT/'RESULT.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
     print(json.dumps({
         'verdict': verdict,
+        'v138_replay_identity': replay_identity,
         'program_count': len(programs),
         'site_count': len(rows),
-        'global_label_counts': result['global_label_counts'],
+        'global_label_counts': counts,
         'single_program_evaluable': single_evaluable,
         'paired_evaluable': len(vals),
         'paired_median_heldout_ba': median,
         'paired_groups': groups,
     }, indent=2, sort_keys=True))
-    if head != EXPECTED_COMMIT:
+    if verdict.startswith('R10_'):
         raise SystemExit(2)
 
 
