@@ -1,0 +1,30 @@
+{
+  "protocol": "V145R3_CLEAN_THIRD_RUNG_ADMISSIBILITY",
+  "status": "PRECOMMITTED_KNOWN_EXPOSURES",
+  "rule": "Prior semantic inspection of a BugsInPy repair, fixed production source, developer patch, or solution narrative makes that case exposure-ineligible for the strongest blind-natural E3 claim. Runtime/test qualification alone does not.",
+  "cases": [
+    "pandas/66",
+    "pandas/146",
+    "pandas/111",
+    "pandas/14",
+    "youtube-dl/9",
+    "keras/26",
+    "matplotlib/28",
+    "matplotlib/5",
+    "matplotlib/9",
+    "keras/41",
+    "scrapy/12",
+    "tornado/4",
+    "youtube-dl/2",
+    "PySnooper/3",
+    "matplotlib/23",
+    "tqdm/2",
+    "fastapi/16"
+  ],
+  "revision_evidence": {
+    "pandas/146": "Pre-existing Witbrock native V10 audit explicitly inspected and semantically classified the developer repair before V145R2.",
+    "pandas/111": "Pre-existing Witbrock native V10 audit explicitly inspected and semantically classified the developer repair before V145R2.",
+    "pandas/14": "V145R2 selected pandas/14 mechanically and its post-selection audit found no prior semantic exposure; the subsequent intervention-admissibility audit then opened its developer patch and found that it edits pandas/tests/arithmetic/conftest.py, so it is both now semantically exposed and inadmissible under the inherited V145 no-test-edit law."
+  },
+  "boundary": "This denylist is frozen before V145R3 qualification outcomes. Newly selected candidates still require the separately frozen post-selection exposure audit."
+}
