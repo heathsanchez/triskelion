@@ -1,0 +1,73 @@
+name: V153D zero-call rival payload projection diagnostic
+
+on:
+  push:
+    branches: ["v153d-rival-payload-projection-diagnostic"]
+    paths:
+      - 'protocols/V153D_RIVAL_PAYLOAD_PROJECTION_DIAGNOSTIC.md'
+      - 'cp3/v153d_rival_payload_projection_diagnostic.py'
+      - '.github/workflows/v153d-rival-payload-projection-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v153d_precompiled_templates
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze diagnostic provenance
+        run: |
+          python -m py_compile cp3/v153d_rival_payload_projection_diagnostic.py
+          sha256sum protocols/V153D_RIVAL_PAYLOAD_PROJECTION_DIAGNOSTIC.md cp3/v153d_rival_payload_projection_diagnostic.py
+
+      - name: Recover immutable V153 artifact without model calls
+        run: |
+          mkdir -p frozen_v153
+          gh run download 31943774314 --repo heathsanchez/triskelion --name v153-set-valued-rival-search --dir frozen_v153
+          test -f frozen_v153/v153/V153_RESULT.json
+          echo 'ae572174c253b47cef2db706254b45675a8c414feeb8d6bf7c86d516bd206057  frozen_v153/v153/V153_RESULT.json' | sha256sum -c -
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Pull exact T2 historical runtime
+        run: docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+
+      - name: Run zero-call projection and native replay
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v153d_rival_payload_projection_diagnostic.py \
+            --v153-result "$PWD/frozen_v153/v153/V153_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v153d"
+
+      - name: Show diagnostic verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v153d/V153D_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v153d/V153D_RESULT.json'))
+          print('V153D VERDICT',r.get('verdict'))
+          print(json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          for row in r.get('rows',[]):
+            print(row.get('seed'),row.get('status'),row.get('selected_payload_sha256'))
+          PY
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v153d-rival-payload-projection-diagnostic
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
