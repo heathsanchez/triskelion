@@ -62,6 +62,7 @@ jobs:
       - name: Show fail-closed V154A verdict
         if: always()
         run: |
+          mkdir -p artifacts/v154a
           if [ -f artifacts/v154a/V154A_RESULT.json ]; then
             python - <<'PY'
           import json
