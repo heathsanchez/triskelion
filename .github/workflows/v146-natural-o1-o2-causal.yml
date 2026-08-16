@@ -2,7 +2,7 @@ name: V146 natural O1 to O2 causal separator
 
 on:
   push:
-    branches: ["v146-natural-o1-o2-causal", "v146b-natural-o1-o2-causal-apparatus"]
+    branches: ["v146-natural-o1-o2-causal", "v146b-natural-o1-o2-causal-apparatus", "v146c-natural-o1-o2-raw-policy"]
   workflow_dispatch:
 
 permissions:
@@ -21,8 +21,10 @@ jobs:
         run: |
           python - <<'PY'
           import hashlib,pathlib
-          for p in ['protocols/V146_NATURAL_O1_O2_CAUSAL_PRECOMMIT.md','cp3/v146_natural_o1_o2.py','cp3/KNOWN_QUALIFIED.json','cp3/NO_CHERRY_PICKING.txt','cp3/bugsinpy_four_arm_v4.py','cp3/river_qwen35_provider.py']:
-              print(p, hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest())
+          ps=['cp3/v146_natural_o1_o2.py','cp3/KNOWN_QUALIFIED.json','cp3/NO_CHERRY_PICKING.txt','cp3/bugsinpy_four_arm_v4.py','cp3/river_qwen35_provider.py']
+          if pathlib.Path('protocols/V146C_NATURAL_O1_O2_RAW_POLICY_PRECOMMIT.md').exists(): ps.insert(0,'protocols/V146C_NATURAL_O1_O2_RAW_POLICY_PRECOMMIT.md')
+          else: ps.insert(0,'protocols/V146_NATURAL_O1_O2_CAUSAL_PRECOMMIT.md')
+          for p in ps: print(p, hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest())
           PY
       - name: Clone frozen corpus source
         run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
