@@ -1,0 +1,26 @@
+name: V137 Semantic Quotient Recovery
+on:
+  push:
+    branches:
+      - agent/v137-semantic-quotient-recovery
+    paths:
+      - 'protocols/V137_SEMANTIC_QUOTIENT_RECOVERY_PRECOMMIT.md'
+      - 'experiments/V137_SEMANTIC_QUOTIENT_RECOVERY.py'
+      - '.github/workflows/v137-semantic-quotient-recovery.yml'
+  workflow_dispatch:
+jobs:
+  v137:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+      - run: python experiments/V137_SEMANTIC_QUOTIENT_RECOVERY.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v137-semantic-quotient-recovery
+          path: artifacts/v137_semantic_quotient_recovery/
