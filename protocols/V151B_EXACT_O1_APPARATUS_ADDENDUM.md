@@ -17,3 +17,5 @@ The exact source intervention SHA-256 remains:
 No task, model, seed, budget, context adapter, output protocol, verifier, arm, raw-memory object, sham construction, stopping rule, classification rule, or claim boundary changes from V151.
 
 The prior V151 R10 record remains immutable and is not overwritten. V151B receives a separate run identity.
+
+This final metadata-only commit is intentionally made after the workflow file exists so the frozen apparatus receives a push-triggered Actions execution. It changes no scientific parameter.
