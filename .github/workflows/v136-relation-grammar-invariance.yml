@@ -25,3 +25,4 @@ jobs:
           name: v136-relation-grammar-invariance
           path: artifacts/v136_relation_grammar_invariance/
 # apparatus-only rerun trigger; scientific protocol unchanged
+# Rerun trigger 2026-08-16T15:40+12:00; scientific code/protocol unchanged.
