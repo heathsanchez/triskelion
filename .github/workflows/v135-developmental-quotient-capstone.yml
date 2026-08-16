@@ -1,0 +1,28 @@
+name: V135 Developmental Quotient Capstone
+on:
+  push:
+    branches:
+      - agent/v135-developmental-quotient-capstone
+    paths:
+      - 'protocols/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE_PRECOMMIT.md'
+      - 'experiments/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE.py'
+      - '.github/workflows/v135-developmental-quotient-capstone.yml'
+  workflow_dispatch:
+jobs:
+  v135:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+      - run: python experiments/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v135-developmental-quotient-capstone
+          path: |
+            artifacts/v135_developmental_quotient_capstone/
+            artifacts/v113_closure_extension_identity/
