@@ -38,3 +38,5 @@ No fallback is allowed inside either mode and no verifier outcome influences sel
 Record for every seed and mode: source hashes, transport status, selected rival SHA, verifier reachability, and verifier outcome.
 
 This diagnostic exists only to determine the correct representation/executor residual and license a separately prospective successor. It cannot earn a developmental causal claim.
+
+Execution trigger note: workflow already existed before this append-only note; no scientific or apparatus rule changed.
