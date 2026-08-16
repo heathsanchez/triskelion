@@ -1,0 +1,86 @@
+name: V154A label-blind expansion manifest
+
+on:
+  push:
+    branches: ["v154a-label-blind-expansion-manifest"]
+    paths:
+      - 'protocols/V154A_LABEL_BLIND_EXPANSION_MANIFEST_PRECOMMIT.md'
+      - 'cp3/v154a_label_blind_expansion_manifest.py'
+      - '.github/workflows/v154a-label-blind-expansion-manifest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v154a-label-blind-expansion-manifest
+  cancel-in-progress: false
+
+jobs:
+  manifest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Freeze V154A provenance before source eligibility outcomes
+        run: |
+          python -m py_compile cp3/v154a_label_blind_expansion_manifest.py cp3/v145r1_qualify_clean_pandas_exact.py cp3/bugsinpy_exact_runtime.py cp3/qualify_remaining.py
+          python - <<'PY'
+          import hashlib,pathlib
+          paths=[
+            'protocols/V154A_LABEL_BLIND_EXPANSION_MANIFEST_PRECOMMIT.md',
+            'cp3/v154a_label_blind_expansion_manifest.py',
+            'cp3/v145r1_qualify_clean_pandas_exact.py',
+            'cp3/bugsinpy_exact_runtime.py',
+            'cp3/qualify_remaining.py',
+            'cp3/FROZEN_PROJECTS.json',
+            'cp3/NO_CHERRY_PICKING.txt']
+          for p in paths:
+            b=pathlib.Path(p).read_bytes(); print(p,hashlib.sha256(b).hexdigest())
+          print('V154A_FREEZE_VALID cases_per_project=2 min_strict_sites=3')
+          PY
+
+      - name: Pull all frozen exact CPython images
+        run: |
+          for image in \
+            'python:3.7.0@sha256:10608fb357a18383f792efbf7472ec6d2e166dad62efc0d7c409ef2777aaafd0' \
+            'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5' \
+            'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e' \
+            'python:3.7.7@sha256:c1e36afba1c3c230a6846801fb284cf4383a8a0080fcf32c2ec625c066c56361' \
+            'python:3.8.3@sha256:dd6cd8191ccbced2a6af5d0ddb51e6057c1444df14e14bcfd5c7b3ef78738050'; do docker pull "$image"; done
+
+      - name: Build immutable label-blind manifest
+        run: |
+          mkdir -p artifacts/v154a
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v154a_label_blind_expansion_manifest.py \
+            --out "$PWD/artifacts/v154a/V154A_RESULT.json"
+
+      - name: Show fail-closed V154A verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v154a/V154A_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v154a/V154A_RESULT.json'))
+          print('V154A VERDICT',r.get('verdict'))
+          print('eligible_case_count',r.get('eligible_case_count'))
+          print('projects_with_eligible_count',r.get('projects_with_eligible_count'))
+          print('projects_with_eligible',r.get('projects_with_eligible'))
+          print('No O3 labels were generated in V154A.')
+          PY
+          else
+            echo '{"verdict":"R10_INCONCLUSIVE","reason":"V154A result artifact missing"}' > artifacts/v154a/CONTROLLER_RESULT.json
+            cat artifacts/v154a/CONTROLLER_RESULT.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v154a-label-blind-expansion-manifest
+          path: artifacts/v154a/
+          if-no-files-found: error
+          retention-days: 90
