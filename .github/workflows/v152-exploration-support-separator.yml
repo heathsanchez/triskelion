@@ -1,3 +1,4 @@
+# Trigger-only commit after protocol freeze; no V152 scientific parameter changed.
 name: V152 exploration-support separator
 
 on:
