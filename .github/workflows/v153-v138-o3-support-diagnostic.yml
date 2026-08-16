@@ -1,0 +1,65 @@
+name: V153 V138 O3 support diagnostic
+
+on:
+  push:
+    branches: ["v153-v138-o3-support-diagnostic"]
+    paths:
+      - 'protocols/V153_V138_O3_SUPPORT_DIAGNOSTIC_PRECOMMIT.md'
+      - 'experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py'
+      - '.github/workflows/v153-v138-o3-support-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v153-v138-o3-support-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Freeze V153 provenance before outcomes
+        run: |
+          python -m py_compile experiments/V138_NATURAL_DEVELOPMENTAL_ACCELERATION.py experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py
+          python - <<'PY'
+          import hashlib,pathlib
+          paths=[
+            'protocols/V138_NATURAL_DEVELOPMENTAL_ACCELERATION_PRECOMMIT.md',
+            'protocols/V153_V138_O3_SUPPORT_DIAGNOSTIC_PRECOMMIT.md',
+            'experiments/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE.py',
+            'experiments/V138_NATURAL_DEVELOPMENTAL_ACCELERATION.py',
+            'experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py']
+          for p in paths:
+            b=pathlib.Path(p).read_bytes(); print(p,hashlib.sha256(b).hexdigest())
+          print('V153_FREEZE_VALID')
+          PY
+
+      - name: Run frozen support diagnostic
+        run: python -B experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py
+
+      - name: Show fail-closed V153 verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v153_v138_o3_support_diagnostic/RESULT.json ]; then
+            cat artifacts/v153_v138_o3_support_diagnostic/RESULT.json
+          else
+            mkdir -p artifacts/v153_v138_o3_support_diagnostic
+            echo '{"verdict":"R10_INCONCLUSIVE","reason":"V153 result artifact missing"}' > artifacts/v153_v138_o3_support_diagnostic/CONTROLLER_RESULT.json
+            cat artifacts/v153_v138_o3_support_diagnostic/CONTROLLER_RESULT.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v153-v138-o3-support-diagnostic
+          path: artifacts/v153_v138_o3_support_diagnostic/
+          if-no-files-found: error
+          retention-days: 90
