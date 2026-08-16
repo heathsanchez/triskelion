@@ -1,0 +1,61 @@
+name: V145 freeze validation
+
+on:
+  push:
+    branches:
+      - agent/v145-natural-three-episode-counterfactual
+    paths:
+      - 'protocols/V145_*'
+      - 'experiments/V145_*'
+      - '.github/workflows/v145-freeze-validation.yml'
+  pull_request:
+    paths:
+      - 'protocols/V145_*'
+      - 'experiments/V145_*'
+      - '.github/workflows/v145-freeze-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate JSON schemas parse
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for p in [
+              Path('protocols/V145_RESULT_SCHEMA.json'),
+              Path('protocols/developmental_run_record_v1.schema.json'),
+          ]:
+              json.loads(p.read_text())
+              print('JSON_OK', p)
+          PY
+      - name: Validate analyzer syntax
+        run: python -m py_compile experiments/V145_ANALYZE_COUNTERFACTUAL.py
+      - name: Validate frozen protocol identities
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('protocols/V145_NATURAL_THREE_EPISODE_COUNTERFACTUAL_PRECOMMIT.md')
+          s=p.read_text()
+          for token in [
+              'E1 = httpie/5',
+              'E2 = youtube-dl/32',
+              'E3 = pandas/66',
+              'COLD', 'O1_ONLY', 'FULL', 'ANCESTOR_MINUS', 'SHAM', 'ORACLE_O2',
+              'PASS_V145_THREE_GENERATION_CAUSAL',
+              '760b73f87bbe79b76c970c1b2ac4cdd83e5eb18ee3f4b9f2304a915fddbbd5ad'
+          ]:
+              assert token in s, token
+          print('V145_PROTOCOL_SHA256', hashlib.sha256(p.read_bytes()).hexdigest())
+          print('V145_FREEZE_VALID')
+          PY
