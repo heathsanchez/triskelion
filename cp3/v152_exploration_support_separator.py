@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 import v151_capability_compilation_loss_separator as v151
+import v151_exact_o1_runner  # noqa: F401  # binds v151.O1 to exact immutable V149 object
 from v152_exploration_provider import Qwen35ChatRiverProviderV152, TEMPERATURE
 
 SUBSTANTIVE_ARMS = ["D_COLD", "D_PLUS_O1_COMPILED", "D_PLUS_RAW_T1"]
@@ -25,10 +26,10 @@ def distinct_first_hashes(rows: list[dict]) -> list[str]:
 
 
 def classify(inner: dict, diversity_ok: bool) -> str:
-    if not diversity_ok:
-        return "R10_INSUFFICIENT_PROPOSAL_DIVERSITY"
     if inner.get("verdict") == "R10_INCONCLUSIVE":
         return "R10_INCONCLUSIVE"
+    if not diversity_ok:
+        return "R10_INSUFFICIENT_PROPOSAL_DIVERSITY"
     compiled = inner.get("compiled_o1_advantage") in {"REACHABILITY", "EFFICIENCY"}
     raw = inner.get("raw_t1_advantage") in {"REACHABILITY", "EFFICIENCY"}
     if raw and not compiled:
@@ -46,7 +47,8 @@ def main() -> None:
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
-    # Run the unchanged V151 science with the single precommitted provider intervention.
+    # Run unchanged V151 science with the exact V151B O1 binding and the one
+    # precommitted V152 intervention: temperature 0.7 sampling support.
     v151.Qwen35ChatRiverProvider = Qwen35ChatRiverProviderV152
     inner_out = args.out / "inner_v151"
     old_argv = sys.argv[:]
