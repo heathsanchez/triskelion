@@ -1,0 +1,71 @@
+name: V153G zero-call rival grounding-origin diagnostic
+
+on:
+  push:
+    branches: ["v153g-rival-grounding-origin-diagnostic"]
+    paths:
+      - 'protocols/V153G_RIVAL_GROUNDING_ORIGIN_DIAGNOSTIC.md'
+      - 'cp3/v153g_rival_grounding_origin_diagnostic.py'
+      - '.github/workflows/v153g-rival-grounding-origin-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze diagnostic provenance
+        run: |
+          python -m py_compile cp3/v153g_rival_grounding_origin_diagnostic.py
+          sha256sum protocols/V153G_RIVAL_GROUNDING_ORIGIN_DIAGNOSTIC.md cp3/v153g_rival_grounding_origin_diagnostic.py
+
+      - name: Recover immutable V153 artifact without model calls
+        run: |
+          mkdir -p frozen_v153
+          gh run download 31943774314 --repo heathsanchez/triskelion --name v153-set-valued-rival-search --dir frozen_v153
+          test -f frozen_v153/v153/V153_RESULT.json
+          echo 'ae572174c253b47cef2db706254b45675a8c414feeb8d6bf7c86d516bd206057  frozen_v153/v153/V153_RESULT.json' | sha256sum -c -
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Classify clean versus post-call1 grounding
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v153g_rival_grounding_origin_diagnostic.py \
+            --v153-result "$PWD/frozen_v153/v153/V153_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v153g"
+
+      - name: Show diagnostic verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v153g/V153G_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v153g/V153G_RESULT.json'))
+          print('V153G VERDICT',r.get('verdict'))
+          print(json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          for row in r.get('rows',[]):
+            print('SEED',row.get('seed'))
+            for x in row.get('rivals',[]):
+              print(' ',x.get('ordinal'),x.get('payload_sha256'),x.get('grounding_class'),x.get('clean_failure'),x.get('post_call1_failure'))
+          PY
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v153g-rival-grounding-origin-diagnostic
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
