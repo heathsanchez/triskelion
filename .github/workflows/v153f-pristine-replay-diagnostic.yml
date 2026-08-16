@@ -1,0 +1,63 @@
+name: V153F pristine zero-call replay diagnostic
+
+on:
+  push:
+    branches: ["v153f-pristine-replay-diagnostic"]
+    paths:
+      - 'protocols/V153F_PRISTINE_REPLAY_DIAGNOSTIC.md'
+      - 'cp3/v153f_pristine_replay_diagnostic.py'
+      - '.github/workflows/v153f-pristine-replay-diagnostic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v153f_precompiled_templates
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze provenance and syntax
+        run: |
+          python -m py_compile cp3/v153f_pristine_replay_diagnostic.py
+          sha256sum protocols/V153F_PRISTINE_REPLAY_DIAGNOSTIC.md cp3/v153f_pristine_replay_diagnostic.py
+      - name: Recover exact frozen V153 result
+        run: |
+          mkdir -p frozen_v153
+          gh run download 31943774314 --repo heathsanchez/triskelion --name v153-set-valued-rival-search --dir frozen_v153
+          echo 'ae572174c253b47cef2db706254b45675a8c414feeb8d6bf7c86d516bd206057  frozen_v153/v153/V153_RESULT.json' | sha256sum -c -
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+      - name: Pull exact T2 historical runtime
+        run: docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+      - name: Run pristine-gated dual-mode replay
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v153f_pristine_replay_diagnostic.py \
+            --v153-result "$PWD/frozen_v153/v153/V153_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" --out "$PWD/artifacts/v153f"
+      - name: Show verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v153f/V153F_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v153f/V153F_RESULT.json'))
+          print('V153F',r.get('verdict'))
+          print('PRISTINE',json.dumps(r.get('pristine_gate'),indent=2,sort_keys=True))
+          print('SUMMARY',json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          for x in r.get('rows',[]):
+            print(x.get('seed'),x.get('baseline_relative',{}).get('status'),x.get('call1_state_relative',{}).get('status'))
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v153f-pristine-replay-diagnostic
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
