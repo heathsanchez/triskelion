@@ -1,0 +1,77 @@
+name: GPU MODE eigh B200
+
+on:
+  push:
+    branches: [gpumode-eigh]
+    paths:
+      - 'experiments/gpumode_eigh/**'
+      - '.github/workflows/gpumode-eigh.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gpumode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Popcorn CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/gpu-mode/popcorn-cli/main/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Restore GPU MODE authentication
+        shell: bash
+        env:
+          POPCORN_CONFIG_B64: ${{ secrets.POPCORN_CONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${POPCORN_CONFIG_B64:-}" ]; then
+            echo "Missing repository secret POPCORN_CONFIG_B64."
+            echo "Register once with 'popcorn register github', then base64 ~/.popcorn.yaml and save it as that GitHub Actions secret."
+            exit 2
+          fi
+          mkdir -p "$HOME"
+          printf '%s' "$POPCORN_CONFIG_B64" | base64 --decode > "$HOME/.popcorn.yaml"
+          chmod 600 "$HOME/.popcorn.yaml"
+
+      - name: Select experiment mode
+        id: mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          MODE="$(tr -d '[:space:]' < experiments/gpumode_eigh/EXPERIMENT_MODE)"
+          case "$MODE" in
+            test|benchmark|leaderboard) ;;
+            *) echo "Invalid EXPERIMENT_MODE=$MODE"; exit 3 ;;
+          esac
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+
+      - name: Submit to official GPU MODE B200 evaluator
+        shell: bash
+        env:
+          POPCORN_API_URL: https://site--bot--dxfjds728w5v.code.run
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/gpumode_eigh/results
+          popcorn submit \
+            --no-tui \
+            --leaderboard eigh \
+            --gpu B200 \
+            --mode '${{ steps.mode.outputs.mode }}' \
+            --output experiments/gpumode_eigh/results/latest.json \
+            experiments/gpumode_eigh/submission.py
+
+      - name: Upload evaluator result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpumode-eigh-${{ github.sha }}
+          path: experiments/gpumode_eigh/results/
+          if-no-files-found: warn
