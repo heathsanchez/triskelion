@@ -1,0 +1,61 @@
+name: V153E zero-call execution-state diagnostic
+
+on:
+  push:
+    branches: ["v153e-execution-state-diagnostic"]
+    paths:
+      - 'protocols/V153E_EXECUTION_STATE_DIAGNOSTIC.md'
+      - 'cp3/v153e_execution_state_diagnostic.py'
+      - '.github/workflows/v153e-execution-state-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v153e_precompiled_templates
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze provenance
+        run: python -m py_compile cp3/v153e_execution_state_diagnostic.py
+      - name: Recover exact V153 result
+        run: |
+          mkdir -p frozen_v153
+          gh run download 31943774314 --repo heathsanchez/triskelion --name v153-set-valued-rival-search --dir frozen_v153
+          echo 'ae572174c253b47cef2db706254b45675a8c414feeb8d6bf7c86d516bd206057  frozen_v153/v153/V153_RESULT.json' | sha256sum -c -
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+      - name: Pull exact T2 historical runtime
+        run: docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+      - name: Run cumulative-state native replay with zero model calls
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v153e_execution_state_diagnostic.py \
+            --v153-result "$PWD/frozen_v153/v153/V153_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" --out "$PWD/artifacts/v153e"
+      - name: Show verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v153e/V153E_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v153e/V153E_RESULT.json'))
+          print('V153E VERDICT',r.get('verdict'))
+          print(json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          for x in r.get('rows',[]): print(x.get('seed'),x.get('status'),x.get('error'))
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v153e-execution-state-diagnostic
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
