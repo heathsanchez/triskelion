@@ -1,0 +1,67 @@
+name: V153A V138 runtime apparatus repair
+
+on:
+  push:
+    branches: ["v153a-v138-runtime-apparatus"]
+    paths:
+      - 'protocols/V153A_V138_RUNTIME_APPARATUS_ADDENDUM.md'
+      - 'experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py'
+      - '.github/workflows/v153a-v138-runtime-apparatus.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v153a-v138-runtime-apparatus
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest pytest-timeout
+
+      - name: Freeze V153A provenance before outcomes
+        run: |
+          python -m py_compile experiments/V138_NATURAL_DEVELOPMENTAL_ACCELERATION.py experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py
+          python - <<'PY'
+          import hashlib,pathlib
+          paths=[
+            'protocols/V138_NATURAL_DEVELOPMENTAL_ACCELERATION_PRECOMMIT.md',
+            'protocols/V153_V138_O3_SUPPORT_DIAGNOSTIC_PRECOMMIT.md',
+            'protocols/V153A_V138_RUNTIME_APPARATUS_ADDENDUM.md',
+            'experiments/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE.py',
+            'experiments/V138_NATURAL_DEVELOPMENTAL_ACCELERATION.py',
+            'experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py']
+          for p in paths:
+            b=pathlib.Path(p).read_bytes(); print(p,hashlib.sha256(b).hexdigest())
+          print('V153A_FREEZE_VALID')
+          PY
+
+      - name: Run unchanged V153 diagnostic under exact V138 environment
+        run: python -B experiments/V153_V138_O3_SUPPORT_DIAGNOSTIC.py
+
+      - name: Show fail-closed V153A verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v153_v138_o3_support_diagnostic/RESULT.json ]; then
+            cat artifacts/v153_v138_o3_support_diagnostic/RESULT.json
+          else
+            mkdir -p artifacts/v153_v138_o3_support_diagnostic
+            echo '{"verdict":"R10_INCONCLUSIVE","reason":"V153A result artifact missing"}' > artifacts/v153_v138_o3_support_diagnostic/CONTROLLER_RESULT.json
+            cat artifacts/v153_v138_o3_support_diagnostic/CONTROLLER_RESULT.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v153a-v138-runtime-apparatus
+          path: artifacts/v153_v138_o3_support_diagnostic/
+          if-no-files-found: error
+          retention-days: 90
