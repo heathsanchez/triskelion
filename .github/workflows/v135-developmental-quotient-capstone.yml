@@ -26,3 +26,4 @@ jobs:
           path: |
             artifacts/v135_developmental_quotient_capstone/
             artifacts/v113_closure_extension_identity/
+# Frozen-run trigger: no scientific gate or runner change.
