@@ -1,0 +1,98 @@
+name: V149 context-repaired natural third-rung causal frontier
+
+on:
+  push:
+    branches: ["v149-natural-third-rung-context-repair"]
+    paths:
+      - '.github/workflows/v149-natural-third-rung-context-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v149-natural-third-rung-context-repair
+  cancel-in-progress: false
+
+jobs:
+  causal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v149_precompiled_templates
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze V149 provenance before outcomes
+        run: |
+          python - <<'PY'
+          import hashlib,pathlib
+          paths=[
+            'protocols/V145_NATURAL_THIRD_RUNG_CAUSAL_PRECOMMIT.md',
+            'protocols/V145A_PRECOMPILED_CHECKOUT_APPARATUS_ADDENDUM.md',
+            'protocols/V149_CONTEXT_ADAPTER_REPAIR_PRECOMMIT.md',
+            'cp3/v145_natural_third_rung_causal.py',
+            'cp3/v145_precompiled_runner.py',
+            'cp3/v149_context_resolver.py',
+            'cp3/v149_context_preflight.py',
+            'cp3/v149_natural_third_rung_causal.py',
+            'cp3/KNOWN_QUALIFIED.json','cp3/FROZEN_PROJECTS.json',
+            'cp3/bugsinpy_exact_runtime.py','cp3/river_qwen35_provider.py']
+          for p in paths:
+            b=pathlib.Path(p).read_bytes(); print(p,hashlib.sha256(b).hexdigest())
+          PY
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Pull frozen exact CPython images
+        run: |
+          for image in \
+            'python:3.7.0@sha256:10608fb357a18383f792efbf7472ec6d2e166dad62efc0d7c409ef2777aaafd0' \
+            'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5' \
+            'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e' \
+            'python:3.7.7@sha256:c1e36afba1c3c230a6846801fb284cf4383a8a0080fcf32c2ec625c066c56361' \
+            'python:3.8.3@sha256:dd6cd8191ccbced2a6af5d0ddb51e6057c1444df14e14bcfd5c7b3ef78738050'; do docker pull "$image"; done
+
+      - name: Install proven CP3 provider dependency
+        run: python -m pip install --quiet 'river-client==0.6.1'
+
+      - name: V149 context-adapter eligibility gate
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v149_context_preflight.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/V149_CONTEXT_PREFLIGHT.json"
+
+      - name: Run unchanged V145 causal protocol through frozen V149 adapter
+        run: |
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v149_natural_third_rung_causal.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v149"
+
+      - name: Show V149 verdict
+        if: always()
+        run: |
+          cat artifacts/V149_CONTEXT_PREFLIGHT.json || true
+          if [ -f artifacts/v149/V145_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v149/V145_RESULT.json'))
+          print('V149 SCIENTIFIC VERDICT',r.get('verdict'))
+          if 'T2' in r:
+            print('T2',r['T2'].get('advantage'),json.dumps(r['T2'].get('summary'),indent=2,sort_keys=True))
+          if 'T3' in r:
+            print('T3',r['T3'].get('advantage'),json.dumps(r['T3'].get('summary'),indent=2,sort_keys=True))
+          print('GATES',json.dumps(r.get('gates'),indent=2,sort_keys=True))
+          PY
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v149-context-repaired-natural-third-rung
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 90
