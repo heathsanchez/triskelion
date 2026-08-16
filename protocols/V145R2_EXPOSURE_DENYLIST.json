@@ -1,0 +1,28 @@
+{
+  "protocol": "V145R2_CLEAN_THIRD_RUNG_ELIGIBILITY",
+  "status": "PRECOMMITTED_KNOWN_EXPOSURES",
+  "rule": "Prior semantic inspection of a BugsInPy repair, fixed production source, developer patch, or solution narrative makes that case exposure-ineligible for the strongest blind-natural E3 claim. Runtime/test qualification alone does not.",
+  "cases": [
+    "pandas/66",
+    "pandas/146",
+    "pandas/111",
+    "youtube-dl/9",
+    "keras/26",
+    "matplotlib/28",
+    "matplotlib/5",
+    "matplotlib/9",
+    "keras/41",
+    "scrapy/12",
+    "tornado/4",
+    "youtube-dl/2",
+    "PySnooper/3",
+    "matplotlib/23",
+    "tqdm/2",
+    "fastapi/16"
+  ],
+  "revision_evidence": {
+    "pandas/146": "Pre-existing Witbrock native V10 audit explicitly inspected and semantically classified the developer repair before V145R2.",
+    "pandas/111": "Pre-existing Witbrock native V10 audit explicitly inspected and semantically classified the developer repair before V145R2. V145R1 subsequently selected it mechanically, triggering the required retrospective exposure rejection."
+  },
+  "boundary": "This is a frozen known-exposure denylist, not a claim that every unlisted case has never appeared anywhere. A mechanically selected candidate receives a separate fixed-procedure retrospective exposure audit before use in the causal successor. If that audit finds prior semantic exposure, append a new evidence record and rerun under a new run identifier; never silently substitute another case."
+}
