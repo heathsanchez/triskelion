@@ -1,0 +1,113 @@
+name: V145R1 clean third-rung eligibility
+
+on:
+  push:
+    branches:
+      - v145r1-clean-third-rung-eligibility
+    paths:
+      - 'cp3/v145r1_qualify_clean_pandas_exact.py'
+      - 'protocols/V145R1_*'
+      - '.github/workflows/v145r1-clean-third-rung-eligibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-clean-third-rung:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Freeze hashes and syntax
+        run: |
+          python -m py_compile cp3/v145r1_qualify_clean_pandas_exact.py cp3/v141_qualify_pandas_exact.py cp3/bugsinpy_exact_runtime.py cp3/qualify_remaining.py
+          python - <<'PY'
+          import hashlib, json, pathlib
+          paths = [
+              'cp3/FROZEN_PROJECTS.json',
+              'cp3/NO_CHERRY_PICKING.txt',
+              'cp3/qualify_remaining.py',
+              'cp3/bugsinpy_exact_runtime.py',
+              'cp3/v141_qualify_pandas_exact.py',
+              'cp3/v145r1_qualify_clean_pandas_exact.py',
+              'protocols/V145_NATURAL_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md',
+              'protocols/V145R1_CLEAN_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md',
+              'protocols/V145R1_EXPOSURE_DENYLIST.json',
+          ]
+          for p in paths:
+              b = pathlib.Path(p).read_bytes()
+              print(p, hashlib.sha256(b).hexdigest())
+          x = json.loads(pathlib.Path('protocols/V145R1_EXPOSURE_DENYLIST.json').read_text())
+          assert x['protocol'] == 'V145R1_CLEAN_THIRD_RUNG_ELIGIBILITY'
+          assert 'pandas/66' in x['cases']
+          print('V145R1_FREEZE_VALID')
+          PY
+
+      - name: Run exact-runtime contamination-aware qualifier
+        shell: bash
+        run: |
+          mkdir -p artifacts/v145r1
+          set +e
+          PYTHONPATH=cp3 python cp3/v145r1_qualify_clean_pandas_exact.py --out artifacts/v145r1/pandas_clean_qualification.json 2>&1 | tee artifacts/v145r1/run.log
+          RC=${PIPESTATUS[0]}
+          set -e
+          echo "$RC" > artifacts/v145r1/runner_rc.txt
+
+      - name: Fail-closed classification
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib
+          p = pathlib.Path('artifacts/v145r1/pandas_clean_qualification.json')
+          if not p.exists():
+              result = {'verdict':'R10_INCONCLUSIVE','reason':'qualification_artifact_missing'}
+          else:
+              q = json.loads(p.read_text())
+              corpus_ok = q.get('observed_bug_count') == 501 and q.get('corpus_lock') == '760b73f87bbe79b76c970c1b2ac4cdd83e5eb18ee3f4b9f2304a915fddbbd5ad'
+              discipline_ok = (
+                  q.get('candidate_order') == 'SHA256(project/id) lexical hexadecimal ascending'
+                  and q.get('admission') == 'fixed_pass_and_buggy_fail'
+                  and q.get('semantic_skipping') is False
+                  and q.get('exposure_rule') == 'prefrozen exact case-id denylist before runtime qualification'
+              )
+              selected = q.get('selected')
+              selected_not_denylisted = False
+              deny_path = pathlib.Path('protocols/V145R1_EXPOSURE_DENYLIST.json')
+              deny = set(json.loads(deny_path.read_text())['cases'])
+              if selected:
+                  selected_not_denylisted = selected not in deny
+              if not corpus_ok or not discipline_ok:
+                  verdict = 'R10_INCONCLUSIVE'
+              elif q.get('status') == 'PASS_V145R1_PROVISIONAL_CLEAN_E3_EXISTS' and selected and selected_not_denylisted:
+                  verdict = 'PASS_V145R1_PROVISIONAL_CLEAN_E3_EXISTS'
+              elif q.get('status') == 'EXHAUSTED_V145R1':
+                  verdict = 'EXHAUSTED_V145R1'
+              else:
+                  verdict = 'R10_INCONCLUSIVE'
+              result = {
+                  'verdict': verdict,
+                  'selected': selected,
+                  'selected_not_prefrozen_denylisted': selected_not_denylisted,
+                  'corpus_ok': corpus_ok,
+                  'discipline_ok': discipline_ok,
+                  'qualification_sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+                  'post_selection_exposure_audit_required': bool(selected),
+              }
+          out = pathlib.Path('artifacts/v145r1/verdict.json')
+          out.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload immutable qualification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v145r1-clean-third-rung-eligibility
+          path: artifacts/v145r1/
+          if-no-files-found: error
