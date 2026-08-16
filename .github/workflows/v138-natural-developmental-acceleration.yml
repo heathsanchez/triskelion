@@ -1,0 +1,28 @@
+name: V138 Natural Developmental Acceleration
+
+on:
+  push:
+    branches: ["agent/v138-gap-closure-suite"]
+    paths:
+      - "protocols/V138_NATURAL_DEVELOPMENTAL_ACCELERATION_PRECOMMIT.md"
+      - "experiments/V138_NATURAL_DEVELOPMENTAL_ACCELERATION.py"
+      - ".github/workflows/v138-natural-developmental-acceleration.yml"
+  workflow_dispatch:
+
+jobs:
+  v138:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pytest pytest-timeout
+      - name: Run frozen V138 suite
+        run: python experiments/V138_NATURAL_DEVELOPMENTAL_ACCELERATION.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v138-natural-developmental-acceleration
+          path: artifacts/v138_natural_developmental_acceleration
