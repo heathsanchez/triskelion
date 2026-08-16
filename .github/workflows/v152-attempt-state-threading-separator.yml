@@ -1,0 +1,92 @@
+name: V152 attempt-state threading separator
+
+on:
+  push:
+    branches: ["v152-attempt-state-threading-separator"]
+    paths:
+      - 'protocols/V152_ATTEMPT_STATE_THREADING_SEPARATOR_PRECOMMIT.md'
+      - 'cp3/v152_attempt_state_threading_separator.py'
+      - '.github/workflows/v152-attempt-state-threading-separator.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v152-attempt-state-threading-separator
+  cancel-in-progress: false
+
+jobs:
+  separator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v152_precompiled_templates
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze V152 provenance before outcomes
+        run: |
+          python -m py_compile cp3/v152_attempt_state_threading_separator.py
+          python - <<'PY'
+          import hashlib,pathlib
+          paths=[
+            'protocols/V152_ATTEMPT_STATE_THREADING_SEPARATOR_PRECOMMIT.md',
+            'cp3/v152_attempt_state_threading_separator.py',
+            'cp3/v151_capability_compilation_loss_separator.py',
+            'cp3/v145_precompiled_runner.py',
+            'cp3/v149_context_resolver.py',
+            'cp3/structured_edit_protocol_v2.py',
+            'cp3/bugsinpy_exact_runtime.py',
+            'cp3/river_qwen35_provider.py']
+          for p in paths:
+            b=pathlib.Path(p).read_bytes(); print(p,hashlib.sha256(b).hexdigest())
+          print('V152_FREEZE_VALID')
+          PY
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Pull exact historical runtimes
+        run: |
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+
+      - name: Install proven CP3 provider dependency
+        run: python -m pip install --quiet 'river-client==0.6.1'
+
+      - name: Run V152 state-threaded five-arm separator
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v152_attempt_state_threading_separator.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v152"
+
+      - name: Show fail-closed V152 verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v152/V152_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v152/V152_RESULT.json'))
+          print('V152 VERDICT',r.get('verdict'))
+          print('STATE_THREADING',json.dumps(r.get('state_threading'),indent=2,sort_keys=True))
+          print('COMPILED_O1',r.get('compiled_o1_advantage'))
+          print('RAW_T1',r.get('raw_t1_advantage'))
+          print('SUMMARY',json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          PY
+          else
+            mkdir -p artifacts/v152
+            echo '{"verdict":"R10_INCONCLUSIVE","reason":"V152 result artifact missing"}' > artifacts/v152/CONTROLLER_RESULT.json
+            cat artifacts/v152/CONTROLLER_RESULT.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v152-attempt-state-threading-separator
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
