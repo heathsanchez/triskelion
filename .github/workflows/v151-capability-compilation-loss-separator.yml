@@ -6,6 +6,7 @@ on:
     paths:
       - 'protocols/V151_CAPABILITY_COMPILATION_LOSS_SEPARATOR_PRECOMMIT.md'
       - 'cp3/v151_capability_compilation_loss_separator.py'
+      - 'cp3/v151_exact_o1_runner.py'
       - '.github/workflows/v151-capability-compilation-loss-separator.yml'
   workflow_dispatch:
 
@@ -29,12 +30,13 @@ jobs:
 
       - name: Freeze V151 provenance before outcomes
         run: |
-          python -m py_compile cp3/v151_capability_compilation_loss_separator.py
+          python -m py_compile cp3/v151_capability_compilation_loss_separator.py cp3/v151_exact_o1_runner.py
           python - <<'PY'
           import hashlib,pathlib
           paths=[
             'protocols/V151_CAPABILITY_COMPILATION_LOSS_SEPARATOR_PRECOMMIT.md',
             'cp3/v151_capability_compilation_loss_separator.py',
+            'cp3/v151_exact_o1_runner.py',
             'cp3/v145_natural_third_rung_causal.py',
             'cp3/v145_precompiled_runner.py',
             'cp3/v149_context_resolver.py',
@@ -60,10 +62,10 @@ jobs:
       - name: Install proven CP3 provider dependency
         run: python -m pip install --quiet 'river-client==0.6.1'
 
-      - name: Run V151 matched five-arm separator
+      - name: Run V151 matched five-arm separator with exact frozen O1
         run: |
           mkdir -p artifacts
-          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v151_capability_compilation_loss_separator.py \
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v151_exact_o1_runner.py \
             --bugsinpy "$PWD/BugsInPy" \
             --out "$PWD/artifacts/v151"
 
