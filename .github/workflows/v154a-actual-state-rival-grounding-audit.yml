@@ -1,0 +1,73 @@
+name: V154A actual-state rival grounding audit
+
+on:
+  push:
+    branches: ["v154a-actual-state-rival-grounding-audit"]
+    paths:
+      - 'protocols/V154A_ACTUAL_STATE_RIVAL_GROUNDING_AUDIT.md'
+      - 'cp3/v154a_actual_state_rival_grounding_audit.py'
+      - '.github/workflows/v154a-actual-state-rival-grounding-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze audit provenance
+        run: |
+          python -m py_compile cp3/v154a_actual_state_rival_grounding_audit.py
+          sha256sum protocols/V154A_ACTUAL_STATE_RIVAL_GROUNDING_AUDIT.md cp3/v154a_actual_state_rival_grounding_audit.py
+
+      - name: Recover immutable V154 artifact
+        run: |
+          mkdir -p frozen_v154
+          gh run download 31944944894 --repo heathsanchez/triskelion --name v154-persistent-workspace-developmental-separator --dir frozen_v154
+          test -f frozen_v154/v154/V154_RESULT.json
+          sha256sum frozen_v154/v154/V154_RESULT.json
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Audit all frozen call-2 alternatives against actual source state
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v154a_actual_state_rival_grounding_audit.py \
+            --v154-result "$PWD/frozen_v154/v154/V154_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v154a"
+
+      - name: Show audit verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v154a/V154A_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v154a/V154A_RESULT.json'))
+          print('V154A VERDICT',r.get('verdict'))
+          print('SOURCE_SHA',r.get('source_v154_sha256'))
+          print(json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          for row in r.get('rows',[]):
+            if row.get('missed_executable_rival') or row.get('execution_audit_inconsistent'):
+              print('KEY',row.get('arm'),row.get('seed'),row.get('actual_state'),row.get('selected_payload_sha256'))
+              for a in row.get('alternatives',[]):
+                print(' ',a.get('rank'),a.get('payload_sha256'),a.get('was_selected'),a.get('actual_applies'),a.get('clean_applies'))
+          PY
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v154a-actual-state-rival-grounding-audit
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
