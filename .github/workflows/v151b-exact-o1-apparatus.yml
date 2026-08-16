@@ -1,0 +1,96 @@
+name: V151B exact-O1 compilation-loss separator
+
+on:
+  push:
+    branches: ["v151b-exact-o1-apparatus"]
+    paths:
+      - 'protocols/V151_CAPABILITY_COMPILATION_LOSS_SEPARATOR_PRECOMMIT.md'
+      - 'protocols/V151B_EXACT_O1_APPARATUS_ADDENDUM.md'
+      - 'cp3/v151_capability_compilation_loss_separator.py'
+      - 'cp3/v151_exact_o1_runner.py'
+      - '.github/workflows/v151b-exact-o1-apparatus.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v151b-exact-o1-apparatus
+  cancel-in-progress: false
+
+jobs:
+  separator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v151b_precompiled_templates
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze V151B provenance before outcomes
+        run: |
+          python -m py_compile cp3/v151_capability_compilation_loss_separator.py cp3/v151_exact_o1_runner.py
+          python - <<'PY'
+          import hashlib,pathlib
+          paths=[
+            'protocols/V151_CAPABILITY_COMPILATION_LOSS_SEPARATOR_PRECOMMIT.md',
+            'protocols/V151B_EXACT_O1_APPARATUS_ADDENDUM.md',
+            'cp3/v151_capability_compilation_loss_separator.py',
+            'cp3/v151_exact_o1_runner.py',
+            'cp3/v145_natural_third_rung_causal.py',
+            'cp3/v145_precompiled_runner.py',
+            'cp3/v149_context_resolver.py',
+            'cp3/structured_edit_protocol.py',
+            'cp3/structured_edit_protocol_v2.py',
+            'cp3/bugsinpy_exact_runtime.py',
+            'cp3/river_qwen35_provider.py']
+          for p in paths:
+            b=pathlib.Path(p).read_bytes(); print(p,hashlib.sha256(b).hexdigest())
+          print('V151B_FREEZE_VALID')
+          PY
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Pull exact historical runtimes
+        run: |
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+
+      - name: Install proven CP3 provider dependency
+        run: python -m pip install --quiet 'river-client==0.6.1'
+
+      - name: Run unchanged V151 science through exact-O1 apparatus
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v151_exact_o1_runner.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v151b"
+
+      - name: Show fail-closed V151B verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v151b/V151_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v151b/V151_RESULT.json'))
+          print('V151B VERDICT',r.get('verdict'))
+          print('COMPILED_O1',r.get('compiled_o1_advantage'))
+          print('RAW_T1',r.get('raw_t1_advantage'))
+          print(json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          PY
+          else
+            mkdir -p artifacts/v151b
+            echo '{"verdict":"R10_INCONCLUSIVE","reason":"V151B result artifact missing"}' > artifacts/v151b/CONTROLLER_RESULT.json
+            cat artifacts/v151b/CONTROLLER_RESULT.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v151b-exact-o1-compilation-loss-separator
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
