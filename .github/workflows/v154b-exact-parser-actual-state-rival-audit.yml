@@ -1,0 +1,64 @@
+name: V154B exact-parser actual-state rival audit
+
+on:
+  push:
+    branches: ["v154b-exact-parser-actual-state-rival-audit"]
+    paths:
+      - 'protocols/V154B_EXACT_PARSER_ACTUAL_STATE_RIVAL_AUDIT.md'
+      - 'cp3/v154b_exact_parser_actual_state_rival_audit.py'
+      - '.github/workflows/v154b-exact-parser-actual-state-rival-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze provenance
+        run: |
+          python -m py_compile cp3/v154b_exact_parser_actual_state_rival_audit.py
+          sha256sum protocols/V154B_EXACT_PARSER_ACTUAL_STATE_RIVAL_AUDIT.md cp3/v154b_exact_parser_actual_state_rival_audit.py cp3/structured_edit_protocol_v2.py
+      - name: Recover immutable V154 artifact
+        run: |
+          mkdir -p frozen_v154
+          gh run download 31944944894 --repo heathsanchez/triskelion --name v154-persistent-workspace-developmental-separator --dir frozen_v154
+          echo 'bb076d3f18d6eddd78b8093fb392280c012c9b69f526856bbb0e114abf8f2881  frozen_v154/v154/V154_RESULT.json' | sha256sum -c -
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+      - name: Run exact-parser audit
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v154b_exact_parser_actual_state_rival_audit.py \
+            --v154-result "$PWD/frozen_v154/v154/V154_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v154b"
+      - name: Show verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v154b/V154B_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v154b/V154B_RESULT.json'))
+          print('V154B VERDICT',r.get('verdict'))
+          print(json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          for row in r.get('rows',[]):
+            if row.get('missed_executable_rival') or row.get('parser_replay_mismatch'):
+              print('KEY',row.get('arm'),row.get('seed'),row.get('actual_state'))
+              for a in row.get('alternatives',[]): print(' ',a.get('rank'),a.get('payload_sha256'),a.get('selected'),a.get('actual_applies'),a.get('clean_applies'))
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v154b-exact-parser-actual-state-rival-audit
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
