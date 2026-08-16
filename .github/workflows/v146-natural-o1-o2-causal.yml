@@ -2,7 +2,7 @@ name: V146 natural O1 to O2 causal separator
 
 on:
   push:
-    branches: ["v146-natural-o1-o2-causal"]
+    branches: ["v146-natural-o1-o2-causal", "v146b-natural-o1-o2-causal-apparatus"]
   workflow_dispatch:
 
 permissions:
