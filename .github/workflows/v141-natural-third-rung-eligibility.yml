@@ -1,0 +1,60 @@
+name: V141 natural third-rung eligibility gate
+
+on:
+  push:
+    branches: ["v141-natural-third-rung-eligibility"]
+  workflow_dispatch:
+
+jobs:
+  pandas-eligibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze provenance
+        run: |
+          python - <<'PY'
+          import hashlib, pathlib
+          for p in ['cp3/FROZEN_PROJECTS.json','cp3/NO_CHERRY_PICKING.txt','cp3/qualify_remaining.py','protocols/V141_NATURAL_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md']:
+              b=pathlib.Path(p).read_bytes(); print(p, hashlib.sha256(b).hexdigest())
+          PY
+      - name: Run unchanged frozen pandas qualifier
+        shell: bash
+        run: |
+          mkdir -p artifacts/v141
+          set +e
+          python cp3/qualify_remaining.py --project pandas --out artifacts/v141/pandas_qualification.json --candidate-timeout 1800 2>&1 | tee artifacts/v141/run.log
+          RC=${PIPESTATUS[0]}
+          set -e
+          echo "$RC" > artifacts/v141/runner_rc.txt
+          # The qualifier may use nonzero for corpus mismatch/apparatus; classify below rather than infer semantics here.
+      - name: Frozen classification
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('artifacts/v141/pandas_qualification.json')
+          rc_p=pathlib.Path('artifacts/v141/runner_rc.txt')
+          if not p.exists():
+              out={'canonical_id':'V141_NATURAL_THIRD_RUNG_ELIGIBILITY','verdict':'R10_INCONCLUSIVE','reason':'no qualification result artifact','claim_boundary':'eligibility only'}
+          else:
+              q=json.loads(p.read_text())
+              corpus_ok=q.get('observed_bug_count')==501 and q.get('status')!='CORPUS_MISMATCH'
+              discipline_ok=q.get('candidate_order')=='SHA256(project/id) lexical hexadecimal ascending' and q.get('admission')=='fixed_pass_and_buggy_fail' and q.get('semantic_skipping') is False
+              if not corpus_ok or not discipline_ok:
+                  verdict='R10_INCONCLUSIVE'
+              elif q.get('status')=='QUALIFIED' and q.get('selected'):
+                  verdict='PASS_V141_THIRD_NATURAL_EPISODE_EXISTS'
+              elif q.get('status')=='EXHAUSTED':
+                  verdict='CORPUS_CEILING_V141_NO_THIRD_ACQUISITION_EPISODE'
+              else:
+                  verdict='R10_INCONCLUSIVE'
+              out={'canonical_id':'V141_NATURAL_THIRD_RUNG_ELIGIBILITY','verdict':verdict,'gates':{'E1_corpus_identity':corpus_ok,'E2_selection_discipline':discipline_ok,'E3_third_natural_episode':q.get('status')=='QUALIFIED' and bool(q.get('selected'))},'qualification':q,'runner_rc':int(rc_p.read_text()) if rc_p.exists() else None,'claim_boundary':'A PASS establishes only existence of a third natural acquisition episode; no O3 or development claim.'}
+          pathlib.Path('artifacts/v141/V141_RESULT.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v141-natural-third-rung-eligibility
+          path: artifacts/v141/
