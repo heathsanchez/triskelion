@@ -1,0 +1,95 @@
+name: V150 frozen-output transport replay
+
+on:
+  push:
+    branches: ["v150-frozen-output-transport-replay"]
+    paths:
+      - 'protocols/V150_FROZEN_OUTPUT_TRANSPORT_REPLAY_PRECOMMIT.md'
+      - 'cp3/v150_frozen_output_transport_replay.py'
+      - '.github/workflows/v150-frozen-output-transport-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: v150-frozen-output-transport-replay
+  cancel-in-progress: false
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v150_precompiled_templates
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze V150 diagnostic provenance
+        run: |
+          python -m py_compile cp3/v150_frozen_output_transport_replay.py
+          python - <<'PY'
+          import hashlib,pathlib
+          for p in [
+            'protocols/V150_FROZEN_OUTPUT_TRANSPORT_REPLAY_PRECOMMIT.md',
+            'cp3/v150_frozen_output_transport_replay.py',
+            'cp3/v145_natural_third_rung_causal.py',
+            'cp3/v145_precompiled_runner.py',
+            'cp3/bugsinpy_exact_runtime.py']:
+            print(p,hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest())
+          PY
+
+      - name: Download immutable V149 evidence artifact
+        run: |
+          mkdir -p prior_v149
+          gh run download 31941708089 \
+            --repo "$GITHUB_REPOSITORY" \
+            --name v149-context-repaired-natural-third-rung \
+            --dir prior_v149
+          test "$(sha256sum prior_v149/v149/V145_RESULT.json | awk '{print $1}')" = "cf93c37fe1a3a5aaeba7add755fbb3e5b5b33c123273a915683d564777cb33b9"
+          test "$(sha256sum prior_v149/V149_CONTEXT_PREFLIGHT.json | awk '{print $1}')" = "22b9ff3e49fdc1099cc4ea8036e5d6d0656e461069708fbf409c15af6b2f4c0c"
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Pull exact youtube-dl/32 CPython image
+        run: docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+
+      - name: Install proven CP3 import dependency
+        run: python -m pip install --quiet 'river-client==0.6.1'
+
+      - name: Replay exact frozen V149 candidates with strict then recount transport
+        run: |
+          mkdir -p artifacts/v150
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v150_frozen_output_transport_replay.py \
+            --v149-result "$PWD/prior_v149/v149/V145_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v150/V150_RESULT.json" | tee artifacts/v150/run.log
+
+      - name: Show fail-closed V150 verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v150/V150_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v150/V150_RESULT.json'))
+          print('VERDICT',r.get('verdict'))
+          print('SUMMARY',json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          print('RECOUNT_RESCUED',r.get('recount_rescued_n'))
+          print('O1_VERIFIED_SOLVED',r.get('o1_verified_solved_n'))
+          PY
+          else
+            echo '{"verdict":"R10_INCONCLUSIVE","reason":"V150 result artifact missing"}' > artifacts/v150/CONTROLLER_RESULT.json
+            cat artifacts/v150/CONTROLLER_RESULT.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v150-frozen-output-transport-replay
+          path: artifacts/v150/
+          if-no-files-found: error
+          retention-days: 90
