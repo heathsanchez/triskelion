@@ -36,7 +36,7 @@ jobs:
               'cp3/bugsinpy_exact_runtime.py',
               'cp3/v141_qualify_pandas_exact.py',
               'cp3/v145r1_qualify_clean_pandas_exact.py',
-              'protocols/V145_NATURAL_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md',
+              'protocols/V141_NATURAL_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md',
               'protocols/V145R1_CLEAN_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md',
               'protocols/V145R1_EXPOSURE_DENYLIST.json',
           ]
@@ -62,6 +62,7 @@ jobs:
       - name: Fail-closed classification
         if: always()
         run: |
+          mkdir -p artifacts/v145r1
           python - <<'PY'
           import hashlib, json, pathlib
           p = pathlib.Path('artifacts/v145r1/pandas_clean_qualification.json')
@@ -77,14 +78,11 @@ jobs:
                   and q.get('exposure_rule') == 'prefrozen exact case-id denylist before runtime qualification'
               )
               selected = q.get('selected')
-              selected_not_denylisted = False
-              deny_path = pathlib.Path('protocols/V145R1_EXPOSURE_DENYLIST.json')
-              deny = set(json.loads(deny_path.read_text())['cases'])
-              if selected:
-                  selected_not_denylisted = selected not in deny
+              deny = set(json.loads(pathlib.Path('protocols/V145R1_EXPOSURE_DENYLIST.json').read_text())['cases'])
+              selected_not_denylisted = bool(selected and selected not in deny)
               if not corpus_ok or not discipline_ok:
                   verdict = 'R10_INCONCLUSIVE'
-              elif q.get('status') == 'PASS_V145R1_PROVISIONAL_CLEAN_E3_EXISTS' and selected and selected_not_denylisted:
+              elif q.get('status') == 'PASS_V145R1_PROVISIONAL_CLEAN_E3_EXISTS' and selected_not_denylisted:
                   verdict = 'PASS_V145R1_PROVISIONAL_CLEAN_E3_EXISTS'
               elif q.get('status') == 'EXHAUSTED_V145R1':
                   verdict = 'EXHAUSTED_V145R1'
