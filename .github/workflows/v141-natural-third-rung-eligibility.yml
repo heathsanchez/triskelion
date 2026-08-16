@@ -15,19 +15,18 @@ jobs:
         run: |
           python - <<'PY'
           import hashlib, pathlib
-          for p in ['cp3/FROZEN_PROJECTS.json','cp3/NO_CHERRY_PICKING.txt','cp3/qualify_remaining.py','protocols/V141_NATURAL_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md']:
+          for p in ['cp3/FROZEN_PROJECTS.json','cp3/NO_CHERRY_PICKING.txt','cp3/qualify_remaining.py','cp3/bugsinpy_exact_runtime.py','cp3/v141_qualify_pandas_exact.py','protocols/V141_NATURAL_THIRD_RUNG_ELIGIBILITY_PRECOMMIT.md']:
               b=pathlib.Path(p).read_bytes(); print(p, hashlib.sha256(b).hexdigest())
           PY
-      - name: Run unchanged frozen pandas qualifier
+      - name: Run frozen pandas order with exact-runtime apparatus
         shell: bash
         run: |
           mkdir -p artifacts/v141
           set +e
-          python cp3/qualify_remaining.py --project pandas --out artifacts/v141/pandas_qualification.json --candidate-timeout 1800 2>&1 | tee artifacts/v141/run.log
+          PYTHONPATH=cp3 python cp3/v141_qualify_pandas_exact.py --out artifacts/v141/pandas_qualification.json 2>&1 | tee artifacts/v141/run.log
           RC=${PIPESTATUS[0]}
           set -e
           echo "$RC" > artifacts/v141/runner_rc.txt
-          # The qualifier may use nonzero for corpus mismatch/apparatus; classify below rather than infer semantics here.
       - name: Frozen classification
         if: always()
         run: |
@@ -41,7 +40,7 @@ jobs:
               q=json.loads(p.read_text())
               corpus_ok=q.get('observed_bug_count')==501 and q.get('status')!='CORPUS_MISMATCH'
               discipline_ok=q.get('candidate_order')=='SHA256(project/id) lexical hexadecimal ascending' and q.get('admission')=='fixed_pass_and_buggy_fail' and q.get('semantic_skipping') is False
-              if not corpus_ok or not discipline_ok:
+              if q.get('status')=='R10_INCONCLUSIVE' or not corpus_ok or not discipline_ok:
                   verdict='R10_INCONCLUSIVE'
               elif q.get('status')=='QUALIFIED' and q.get('selected'):
                   verdict='PASS_V141_THIRD_NATURAL_EPISODE_EXISTS'
