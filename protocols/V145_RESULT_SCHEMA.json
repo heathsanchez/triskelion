@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "V145 Natural Three-Episode Developmental Counterfactual Result",
+  "type": "object",
+  "required": [
+    "protocol",
+    "protocol_sha256",
+    "arm",
+    "apparatus_valid",
+    "semantic_rescue",
+    "episodes",
+    "frontier",
+    "cost",
+    "terminal_status"
+  ],
+  "properties": {
+    "protocol": {"const": "V145_NATURAL_THREE_EPISODE_COUNTERFACTUAL"},
+    "protocol_sha256": {"type": "string", "minLength": 64, "maxLength": 64},
+    "arm": {
+      "enum": ["COLD", "O1_ONLY", "FULL", "ANCESTOR_MINUS", "SHAM", "ORACLE_O2"]
+    },
+    "apparatus_valid": {"type": "boolean"},
+    "semantic_rescue": {"type": "boolean"},
+    "arm_realizable": {"type": "boolean", "default": true},
+    "corpus_lock_sha256": {
+      "const": "760b73f87bbe79b76c970c1b2ac4cdd83e5eb18ee3f4b9f2304a915fddbbd5ad"
+    },
+    "model": {"type": ["string", "null"]},
+    "checkpoint": {"type": ["string", "null"]},
+    "seed": {"type": ["integer", "string", "null"]},
+    "environment": {"type": "object"},
+    "episodes": {
+      "type": "object",
+      "required": ["E1", "E2", "E3"],
+      "properties": {
+        "E1": {"$ref": "#/$defs/episode"},
+        "E2": {"$ref": "#/$defs/episode"},
+        "E3": {"$ref": "#/$defs/episode"}
+      },
+      "additionalProperties": false
+    },
+    "frontier": {
+      "type": "object",
+      "required": [
+        "O2_reachable_from_A0",
+        "O2_reachable_after_O1",
+        "O3_reachable_from_A0",
+        "O3_reachable_after_O1",
+        "O3_reachable_after_O1_O2"
+      ],
+      "properties": {
+        "O2_reachable_from_A0": {"type": ["boolean", "null"]},
+        "O2_reachable_after_O1": {"type": ["boolean", "null"]},
+        "O3_reachable_from_A0": {"type": ["boolean", "null"]},
+        "O3_reachable_after_O1": {"type": ["boolean", "null"]},
+        "O3_reachable_after_O1_O2": {"type": ["boolean", "null"]},
+        "candidate_count_by_episode": {"type": "object"},
+        "frontier_commitment_sha256": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "cost": {
+      "type": "object",
+      "required": ["model_calls", "verifier_calls", "candidate_count", "tokens", "wall_time_seconds"],
+      "properties": {
+        "model_calls": {"type": "integer", "minimum": 0},
+        "verifier_calls": {"type": "integer", "minimum": 0},
+        "candidate_count": {"type": "integer", "minimum": 0},
+        "tokens": {"type": "integer", "minimum": 0},
+        "wall_time_seconds": {"type": "number", "minimum": 0}
+      }
+    },
+    "o3_ablation_pass": {"type": ["boolean", "null"]},
+    "o3_protected_transfer_pass": {"type": ["boolean", "null"]},
+    "terminal_status": {
+      "enum": ["PASS", "FAIL", "ABSTAIN", "ARM_NOT_REALIZABLE", "INFRASTRUCTURE_NULL"]
+    }
+  },
+  "$defs": {
+    "episode": {
+      "type": "object",
+      "required": [
+        "case",
+        "baseline_reproduced",
+        "old_closure_solved",
+        "verified_solution",
+        "operator_admitted",
+        "state_before_sha256",
+        "state_after_sha256",
+        "residuals",
+        "candidates"
+      ],
+      "properties": {
+        "case": {"type": "string"},
+        "baseline_reproduced": {"type": "boolean"},
+        "old_closure_solved": {"type": "boolean"},
+        "verified_solution": {"type": "boolean"},
+        "operator_admitted": {"type": "boolean"},
+        "operator_id": {"type": ["string", "null"]},
+        "operator_sha256": {"type": ["string", "null"]},
+        "state_before_sha256": {"type": "string"},
+        "state_after_sha256": {"type": "string"},
+        "residuals": {"type": "array", "items": {"type": "string"}},
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["sha256", "verifier_pass"],
+            "properties": {
+              "sha256": {"type": "string"},
+              "verifier_pass": {"type": "boolean"}
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
