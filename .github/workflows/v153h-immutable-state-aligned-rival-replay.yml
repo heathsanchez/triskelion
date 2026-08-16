@@ -1,0 +1,74 @@
+name: V153H immutable state-aligned rival replay
+
+on:
+  push:
+    branches: ["v153h-immutable-state-aligned-rival-replay"]
+    paths:
+      - 'protocols/V153H_IMMUTABLE_STATE_ALIGNED_RIVAL_REPLAY.md'
+      - 'cp3/v153h_immutable_state_aligned_rival_replay.py'
+      - '.github/workflows/v153h-immutable-state-aligned-rival-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Freeze provenance before outcomes
+        run: |
+          python -m py_compile cp3/v153h_immutable_state_aligned_rival_replay.py
+          sha256sum protocols/V153H_IMMUTABLE_STATE_ALIGNED_RIVAL_REPLAY.md cp3/v153h_immutable_state_aligned_rival_replay.py
+
+      - name: Recover immutable V153 evidence
+        run: |
+          mkdir -p frozen_v153
+          gh run download 31943774314 --repo heathsanchez/triskelion --name v153-set-valued-rival-search --dir frozen_v153
+          test -f frozen_v153/v153/V153_RESULT.json
+          echo 'ae572174c253b47cef2db706254b45675a8c414feeb8d6bf7c86d516bd206057  frozen_v153/v153/V153_RESULT.json' | sha256sum -c -
+
+      - name: Clone official BugsInPy
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+
+      - name: Pull exact historical T2 runtime
+        run: docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+
+      - name: Replay every frozen rival on its aligned immutable state
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v153h_immutable_state_aligned_rival_replay.py \
+            --v153-result "$PWD/frozen_v153/v153/V153_RESULT.json" \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v153h"
+
+      - name: Show verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v153h/V153H_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v153h/V153H_RESULT.json'))
+          print('V153H VERDICT',r.get('verdict'))
+          print('CLEAN',r.get('clean_source_sha256'))
+          print('POST_CALL1',r.get('post_call1_source_sha256'))
+          print(json.dumps(r.get('summary'),indent=2,sort_keys=True))
+          for x in r.get('rows',[]):
+            print(x.get('seed'),x.get('ordinal'),x.get('payload_sha256'),x.get('grounding_class'),x.get('status'),x.get('error'))
+          PY
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v153h-immutable-state-aligned-rival-replay
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 90
