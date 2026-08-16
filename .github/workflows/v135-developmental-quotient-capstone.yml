@@ -6,6 +6,7 @@ on:
     paths:
       - 'protocols/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE_PRECOMMIT.md'
       - 'experiments/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE.py'
+      - 'experiments/V135B_TIMEOUT_SAFE_RUNNER.py'
       - '.github/workflows/v135-developmental-quotient-capstone.yml'
   workflow_dispatch:
 jobs:
@@ -18,7 +19,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pytest pytest-timeout
-      - run: python experiments/V135_DEVELOPMENTAL_QUOTIENT_CAPSTONE.py
+      - run: python experiments/V135B_TIMEOUT_SAFE_RUNNER.py
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -26,4 +27,4 @@ jobs:
           path: |
             artifacts/v135_developmental_quotient_capstone/
             artifacts/v113_closure_extension_identity/
-# Frozen-run trigger: no scientific gate or runner change.
+# Apparatus recovery after run 31917898039; scientific protocol/gates unchanged.
