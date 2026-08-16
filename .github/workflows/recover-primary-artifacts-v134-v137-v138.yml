@@ -1,0 +1,47 @@
+name: Recover primary V137/V138 artifacts
+
+on:
+  push:
+    branches: ["agent/recover-primary-artifacts-v134-v137-v138"]
+    paths:
+      - ".github/workflows/recover-primary-artifacts-v134-v137-v138.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/recover-primary-artifacts-v134-v137-v138
+      - name: Recover immutable original artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p recovered_primary/v137 recovered_primary/v138
+          gh api repos/${GITHUB_REPOSITORY}/actions/artifacts/9257738943/zip > /tmp/v137.zip
+          gh api repos/${GITHUB_REPOSITORY}/actions/artifacts/9257964508/zip > /tmp/v138.zip
+          unzip -o /tmp/v137.zip -d recovered_primary/v137
+          unzip -o /tmp/v138.zip -d recovered_primary/v138
+          sha256sum /tmp/v137.zip /tmp/v138.zip > recovered_primary/RECOVERY_ARCHIVE_SHA256.txt
+          cat > recovered_primary/PROVENANCE.txt <<'EOF'
+V137 workflow run: 31925367396
+V137 artifact id: 9257738943
+V137 artifact API digest: sha256:20f5431d448ef7454837554ac82e3eddd38be16406c900d3c55924d42cab8cde
+V138 workflow run: 31926268216
+V138 artifact id: 9257964508
+V138 artifact API digest: sha256:de1ce636d903a5ec4183970720e445b077e9ad3739df76b4e35d7a3db55b97e7
+EOF
+      - name: Commit recovered primary artifacts verbatim
+        run: |
+          set -euo pipefail
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add recovered_primary
+          git commit -m "Recover original V137 and V138 primary artifacts"
+          git push origin HEAD:agent/recover-primary-artifacts-v134-v137-v138
