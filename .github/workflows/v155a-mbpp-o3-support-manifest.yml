@@ -1,0 +1,66 @@
+name: V155A MBPP O3 support manifest
+
+on:
+  push:
+    branches: ["v155a-mbpp-o3-support-manifest"]
+    paths:
+      - 'protocols/V155A_MBPP_O3_SUPPORT_MANIFEST_PRECOMMIT.md'
+      - 'experiments/V155A_MBPP_O3_SUPPORT_MANIFEST.py'
+      - '.github/workflows/v155a-mbpp-o3-support-manifest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v155a-mbpp-o3-support-manifest
+  cancel-in-progress: false
+
+jobs:
+  census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Freeze V155A provenance and syntax
+        run: |
+          python -m py_compile experiments/V155A_MBPP_O3_SUPPORT_MANIFEST.py
+          python - <<'PY'
+          import hashlib, pathlib
+          for p in [
+            'protocols/V155A_MBPP_O3_SUPPORT_MANIFEST_PRECOMMIT.md',
+            'experiments/V155A_MBPP_O3_SUPPORT_MANIFEST.py']:
+              b=pathlib.Path(p).read_bytes(); print(p,hashlib.sha256(b).hexdigest())
+          print('V155A_FREEZE_VALID upstream=1eb8bb0cbe5fd9072311ae3fd760e3644fee690b min_multi=20 min_sites=50')
+          PY
+
+      - name: Run complete schema-first source support census
+        run: |
+          mkdir -p artifacts/v155a
+          python -B experiments/V155A_MBPP_O3_SUPPORT_MANIFEST.py --out artifacts/v155a/V155A_RESULT.json 2>&1 | tee artifacts/v155a/run.log
+
+      - name: Show fail-closed verdict
+        if: always()
+        run: |
+          mkdir -p artifacts/v155a
+          if [ -f artifacts/v155a/V155A_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v155a/V155A_RESULT.json'))
+          print(json.dumps({k:r.get(k) for k in ['verdict','task_count','baseline_valid_task_count','baseline_valid_multi_strict_task_count','baseline_valid_total_strict_sites']},indent=2,sort_keys=True))
+          PY
+          else
+            echo '{"verdict":"R10_INCONCLUSIVE","reason":"V155A result artifact missing"}' > artifacts/v155a/CONTROLLER_RESULT.json
+            cat artifacts/v155a/CONTROLLER_RESULT.json
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v155a-mbpp-o3-support-manifest
+          path: artifacts/v155a/
+          if-no-files-found: error
