@@ -1,0 +1,60 @@
+name: V146 natural O1 to O2 causal separator
+
+on:
+  push:
+    branches: ["v146-natural-o1-o2-causal"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  causal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze provenance
+        run: |
+          python - <<'PY'
+          import hashlib,pathlib
+          for p in ['protocols/V146_NATURAL_O1_O2_CAUSAL_PRECOMMIT.md','cp3/v146_natural_o1_o2.py','cp3/KNOWN_QUALIFIED.json','cp3/NO_CHERRY_PICKING.txt','cp3/bugsinpy_four_arm_v4.py','cp3/river_qwen35_provider.py']:
+              print(p, hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest())
+          PY
+      - name: Clone frozen corpus source
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+      - name: Pull exact historical runtimes
+        run: |
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+      - name: Install pinned provider
+        run: python -m pip install --quiet 'river-client==0.6.1' transformers
+      - name: Run frozen causal arms
+        run: |
+          export PATH="$PWD/BugsInPy/framework/bin:$PATH"
+          mkdir -p artifacts/v146
+          set +e
+          PYTHONPATH=cp3 python -B cp3/v146_natural_o1_o2.py --bugsinpy "$PWD/BugsInPy" --out artifacts/v146 2>&1 | tee artifacts/v146/run.log
+          RC=${PIPESTATUS[0]}
+          set -e
+          echo "$RC" > artifacts/v146/runner_rc.txt
+      - name: Controller classification
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('artifacts/v146/V146_RESULT.json'); rc=int(pathlib.Path('artifacts/v146/runner_rc.txt').read_text())
+          if not p.exists(): out={'verdict':'R10_INCONCLUSIVE','reason':'no result artifact','runner_rc':rc}
+          else:
+              out=json.loads(p.read_text()); out['runner_rc']=rc
+              if rc!=0 and not str(out.get('verdict','')).startswith('R10'): out['controller_override']='R10_INCONCLUSIVE'
+          pathlib.Path('artifacts/v146/CONTROLLER_RESULT.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n'); print(json.dumps(out,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v146-natural-o1-o2-causal
+          path: artifacts/v146/
