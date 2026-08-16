@@ -16,6 +16,8 @@ spec.loader.exec_module(m)
 
 # Apparatus-only timeout handling inherited from V135B.
 _orig_verify = m.verify
+_ORIGINAL_GRAMMAR = m.candidate_grammar
+
 def safe_verify(root, program, path, content, timeout=10):
     try:
         return _orig_verify(root, program, path, content, timeout=10)
@@ -38,7 +40,7 @@ def dedup(rows):
     return out
 
 def g0_full59():
-    return m.candidate_grammar()
+    return _ORIGINAL_GRAMMAR()
 
 def g1_action_sequence59():
     rows=[]
@@ -53,7 +55,6 @@ def g1_action_sequence59():
 
 def g2_dual_presentation59():
     rows=[]
-    # Enumerate in the dual vocabulary, then compile back to canonical tokens.
     dual_tokens=[DUAL[t] for t in TOKENS]
     for swap in (True,False):
         for dst in dual_tokens:
@@ -65,11 +66,10 @@ def g2_dual_presentation59():
     return dedup(rows)
 
 def g3_hash_split_union59():
-    base=g0_full59(); a=[]; b=[]
+    base=_ORIGINAL_GRAMMAR(); a=[]; b=[]
     for r in base:
         h=int(hashlib.sha256(r['id'].encode()).hexdigest(),16)
         (a if h % 2 == 0 else b).append(dict(r,id='H0:'+r['id']))
-    # Independently generated partitions are deliberately rejoined in reverse partition order.
     return dedup(b+a)
 
 def g4_expanded60():
@@ -119,12 +119,11 @@ def forensic_orientation(B):
 
 def main():
     runs={}
-    original=m.candidate_grammar
     for name,fn in GRAMMARS.items():
         m.candidate_grammar=fn
         B,C=m.stratum_b_c()
         runs[name]={'B':B,'C':C,'candidate_count':len(fn())}
-    m.candidate_grammar=original
+    m.candidate_grammar=_ORIGINAL_GRAMMAR
 
     frows=forensic_orientation(runs['G0_FULL59']['B'])
     failures=[r for r in frows if r['classification']!='F_PASS']
