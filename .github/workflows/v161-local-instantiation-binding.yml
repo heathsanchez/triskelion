@@ -1,0 +1,84 @@
+name: V161 Local Instantiation Binding
+
+on:
+  push:
+    branches:
+      - v158-unified-developmental-runtime
+    paths:
+      - 'cp3/v161_local_instantiation_binding.py'
+      - 'protocols/V161_LOCAL_INSTANTIATION_BINDING_PRECOMMIT.md'
+      - '.github/workflows/v161-local-instantiation-binding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  live:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze V161 provenance before outcomes
+        run: |
+          git rev-parse HEAD
+          python -m py_compile cp3/v161_local_instantiation_binding.py
+          sha256sum \
+            protocols/V161_LOCAL_INSTANTIATION_BINDING_PRECOMMIT.md \
+            cp3/v161_local_instantiation_binding.py \
+            cp3/v160_routing_vs_content.py \
+            cp3/v159_safe_persistent_runner.py \
+            cp3/v159_natural_longitudinal_live.py \
+            cp3_frozen/acquisition/CAPABILITY.json
+      - name: Install frozen provider dependency
+        run: python -m pip install --quiet 'river-client==0.6.1'
+      - name: Fail-fast River transport gate
+        run: |
+          test -n "$RIVER_API_KEY"
+          python - <<'PY'
+          import os
+          import river_client as river
+          model='Qwen/Qwen3.5-9B'
+          client=river.Client(api_key=os.environ['RIVER_API_KEY'])
+          if not client.health_check():
+              raise SystemExit('River health check failed before V161 preparation')
+          enabled=list(client.get_capabilities())
+          if model not in enabled:
+              raise SystemExit(f'frozen model unavailable: {model}')
+          print('river_health True')
+          print('frozen_model_available True')
+          PY
+      - name: Clone frozen BugsInPy snapshot
+        run: |
+          git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+          test "$(git -C BugsInPy rev-parse HEAD)" = "11c5f1eea954a42132cfd06bf257766a7963e0fd"
+      - name: Pull exact thefuck historical runtime
+        run: docker pull 'python:3.7.0@sha256:10608fb357a18383f792efbf7472ec6d2e166dad62efc0d7c409ef2777aaafd0'
+      - name: Run V161
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD:$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v161_local_instantiation_binding.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v161"
+      - name: Show V161 verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v161/V161_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v161/V161_RESULT.json'))
+          print('V161 VERDICT', r.get('verdict'))
+          print(json.dumps(r.get('summary'), indent=2, sort_keys=True))
+          print(json.dumps(r.get('mechanism'), indent=2, sort_keys=True))
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v161-local-instantiation-binding
+          path: artifacts/v161/
+          if-no-files-found: warn
+          retention-days: 90
