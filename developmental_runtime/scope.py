@@ -15,11 +15,11 @@ def _path(context: Mapping[str, Any], dotted: str | None) -> Any:
 
 
 def matches_scope(scope: Mapping[str, Any], context: Mapping[str, Any]) -> bool:
-    """Evaluate the portable CP1/CP3-compatible serialized scope DSL.
+    """Evaluate the portable serialized scope DSL.
 
-    Supported forms are deliberately small and deterministic:
-    `all`, `any`, `not`, then a leaf with `field` plus one of
-    `equals`, `contains`, or `in`.
+    Supports CP1/CP3 forms (`all`, `any`, `not`, or a `field` leaf with
+    `equals`/`contains`/`in`) plus the older V158 shorthand mapping where every
+    key is an exact context equality, e.g. ``{"language": "python"}``.
     """
     if not scope:
         return False
@@ -29,6 +29,9 @@ def matches_scope(scope: Mapping[str, Any], context: Mapping[str, Any]) -> bool:
         return any(matches_scope(item, context) for item in scope["any"])
     if "not" in scope:
         return not matches_scope(scope["not"], context)
+
+    if "field" not in scope:
+        return all(context.get(key) == value for key, value in scope.items())
 
     value = _path(context, scope.get("field"))
     if "equals" in scope:
