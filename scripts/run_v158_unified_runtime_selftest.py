@@ -21,7 +21,12 @@ def main() -> None:
     out = Path("artifacts/v158")
     out.mkdir(parents=True, exist_ok=True)
 
-    state = DevelopmentalState(V={"authority": "external-only", "mode": "selftest"})
+    state = DevelopmentalState()
+    state.set_verifier_config(
+        "v158-external-boundary",
+        {"authority": "external-only", "mode": "selftest"},
+        evidence("verifier-config"),
+    )
     state.set_discovery_policy(
         "closure-first-v1",
         {"closure_before_invention": True, "attempt_budget": 8},
@@ -55,12 +60,13 @@ def main() -> None:
     ablated = sorted(restored.closure([]))
 
     result = {
-        "schema": "v158-selftest-result-v1",
+        "schema": "v158-selftest-result-v2",
         "event_chain_valid_before_restart": state.verify_event_chain(),
         "event_chain_valid_after_restart": restored.verify_event_chain(),
         "state_hash_before_restart": before_restart_hash,
         "state_hash_after_restart": after_restart_hash,
         "restart_exact": before_restart_hash == after_restart_hash,
+        "verifier_replayed": restored.V == state.V,
         "cold_reaches_later_target": "later-target" in cold,
         "warm_reaches_later_target": "later-target" in warm,
         "ancestor_ablation_removes_later_target": "later-target" not in ablated,
@@ -73,6 +79,7 @@ def main() -> None:
             result["event_chain_valid_before_restart"],
             result["event_chain_valid_after_restart"],
             result["restart_exact"],
+            result["verifier_replayed"],
             not result["cold_reaches_later_target"],
             result["warm_reaches_later_target"],
             result["ancestor_ablation_removes_later_target"],
