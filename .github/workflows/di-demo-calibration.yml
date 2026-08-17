@@ -8,6 +8,12 @@ on:
     paths:
       - 'demo/developmental_intelligence/**'
       - '.github/workflows/di-demo-calibration.yml'
+  pull_request:
+    branches:
+      - v161-ast-role-experiential-rescue
+    paths:
+      - 'demo/developmental_intelligence/**'
+      - '.github/workflows/di-demo-calibration.yml'
 
 permissions:
   contents: read
