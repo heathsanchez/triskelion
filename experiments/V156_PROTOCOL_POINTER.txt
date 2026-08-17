@@ -1,0 +1,1 @@
+Frozen protocol: results/V156_PROTOCOL_FROZEN_20260818.md at commit 2f376681a7a6019a9da22fab558c958b71d0219f. No V156 outcome inspected before this pointer.
