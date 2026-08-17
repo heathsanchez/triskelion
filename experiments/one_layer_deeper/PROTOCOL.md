@@ -60,5 +60,17 @@ Intervention: keep the baseline token encoder/block/head and AdamW. Add no new t
 Prospective prediction: on Easy E1, E0005 should exceed E0004's 8.00% aggregate score; decisive evidence is certification of T=1. A score >=10% without certification licenses one second-Easy replication, not Medium or Hard.
 Kill criterion: no certified-depth gain and aggregate score <=8.00%.
 Promotion criterion: any certified Max T gain, or >=10% aggregate followed by successful replication on a second Easy world.
+Hosted H100 Easy E1 result: score 8.33%; Max T none certified; OOD N Max T none certified.
+Decision: RETAIN as a weak representation signal but do not promote. The explicit workspace narrowly beats E0004 by 0.33 percentage points, so it passes the literal kill threshold but misses the >=10% replication gate and still certifies no rung. This is not sufficient evidence to enlarge workspace capacity yet because a simpler rival remains: the workspace transition is trained for only one step but evaluated for four, so it may never learn stability under its own recurrent state.
+
+## E0006 two-step workspace training closure test
+Observation: E0005 creates a distinct mutable workspace and improves slightly, but the learned transition sees only the initial workspace during training. At evaluation, steps 2-4 receive states produced by the transition itself. That train/eval state-distribution mismatch is a simpler explanation than insufficient workspace capacity.
+Hypothesis: exposing the same tied workspace transition to one self-generated recurrent state during training will improve stability and continuation enough to beat E0005, without paying the full four-step training cost that made E0001 uninformative.
+Rival: the workspace representation/transition is not genuinely reusable; a second training step only reduces update throughput or compounds drift and will not improve certification or score.
+Intervention: exact E0005 architecture, parameters, optimizer, loss, workspace initialization, four-step evaluation and data. Change only training workspace updates from one to two tied applications of the same transition. No new parameters or representation capacity are added.
+Prospective prediction: on Easy E1, E0006 should exceed E0005's 8.33% aggregate score; decisive evidence is certification of T=1. A score >=10% without certification licenses a second-Easy replication, not Medium or Hard.
+Kill criterion: no certified-depth gain and aggregate score <=8.33%.
+Promotion criterion: any certified Max T gain, or >=10% aggregate followed by successful replication on a second Easy world.
+Interpretation: if E0006 improves materially, recurrent-state exposure is implicated and a depth curriculum becomes the next closure test. If E0006 fails, the one-token workspace capacity/representation rival becomes stronger and E0007 may enlarge workspace state rather than tuning recurrence depth.
 
 No Medium intervention is licensed from a single Easy world. Hard remains protected and is not used for search.
