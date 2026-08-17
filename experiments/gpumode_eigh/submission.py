@@ -4,30 +4,32 @@ import triton.language as tl
 from task import input_t, output_t
 
 @triton.jit
-def _diag_values_kernel(a, values, batch: tl.constexpr, n: tl.constexpr, BLOCK: tl.constexpr):
-    offs = tl.program_id(0) * BLOCK + tl.arange(0, BLOCK)
-    total = batch * n
-    mask = offs < total
-    b = offs // n
-    i = offs - b * n
-    tl.store(values + offs, tl.load(a + b * n * n + i * n + i, mask=mask), mask=mask)
-
-@triton.jit
-def _identity_kernel(vectors, total: tl.constexpr, n: tl.constexpr, BLOCK: tl.constexpr):
-    offs = tl.program_id(0) * BLOCK + tl.arange(0, BLOCK)
-    mask = offs < total
-    rem = offs % (n * n)
-    row = rem // n
-    col = rem - row * n
-    tl.store(vectors + offs, (row == col).to(tl.float32), mask=mask)
+def _mm(a, b, c, M: tl.constexpr, N: tl.constexpr, K: tl.constexpr,
+        BM: tl.constexpr, BN: tl.constexpr, BK: tl.constexpr):
+    pid = tl.program_id(0)
+    pm = pid // tl.cdiv(N, BN)
+    pn = pid % tl.cdiv(N, BN)
+    rm = pm * BM + tl.arange(0, BM)
+    rn = pn * BN + tl.arange(0, BN)
+    rk = tl.arange(0, BK)
+    ap = a + rm[:, None] * K + rk[None, :]
+    bp = b + rk[:, None] * N + rn[None, :]
+    acc = tl.zeros((BM, BN), tl.float32)
+    for k0 in range(0, K, BK):
+        av = tl.load(ap, mask=(rm[:, None] < M) & (rk[None, :] + k0 < K), other=0.0)
+        bv = tl.load(bp, mask=(rk[:, None] + k0 < K) & (rn[None, :] < N), other=0.0)
+        acc += tl.dot(av, bv)
+        ap += BK
+        bp += BK * N
+    tl.store(c + rm[:, None] * N + rn[None, :], acc.to(tl.float16), mask=(rm[:, None] < M) & (rn[None, :] < N))
 
 def custom_kernel(data: input_t) -> output_t:
-    batch, n, _ = data.shape
-    values = torch.empty((batch, n), device=data.device, dtype=torch.float32)
-    vectors = torch.empty((batch, n, n), device=data.device, dtype=torch.float32)
-    block = 256
-    nv = batch * n
-    ne = batch * n * n
-    _diag_values_kernel[(triton.cdiv(nv, block),)](data, values, batch, n, BLOCK=block)
-    _identity_kernel[(triton.cdiv(ne, block),)](vectors, total=ne, n=n, BLOCK=block)
-    return vectors, values
+    a, b, c = data
+    m, k = a.shape
+    _, n = b.shape
+    BM = 64
+    BN = 64
+    BK = 32
+    grid = (triton.cdiv(m, BM) * triton.cdiv(n, BN),)
+    _mm[grid](a, b, c, M=m, N=n, K=k, BM=BM, BN=BN, BK=BK, num_warps=4, num_stages=3)
+    return c
