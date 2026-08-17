@@ -1,0 +1,2 @@
+V159 protocol, runner, workflow, carrier transformations, seeds, thresholds, and verdict hierarchy frozen before any V159 model outcome is sampled.
+Parent evidence: V157 hosted run 31977378839 at f85af759e65c6cc60f788f0ea026445d5023104d.
