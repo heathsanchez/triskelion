@@ -1,5 +1,6 @@
-"""E0005: explicit mutable workspace state, anchored to immutable context.
+"""MathGraph / Metalogic Labs — E0005 frozen Hard candidate.
 
+Explicit mutable workspace state anchored to immutable context.
 Train: one cheap workspace update.
 Eval: four tied workspace updates.
 The token stream is encoded once; mutable workspace is a separate latent state.
