@@ -1,3 +1,4 @@
+# Protocol frozen in results/V156_PROTOCOL_FROZEN_20260818.md before this trigger.
 import os,json
 from pathlib import Path
 import river_client as river
@@ -26,28 +27,18 @@ def probe(m,spec):
   gs=m.sample(prompts=[prompt(task,x) for x in HELD],max_tokens=24,temperature=0.0)
   for x,g in zip(HELD,gs):
    raw=norm(g[0].text); tgt=targets(spec,x)[task]
-   # termination-only controller: may stop generation at the target boundary, but may not alter generated content.
    term = raw[:len(tgt)] if raw.startswith(tgt) else raw
-   # state-projection controller: may select an already-emitted target state from a longer trajectory, but may not synthesize or edit its characters.
    j=raw.find(tgt); proj=tgt if j>=0 else raw
    rows.append({'task':task,'input':x,'target':tgt,'raw':raw,
-                'raw_hit':raw==tgt,
-                'target_is_prefix':raw.startswith(tgt),
-                'target_is_substring':tgt in raw,
-                'termination_only':term,'termination_hit':term==tgt,
-                'projection':proj,'projection_hit':proj==tgt})
+                'raw_hit':raw==tgt,'target_is_prefix':raw.startswith(tgt),'target_is_substring':tgt in raw,
+                'termination_only':term,'termination_hit':term==tgt,'projection':proj,'projection_hit':proj==tgt})
  out={}
  for task in ['A','AB','ABC']:
   rr=[r for r in rows if r['task']==task]
   out[task]={k:sum(r[k] for r in rr) for k in ['raw_hit','target_is_prefix','target_is_substring','termination_hit','projection_hit']}
  return out,rows
 
-R={'protocol':{
- 'claim':'At frozen V155 first-loss checkpoints, test whether external control can recover earlier states without any weight update.',
- 'termination_only':'truncate only when the model itself emits the exact target as a prefix; controller cannot change content',
- 'state_projection':'select exact target only if it already occurs contiguously in model output; controller cannot synthesize/edit characters',
- 'success_standard':'A and/or AB improve from raw under frozen weights; stronger if termination-only succeeds; projection-only indicates state-selection rather than content deletion',
- 'held_out':HELD},'replicates':[]}
+R={'protocol':{'claim':'At frozen V155 first-loss checkpoints, test whether external control can recover earlier states without any weight update.','termination_only':'truncate only when the model itself emits the exact target as a prefix; controller cannot change content','state_projection':'select exact target only if it already occurs contiguously in model output; controller cannot synthesize/edit characters','success_standard':'A and/or AB improve from raw under frozen weights; stronger if termination-only succeeds; projection-only indicates state-selection rather than content deletion','held_out':HELD},'replicates':[]}
 for spec in SPECS:
  rep={'seed':spec['seed'],'checkpoints':{}}
  for label in ['step1','step2']:
