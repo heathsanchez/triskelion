@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Metalogic — Developmental Intelligence</title>
+<style>
+:root{--bg:#050607;--fg:#f7f8fa;--muted:#7d8796;--line:#22262d;--green:#66f29a;--red:#ff6474}*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--fg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}body{min-height:100vh}.app{min-height:100vh;display:grid;place-items:center;padding:24px}.screen{width:min(1080px,100%);display:none}.screen.on{display:block}.brand{font-size:11px;letter-spacing:.28em;color:var(--muted);font-weight:800;margin-bottom:42px}.eyebrow{font-size:13px;letter-spacing:.16em;color:var(--muted);font-weight:800;text-transform:uppercase}.hero{font-size:clamp(48px,8vw,104px);line-height:.91;letter-spacing:-.065em;margin:10px 0 24px;font-weight:900}.sub{font-size:clamp(18px,2.3vw,27px);color:#bcc4cf;max-width:780px;line-height:1.35}.twins{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:42px 0 22px}.card{border:1px solid var(--line);border-radius:24px;padding:28px;background:#090b0e;min-height:270px}.card.good{border-color:#285a39}.label{color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.13em}.card h2{font-size:clamp(28px,4vw,46px);margin:12px 0 8px;letter-spacing:-.045em}.result{font-size:clamp(58px,8vw,100px);font-weight:950;letter-spacing:-.06em;margin-top:38px}.fail{color:var(--red)}.pass{color:var(--green)}.tiny{color:var(--muted);font-size:13px;margin-top:6px}.immutable{display:flex;justify-content:space-between;gap:15px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:13px}.immutable strong{color:var(--fg)}button{border:1px solid #3a414c;background:#11151a;color:white;border-radius:999px;padding:13px 20px;font-weight:800;cursor:pointer;font-size:14px}button.primary{background:var(--fg);color:#050607;border-color:var(--fg)}button.danger{color:#ff9ba5;border-color:#71323a}button.restore{color:#9df5ba;border-color:#2c6740}button:disabled{opacity:.3;cursor:default}.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:28px}.center{text-align:center}.question{font-size:clamp(28px,5vw,58px);font-weight:900;letter-spacing:-.05em;margin:30px auto;max-width:900px}.answer{font-size:clamp(72px,14vw,180px);font-weight:950;line-height:.8;letter-spacing:-.07em;margin:30px 0}.equation{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#b9c2ce;font-size:clamp(14px,2vw,21px);margin:32px 0}.final{font-size:clamp(45px,8vw,100px);font-weight:950;line-height:.92;letter-spacing:-.065em;margin:30px auto;max-width:1000px}.green{color:var(--green)}.evidence{margin-top:44px;color:var(--muted);font-size:12px}.hidden{display:none!important}.fade{animation:in .35s ease}@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.proof{max-width:900px;margin:42px auto 0;text-align:left;border-top:1px solid var(--line);padding-top:28px}.proofgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.proofcard{border:1px solid var(--line);border-radius:18px;padding:18px;background:#090b0e}.proofcard b{display:block;font-size:27px;letter-spacing:-.04em;margin:7px 0}.proofcard p{color:var(--muted);font-size:12px;line-height:1.5;margin:0}.proofnote{color:var(--muted);font-size:11px;line-height:1.5;margin-top:15px}@media(max-width:650px){.twins,.proofgrid{grid-template-columns:1fr}.card{min-height:220px}.immutable{display:block}.immutable span{display:block;margin:5px 0}}
+</style></head>
+<body><main class="app">
+<section class="screen on fade" id="s1">
+<div class="brand">METALOGIC LABS</div>
+<div class="eyebrow">Developmental Intelligence</div>
+<h1 class="hero">Identical at birth.<br><span class="green">Different by experience.</span></h1>
+<p class="sub">Same frozen base. Same unseen problem. One can only replay what happened. The other was changed by it.</p>
+<div class="twins">
+<div class="card"><div class="label">A · SAME BASE MODEL</div><h2>Remembered experience</h2><div class="result fail">FAIL</div><div class="tiny">literal episode does not transfer</div></div>
+<div class="card good" id="bcard"><div class="label">B · SAME BASE MODEL</div><h2>Developed structure</h2><div class="result pass" id="bres">PASS</div><div class="tiny" id="bnote">structural capability transfers</div></div>
+</div>
+<div class="immutable"><span>BASE WEIGHT Δ &nbsp;<strong>0</strong></span><span>SAME NEW PROBLEM &nbsp;<strong>YES</strong></span><span>EXTERNAL TEST &nbsp;<strong>PASS</strong></span></div>
+<div class="controls"><button class="danger" id="remove">Remove what B learned</button><button class="restore" id="restore" disabled>Restore it</button><button class="primary" id="next">Next →</button></div>
+</section>
+<section class="screen center fade" id="s2">
+<div class="brand">METALOGIC LABS</div><div class="eyebrow">Then something stranger happens</div>
+<div class="question">Before learning <strong>O₁</strong>, can it discover <strong>O₂</strong>?</div><div class="answer fail" id="ans">NO</div>
+<div class="equation" id="eq">O₂ ∉ Discoverable(A₀)</div>
+<div class="controls" style="justify-content:center"><button class="primary" id="learn">Learn O₁</button><button id="finish" class="hidden">Continue →</button></div>
+</section>
+<section class="screen center fade" id="s3">
+<div class="brand">METALOGIC LABS</div><div class="eyebrow">Development</div>
+<div class="final">What it learned changed<br><span class="green">what it could learn next.</span></div>
+<p class="sub" style="margin:24px auto">Not a bigger context. Not another memory. A prior acquired structure changed later discoverability under a frozen bounded protocol.</p>
+<div class="equation">experience → reorganization → new reachability</div>
+<div class="controls" style="justify-content:center"><button class="primary" id="proofbtn">Show proof ↓</button><button id="again">↺ Again</button></div>
+<div class="proof hidden" id="proof">
+<div class="eyebrow">Three independent pieces of evidence</div>
+<div class="proofgrid">
+<div class="proofcard"><div class="label">STRUCTURE ≠ RAW MEMORY · V161</div><b>8/16 → <span class="green">16/16</span></b><p>Raw verified memory scored 8/16. Compiled AST-role structure scored 16/16. Shuffling the structure scored 0/16.</p></div>
+<div class="proofcard"><div class="label">REAL LEAN CHECKER · ARENA</div><b>152/161 → <span class="green">161/161</span></b><p>One representation distinction removed all 9 declines. Valid arbitrary-ID encodings moved 0/256 → 256/256; 512/512 malformed controls stayed rejected; 0 regressions.</p></div>
+<div class="proofcard"><div class="label">DEVELOPMENTAL COMPOUNDING · V54</div><b><span class="fail">NO</span> → <span class="green">YES</span></b><p>O₂ was not discoverable before O₁ and became discoverable after O₁ under the same frozen one-new-generator protocol. Final target required both.</p></div>
+</div>
+<div class="proofnote">Boundaries: V161 is a bounded executable coding result, not a universal claim against all RAG. The Lean Kernel Arena representation repair was manually designed after inspecting the exposed failure, so it demonstrates causal representation-level generalization, not blind autonomous discovery. V54 is bounded operator-level compounding. Machine-readable details: evidence_pack.json; attestation ledger wins on conflict.</div>
+</div>
+<div class="evidence">Mechanism calibration: executable transfer + revert/restore. Public evidence exposes certificates/results only; proprietary kernel implementation is not part of this demo.</div>
+</section>
+</main><script>
+const $=x=>document.getElementById(x), screens=[$('s1'),$('s2'),$('s3')];function show(n){screens.forEach((s,i)=>s.classList.toggle('on',i===n));scrollTo(0,0)}
+$('remove').onclick=()=>{$('bres').textContent='FAIL';$('bres').className='result fail';$('bnote').textContent='development removed — capability disappears';$('bcard').classList.remove('good');$('remove').disabled=true;$('restore').disabled=false};
+$('restore').onclick=()=>{$('bres').textContent='PASS';$('bres').className='result pass';$('bnote').textContent='development restored — capability returns';$('bcard').classList.add('good');$('remove').disabled=false;$('restore').disabled=true};
+$('next').onclick=()=>show(1);$('learn').onclick=()=>{$('ans').textContent='YES';$('ans').className='answer pass';$('eq').textContent='O₂ ∈ Discoverable(A₀ + O₁)';$('learn').classList.add('hidden');$('finish').classList.remove('hidden')};$('finish').onclick=()=>show(2);$('proofbtn').onclick=()=>{$('proof').classList.toggle('hidden');$('proofbtn').textContent=$('proof').classList.contains('hidden')?'Show proof ↓':'Hide proof ↑'};$('again').onclick=()=>{location.reload()};
+</script></body></html>

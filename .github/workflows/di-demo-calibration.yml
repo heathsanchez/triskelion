@@ -1,0 +1,41 @@
+name: DI Demo Calibration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - demo/developmental-intelligence-v1
+    paths:
+      - 'demo/developmental_intelligence/**'
+      - '.github/workflows/di-demo-calibration.yml'
+  pull_request:
+    branches:
+      - v161-ast-role-experiential-rescue
+    paths:
+      - 'demo/developmental_intelligence/**'
+      - '.github/workflows/di-demo-calibration.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  calibration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate pinned evidence pack
+        run: python demo/developmental_intelligence/validate_evidence.py
+      - name: Run transparent developmental calibration
+        run: python demo/developmental_intelligence/calibration.py
+      - name: Show frozen result
+        run: cat demo/developmental_intelligence/calibration_result.json
+      - name: Upload calibration artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: di-demo-calibration-result
+          path: demo/developmental_intelligence/calibration_result.json
+          if-no-files-found: error

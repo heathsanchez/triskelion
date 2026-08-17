@@ -1,0 +1,70 @@
+{
+  "schema": "METALOGIC_DI_DEMO_EVIDENCE_V1",
+  "authority": "results/ATTESTATION_LEDGER.md wins on conflict",
+  "public_surface": "certificates and bounded results only; no proprietary kernel implementation",
+  "records": [
+    {
+      "id": "V161_AST_ROLE_RESCUE",
+      "kind": "memory_vs_structured_experience",
+      "status": "bounded",
+      "result": {
+        "neural_only": "8/16",
+        "raw_verified_memory": "8/16",
+        "compiled_structural_map": "16/16",
+        "shuffled_map": "0/16"
+      },
+      "claim": "Raw verified episodes and compiled structural experience are not operationally equivalent in this bounded executable coding setting.",
+      "boundary": "Not a universal claim against all RAG or memory systems."
+    },
+    {
+      "id": "LEAN_KERNEL_ARENA_REPRESENTATION_GROWTH",
+      "kind": "real_external_representation_change",
+      "status": "draft_experimental_pr",
+      "source_pr": 4,
+      "result": {
+        "full_suite_before": "152/161",
+        "full_suite_after": "161/161",
+        "declines_before": 9,
+        "declines_after": 0,
+        "false_accepts": 0,
+        "regressions": 0,
+        "arbitrary_id_valid_before": "0/256",
+        "arbitrary_id_valid_after": "256/256",
+        "malformed_rejected": "512/512",
+        "ablation_valid_fail_again": "32/32",
+        "later_cases_closed_without_new_primitive": 7
+      },
+      "representation_distinction": "external export back-reference identifier != internal DAG storage position",
+      "claim": "A reusable representation-level intervention causally generalizes across an independent Lean checker and benchmark, with ablation and malformed controls.",
+      "boundary": "The repair was manually designed after inspecting the exposed failure/source; this does not establish blind autonomous discovery."
+    },
+    {
+      "id": "V54_TWO_GENERATION_COMPOUNDING",
+      "kind": "changed_future_discoverability",
+      "status": "bounded_pass",
+      "run": "31761530951",
+      "result": {
+        "before_O1": "O2 not discoverable",
+        "after_O1": "O2 discoverable",
+        "final_target_requires": ["O1", "O2"]
+      },
+      "claim": "Under the frozen one-new-generator protocol, acquiring O1 changed whether O2 was discoverable later.",
+      "boundary": "Bounded operator-level developmental compounding, not unrestricted natural-world self-improvement."
+    },
+    {
+      "id": "IKKF_PORTABLE_CAPABILITY_V1",
+      "kind": "optional_neural_compilation",
+      "status": "attested_with_qualification",
+      "source_pr": 1,
+      "run": "31759018062",
+      "result": {
+        "baseline_AB_TEST": 0.0,
+        "compiled_AB_TEST": 1.0,
+        "uninstall_AB_TEST": 0.0,
+        "recompiled_AB_TEST": 1.0
+      },
+      "claim": "A compact verified capability artifact is sufficient to reproducibly create bounded held-out neural competence from the same pre-capability checkpoint without replaying Phase-A discovery trajectory.",
+      "boundary": "Same-model-family bounded result; do not claim stochastic independence or universal compilation."
+    }
+  ]
+}
