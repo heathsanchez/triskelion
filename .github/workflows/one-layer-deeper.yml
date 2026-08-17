@@ -1,0 +1,38 @@
+name: One Layer Deeper
+
+on:
+  push:
+    branches: [one-layer-deeper]
+    paths:
+      - 'experiments/one_layer_deeper/**'
+      - '.github/workflows/one-layer-deeper.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Clone evaluator
+        run: git clone --depth 1 https://github.com/tilde-research/one-layer-deeper.git /tmp/old
+      - name: Install evaluator
+        working-directory: /tmp/old
+        run: uv sync
+      - name: Validate baseline and E0001
+        working-directory: /tmp/old
+        run: |
+          set -euo pipefail
+          uv run one-layer validate "$GITHUB_WORKSPACE/experiments/one_layer_deeper/baseline.py"
+          uv run one-layer validate "$GITHUB_WORKSPACE/experiments/one_layer_deeper/e0001_recurrent.py"
+      - name: CPU smoke baseline
+        working-directory: /tmp/old
+        run: uv run python -m benchmark.runner --manifest benchmark/manifests/smoke_cpu.json --submission-file "$GITHUB_WORKSPACE/experiments/one_layer_deeper/baseline.py" > "$GITHUB_WORKSPACE/experiments/one_layer_deeper/smoke_baseline.log"
+      - name: CPU smoke E0001
+        working-directory: /tmp/old
+        run: uv run python -m benchmark.runner --manifest benchmark/manifests/smoke_cpu.json --submission-file "$GITHUB_WORKSPACE/experiments/one_layer_deeper/e0001_recurrent.py" > "$GITHUB_WORKSPACE/experiments/one_layer_deeper/smoke_e0001.log"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: one-layer-deeper-smoke-${{ github.sha }}
+          path: experiments/one_layer_deeper/smoke_*.log
