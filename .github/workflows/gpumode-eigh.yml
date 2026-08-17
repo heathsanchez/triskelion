@@ -43,6 +43,14 @@ jobs:
           set -euo pipefail
           MODE="$(tr -d '[:space:]' < experiments/gpumode_eigh/EXPERIMENT_MODE)"
           case "$MODE" in test|benchmark|leaderboard) ;; *) exit 3 ;; esac
+          if [ "$MODE" = "leaderboard" ]; then
+            IDENTITY_FILE="experiments/gpumode_eigh/LEADERBOARD_IDENTITY"
+            test -f "$IDENTITY_FILE" || { echo "Ranked submission blocked: no identity verification file"; exit 4; }
+            IDENTITY="$(cat "$IDENTITY_FILE")"
+            case "$IDENTITY" in *MathGraph*) ;;
+              *) echo "Ranked submission blocked: externally displayed entrant identity has not been verified to contain MathGraph"; exit 5 ;;
+            esac
+          fi
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
 
       - name: Submit to official GPU MODE evaluator
