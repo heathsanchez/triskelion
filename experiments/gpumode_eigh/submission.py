@@ -27,7 +27,7 @@ def custom_kernel(data: input_t) -> output_t:
     a, b, c = data
     m, k = a.shape
     _, n = b.shape
-    BM = 64
+    BM = 128
     BN = 64
     BK = 32
     grid = (triton.cdiv(m, BM) * triton.cdiv(n, BN),)
