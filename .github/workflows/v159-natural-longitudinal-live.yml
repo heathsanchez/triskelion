@@ -1,0 +1,82 @@
+name: V159 Natural Longitudinal Live
+
+on:
+  push:
+    branches:
+      - v158-unified-developmental-runtime
+    paths:
+      - 'cp3/v159_natural_longitudinal_live.py'
+      - 'cp3/v159_safe_persistent_runner.py'
+      - 'protocols/V159_NATURAL_LONGITUDINAL_DEVELOPMENT_PRECOMMIT.md'
+      - 'protocols/V159_LIVE_SELECTION_RULE_PRECOMMIT.md'
+      - '.github/workflows/v159-natural-longitudinal-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  live:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze live provenance before outcomes
+        run: |
+          git rev-parse HEAD
+          python -m py_compile cp3/v159_safe_persistent_runner.py cp3/v159_natural_longitudinal_live.py
+          sha256sum \
+            protocols/V159_NATURAL_LONGITUDINAL_DEVELOPMENT_PRECOMMIT.md \
+            protocols/V159_LIVE_SELECTION_RULE_PRECOMMIT.md \
+            cp3/v159_safe_persistent_runner.py \
+            cp3/v159_natural_longitudinal_live.py \
+            cp3_frozen/acquisition/CAPABILITY.json \
+            cp3_frozen/acquisition/RAW_MEMORY.txt
+      - name: Assert contamination-free import graph
+        run: |
+          python -m pip install --quiet pytest
+          PYTHONPATH="$PWD:$PWD/cp3" python -m pytest -q tests/test_v159_runner_isolation.py
+      - name: Clone official BugsInPy
+        run: |
+          git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+          git -C BugsInPy rev-parse HEAD
+      - name: Pull every frozen historical runtime allowed by V159
+        run: |
+          docker pull 'python:3.7.0@sha256:10608fb357a18383f792efbf7472ec6d2e166dad62efc0d7c409ef2777aaafd0'
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+          docker pull 'python:3.7.7@sha256:c1e36afba1c3c230a6846801fb284cf4383a8a0080fcf32c2ec625c066c56361'
+          docker pull 'python:3.8.3@sha256:dd6cd8191ccbced2a6af5d0ddb51e6057c1444df14e14bcfd5c7b3ef78738050'
+      - name: Install frozen provider dependency
+        run: python -m pip install --quiet 'river-client==0.6.1'
+      - name: Run V159
+        run: |
+          test -n "$RIVER_API_KEY"
+          mkdir -p artifacts
+          PYTHONPATH="$PWD:$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v159_natural_longitudinal_live.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v159_live"
+      - name: Show V159 verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v159_live/V159_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v159_live/V159_RESULT.json'))
+          print('V159 VERDICT', r.get('verdict'))
+          print('eligible', r.get('eligible_cases'))
+          print('qualification', r.get('qualification_case'))
+          print('downstream', r.get('downstream_case'))
+          print(json.dumps(r.get('classification'), indent=2, sort_keys=True))
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v159-natural-longitudinal-live
+          path: artifacts/v159_live/
+          if-no-files-found: warn
+          retention-days: 90
