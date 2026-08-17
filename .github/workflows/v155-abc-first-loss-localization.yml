@@ -1,0 +1,38 @@
+name: V155 ABC first-loss localization
+on:
+  push:
+    branches: [v155-abc-first-loss-localization]
+    paths:
+      - 'experiments/V155_ABC_FIRST_LOSS_LOCALIZATION.py'
+      - '.github/workflows/v155-abc-first-loss-localization.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze provenance before outcomes
+        run: |
+          mkdir -p artifacts/v155_abc_first_loss
+          printf '%s\n' '${{ github.sha }}' > artifacts/v155_abc_first_loss/GITHUB_SHA.txt
+      - name: Install
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' 'transformers>=4.51,<5'
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Run localization
+        run: python experiments/V155_ABC_FIRST_LOSS_LOCALIZATION.py
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v155-abc-first-loss-localization
+          path: artifacts/v155_abc_first_loss/
