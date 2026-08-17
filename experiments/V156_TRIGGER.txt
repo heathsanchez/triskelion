@@ -1,0 +1,1 @@
+Protocol frozen before outcome inspection. Trigger commit only.
