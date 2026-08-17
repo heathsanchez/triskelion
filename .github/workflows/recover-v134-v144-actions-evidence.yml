@@ -1,0 +1,46 @@
+name: Recover V134-V144 Actions evidence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/recover-v134-v144-actions-evidence
+    paths:
+      - 'tools/recover_v134_v144_actions_evidence.py'
+      - '.github/workflows/recover-v134-v144-actions-evidence.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze recovery apparatus
+        run: |
+          python -m py_compile tools/recover_v134_v144_actions_evidence.py
+          sha256sum tools/recover_v134_v144_actions_evidence.py .github/workflows/recover-v134-v144-actions-evidence.yml
+      - name: Recover existing evidence only
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RECOVERY_OUT: recovered_v134_v144
+        run: python -B tools/recover_v134_v144_actions_evidence.py
+      - name: Show recovery ledger
+        if: always()
+        run: |
+          test -f recovered_v134_v144/RECOVERY_LEDGER.json && cat recovered_v134_v144/RECOVERY_LEDGER.json || true
+      - name: Upload recovery bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v134-v144-actions-evidence-recovery
+          path: recovered_v134_v144/
+          if-no-files-found: error
+
+# Evidence recovery only. This workflow makes no model calls and runs no scientific verifier experiment.
