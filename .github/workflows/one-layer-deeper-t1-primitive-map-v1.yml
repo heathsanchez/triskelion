@@ -1,0 +1,73 @@
+name: One Layer Deeper T1 Primitive Map V1
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-t1-primitive-map-v1.yml'
+
+jobs:
+  primitive-map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Clone public frontier
+        run: git clone --depth 1 https://github.com/benjaminW2025/one-layer-deeper.git /tmp/old
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run primitive decomposition
+        working-directory: /tmp/old
+        run: |
+          python explorations/exp4_subtasks.py \
+            --tasks square reduce squaremod \
+            --bits 14 \
+            --depths 2 \
+            --widths 128 \
+            --n-train 5000 \
+            --n-eval 500 \
+            --budget-mode steps \
+            --budget 500 \
+            --batch-size 256 \
+            --device cpu
+      - name: Build map summary
+        run: |
+          mkdir -p results/one_layer_deeper/t1_primitive_map_v1
+          cp /tmp/old/explorations/results/results_exp4.csv results/one_layer_deeper/t1_primitive_map_v1/results_exp4.csv
+          python - <<'PY'
+          import csv, pathlib
+          p=pathlib.Path('results/one_layer_deeper/t1_primitive_map_v1/results_exp4.csv')
+          rows=list(csv.DictReader(p.open()))
+          out=['# T1_PRIMITIVE_MAP_V1','', 'Public-frontier primitive decomposition: square vs reduce vs squaremod.', '', '| task | cohort | exact | chance | excess | digit | digit chance |', '|---|---|---:|---:|---:|---:|---:|']
+          fresh={}
+          for r in rows:
+              exact=float(r['exact_acc']); chance=float(r['chance_exact'])
+              digit=float(r['digit_acc']); dchance=float(r['chance_digit'])
+              out.append(f"| {r['task']} | {r['cohort']} | {exact:.5f} | {chance:.5f} | {exact-chance:+.5f} | {digit:.5f} | {dchance:.5f} |")
+              if r['cohort']=='test_fresh': fresh[r['task']]=exact-chance
+          out += ['', '## Boundary readout','']
+          if fresh:
+              ordered=sorted(fresh.items(), key=lambda kv: kv[1], reverse=True)
+              out.append('Fresh-x exact excess over chance, strongest to weakest:')
+              for k,v in ordered: out.append(f'- {k}: {v:+.5f}')
+              if fresh.get('square',-9)>fresh.get('squaremod',9) and fresh.get('reduce',-9)>fresh.get('squaremod',9):
+                  out.append('')
+                  out.append('**Candidate boundary: COMPOSITION** — primitives outperform squaremod.')
+              else:
+                  weakest=min(fresh, key=fresh.get)
+                  out.append('')
+                  out.append(f'**Candidate earliest primitive residual: {weakest.upper()}**')
+          out += ['', '## Claim boundary','', 'This is a cheap CPU diagnostic with a deliberately small matched model and 500-step budget. It is for residual localization, not competition performance or promotion.']
+          pathlib.Path('results/one_layer_deeper/t1_primitive_map_v1/README.md').write_text('\n'.join(out))
+          PY
+          cat results/one_layer_deeper/t1_primitive_map_v1/README.md
+      - name: Commit map artifact
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/t1_primitive_map_v1
+          git commit -m 'Record T1 primitive decomposition map' || exit 0
+          git push
