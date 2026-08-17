@@ -1,0 +1,49 @@
+name: V161A State-Aligned Binding Replay
+
+on:
+  push:
+    branches:
+      - v158-unified-developmental-runtime
+    paths:
+      - 'cp3/v161a_state_aligned_binding_replay.py'
+      - 'protocols/V161A_STATE_ALIGNED_BINDING_REPLAY_PRECOMMIT.md'
+      - '.github/workflows/v161a-state-aligned-binding-replay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze V161A provenance
+        run: |
+          git rev-parse HEAD
+          python -m py_compile cp3/v161a_state_aligned_binding_replay.py
+          sha256sum protocols/V161A_STATE_ALIGNED_BINDING_REPLAY_PRECOMMIT.md cp3/v161a_state_aligned_binding_replay.py
+      - name: Clone frozen BugsInPy snapshot
+        run: |
+          git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+          test "$(git -C BugsInPy rev-parse HEAD)" = "11c5f1eea954a42132cfd06bf257766a7963e0fd"
+      - name: Pull exact historical runtime
+        run: docker pull 'python:3.7.0@sha256:10608fb357a18383f792efbf7472ec6d2e166dad62efc0d7c409ef2777aaafd0'
+      - name: Run V161A
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD:$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v161a_state_aligned_binding_replay.py --bugsinpy "$PWD/BugsInPy" --out "$PWD/artifacts/v161a"
+      - name: Show V161A verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v161a/V161A_RESULT.json ]; then cat artifacts/v161a/V161A_RESULT.json; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v161a-state-aligned-binding-replay
+          path: artifacts/v161a/
+          if-no-files-found: warn
+          retention-days: 90
