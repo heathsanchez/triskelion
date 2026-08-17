@@ -1,0 +1,63 @@
+name: V159B carrier structure entropy separator apparatus repair
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - v159-carrier-structure-entropy-separator
+    paths:
+      - '.github/workflows/v159b-carrier-structure-entropy-separator.yml'
+
+jobs:
+  v159b:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      V145_TEMPLATE_ROOT: /tmp/v159b_precompiled_templates
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze provenance before outcomes
+        run: |
+          python -m py_compile cp3/v159_carrier_structure_entropy_separator.py
+          sha256sum protocols/V159_CARRIER_STRUCTURE_ENTROPY_SEPARATOR_PRECOMMIT.md cp3/v159_carrier_structure_entropy_separator.py .github/workflows/v159b-carrier-structure-entropy-separator.yml
+      - name: Obtain frozen BugsInPy corpus
+        run: git clone --depth 1 https://github.com/soarsmu/BugsInPy.git /tmp/BugsInPy
+      - name: Pull exact historical runtimes
+        run: |
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+      - name: Install provider apparatus dependencies
+        run: python -m pip install --quiet 'river-client==0.6.1' 'jinja2>=3.1,<4'
+      - name: Run frozen V159 separator unchanged
+        run: |
+          rm -rf "$GITHUB_WORKSPACE/v159b_out"
+          PYTHONPATH="$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v159_carrier_structure_entropy_separator.py \
+            --bugsinpy /tmp/BugsInPy \
+            --out "$GITHUB_WORKSPACE/v159b_out"
+      - name: Show V159B verdict
+        if: always()
+        run: |
+          if [ -f v159b_out/V159_RESULT.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('v159b_out/V159_RESULT.json'))
+          print('V159B SCIENTIFIC VERDICT', r.get('verdict'))
+          print(json.dumps(r.get('primary'), indent=2, sort_keys=True))
+          PY
+          fi
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v159b-carrier-structure-entropy-separator
+          path: v159b_out/
+          if-no-files-found: error
+
+# Apparatus-only successor to R10 runs 31981745676 and 31982995967.
+# Adds only missing tokenizer-template dependency jinja2.
+# Scientific protocol, runner, tasks, model, arms, carrier bytes, seeds, budgets, verifier, endpoint, and verdict rules are unchanged.
