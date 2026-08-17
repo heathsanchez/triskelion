@@ -1,3 +1,4 @@
+# V155 first-loss localization; frozen protocol
 import os,json
 from pathlib import Path
 import river_client as river
@@ -31,11 +32,7 @@ def eval_direct(m,spec):
 def eval_prefix(m,spec):
  probes=[]
  for x in HELD:
-  probes += [
-   ('A_seed_to_AB',x,spec['p']+x,spec['s']),
-   ('AB_seed_to_ABC',x,spec['p']+x+spec['s'],spec['r']),
-   ('wrapped_A_seed',x,spec['l']+spec['p']+x,spec['s']+spec['r']),
-  ]
+  probes += [('A_seed_to_AB',x,spec['p']+x,spec['s']),('AB_seed_to_ABC',x,spec['p']+x+spec['s'],spec['r']),('wrapped_A_seed',x,spec['l']+spec['p']+x,spec['s']+spec['r'])]
  gs=m.sample(prompts=[f'Input: {x}\nOutput: {seed}' for _,x,seed,_ in probes],max_tokens=12,temperature=0.0)
  rows=[]
  for (lab,x,seed,exp),g in zip(probes,gs):
@@ -55,9 +52,8 @@ for spec in SPECS:
    fb=m.forward_backward(batch,loss_fn='cross_entropy'); m.optim_step(lr=LR,grad_clip_norm=1.0)
    ck=m.save_weights(f'V155_seed{seed}_ABC_step{st}',mode='training').path
    d=eval_direct(m,spec); ph,rows=eval_prefix(m,spec)
-   rec={'step':st,'loss':float(fb.metrics['loss']),'checkpoint':ck,'direct':d,'prefix_hits':ph,'prefix_rows':rows}
-   rep['steps'].append(rec); print(json.dumps({'seed':seed,'step':st,'A':d['A']['hits'],'AB':d['AB']['hits'],'ABC':d['ABC']['hits'],'prefix':ph,'checkpoint':ck}),flush=True)
- # first loss relative to step0 direct terminal competence
+   rep['steps'].append({'step':st,'loss':float(fb.metrics['loss']),'checkpoint':ck,'direct':d,'prefix_hits':ph,'prefix_rows':rows})
+   print(json.dumps({'seed':seed,'step':st,'A':d['A']['hits'],'AB':d['AB']['hits'],'ABC':d['ABC']['hits'],'prefix':ph,'checkpoint':ck}),flush=True)
  for task in ['A','AB']:
   base_hits=rep['steps'][0]['direct'][task]['hits']
   rep['first_loss_'+task]=next((z['step'] for z in rep['steps'][1:] if z['direct'][task]['hits']<base_hits),None)
