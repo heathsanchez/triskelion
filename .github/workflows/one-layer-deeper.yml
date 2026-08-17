@@ -36,3 +36,36 @@ jobs:
         with:
           name: one-layer-deeper-smoke-${{ github.sha }}
           path: experiments/one_layer_deeper/smoke_*.log
+
+  hosted-e1:
+    if: ${{ secrets.ONE_LAYER_CONFIG_B64 != '' }}
+    needs: validate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv and One Layer Deeper CLI
+        run: |
+          set -euo pipefail
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          "$HOME/.local/bin/uv" tool install git+https://github.com/tilde-research/one-layer-deeper.git
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Restore One Layer Deeper authentication
+        env:
+          ONE_LAYER_CONFIG_B64: ${{ secrets.ONE_LAYER_CONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.config/one-layer"
+          printf '%s' "$ONE_LAYER_CONFIG_B64" | base64 --decode > "$HOME/.config/one-layer/config.json"
+          chmod 600 "$HOME/.config/one-layer/config.json"
+      - name: Hosted H100 baseline E1
+        run: |
+          set -o pipefail
+          one-layer submit experiments/one_layer_deeper/baseline.py --tier easy --dataset e1 --wait | tee experiments/one_layer_deeper/hosted_baseline_e1.log
+      - name: Hosted H100 E0001 E1
+        run: |
+          set -o pipefail
+          one-layer submit experiments/one_layer_deeper/e0001_recurrent.py --tier easy --dataset e1 --wait | tee experiments/one_layer_deeper/hosted_e0001_e1.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: one-layer-deeper-hosted-e1-${{ github.sha }}
+          path: experiments/one_layer_deeper/hosted_*_e1.log
