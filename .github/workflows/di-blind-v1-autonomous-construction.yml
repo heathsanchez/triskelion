@@ -1,0 +1,213 @@
+name: DI Blind V1 Autonomous Construction
+
+on:
+  push:
+    branches: [agent/di-blind-developmental-challenge-v1]
+    paths:
+      - 'protocols/DI_BLIND_V1_AUTONOMOUS_CONSTRUCTOR_PRECOMMIT.md'
+      - 'experiments/DI_BLIND_V1_*.py'
+      - '.github/workflows/di-blind-v1-autonomous-construction.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  blind-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      CHECKER_REV: 514ab33fc0262c491a0af1846cc3887f48411e36
+      VOW_REV: 15c1b933f87eed2b23c176665730baea37706daa
+      ARENA_RUN: 31005978773
+      ARENA_ARTIFACT: 8931227426
+      ARENA_REV: 8254ae7dc7d6c10dbea94b6761dcb1e4ccdfdee6
+      ORDER_SALT: TRISKELION_BLIND_VOW_V1
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install frozen proposer dependency
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7'
+
+      - name: Require model provider secret
+        run: test -n "$RIVER_API_KEY"
+
+      - name: Clone and build frozen independent checker
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/pmatos/vow-lean-kernel checker
+          git -C checker checkout "$CHECKER_REV"
+          git clone https://github.com/vow-lang/vow checker/vow
+          git -C checker/vow checkout "$VOW_REV"
+          ROOT="$(pwd)/checker"
+          ( cd checker/vow && cargo build --all )
+          ( cd checker/vow && bash scripts/concat_vow.sh clif > "$ROOT/compiler_clif.vow" )
+          ( cd checker/vow && ulimit -v 2000000 && ./target/debug/vow build --no-verify --no-cache "$ROOT/compiler_clif.vow" -o "$ROOT/vowc" )
+          test -x checker/vowc
+          ( cd checker && VOWC="$ROOT/vowc" bash scripts/build.sh )
+          test -x checker/lean_checker
+
+      - name: Freeze corpus and reveal exactly one natural failure
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p blind-di
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o /tmp/arena.zip
+          mkdir /tmp/arena-artifact arena-tests
+          unzip -q /tmp/arena.zip -d /tmp/arena-artifact
+          tar -xzf /tmp/arena-artifact/lean-arena-tests.tar.gz -C arena-tests
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os,subprocess
+          root=Path('arena-tests'); salt=os.environ['ORDER_SALT']; rows=[]
+          for expected,sub in [('accept','good'),('reject','bad')]:
+              for p in (root/sub).rglob('*.ndjson'):
+                  rel=str(p.relative_to(root)); sha=hashlib.sha256(p.read_bytes()).hexdigest()
+                  order=hashlib.sha256((salt+'\0'+rel+'\0'+sha).encode()).hexdigest()
+                  rows.append({'order':order,'rel':rel,'expected':expected,'sha256':sha})
+          rows.sort(key=lambda x:x['order'])
+          canonical=json.dumps(rows,separators=(',',':'),sort_keys=True).encode()
+          commitment=hashlib.sha256(canonical).hexdigest()
+          Path('/tmp/blind_manifest_initial.json').write_bytes(canonical)
+          exe=Path('checker/lean_checker').resolve(); exposed=None
+          for rank,m in enumerate(rows,1):
+              p=(root/m['rel']).resolve()
+              try:
+                  cp=subprocess.run([str(exe),str(p)],capture_output=True,text=True,timeout=30); rc=cp.returncode
+              except subprocess.TimeoutExpired as e:
+                  rc=124; cp=type('X',(),{'stdout':e.stdout or '', 'stderr':e.stderr or ''})()
+              status='accept' if rc==0 else ('reject' if rc==1 else ('decline' if rc==2 else 'error'))
+              if status != m['expected']:
+                  exposed={**m,'rank':rank,'baseline_status':status,'baseline_rc':rc}
+                  Path('blind-di/exposed.ndjson').write_bytes(p.read_bytes())
+                  Path('blind-di/exposed_baseline.json').write_text(json.dumps({
+                      'expected':m['expected'],'status':status,'return_code':rc,
+                      'stdout_tail':(cp.stdout or '')[-12000:] if isinstance(cp.stdout,str) else '',
+                      'stderr_tail':(cp.stderr or '')[-12000:] if isinstance(cp.stderr,str) else ''
+                  },indent=2))
+                  break
+          if exposed is None: raise SystemExit('no unresolved case in frozen corpus')
+          protected=rows[exposed['rank']:]
+          protected_commit=hashlib.sha256(json.dumps(protected,separators=(',',':'),sort_keys=True).encode()).hexdigest()
+          pre={
+              'protocol':'DI_BLIND_V1_AUTONOMOUS_CONSTRUCTION',
+              'arena_run':int(os.environ['ARENA_RUN']),'arena_artifact':int(os.environ['ARENA_ARTIFACT']),
+              'arena_rev':os.environ['ARENA_REV'],'checker_rev':os.environ['CHECKER_REV'],'vow_rev':os.environ['VOW_REV'],
+              'order_salt':salt,'case_count':len(rows),'ordered_manifest_sha256':commitment,
+              'exposed_rank':exposed['rank'],'exposed_order':exposed['order'],'exposed_sha256':exposed['sha256'],
+              'protected_suffix_count':len(protected),'protected_suffix_sha256':protected_commit
+          }
+          Path('blind-di/precommit.json').write_text(json.dumps(pre,indent=2,sort_keys=True)+'\n')
+          # Exposure metadata is allowed; protected filenames and content are not persisted here.
+          public={k:v for k,v in exposed.items() if k != 'rel'}
+          public['rel']=exposed['rel']
+          Path('blind-di/exposed.json').write_text(json.dumps(public,indent=2,sort_keys=True)+'\n')
+          print('PRECOMMIT',commitment,'CASES',len(rows),'EXPOSED_RANK',exposed['rank'],'EXPOSED_SHA',exposed['sha256'])
+          PY
+          # Hard proposer boundary: remove the entire corpus before any model call.
+          rm -rf arena-tests /tmp/arena-artifact /tmp/arena.zip /tmp/blind_manifest_initial.json
+          test ! -e arena-tests
+
+      - name: Show proposer boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'Files available to proposer:'
+          find blind-di -maxdepth 1 -type f -printf '%f\n' | sort
+          test -f blind-di/exposed.ndjson
+          test -f blind-di/exposed_baseline.json
+          test ! -e arena-tests
+          echo 'Protected corpus: ABSENT'
+
+      - name: Generate all autonomous candidates before hidden evaluation
+        run: python experiments/DI_BLIND_V1_PROPOSE.py
+
+      - name: Seal candidate batch
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum blind-di/candidates.json | tee blind-di/candidates.sha256
+          python - <<'PY'
+          import json
+          x=json.load(open('blind-di/candidates.json'))
+          print('MODEL',x['base_model'])
+          print('CANDIDATES',x['candidate_count'])
+          print('ADMISSIBLE',x['admissible_count'])
+          print('PROMPT_SHA256',x['prompt_sha256'])
+          PY
+
+      - name: Re-download protected corpus only after candidates are sealed
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o /tmp/arena-eval.zip
+          mkdir /tmp/arena-eval-artifact arena-tests
+          unzip -q /tmp/arena-eval.zip -d /tmp/arena-eval-artifact
+          tar -xzf /tmp/arena-eval-artifact/lean-arena-tests.tar.gz -C arena-tests
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os
+          root=Path('arena-tests');salt=os.environ['ORDER_SALT'];rows=[]
+          for expected,sub in [('accept','good'),('reject','bad')]:
+              for p in (root/sub).rglob('*.ndjson'):
+                  rel=str(p.relative_to(root));sha=hashlib.sha256(p.read_bytes()).hexdigest()
+                  order=hashlib.sha256((salt+'\0'+rel+'\0'+sha).encode()).hexdigest()
+                  rows.append({'order':order,'rel':rel,'expected':expected,'sha256':sha})
+          rows.sort(key=lambda x:x['order'])
+          canonical=json.dumps(rows,separators=(',',':'),sort_keys=True).encode()
+          Path('/tmp/blind_manifest_eval.json').write_bytes(canonical)
+          got=hashlib.sha256(canonical).hexdigest(); want=json.load(open('blind-di/precommit.json'))['ordered_manifest_sha256']
+          print('REPRODUCED',got); assert got==want,(got,want)
+          PY
+
+      - name: Evaluate sealed candidates and causal transfer
+        run: python experiments/DI_BLIND_V1_EVALUATE.py
+
+      - name: Print scientific verdict
+        if: always()
+        shell: bash
+        run: |
+          if test -f blind-di/result.json; then
+            python - <<'PY'
+          import json
+          x=json.load(open('blind-di/result.json'))
+          print('\n'+'='*88)
+          print('VERDICT:',x.get('verdict'))
+          print('ADMISSIBLE CANDIDATES:',x.get('admissible_candidate_count'))
+          print('SELECTED:', None if x.get('selected') is None else x['selected']['generation_index'])
+          pt=x.get('protected_transfer') or {}
+          print('PROTECTED TRANSFER SUCCESSES:',pt.get('transfer_success_count'))
+          print('BASE WEIGHT UPDATES:',x.get('base_weight_updates'))
+          print('='*88)
+          PY
+          else
+            echo 'No scientific result produced: infrastructure null.'
+          fi
+
+      - name: Upload immutable audit bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: di-blind-v1-audit
+          path: |
+            blind-di/precommit.json
+            blind-di/exposed.json
+            blind-di/exposed_baseline.json
+            blind-di/candidates.json
+            blind-di/candidates.sha256
+            blind-di/result.json
+          if-no-files-found: warn
