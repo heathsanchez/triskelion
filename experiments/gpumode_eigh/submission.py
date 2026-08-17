@@ -31,5 +31,5 @@ def custom_kernel(data: input_t) -> output_t:
     BN = 128
     BK = 32
     grid = (triton.cdiv(m, BM) * triton.cdiv(n, BN),)
-    _mm[grid](a, b, c, M=m, N=n, K=k, BM=BM, BN=BN, BK=BK, num_warps=4, num_stages=4)
+    _mm[grid](a, b, c, M=m, N=n, K=k, BM=BM, BN=BN, BK=BK, num_warps=8, num_stages=3)
     return c
