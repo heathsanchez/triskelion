@@ -4,7 +4,7 @@ on:
   push:
     branches: [one-layer-deeper]
     paths:
-      - 'experiments/one_layer_deeper/e0005_workspace_state.py'
+      - 'experiments/one_layer_deeper/e0006_workspace_train2.py'
       - '.github/workflows/one-layer-deeper.yml'
   workflow_dispatch:
 
@@ -20,21 +20,21 @@ jobs:
       - name: Install evaluator
         working-directory: /tmp/old
         run: uv sync
-      - name: Stage canonical E0005 filename
+      - name: Stage canonical E0006 filename
         run: |
           set -euo pipefail
-          mkdir -p /tmp/old-submissions/e0005
-          cp experiments/one_layer_deeper/e0005_workspace_state.py /tmp/old-submissions/e0005/submission.py
-      - name: Validate E0005
+          mkdir -p /tmp/old-submissions/e0006
+          cp experiments/one_layer_deeper/e0006_workspace_train2.py /tmp/old-submissions/e0006/submission.py
+      - name: Validate E0006
         working-directory: /tmp/old
-        run: uv run one-layer validate /tmp/old-submissions/e0005/submission.py
-      - name: CPU smoke E0005
+        run: uv run one-layer validate /tmp/old-submissions/e0006/submission.py
+      - name: CPU smoke E0006
         working-directory: /tmp/old
-        run: uv run python -m benchmark.runner --manifest benchmark/manifests/smoke_cpu.json --submission-file /tmp/old-submissions/e0005/submission.py > "$GITHUB_WORKSPACE/experiments/one_layer_deeper/smoke_e0005.log"
+        run: uv run python -m benchmark.runner --manifest benchmark/manifests/smoke_cpu.json --submission-file /tmp/old-submissions/e0006/submission.py > "$GITHUB_WORKSPACE/experiments/one_layer_deeper/smoke_e0006.log"
       - uses: actions/upload-artifact@v4
         with:
-          name: one-layer-deeper-smoke-e0005-${{ github.sha }}
-          path: experiments/one_layer_deeper/smoke_e0005.log
+          name: one-layer-deeper-smoke-e0006-${{ github.sha }}
+          path: experiments/one_layer_deeper/smoke_e0006.log
 
   hosted-e1:
     needs: validate
@@ -56,16 +56,16 @@ jobs:
           mkdir -p "$HOME/.config/one-layer"
           printf '%s' "$ONE_LAYER_CONFIG_B64" | base64 --decode > "$HOME/.config/one-layer/config.json"
           chmod 600 "$HOME/.config/one-layer/config.json"
-      - name: Stage canonical hosted E0005 filename
+      - name: Stage canonical hosted E0006 filename
         run: |
           set -euo pipefail
-          mkdir -p /tmp/old-submissions/e0005
-          cp experiments/one_layer_deeper/e0005_workspace_state.py /tmp/old-submissions/e0005/submission.py
-      - name: Hosted H100 E0005 E1
+          mkdir -p /tmp/old-submissions/e0006
+          cp experiments/one_layer_deeper/e0006_workspace_train2.py /tmp/old-submissions/e0006/submission.py
+      - name: Hosted H100 E0006 E1
         run: |
           set -o pipefail
-          one-layer submit /tmp/old-submissions/e0005/submission.py --tier easy --dataset e1 --wait | tee experiments/one_layer_deeper/hosted_e0005_e1.log
+          one-layer submit /tmp/old-submissions/e0006/submission.py --tier easy --dataset e1 --wait | tee experiments/one_layer_deeper/hosted_e0006_e1.log
       - uses: actions/upload-artifact@v4
         with:
-          name: one-layer-deeper-hosted-e0005-e1-${{ github.sha }}
-          path: experiments/one_layer_deeper/hosted_e0005_e1.log
+          name: one-layer-deeper-hosted-e0006-e1-${{ github.sha }}
+          path: experiments/one_layer_deeper/hosted_e0006_e1.log
