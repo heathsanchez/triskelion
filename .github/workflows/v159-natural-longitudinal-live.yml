@@ -39,6 +39,25 @@ jobs:
         run: |
           python -m pip install --quiet pytest
           PYTHONPATH="$PWD:$PWD/cp3" python -m pytest -q tests/test_v159_runner_isolation.py
+      - name: Install frozen provider dependency
+        run: python -m pip install --quiet 'river-client==0.6.1'
+      - name: Fail-fast River transport gate
+        run: |
+          test -n "$RIVER_API_KEY"
+          python - <<'PY'
+          import os
+          import river_client as river
+          model = 'Qwen/Qwen3.5-9B'
+          client = river.Client(api_key=os.environ['RIVER_API_KEY'])
+          healthy = bool(client.health_check())
+          print('river_health', healthy)
+          if not healthy:
+              raise SystemExit('River health check failed before V159 preparation')
+          available = list(client.get_capabilities())
+          print('frozen_model_available', model in available)
+          if model not in available:
+              raise SystemExit(f'frozen model unavailable: {model}')
+          PY
       - name: Clone official BugsInPy
         run: |
           git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
@@ -50,11 +69,8 @@ jobs:
           docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
           docker pull 'python:3.7.7@sha256:c1e36afba1c3c230a6846801fb284cf4383a8a0080fcf32c2ec625c066c56361'
           docker pull 'python:3.8.3@sha256:dd6cd8191ccbced2a6af5d0ddb51e6057c1444df14e14bcfd5c7b3ef78738050'
-      - name: Install frozen provider dependency
-        run: python -m pip install --quiet 'river-client==0.6.1'
       - name: Run V159
         run: |
-          test -n "$RIVER_API_KEY"
           mkdir -p artifacts
           PYTHONPATH="$PWD:$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v159_natural_longitudinal_live.py \
             --bugsinpy "$PWD/BugsInPy" \
