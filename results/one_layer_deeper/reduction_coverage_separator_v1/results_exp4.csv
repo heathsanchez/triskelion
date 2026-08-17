@@ -1,0 +1,7 @@
+run_id,task,bits,modulus,cohort,n_layers,d_model,params,device,budget_mode,budget,steps_completed,train_seconds,lr,n_train,x_space,x_coverage,first_train_loss,final_train_loss,diverged,flat_from_start,n_eval,digit_acc,exact_acc,chance_digit,chance_exact
+exp4_square_b14_L2_d128_steps500_s0,square,14,12319,train_seen,2,128,402961,cpu,steps,500.0,500,39.763,0.0003,5000,12096,0.41336,2.94282,1.16424,False,False,500,0.54529,0.004,0.18551,0.002
+exp4_square_b14_L2_d128_steps500_s0,square,14,12319,test_fresh,2,128,402961,cpu,steps,500.0,500,39.763,0.0003,5000,12096,0.41336,2.94282,1.16424,False,False,500,0.53706,0.002,0.18056,0.002
+exp4_reduce_b7_L2_d128_steps500_s0,reduce,7,91,train_seen,2,128,402449,cpu,steps,500.0,500,29.303,0.0003,5000,8281,0.603792,2.90515,1.44999,False,False,500,0.47441,0.124,0.13539,0.022
+exp4_reduce_b7_L2_d128_steps500_s0,reduce,7,91,test_fresh,2,128,402449,cpu,steps,500.0,500,29.303,0.0003,5000,8281,0.603792,2.90515,1.44999,False,False,500,0.42827,0.072,0.1339,0.022
+exp4_squaremod_b14_L2_d128_steps500_s0,squaremod,14,12319,train_seen,2,128,402961,cpu,steps,500.0,500,39.874,0.0003,5000,12096,0.41336,3.02474,2.19614,False,False,500,0.15792,0.0,0.17558,0.006
+exp4_squaremod_b14_L2_d128_steps500_s0,squaremod,14,12319,test_fresh,2,128,402961,cpu,steps,500.0,500,39.874,0.0003,5000,12096,0.41336,3.02474,2.19614,False,False,500,0.159,0.002,0.17221,0.006
