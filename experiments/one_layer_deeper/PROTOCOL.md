@@ -38,5 +38,16 @@ Intervention: training remains exactly E0000 (one block application). Evaluation
 Prospective prediction: on Easy E1, E0003 should exceed E0002's 5.33% aggregate score and ideally certify the first T rung.
 Kill criterion: no certified-depth gain and aggregate score <=5.33%.
 Promotion criterion: any certified Max T gain; otherwise aggregate score >=10% on E1 only licenses a second Easy-world replication, not Medium or Hard.
+Hosted H100 Easy E1 result: score 0.33%; Max T none certified; OOD N Max T none certified.
+Decision: killed. Naive additive context reinjection destroys the E0002 gain and performs below the frozen baseline. This is evidence against mixing immutable problem context directly into the evolving recurrent state at every step.
+
+## E0004 immutable-context / mutable-state anchored recurrence
+Observation: E0002 says extra evaluation-time computation can help, while E0003 says additive re-injection of the prompt corrupts that gain. The unresolved distinction is whether context must remain structurally separate from mutable state rather than being repeatedly merged into it.
+Hypothesis: recurrent continuation benefits when the evolving query/state stream is updated against keys/values anchored to the original immutable prompt representation. This preserves applicability information without overwriting the mutable state.
+Rival: E0002's gain is incidental, and separating context from state will not improve score or certification.
+Intervention: training is exactly the E0000 baseline forward path and optimizer. Evaluation performs the normal first baseline block application, then three extra tied updates in which queries come from the evolving state while keys/values come from the unchanged original token+position context. The same Block parameters are reused; no parameters, optimizer, loss, schedule, or data are added.
+Prospective prediction: on Easy E1, E0004 should recover E0002's gain and exceed 5.33% aggregate score; a certified first T rung is the decisive target.
+Kill criterion: no certified-depth gain and aggregate score <=5.33%.
+Promotion criterion: any certified Max T gain licenses immediate replication on a second Easy world; otherwise aggregate score >=10% licenses that replication but does not yet license Medium or Hard.
 
 No Medium intervention is licensed from a single Easy world. Hard remains protected and is not used for search.
