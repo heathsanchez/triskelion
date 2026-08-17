@@ -1,0 +1,40 @@
+name: V153 ABC control mechanism separator
+on:
+  push:
+    paths:
+      - 'protocols/V153_ABC_CONTROL_MECHANISM_SEPARATOR_PRECOMMIT.md'
+      - 'experiments/PROBE_ABC_CONTROL_V153.py'
+      - '.github/workflows/v153-abc-control-mechanism-separator.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze provenance before outcomes
+        run: |
+          python -m py_compile experiments/PROBE_ABC_CONTROL_V153.py
+          sha256sum protocols/V153_ABC_CONTROL_MECHANISM_SEPARATOR_PRECOMMIT.md experiments/PROBE_ABC_CONTROL_V153.py .github/workflows/v153-abc-control-mechanism-separator.yml | tee V153_SHA256.txt
+      - name: Install River client
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7'
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Run frozen checkpoint separator
+        run: python experiments/PROBE_ABC_CONTROL_V153.py
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v153-abc-control-mechanism-separator
+          path: |
+            artifacts/v153_abc_control/
+            V153_SHA256.txt
