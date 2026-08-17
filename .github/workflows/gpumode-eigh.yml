@@ -4,7 +4,8 @@ on:
   push:
     branches: [gpumode-eigh]
     paths:
-      - 'experiments/gpumode_eigh/**'
+      - 'experiments/gpumode_eigh/submission.py'
+      - 'experiments/gpumode_eigh/EXPERIMENT_MODE'
       - '.github/workflows/gpumode-eigh.yml'
   workflow_dispatch:
 
@@ -46,9 +47,10 @@ jobs:
           if [ "$MODE" = "leaderboard" ]; then
             IDENTITY_FILE="experiments/gpumode_eigh/LEADERBOARD_IDENTITY"
             test -f "$IDENTITY_FILE" || { echo "Ranked submission blocked: no identity verification file"; exit 4; }
-            IDENTITY="$(cat "$IDENTITY_FILE")"
-            case "$IDENTITY" in *MathGraph*) ;;
-              *) echo "Ranked submission blocked: externally displayed entrant identity has not been verified to contain MathGraph"; exit 5 ;;
+            FIRST_LINE="$(head -n 1 "$IDENTITY_FILE")"
+            case "$FIRST_LINE" in
+              'VERIFIED_EXTERNAL_DISPLAY: MathGraph'*) ;;
+              *) echo "Ranked submission blocked: externally displayed entrant identity has not been verified to start with MathGraph"; exit 5 ;;
             esac
           fi
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
