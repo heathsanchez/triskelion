@@ -1,0 +1,49 @@
+name: V159 Downstream Scope Census
+
+on:
+  push:
+    branches:
+      - v158-unified-developmental-runtime
+    paths:
+      - 'cp3/v159_scope_census.py'
+      - '.github/workflows/v159-scope-census.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  census:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze census provenance
+        run: sha256sum cp3/v159_scope_census.py cp3_frozen/acquisition/CAPABILITY.json
+      - name: Clone official BugsInPy
+        run: |
+          git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+          git -C BugsInPy rev-parse HEAD
+      - name: Pull exact historical runtimes
+        run: |
+          docker pull 'python:3.7.0@sha256:10608fb357a18383f792efbf7472ec6d2e166dad62efc0d7c409ef2777aaafd0'
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.7.4@sha256:fc0a398e1987fb1e58909053c11630e06adb3df265fe693391779020b9253f5e'
+          docker pull 'python:3.7.7@sha256:c1e36afba1c3c230a6846801fb284cf4383a8a0080fcf32c2ec625c066c56361'
+          docker pull 'python:3.8.3@sha256:dd6cd8191ccbced2a6af5d0ddb51e6057c1444df14e14bcfd5c7b3ef78738050'
+      - name: Run scope census
+        run: |
+          set +e
+          PYTHONPATH="$PWD:$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v159_scope_census.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --capability "$PWD/cp3_frozen/acquisition/CAPABILITY.json" \
+            --out "$PWD/artifacts/v159_scope"
+          rc=$?
+          cat artifacts/v159_scope/V159_SCOPE_CENSUS.json
+          exit $rc
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v159-downstream-scope-census
+          path: artifacts/v159_scope/
+          if-no-files-found: error
+          retention-days: 90
