@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate pinned evidence pack
+        run: python demo/developmental_intelligence/validate_evidence.py
       - name: Run transparent developmental calibration
         run: python demo/developmental_intelligence/calibration.py
       - name: Show frozen result
