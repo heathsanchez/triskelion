@@ -42,3 +42,5 @@ jobs:
           name: v159-carrier-structure-entropy-separator
           path: v159_out/
           if-no-files-found: error
+
+# Launch commit after protocol/apparatus freeze; no scientific parameter changed.
