@@ -38,7 +38,6 @@ jobs:
           path: experiments/one_layer_deeper/smoke_*.log
 
   hosted-e1:
-    if: ${{ secrets.ONE_LAYER_CONFIG_B64 != '' }}
     needs: validate
     runs-on: ubuntu-24.04
     steps:
@@ -54,6 +53,7 @@ jobs:
           ONE_LAYER_CONFIG_B64: ${{ secrets.ONE_LAYER_CONFIG_B64 }}
         run: |
           set -euo pipefail
+          test -n "$ONE_LAYER_CONFIG_B64" || { echo 'ONE_LAYER_CONFIG_B64 is missing'; exit 2; }
           mkdir -p "$HOME/.config/one-layer"
           printf '%s' "$ONE_LAYER_CONFIG_B64" | base64 --decode > "$HOME/.config/one-layer/config.json"
           chmod 600 "$HOME/.config/one-layer/config.json"
