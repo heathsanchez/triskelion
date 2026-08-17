@@ -20,9 +20,9 @@ jobs:
       - name: Install test dependency
         run: python -m pip install --quiet pytest
       - name: Compile runtime
-        run: python -m py_compile developmental_runtime/state.py scripts/run_v158_unified_runtime_selftest.py
+        run: python -m py_compile developmental_runtime/state.py developmental_runtime/longitudinal.py scripts/run_v158_unified_runtime_selftest.py
       - name: Run runtime tests
-        run: python -m pytest -q tests/test_developmental_runtime.py
+        run: python -m pytest -q tests/test_developmental_runtime.py tests/test_longitudinal_gate.py
       - name: Run causal replay self-test
         run: PYTHONPATH="$PWD" python scripts/run_v158_unified_runtime_selftest.py
       - name: Show result
