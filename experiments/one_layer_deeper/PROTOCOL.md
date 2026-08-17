@@ -27,5 +27,16 @@ Intervention: exact E0000 model/optimizer/training behavior; when model.training
 Prospective prediction: on Easy E1, E0002 should exceed E0000's 1.33% aggregate score and/or certify a first depth rung. Strong evidence is any certified Max T > none; weak evidence is >=10 percentage-point improvement at the first uncertified rung if exposed by the evaluator.
 Kill criterion: no certified-depth gain and no meaningful aggregate or first-uncertified-rung gain relative to E0000.
 Promotion criterion: any certified Max T gain; otherwise a >=10 percentage-point first-uncertified-rung gain must survive a second Easy world before becoming a law.
+Hosted H100 Easy E1 result: score 5.33%; Max T none certified; OOD N Max T none certified.
+Decision: E0002 shows a real but weak signal: aggregate score rose 4.00 percentage points (4x relative), while certification remained unchanged. This is below the frozen promotion threshold, so eval-time recurrence is not promoted as a law. It does, however, separate E0001's training-budget rival: extra evaluation depth can change behavior without sacrificing training throughput. The remaining residual is representation drift/applicability across repeated steps.
+
+## E0003 context-reinjected eval recurrence
+Observation: E0002 improved aggregate score without certifying a rung. Repeated application may be partially useful but progressively lose the original problem context encoded by the prompt.
+Hypothesis: the recurrent state needs persistent access to the immutable problem description. Re-injecting the original token+position representation before each extra evaluation-time recurrent step should preserve applicability and improve continuation beyond E0002.
+Rival: E0002's 5.33% gain is incidental/nonmechanistic, or the block is not a transition operator; context reinjection will not materially improve certification or score.
+Intervention: training remains exactly E0000 (one block application). Evaluation remains four applications as in E0002, but before each of the three extra applications add the original encoded prompt x0 back into the recurrent hidden state. No new parameters, optimizer changes, losses, schedules, or data changes.
+Prospective prediction: on Easy E1, E0003 should exceed E0002's 5.33% aggregate score and ideally certify the first T rung.
+Kill criterion: no certified-depth gain and aggregate score <=5.33%.
+Promotion criterion: any certified Max T gain; otherwise aggregate score >=10% on E1 only licenses a second Easy-world replication, not Medium or Hard.
 
 No Medium intervention is licensed from a single Easy world. Hard remains protected and is not used for search.
