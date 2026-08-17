@@ -1,0 +1,45 @@
+name: V159 Natural Longitudinal Preflight
+
+on:
+  push:
+    branches:
+      - v158-unified-developmental-runtime
+    paths:
+      - 'cp3/v159_natural_longitudinal_preflight.py'
+      - 'protocols/V159_NATURAL_LONGITUDINAL_DEVELOPMENT_PRECOMMIT.md'
+      - '.github/workflows/v159-natural-longitudinal-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze repository provenance
+        run: |
+          git rev-parse HEAD
+          sha256sum protocols/V159_NATURAL_LONGITUDINAL_DEVELOPMENT_PRECOMMIT.md cp3/v159_natural_longitudinal_preflight.py
+      - name: Clone official BugsInPy
+        run: |
+          git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+          git -C BugsInPy rev-parse HEAD
+      - name: Pull exact historical runtimes
+        run: |
+          docker pull 'python:3.7.3@sha256:9e0b4f32487ca1863b45383420b8db77990debae748e2e875d2f86fa9510d4a5'
+          docker pull 'python:3.8.3@sha256:dd6cd8191ccbced2a6af5d0ddb51e6057c1444df14e14bcfd5c7b3ef78738050'
+      - name: Run V159 apparatus preflight
+        run: |
+          PYTHONPATH="$PWD:$PWD/cp3" python -B cp3/v159_natural_longitudinal_preflight.py \
+            --bugsinpy "$PWD/BugsInPy" \
+            --out "$PWD/artifacts/v159_preflight"
+      - name: Show preflight verdict
+        run: cat artifacts/v159_preflight/V159_PREFLIGHT_RESULT.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v159-natural-longitudinal-preflight
+          path: artifacts/v159_preflight/
+          if-no-files-found: error
+          retention-days: 90
