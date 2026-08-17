@@ -5,10 +5,17 @@ from task import input_t, output_t
 
 @triton.jit
 def _mm(a, b, c, M: tl.constexpr, N: tl.constexpr, K: tl.constexpr,
-        BM: tl.constexpr, BN: tl.constexpr, BK: tl.constexpr):
+        BM: tl.constexpr, BN: tl.constexpr, BK: tl.constexpr,
+        GROUP_M: tl.constexpr):
     pid = tl.program_id(0)
-    pm = pid // tl.cdiv(N, BN)
-    pn = pid % tl.cdiv(N, BN)
+    num_pid_m = tl.cdiv(M, BM)
+    num_pid_n = tl.cdiv(N, BN)
+    num_pid_in_group = GROUP_M * num_pid_n
+    group_id = pid // num_pid_in_group
+    first_pid_m = group_id * GROUP_M
+    group_size_m = tl.minimum(num_pid_m - first_pid_m, GROUP_M)
+    pm = first_pid_m + ((pid % num_pid_in_group) % group_size_m)
+    pn = (pid % num_pid_in_group) // group_size_m
     rm = pm * BM + tl.arange(0, BM)
     rn = pn * BN + tl.arange(0, BN)
     rk = tl.arange(0, BK)
@@ -30,6 +37,7 @@ def custom_kernel(data: input_t) -> output_t:
     BM = 128
     BN = 128
     BK = 32
+    GROUP_M = 8
     grid = (triton.cdiv(m, BM) * triton.cdiv(n, BN),)
-    _mm[grid](a, b, c, M=m, N=n, K=k, BM=BM, BN=BN, BK=BK, num_warps=2, num_stages=3)
+    _mm[grid](a, b, c, M=m, N=n, K=k, BM=BM, BN=BN, BK=BK, GROUP_M=GROUP_M, num_warps=4, num_stages=3)
     return c
