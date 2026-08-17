@@ -71,6 +71,16 @@ Intervention: exact E0005 architecture, parameters, optimizer, loss, workspace i
 Prospective prediction: on Easy E1, E0006 should exceed E0005's 8.33% aggregate score; decisive evidence is certification of T=1. A score >=10% without certification licenses a second-Easy replication, not Medium or Hard.
 Kill criterion: no certified-depth gain and aggregate score <=8.33%.
 Promotion criterion: any certified Max T gain, or >=10% aggregate followed by successful replication on a second Easy world.
-Interpretation: if E0006 improves materially, recurrent-state exposure is implicated and a depth curriculum becomes the next closure test. If E0006 fails, the one-token workspace capacity/representation rival becomes stronger and E0007 may enlarge workspace state rather than tuning recurrence depth.
+Hosted H100 Easy E1 result: score 4.67%; Max T none certified; OOD N Max T none certified.
+Decision: KILLED. A second recurrent workspace step during training materially worsened score from 8.33% to 4.67% and did not certify a rung. The simple train/eval recurrent-state exposure explanation is therefore not supported.
 
-No Medium intervention is licensed from a single Easy world. Hard remains protected and is not used for search.
+## H0001 decisive private Hard test — explicit user-authorized holdout spend
+Rationale: the only result that changes the external claim is whether a frozen candidate survives the independently hosted private Hard evaluator. Continued Easy optimization can improve a proxy without answering that question. The user explicitly authorized spending the protected Hard attempt now.
+Candidate selection: freeze E0005 exactly as already evaluated. It is the best Easy E1 score in the causal sequence (8.33%) and embodies the most general discovered structural distinction: immutable problem context separated from a compact mutable state. No Hard-specific changes, no Medium tuning, no additional architecture search, and no hidden-evaluator feedback are incorporated before submission.
+Prospective prediction: the decisive positive outcome is any certified Hard Max T >= 1. A stronger outcome also certifies OOD N Max T >= 1. A successful Hard run with both certified depths still below 1 is a falsification of the current transfer claim, even if its first-rung accuracy is nonzero.
+Interpretation table:
+- Hard Max T >= 1: external capability breakthrough; freeze immediately and run source-distinct/ablation analysis before further tuning.
+- Hard Max T < 1 but OOD N Max T >= 1: unusual scope split; do not call a general breakthrough; investigate applicability only after preserving the result.
+- Both < 1: current Easy gains did not cross the private capability boundary. Treat as a protected negative, not as permission to tune against private details.
+- Evaluation failure/timeout/OOM: infrastructure/resource residual only; no semantic conclusion.
+Trust boundary: Hard is private, hosted, and automatically leaderboard-affecting. This submission consumes the one accepted Hard attempt for the UTC day. From this point onward Hard is no longer an untouched holdout for this candidate lineage.
