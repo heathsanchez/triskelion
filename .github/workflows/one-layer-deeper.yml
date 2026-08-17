@@ -20,28 +20,21 @@ jobs:
       - name: Install evaluator
         working-directory: /tmp/old
         run: uv sync
-      - name: Stage canonical submission filenames
+      - name: Stage canonical E0002 filename
         run: |
           set -euo pipefail
-          mkdir -p /tmp/old-submissions/baseline /tmp/old-submissions/e0001
-          cp experiments/one_layer_deeper/baseline.py /tmp/old-submissions/baseline/submission.py
-          cp experiments/one_layer_deeper/e0001_recurrent.py /tmp/old-submissions/e0001/submission.py
-      - name: Validate baseline and E0001
+          mkdir -p /tmp/old-submissions/e0002
+          cp experiments/one_layer_deeper/e0002_eval_recurrent.py /tmp/old-submissions/e0002/submission.py
+      - name: Validate E0002
         working-directory: /tmp/old
-        run: |
-          set -euo pipefail
-          uv run one-layer validate /tmp/old-submissions/baseline/submission.py
-          uv run one-layer validate /tmp/old-submissions/e0001/submission.py
-      - name: CPU smoke baseline
+        run: uv run one-layer validate /tmp/old-submissions/e0002/submission.py
+      - name: CPU smoke E0002
         working-directory: /tmp/old
-        run: uv run python -m benchmark.runner --manifest benchmark/manifests/smoke_cpu.json --submission-file /tmp/old-submissions/baseline/submission.py > "$GITHUB_WORKSPACE/experiments/one_layer_deeper/smoke_baseline.log"
-      - name: CPU smoke E0001
-        working-directory: /tmp/old
-        run: uv run python -m benchmark.runner --manifest benchmark/manifests/smoke_cpu.json --submission-file /tmp/old-submissions/e0001/submission.py > "$GITHUB_WORKSPACE/experiments/one_layer_deeper/smoke_e0001.log"
+        run: uv run python -m benchmark.runner --manifest benchmark/manifests/smoke_cpu.json --submission-file /tmp/old-submissions/e0002/submission.py > "$GITHUB_WORKSPACE/experiments/one_layer_deeper/smoke_e0002.log"
       - uses: actions/upload-artifact@v4
         with:
-          name: one-layer-deeper-smoke-${{ github.sha }}
-          path: experiments/one_layer_deeper/smoke_*.log
+          name: one-layer-deeper-smoke-e0002-${{ github.sha }}
+          path: experiments/one_layer_deeper/smoke_e0002.log
 
   hosted-e1:
     needs: validate
@@ -63,21 +56,16 @@ jobs:
           mkdir -p "$HOME/.config/one-layer"
           printf '%s' "$ONE_LAYER_CONFIG_B64" | base64 --decode > "$HOME/.config/one-layer/config.json"
           chmod 600 "$HOME/.config/one-layer/config.json"
-      - name: Stage canonical hosted submission filenames
+      - name: Stage canonical hosted E0002 filename
         run: |
           set -euo pipefail
-          mkdir -p /tmp/old-submissions/baseline /tmp/old-submissions/e0001
-          cp experiments/one_layer_deeper/baseline.py /tmp/old-submissions/baseline/submission.py
-          cp experiments/one_layer_deeper/e0001_recurrent.py /tmp/old-submissions/e0001/submission.py
-      - name: Hosted H100 baseline E1
+          mkdir -p /tmp/old-submissions/e0002
+          cp experiments/one_layer_deeper/e0002_eval_recurrent.py /tmp/old-submissions/e0002/submission.py
+      - name: Hosted H100 E0002 E1
         run: |
           set -o pipefail
-          one-layer submit /tmp/old-submissions/baseline/submission.py --tier easy --dataset e1 --wait | tee experiments/one_layer_deeper/hosted_baseline_e1.log
-      - name: Hosted H100 E0001 E1
-        run: |
-          set -o pipefail
-          one-layer submit /tmp/old-submissions/e0001/submission.py --tier easy --dataset e1 --wait | tee experiments/one_layer_deeper/hosted_e0001_e1.log
+          one-layer submit /tmp/old-submissions/e0002/submission.py --tier easy --dataset e1 --wait | tee experiments/one_layer_deeper/hosted_e0002_e1.log
       - uses: actions/upload-artifact@v4
         with:
-          name: one-layer-deeper-hosted-e1-${{ github.sha }}
-          path: experiments/one_layer_deeper/hosted_*_e1.log
+          name: one-layer-deeper-hosted-e0002-e1-${{ github.sha }}
+          path: experiments/one_layer_deeper/hosted_e0002_e1.log
