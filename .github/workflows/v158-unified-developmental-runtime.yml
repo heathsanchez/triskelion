@@ -24,7 +24,7 @@ jobs:
       - name: Run runtime tests
         run: python -m pytest -q tests/test_developmental_runtime.py
       - name: Run causal replay self-test
-        run: python scripts/run_v158_unified_runtime_selftest.py
+        run: PYTHONPATH="$PWD" python scripts/run_v158_unified_runtime_selftest.py
       - name: Show result
         run: cat artifacts/v158/result.json
       - uses: actions/upload-artifact@v4
