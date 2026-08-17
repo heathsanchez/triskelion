@@ -1,0 +1,40 @@
+name: V160 Quix experiential rescue
+on:
+  push:
+    branches: [v160-quix-experiential-rescue]
+    paths:
+      - 'experiments/V160_QUIX_EXPERIENTIAL_RESCUE.py'
+      - 'protocols/V160_QUIX_EXPERIENTIAL_RESCUE.md'
+      - '.github/workflows/v160-quix-experiential-rescue.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Freeze provenance before outcomes
+        run: |
+          mkdir -p artifacts/v160_quix_experiential_rescue
+          printf '%s\n' '${{ github.sha }}' > artifacts/v160_quix_experiential_rescue/GITHUB_SHA.txt
+          sha256sum protocols/V160_QUIX_EXPERIENTIAL_RESCUE.md > artifacts/v160_quix_experiential_rescue/PROTOCOL_SHA256.txt
+      - name: Install
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' 'transformers>=5.3,<6'
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Run frozen V160
+        run: python experiments/V160_QUIX_EXPERIENTIAL_RESCUE.py
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v160-quix-experiential-rescue
+          path: artifacts/v160_quix_experiential_rescue/
