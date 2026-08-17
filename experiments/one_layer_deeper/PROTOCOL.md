@@ -49,5 +49,16 @@ Intervention: training is exactly the E0000 baseline forward path and optimizer.
 Prospective prediction: on Easy E1, E0004 should recover E0002's gain and exceed 5.33% aggregate score; a certified first T rung is the decisive target.
 Kill criterion: no certified-depth gain and aggregate score <=5.33%.
 Promotion criterion: any certified Max T gain licenses immediate replication on a second Easy world; otherwise aggregate score >=10% licenses that replication but does not yet license Medium or Hard.
+Hosted H100 Easy E1 result: score 8.00%; Max T none certified; OOD N Max T none certified.
+Decision: RETAIN but do not promote. E0004 beats E0002 by 2.67 percentage points and baseline by 6.67 points, so structural context/state separation improved the same public world. But it missed the frozen >=10% replication threshold and still certified no rung. The next experiment must therefore test a stronger representation change rather than promoting or spending Medium/Hard budget.
+
+## E0005 explicit latent workspace state
+Observation: E0004 improved score while keeping immutable context separate, but its mutable state is still the entire token sequence. That may preserve too much representational entanglement: the object being iterated is not a compact computational state but the whole language representation.
+Hypothesis: a small explicit mutable workspace, updated against immutable prompt context with tied weights, is a better carrier of serial computation than recurrently rewriting the entire token stream. Training one cheap workspace update should teach the state mechanism without the 4x training-throughput penalty; evaluation can then reuse the same workspace transition four times.
+Rival: E0004's improvement does not come from state/context separation, or a one-token workspace is too compressed to carry the necessary computation; score will fail to beat E0004 and certification will remain absent.
+Intervention: keep the baseline token encoder/block/head and AdamW. Add no new trainable parameters. Derive one latent workspace token from the encoded prompt, update that workspace by cross-attending to immutable prompt context with the same Block weights, and condition the output token stream on the workspace. Use one workspace update during training and four tied workspace updates during evaluation. The full token stream itself is not recurrently rewritten.
+Prospective prediction: on Easy E1, E0005 should exceed E0004's 8.00% aggregate score; decisive evidence is certification of T=1. A score >=10% without certification licenses one second-Easy replication, not Medium or Hard.
+Kill criterion: no certified-depth gain and aggregate score <=8.00%.
+Promotion criterion: any certified Max T gain, or >=10% aggregate followed by successful replication on a second Easy world.
 
 No Medium intervention is licensed from a single Easy world. Hard remains protected and is not used for search.
