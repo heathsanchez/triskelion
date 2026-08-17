@@ -22,7 +22,10 @@ def test_frozen_cp3_capability_import_is_scoped_and_replayable():
     assert cid in state.O
     assert state.S[cid]["scope"] == {"contains": "re.", "field": "source"}
     assert "protected transfer requires separate evidence" in state.O[cid]["claim_boundary"]
+    assert state.active_capabilities({"source": "x = re.compile('a')"}) == [cid]
+    assert state.active_capabilities({"source": "x = json.loads(s)"}) == []
 
     replayed = DevelopmentalState.replay(state.snapshot()["events"])
     assert replayed.state_hash() == state.state_hash()
     assert replayed.O[cid]["source_artifact_sha256"] == state.O[cid]["source_artifact_sha256"]
+    assert replayed.active_capabilities({"source": "return re.match(p, s)"}) == [cid]
