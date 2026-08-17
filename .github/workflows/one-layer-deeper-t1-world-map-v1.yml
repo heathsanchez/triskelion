@@ -1,0 +1,33 @@
+name: One Layer Deeper T1 World Map V1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'experiments/ONE_LAYER_DEEPER_T1_WORLD_MAP_V1.py'
+      - '.github/workflows/one-layer-deeper-t1-world-map-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run T1_WORLD_MAP_V1
+        run: python experiments/ONE_LAYER_DEEPER_T1_WORLD_MAP_V1.py
+      - name: Show map
+        run: cat results/one_layer_deeper/t1_world_map_v1/README.md
+      - name: Commit map artifact
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/one_layer_deeper/t1_world_map_v1
+          git diff --cached --quiet && exit 0
+          git commit -m 'Record T1_WORLD_MAP_V1 public-evidence map'
+          git push
