@@ -1,0 +1,147 @@
+name: One Layer Deeper Explicit Carry Repair V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-explicit-carry-repair-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen explicit-carry causal repair
+        shell: bash
+        run: |
+          cat > /tmp/carry_repair.py <<'PY'
+          import csv,json,random,hashlib,pathlib
+          from collections import defaultdict
+          import torch, torch.nn as nn, torch.nn.functional as F
+
+          SEEDS=(0,1,2); ARMS=('BASELINE','TRUE_CARRY','SHAM_CARRY')
+          TRAIN_COVERAGE=.30; STEPS=500; BATCH=256; EVAL_PER_CELL=400
+          D_MODEL=128; LAYERS=2; HEADS=4; LR=3e-4
+          DIGIT_LENGTHS=(3,4); PAD=0; SEP=11; QUERY=12; VOCAB=13; MAX_POS=16
+          torch.set_num_threads(2)
+
+          def carry_trace(x):
+              ds=[int(c) for c in str(x)][::-1]; d=len(ds); carry=0; incoming=[0]
+              for k in range(2*d-1):
+                  s=carry
+                  for i,a in enumerate(ds):
+                      j=k-i
+                      if 0<=j<d: s+=a*ds[j]
+                  carry=s//10
+                  incoming.append(carry)
+              # one incoming state per output significance 0..2d-1, returned in MSD-first target order
+              assert len(incoming)==2*d
+              return list(reversed(incoming))
+
+          def carry_chain(x):
+              tr=list(reversed(carry_trace(x)))
+              flags=[c>0 for c in tr[1:]]; best=cur=0
+              for f in flags:
+                  cur=cur+1 if f else 0; best=max(best,cur)
+              return best
+
+          def key_for(x):
+              d=len(str(x)); c='low' if carry_chain(x)<=1 else 'high'; w='expand' if len(str(x*x))==2*d else 'stable'
+              return d,c,w
+
+          cells=defaultdict(list)
+          for d in DIGIT_LENGTHS:
+              for x in range(10**(d-1),10**d): cells[key_for(x)].append(x)
+
+          train_cells={}; eval_cells={}; donor={}
+          for key,xs in sorted(cells.items()):
+              stable=int(hashlib.sha256(repr(key).encode()).hexdigest()[:12],16)
+              rr=random.Random(1000+stable); ys=xs.copy(); rr.shuffle(ys)
+              ntr=max(1,round(TRAIN_COVERAGE*len(ys)))
+              train_cells[key]=ys[:ntr]; eval_cells[key]=ys[ntr:ntr+min(EVAL_PER_CELL,len(ys)-ntr)]
+              assert set(train_cells[key]).isdisjoint(eval_cells[key])
+              # matched sham: donor is another member of the same structural cell.
+              zs=sorted(xs)
+              for i,x in enumerate(zs): donor[x]=zs[(i+1)%len(zs)]
+          train_keys=sorted(train_cells)
+          MAX_CARRY=max(max(carry_trace(x)) for xs in cells.values() for x in xs)
+          CARRY_VOCAB=MAX_CARRY+2  # 0=null; true/sham carry c encoded as c+1
+
+          def encode_one(x,arm):
+              d=len(str(x)); digs=[int(c)+1 for c in str(x)]; out=f'{x*x:0{2*d}d}'; y=[int(c) for c in out]
+              tok=digs+[SEP]+[QUERY]*(2*d); typ=[0]*d+[1]+[2]*(2*d)
+              pos=list(range(d-1,-1,-1))+[15]+list(range(2*d-1,-1,-1))
+              if arm=='BASELINE': qcarry=[0]*(2*d)
+              elif arm=='TRUE_CARRY': qcarry=[c+1 for c in carry_trace(x)]
+              else: qcarry=[c+1 for c in carry_trace(donor[x])]
+              carry_ids=[0]*(d+1)+qcarry
+              return tok,typ,pos,carry_ids,y,d+1
+
+          def collate(xs,arm):
+              enc=[encode_one(x,arm) for x in xs]; L=max(len(e[0]) for e in enc); Q=max(len(e[4]) for e in enc)
+              tok=torch.full((len(xs),L),PAD,dtype=torch.long); typ=torch.zeros((len(xs),L),dtype=torch.long); pos=torch.zeros((len(xs),L),dtype=torch.long); car=torch.zeros((len(xs),L),dtype=torch.long); mask=torch.zeros((len(xs),L),dtype=torch.bool); qidx=torch.zeros((len(xs),Q),dtype=torch.long); lab=torch.full((len(xs),Q),-100,dtype=torch.long); qmask=torch.zeros((len(xs),Q),dtype=torch.bool)
+              for i,(t,ty,p,c,y,qs) in enumerate(enc):
+                  n=len(t); q=len(y); tok[i,:n]=torch.tensor(t); typ[i,:n]=torch.tensor(ty); pos[i,:n]=torch.tensor(p); car[i,:n]=torch.tensor(c); mask[i,:n]=True; qidx[i,:q]=torch.arange(qs,qs+q); lab[i,:q]=torch.tensor(y); qmask[i,:q]=True
+              return tok,typ,pos,car,mask,qidx,lab,qmask
+
+          class Model(nn.Module):
+              def __init__(self):
+                  super().__init__(); self.te=nn.Embedding(VOCAB,D_MODEL); self.ty=nn.Embedding(3,D_MODEL); self.pe=nn.Embedding(MAX_POS,D_MODEL); self.ce=nn.Embedding(CARRY_VOCAB,D_MODEL)
+                  layer=nn.TransformerEncoderLayer(D_MODEL,HEADS,4*D_MODEL,batch_first=True,norm_first=True,activation='gelu')
+                  self.enc=nn.TransformerEncoder(layer,LAYERS); self.ln=nn.LayerNorm(D_MODEL); self.head=nn.Linear(D_MODEL,10)
+              def forward(self,tok,typ,pos,car,mask,qidx):
+                  h=self.te(tok)+self.ty(typ)+self.pe(pos)+self.ce(car); h=self.enc(h,src_key_padding_mask=~mask); h=self.head(self.ln(h)); return h.gather(1,qidx.unsqueeze(-1).expand(-1,-1,10))
+
+          @torch.no_grad()
+          def evaluate(m,xs,arm):
+              m.eval(); exact=dc=dt=0
+              for s in range(0,len(xs),256):
+                  tok,typ,pos,car,mask,qidx,lab,qmask=collate(xs[s:s+256],arm); pred=m(tok,typ,pos,car,mask,qidx).argmax(-1); hits=(pred==lab)&qmask
+                  exact+=int(((hits|~qmask).all(1)).sum()); dc+=int(hits.sum()); dt+=int(qmask.sum())
+              return exact/len(xs),dc/dt
+
+          rows=[]
+          for seed in SEEDS:
+              for arm in ARMS:
+                  random.seed(seed); torch.manual_seed(seed); m=Model(); opt=torch.optim.AdamW(m.parameters(),lr=LR,weight_decay=.01)
+                  for step in range(STEPS):
+                      xs=[]
+                      for _ in range(BATCH):
+                          key=train_keys[random.randrange(len(train_keys))]; pool=train_cells[key]; xs.append(pool[random.randrange(len(pool))])
+                      tok,typ,pos,car,mask,qidx,lab,qmask=collate(xs,arm); logits=m(tok,typ,pos,car,mask,qidx); loss=F.cross_entropy(logits.transpose(1,2),lab,ignore_index=-100)
+                      opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(m.parameters(),1.0); opt.step()
+                  hi_ex,hi_d=evaluate(m,eval_cells[(3,'high','stable')],arm)
+                  lo_ex,lo_d=evaluate(m,eval_cells[(3,'low','stable')],arm)
+                  rows.append({'seed':seed,'arm':arm,'high_exact':hi_ex,'high_digit':hi_d,'low_exact':lo_ex,'low_digit':lo_d})
+
+          by={(r['seed'],r['arm']):r for r in rows}; seed_results=[]
+          for seed in SEEDS:
+              b=by[(seed,'BASELINE')]; t=by[(seed,'TRUE_CARRY')]; s=by[(seed,'SHAM_CARRY')]
+              seed_results.append({'seed':seed,'baseline_high_exact':b['high_exact'],'true_high_exact':t['high_exact'],'sham_high_exact':s['high_exact'],'true_gain_vs_baseline':t['high_exact']-b['high_exact'],'true_gain_vs_sham':t['high_exact']-s['high_exact'],'recovered':(t['high_exact']-b['high_exact']>=.15 and t['high_exact']-s['high_exact']>=.15)})
+          recovered=sum(r['recovered'] for r in seed_results)
+          verdict='PASS_EXPLICIT_CARRY_CAUSAL_REPAIR' if recovered>=2 else 'NEGATIVE_EXPLICIT_CARRY_NO_REPLICATED_RECOVERY'
+          result={'protocol':'EXPLICIT_CARRY_CAUSAL_REPAIR_V1','parent_obstruction':'35245a78ee5c9e84bd983b738288c53102aaaf57','support_split':'identical sha256(key)-deterministic support','hard_eval_cell':{'digits':3,'carry':'high','width':'stable','alignment':'place'},'seeds':list(SEEDS),'arms':list(ARMS),'intervention':'incoming carry state explicitly embedded at each output query position','sham':'same-cell donor carry trajectory, identical channel shape/cardinality','recovery_threshold':0.15,'required_seed_hits':2,'rows':rows,'seed_results':seed_results,'verdict':verdict,'claim_boundary':'bounded squaring world under frozen architecture/training/support; tests causal representational repair of replicated carry obstruction'}
+          out=pathlib.Path('results/one_layer_deeper/explicit_carry_repair_v1'); out.mkdir(parents=True,exist_ok=True)
+          (out/'result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          with (out/'rows.csv').open('w',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=rows[0].keys()); w.writeheader(); w.writerows(rows)
+          (out/'README.md').write_text('# EXPLICIT_CARRY_CAUSAL_REPAIR_V1\n\n'+json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+          python /tmp/carry_repair.py
+      - name: Commit repair artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/explicit_carry_repair_v1
+          git commit -m 'Record explicit carry-state causal repair' || exit 0
+          git push
