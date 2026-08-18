@@ -1,0 +1,171 @@
+name: One Layer Deeper Pair Decomposition Causal Repair V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-pair-decomposition-causal-repair-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen three-seed pair-decomposition repair
+        shell: bash
+        run: |
+          cat > /tmp/pair_repair.py <<'PY'
+          import csv,json,random,hashlib,pathlib
+          from collections import defaultdict
+          import torch, torch.nn as nn, torch.nn.functional as F
+
+          SEEDS=(0,1,2); TRAIN_COVERAGE=.30; STEPS=500; BATCH=256
+          D_MODEL=128; LAYERS=2; HEADS=4; LR=3e-4
+          PAD=0; SEP=11; QUERY=12; PAIR=13; VOCAB=14; MAX_POS=16
+          ARMS=('BASELINE','TRUE_PAIRS','SHAM_PAIRS')
+          torch.set_num_threads(2)
+
+          def carry_chain(x):
+              ds=[int(c) for c in str(x)][::-1]; carry=0; flags=[]
+              for k in range(2*len(ds)-1):
+                  s=carry
+                  for i,a in enumerate(ds):
+                      j=k-i
+                      if 0<=j<len(ds): s+=a*ds[j]
+                  carry=s//10; flags.append(carry>0)
+              best=cur=0
+              for f in flags:
+                  cur=cur+1 if f else 0; best=max(best,cur)
+              return best
+          def key_for(x):
+              d=len(str(x)); c='low' if carry_chain(x)<=1 else 'high'; w='expand' if len(str(x*x))==2*d else 'stable'
+              return d,c,w
+
+          cells=defaultdict(list)
+          for d in (3,4):
+              for x in range(10**(d-1),10**d): cells[key_for(x)].append(x)
+          train_cells={}; eval_cells={}
+          for key,xs in sorted(cells.items()):
+              stable=int(hashlib.sha256(repr(key).encode()).hexdigest()[:12],16)
+              rr=random.Random(1000+stable); ys=xs.copy(); rr.shuffle(ys)
+              ntr=max(1,round(TRAIN_COVERAGE*len(ys)))
+              train_cells[key]=ys[:ntr]; eval_cells[key]=ys[ntr:ntr+min(400,len(ys)-ntr)]
+              assert set(train_cells[key]).isdisjoint(eval_cells[key])
+          train_keys=sorted(train_cells)
+
+          # Pair decomposition represents which input digits interact at each output coefficient.
+          # It NEVER provides products, coefficient sums, carries, or output labels.
+          def pair_slots(d):
+              slots=[]
+              for k in range(2*d):
+                  ps=[]
+                  for i in range(d):
+                      j=k-i
+                      if 0<=j<d: ps.append((i,j))
+                  slots.append(ps)
+              return slots
+
+          def encode_one(x,arm,seed):
+              s=str(x); d=len(s); digs=[int(c)+1 for c in s]; y=[int(c) for c in f'{x*x:0{2*d}d}']
+              # Input + separator + one query per output place.
+              tok=digs+[SEP]+[QUERY]*(2*d); typ=[0]*d+[1]+[2]*(2*d)
+              pos=list(range(d-1,-1,-1))+[15]+list(range(2*d-1,-1,-1))
+              # Each query receives an additive decomposition embedding computed from digit-pair identities.
+              true=pair_slots(d)
+              if arm=='TRUE_PAIRS': assign=true
+              elif arm=='SHAM_PAIRS':
+                  # Fixed seed-independent cyclic wrong-place assignment: identical slot-size multiset and pair vocabulary.
+                  assign=true[1:]+true[:1]
+              else: assign=[[] for _ in true]
+              # Convert string indices (MSD-first) to digit ids; keep pairs unordered only where symmetric.
+              pair_ids=[]
+              for ps in assign:
+                  pair_ids.append([(int(s[i]),int(s[j])) for i,j in ps])
+              return tok,typ,pos,y,d+1,pair_ids,d
+
+          def collate(xs,arm,seed):
+              enc=[encode_one(x,arm,seed) for x in xs]; L=max(len(e[0]) for e in enc); Q=max(len(e[3]) for e in enc)
+              tok=torch.full((len(xs),L),PAD,dtype=torch.long); typ=torch.zeros((len(xs),L),dtype=torch.long); pos=torch.zeros((len(xs),L),dtype=torch.long); mask=torch.zeros((len(xs),L),dtype=torch.bool)
+              qidx=torch.zeros((len(xs),Q),dtype=torch.long); lab=torch.full((len(xs),Q),-100,dtype=torch.long); qmask=torch.zeros((len(xs),Q),dtype=torch.bool)
+              pair_a=torch.zeros((len(xs),Q,4),dtype=torch.long); pair_b=torch.zeros((len(xs),Q,4),dtype=torch.long); pair_m=torch.zeros((len(xs),Q,4),dtype=torch.bool); edge=torch.zeros((len(xs),Q),dtype=torch.bool)
+              for i,(t,ty,p,y,qs,pairs,d) in enumerate(enc):
+                  n=len(t); q=len(y); tok[i,:n]=torch.tensor(t); typ[i,:n]=torch.tensor(ty); pos[i,:n]=torch.tensor(p); mask[i,:n]=True; qidx[i,:q]=torch.arange(qs,qs+q); lab[i,:q]=torch.tensor(y); qmask[i,:q]=True
+                  for k,ps in enumerate(pairs):
+                      for z,(a,b) in enumerate(ps[:4]): pair_a[i,k,z]=a; pair_b[i,k,z]=b; pair_m[i,k,z]=True
+                  for k in range(q): edge[i,k]=(k==0 or k==q-1)
+              return tok,typ,pos,mask,qidx,lab,qmask,pair_a,pair_b,pair_m,edge
+
+          class Model(nn.Module):
+              def __init__(self):
+                  super().__init__(); self.te=nn.Embedding(VOCAB,D_MODEL); self.ty=nn.Embedding(3,D_MODEL); self.pe=nn.Embedding(MAX_POS,D_MODEL)
+                  self.de=nn.Embedding(10,D_MODEL); self.pair_proj=nn.Linear(D_MODEL*2,D_MODEL)
+                  layer=nn.TransformerEncoderLayer(D_MODEL,HEADS,4*D_MODEL,batch_first=True,norm_first=True,activation='gelu'); self.enc=nn.TransformerEncoder(layer,LAYERS); self.ln=nn.LayerNorm(D_MODEL); self.head=nn.Linear(D_MODEL,10)
+              def forward(self,tok,typ,pos,mask,qidx,pa,pb,pm):
+                  h=self.te(tok)+self.ty(typ)+self.pe(pos); h=self.enc(h,src_key_padding_mask=~mask)
+                  qh=h.gather(1,qidx.unsqueeze(-1).expand(-1,-1,D_MODEL))
+                  z=self.pair_proj(torch.cat([self.de(pa),self.de(pb)],-1)); z=z*pm.unsqueeze(-1); z=z.sum(2)/pm.sum(2).clamp(min=1).unsqueeze(-1)
+                  return self.head(self.ln(qh+z))
+
+          def sample_batch(rng):
+              xs=[]
+              for _ in range(BATCH):
+                  key=train_keys[rng.randrange(len(train_keys))]; pool=train_cells[key]; xs.append(pool[rng.randrange(len(pool))])
+              return xs
+
+          @torch.no_grad()
+          def evaluate(m,xs,arm,seed):
+              m.eval(); exact=dc=dt=midc=midt=edgec=edget=0
+              for st in range(0,len(xs),256):
+                  batch=xs[st:st+256]; vals=collate(batch,arm,seed); tok,typ,pos,mask,qidx,lab,qmask,pa,pb,pm,edge=vals
+                  pred=m(tok,typ,pos,mask,qidx,pa,pb,pm).argmax(-1); hits=(pred==lab)&qmask
+                  exact+=int(((hits|~qmask).all(1)).sum()); dc+=int(hits.sum()); dt+=int(qmask.sum())
+                  mid=qmask & ~edge; midc+=int((hits&mid).sum()); midt+=int(mid.sum()); edgec+=int((hits&edge).sum()); edget+=int((qmask&edge).sum())
+              return {'exact':exact/max(1,len(xs)),'digit':dc/max(1,dt),'middle_digit':midc/max(1,midt),'edge_digit':edgec/max(1,edget)}
+
+          rows=[]
+          # Identical initialization and sampling stream per seed across arms.
+          for seed in SEEDS:
+              for arm in ARMS:
+                  rng=random.Random(seed); torch.manual_seed(seed); m=Model(); opt=torch.optim.AdamW(m.parameters(),lr=LR,weight_decay=.01)
+                  for step in range(STEPS):
+                      xs=sample_batch(rng); vals=collate(xs,arm,seed); tok,typ,pos,mask,qidx,lab,qmask,pa,pb,pm,edge=vals
+                      logits=m(tok,typ,pos,mask,qidx,pa,pb,pm); loss=F.cross_entropy(logits.transpose(1,2),lab,ignore_index=-100)
+                      opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(m.parameters(),1.0); opt.step()
+                  # Primary hard cell remains replicated high-carry 3-digit stable-width; also report pooled stable-width.
+                  hard=evaluate(m,eval_cells[(3,'high','stable')],arm,seed)
+                  pooled=[]
+                  for d in (3,4):
+                      for c in ('low','high'): pooled.extend(eval_cells[(d,c,'stable')])
+                  pool=evaluate(m,pooled,arm,seed)
+                  rows.append({'seed':seed,'arm':arm,**{f'hard_{k}':v for k,v in hard.items()},**{f'pool_{k}':v for k,v in pool.items()}})
+
+          seed_results=[]
+          for seed in SEEDS:
+              z={r['arm']:r for r in rows if r['seed']==seed}; t=z['TRUE_PAIRS']; b=z['BASELINE']; s=z['SHAM_PAIRS']
+              seed_results.append({'seed':seed,'middle_gain_vs_baseline':t['hard_middle_digit']-b['hard_middle_digit'],'middle_gain_vs_sham':t['hard_middle_digit']-s['hard_middle_digit'],'exact_gain_vs_baseline':t['hard_exact']-b['hard_exact'],'exact_gain_vs_sham':t['hard_exact']-s['hard_exact'],'recovered':(t['hard_middle_digit']-b['hard_middle_digit']>=.15 and t['hard_middle_digit']-s['hard_middle_digit']>=.15 and t['hard_exact']>b['hard_exact'] and t['hard_exact']>s['hard_exact'])})
+          hits=sum(x['recovered'] for x in seed_results)
+          verdict='PASS_PAIR_DECOMPOSITION_CAUSAL_REPAIR' if hits>=2 else 'NEGATIVE_PAIR_DECOMPOSITION_NO_REPLICATED_REPAIR'
+          result={'protocol':'PAIR_DECOMPOSITION_CAUSAL_REPAIR_V1','parent_map':'a541fb8545fdaf1b099075f871a6b36727063a90','parent_carry_repair':'e09829cb2ada7b2e2aded83ebd30b4572a445a1c','support_split':'identical sha256(key)-deterministic','intervention':'per-output-place contributing operand-pair identities; no products/carries/labels','sham':'cyclic wrong-place pair decomposition with identical token budget and pair vocabulary','seeds':list(SEEDS),'primary_cell':{'digits':3,'carry':'high','width':'stable'},'middle_recovery_threshold':.15,'required_seed_hits':2,'rows':rows,'seed_results':seed_results,'verdict':verdict,'claim_boundary':'bounded squaring representation test only'}
+          out=pathlib.Path('results/one_layer_deeper/pair_decomposition_causal_repair_v1'); out.mkdir(parents=True,exist_ok=True)
+          (out/'result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n'); (out/'README.md').write_text('# PAIR_DECOMPOSITION_CAUSAL_REPAIR_V1\n\n'+json.dumps(result,indent=2,sort_keys=True)+'\n')
+          with (out/'rows.csv').open('w',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=rows[0].keys()); w.writeheader(); w.writerows(rows)
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+          python /tmp/pair_repair.py
+      - name: Commit causal repair artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/pair_decomposition_causal_repair_v1
+          git commit -m 'Record pair-decomposition causal repair V1' || exit 0
+          git push
