@@ -1,0 +1,25 @@
+{
+  "experiment": "EXPLICIT_STAGING_SEPARATOR_V1",
+  "rows": [
+    {
+      "bits": 8,
+      "N": 143,
+      "n": 30,
+      "square_exact": 0.0,
+      "oracle_stage_reduce_exact": 0.03333333507180214,
+      "learned_chain_exact": 0.0,
+      "direct_squaremod_exact": 0.03333333507180214,
+      "reduce_train_coverage": 0.24451073402122353
+    },
+    {
+      "bits": 10,
+      "N": 899,
+      "n": 100,
+      "square_exact": 0.019999999552965164,
+      "oracle_stage_reduce_exact": 0.009999999776482582,
+      "learned_chain_exact": 0.01,
+      "direct_squaremod_exact": 0.009999999776482582,
+      "reduce_train_coverage": 0.00618657982358349
+    }
+  ]
+}
