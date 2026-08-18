@@ -1,0 +1,244 @@
+name: One Layer Deeper Square Exactness Cartography V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-square-exactness-cartography-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cartography:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen 16-cell squaring map
+        shell: bash
+        run: |
+          cat > /tmp/square_map.py <<'PY'
+          import csv, json, math, random, pathlib
+          from collections import defaultdict
+          import torch
+          import torch.nn as nn
+          import torch.nn.functional as F
+
+          SEED=0
+          TRAIN_COVERAGE=0.30
+          STEPS=500
+          BATCH=256
+          EVAL_PER_CELL=400
+          D_MODEL=128
+          LAYERS=2
+          HEADS=4
+          LR=3e-4
+          random.seed(SEED); torch.manual_seed(SEED)
+          torch.set_num_threads(2)
+
+          # Frozen structural coordinates.
+          DIGIT_LENGTHS=(3,4)
+          CARRY_BINS=('low','high')       # low=max carry chain <=1; high=>=2
+          WIDTH_BINS=('stable','expand')  # square has 2d-1 vs 2d digits
+          ALIGNMENTS=('absolute','place')
+
+          def carry_chain(x:int):
+              ds=[int(c) for c in str(x)][::-1]
+              carry=0; flags=[]
+              for k in range(2*len(ds)-1):
+                  s=carry
+                  for i,a in enumerate(ds):
+                      j=k-i
+                      if 0 <= j < len(ds): s += a*ds[j]
+                  carry=s//10
+                  flags.append(carry>0)
+              best=cur=0
+              for f in flags:
+                  cur=cur+1 if f else 0
+                  best=max(best,cur)
+              return best
+
+          def key_for(x:int):
+              d=len(str(x)); c='low' if carry_chain(x)<=1 else 'high'
+              w='expand' if len(str(x*x))==2*d else 'stable'
+              return (d,c,w)
+
+          cells=defaultdict(list)
+          for d in DIGIT_LENGTHS:
+              for x in range(10**(d-1),10**d):
+                  cells[key_for(x)].append(x)
+
+          # Deterministically freeze 30% unique train support INSIDE EVERY structural cell.
+          train_cells={}; eval_cells={}
+          for key,xs in sorted(cells.items()):
+              rr=random.Random(1000 + hash(key)%100000)
+              ys=xs.copy(); rr.shuffle(ys)
+              ntr=max(1,round(TRAIN_COVERAGE*len(ys)))
+              train_cells[key]=ys[:ntr]
+              eval_cells[key]=ys[ntr:ntr+min(EVAL_PER_CELL,len(ys)-ntr)]
+              assert abs(len(train_cells[key])/len(xs)-TRAIN_COVERAGE) <= 0.02
+              assert set(train_cells[key]).isdisjoint(eval_cells[key])
+
+          train_keys=sorted(train_cells)
+
+          PAD=0; SEP=11; QUERY=12; VOCAB=13
+          MAX_SEQ=4+1+8
+          MAX_POS=16
+
+          def encode_one(x, alignment):
+              d=len(str(x)); digs=[int(c)+1 for c in str(x)]
+              out=f'{x*x:0{2*d}d}'
+              targets=[int(c) for c in out]
+              tokens=digs+[SEP]+[QUERY]*(2*d)
+              types=[0]*d+[1]+[2]*(2*d)
+              if alignment=='absolute':
+                  pos=list(range(len(tokens)))
+              else:
+                  # Same place-value ids for same decimal significance, regardless of width.
+                  # Separator gets a reserved position id.
+                  pos=list(range(d-1,-1,-1))+[15]+list(range(2*d-1,-1,-1))
+              qstart=d+1
+              return tokens,types,pos,targets,qstart,d
+
+          def collate(xs, alignment):
+              enc=[encode_one(x,alignment) for x in xs]
+              L=max(len(e[0]) for e in enc); Q=max(len(e[3]) for e in enc)
+              tok=torch.full((len(xs),L),PAD,dtype=torch.long)
+              typ=torch.zeros((len(xs),L),dtype=torch.long)
+              pos=torch.zeros((len(xs),L),dtype=torch.long)
+              mask=torch.zeros((len(xs),L),dtype=torch.bool)
+              qidx=torch.zeros((len(xs),Q),dtype=torch.long)
+              lab=torch.full((len(xs),Q),-100,dtype=torch.long)
+              qmask=torch.zeros((len(xs),Q),dtype=torch.bool)
+              ds=[]
+              for i,(t,ty,p,y,qs,d) in enumerate(enc):
+                  n=len(t); q=len(y)
+                  tok[i,:n]=torch.tensor(t); typ[i,:n]=torch.tensor(ty); pos[i,:n]=torch.tensor(p); mask[i,:n]=True
+                  qidx[i,:q]=torch.arange(qs,qs+q); lab[i,:q]=torch.tensor(y); qmask[i,:q]=True; ds.append(d)
+              return tok,typ,pos,mask,qidx,lab,qmask,ds
+
+          class Model(nn.Module):
+              def __init__(self):
+                  super().__init__()
+                  self.te=nn.Embedding(VOCAB,D_MODEL)
+                  self.ty=nn.Embedding(3,D_MODEL)
+                  self.pe=nn.Embedding(MAX_POS,D_MODEL)
+                  layer=nn.TransformerEncoderLayer(D_MODEL,HEADS,4*D_MODEL,batch_first=True,norm_first=True,activation='gelu')
+                  self.enc=nn.TransformerEncoder(layer,LAYERS)
+                  self.ln=nn.LayerNorm(D_MODEL); self.head=nn.Linear(D_MODEL,10)
+              def forward(self,tok,typ,pos,mask,qidx):
+                  h=self.te(tok)+self.ty(typ)+self.pe(pos)
+                  h=self.enc(h,src_key_padding_mask=~mask)
+                  h=self.head(self.ln(h))
+                  return h.gather(1,qidx.unsqueeze(-1).expand(-1,-1,10))
+
+          def sample_batch():
+              # Cell-balanced sampling prevents the huge high-carry basins dominating.
+              xs=[]
+              for _ in range(BATCH):
+                  key=train_keys[random.randrange(len(train_keys))]
+                  pool=train_cells[key]; xs.append(pool[random.randrange(len(pool))])
+              return xs
+
+          @torch.no_grad()
+          def evaluate(model, alignment, xs):
+              model.eval(); exact=dc=dt=0
+              pos_hits=defaultdict(lambda:[0,0])
+              for start in range(0,len(xs),256):
+                  sub=xs[start:start+256]
+                  tok,typ,pos,mask,qidx,lab,qmask,ds=collate(sub,alignment)
+                  pred=model(tok,typ,pos,mask,qidx).argmax(-1)
+                  valid=qmask
+                  hits=(pred==lab)&valid
+                  exact += int(((hits|~valid).all(1)).sum())
+                  dc += int(hits.sum()); dt += int(valid.sum())
+                  for i,d in enumerate(ds):
+                      q=2*d
+                      for j in range(q):
+                          # significance from LSD: 0 is units.
+                          sig=q-1-j
+                          pos_hits[sig][1]+=1
+                          pos_hits[sig][0]+=int(hits[i,j])
+              return exact/max(1,len(xs)), dc/max(1,dt), {k:v[0]/v[1] for k,v in sorted(pos_hits.items())}
+
+          rows=[]; position_rows=[]
+          for alignment in ALIGNMENTS:
+              torch.manual_seed(SEED)
+              model=Model()
+              opt=torch.optim.AdamW(model.parameters(),lr=LR,weight_decay=0.01)
+              losses=[]
+              model.train()
+              for step in range(STEPS):
+                  xs=sample_batch()
+                  tok,typ,pos,mask,qidx,lab,qmask,_=collate(xs,alignment)
+                  logits=model(tok,typ,pos,mask,qidx)
+                  loss=F.cross_entropy(logits.transpose(1,2),lab,ignore_index=-100)
+                  opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(model.parameters(),1.0); opt.step()
+                  losses.append(float(loss.detach()))
+              for key in sorted(eval_cells):
+                  d,c,w=key; xs=eval_cells[key]
+                  ex,dig,pacc=evaluate(model,alignment,xs)
+                  rows.append({'alignment':alignment,'digits':d,'carry':c,'width':w,'admissible_n':len(cells[key]),
+                               'train_n':len(train_cells[key]),'coverage':len(train_cells[key])/len(cells[key]),'eval_n':len(xs),
+                               'exact':ex,'digit':dig,'first_loss':sum(losses[:10])/10,'final_loss':sum(losses[-10:])/10})
+                  for sig,acc in pacc.items(): position_rows.append({'alignment':alignment,'digits':d,'carry':c,'width':w,'lsd_position':sig,'accuracy':acc})
+
+          outdir=pathlib.Path('results/one_layer_deeper/square_exactness_cartography_v1'); outdir.mkdir(parents=True,exist_ok=True)
+          with (outdir/'cells.csv').open('w',newline='') as f:
+              wr=csv.DictWriter(f,fieldnames=rows[0].keys()); wr.writeheader(); wr.writerows(rows)
+          with (outdir/'positions.csv').open('w',newline='') as f:
+              wr=csv.DictWriter(f,fieldnames=position_rows[0].keys()); wr.writeheader(); wr.writerows(position_rows)
+
+          # Main-effect and interaction contrasts, computed only from matched cells.
+          idx={(r['alignment'],r['digits'],r['carry'],r['width']):r for r in rows}
+          contrasts=[]
+          for a in ALIGNMENTS:
+              for d in DIGIT_LENGTHS:
+                  for w in WIDTH_BINS:
+                      lo=idx[(a,d,'low',w)]; hi=idx[(a,d,'high',w)]
+                      contrasts.append(('carry',a,d,w,hi['exact']-lo['exact'],hi['digit']-lo['digit']))
+                  for c in CARRY_BINS:
+                      s=idx[(a,d,c,'stable')]; e=idx[(a,d,c,'expand')]
+                      contrasts.append(('width',a,d,c,e['exact']-s['exact'],e['digit']-s['digit']))
+          for d in DIGIT_LENGTHS:
+              for c in CARRY_BINS:
+                  for w in WIDTH_BINS:
+                      ab=idx[('absolute',d,c,w)]; pl=idx[('place',d,c,w)]
+                      contrasts.append(('alignment',d,c,w,pl['exact']-ab['exact'],pl['digit']-ab['digit']))
+
+          best_exact=max(contrasts,key=lambda z:abs(z[-2]))
+          best_digit=max(contrasts,key=lambda z:abs(z[-1]))
+          lines=['# SQUARE_EXACTNESS_CARTOGRAPHY_V1','',
+                 'Frozen rapid 16-cell map. One model per alignment; both are trained for 500 steps on exactly 30% unique support inside every structural basin, with cell-balanced minibatches.','',
+                 '| alignment | digits | carry | width | coverage | exact | digit |',
+                 '|---|---:|---|---|---:|---:|---:|']
+          for r in rows:
+              lines.append(f"| {r['alignment']} | {r['digits']} | {r['carry']} | {r['width']} | {r['coverage']:.1%} | {r['exact']:.3f} | {r['digit']:.3f} |")
+          lines += ['', '## Largest matched contrasts','',
+                    f'- Largest exact-accuracy contrast: `{best_exact}`',
+                    f'- Largest digit-accuracy contrast: `{best_digit}`','',
+                    '## Frozen decision rules','',
+                    '- Carry obstruction candidate: matched low→high carry exact drop >= 0.15.',
+                    '- Width obstruction candidate: matched stable→expand exact drop >= 0.15.',
+                    '- Alignment repair candidate: place-value exact gain >= 0.15 in an affected basin.',
+                    '- Otherwise treat as distributed/interaction residual and use position vectors for the next separator.','',
+                    '## Claim boundary','',
+                    'Seed-0 CPU sniff only. This identifies candidate structural boundaries; any >=15pp landmark must be repeated on >=2 further seeds before promotion to a causal obstruction.']
+          (outdir/'README.md').write_text('\n'.join(lines))
+          (outdir/'summary.json').write_text(json.dumps({'rows':rows,'largest_exact_contrast':best_exact,'largest_digit_contrast':best_digit},indent=2))
+          print('\n'.join(lines))
+          PY
+          python /tmp/square_map.py
+      - name: Commit cartography artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/square_exactness_cartography_v1
+          git commit -m 'Record squaring exactness cartography V1' || exit 0
+          git push
