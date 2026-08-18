@@ -1,0 +1,24 @@
+{
+  "cegis": {
+    "rounds": 5,
+    "sealed_program": "~((z&~(x)))",
+    "sealed_program_size": 5,
+    "sealed_semantics": 245,
+    "trace": [
+      {"consistent_semantic_candidates": 117, "observations": 0, "proposal": "0", "proposal_function_id": 0, "proposal_size": 1, "round": 0, "verifier_counterexample_input": [0,0,0], "verifier_counterexample_row": 0, "verifier_expected_output": 1, "verifier_proposal_output": 0},
+      {"consistent_semantic_candidates": 54, "observations": 1, "proposal": "1", "proposal_function_id": 255, "proposal_size": 1, "round": 1, "verifier_counterexample_input": [0,0,1], "verifier_counterexample_row": 1, "verifier_expected_output": 0, "verifier_proposal_output": 1},
+      {"consistent_semantic_candidates": 24, "observations": 2, "proposal": "~(z)", "proposal_function_id": 85, "proposal_size": 2, "round": 2, "verifier_counterexample_input": [1,0,1], "verifier_counterexample_row": 5, "verifier_expected_output": 1, "verifier_proposal_output": 0},
+      {"consistent_semantic_candidates": 12, "observations": 3, "proposal": "(x^~(z))", "proposal_function_id": 165, "proposal_size": 4, "round": 3, "verifier_counterexample_input": [1,0,0], "verifier_counterexample_row": 4, "verifier_expected_output": 1, "verifier_proposal_output": 0},
+      {"consistent_semantic_candidates": 4, "observations": 4, "proposal": "~((z&~(x)))", "proposal_function_id": 245, "proposal_size": 5, "round": 4, "verifier_counterexample_input": null, "verifier_counterexample_row": null, "verifier_expected_output": null, "verifier_proposal_output": null}
+    ]
+  },
+  "claim_boundary": "Bounded exact finite-world evidence for verifier-driven effective-language expansion under a fixed general construction substrate. Not substrate-free invention, open-world ontology creation, neural learning, or representation-independent novelty.",
+  "downstream_o2": {"after_ablation_reachable": false, "after_restore_reachable": true, "cold_reachable": false, "function_id": 63, "l1_expression": "K(~(x),0,y)", "l1_expression_size": 5, "warm_reachable": true},
+  "gates": {"A_old_closure_obstruction": true, "B_counterexample_guided_nonpreenumerated_synthesis": true, "C_admission_expands_effective_language": true, "D_new_downstream_reachability": true, "E_ablation_removes_downstream_reachability": true, "E_restore_returns_downstream_reachability": true},
+  "installed_language": {"l1_bounded_semantics_size_le_6": 52},
+  "protocol": "EFFECTIVE_LANGUAGE_EXPANSION_V1",
+  "seed": "METALOGIC_EFFECTIVE_LANGUAGE_EXPANSION_V1",
+  "selected_acquisition_target": {"function_id": 245, "in_l0": false, "minimal_u_expression_for_audit_only": "~((z&~(x)))", "minimal_u_size": 5},
+  "verdict": "PASS_EFFECTIVE_LANGUAGE_EXPANSION_V1",
+  "world": {"arity": 3, "l0_exact_closure": 16, "semantic_functions_total": 256, "u_semantics_reached_size_le_7": 117}
+}
