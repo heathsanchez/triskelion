@@ -1,0 +1,120 @@
+name: One Layer Deeper Carry Replication V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-carry-replication-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  replicate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen deterministic three-seed carry replication
+        shell: bash
+        run: |
+          cat > /tmp/carry_rep.py <<'PY'
+          import csv, json, random, hashlib, pathlib
+          from collections import defaultdict
+          import torch, torch.nn as nn, torch.nn.functional as F
+
+          SEEDS=(0,1,2); TRAIN_COVERAGE=.30; STEPS=500; BATCH=256; EVAL_PER_CELL=400
+          D_MODEL=128; LAYERS=2; HEADS=4; LR=3e-4
+          DIGIT_LENGTHS=(3,4); CARRY_BINS=('low','high'); WIDTH_BINS=('stable','expand')
+          PAD=0; SEP=11; QUERY=12; VOCAB=13; MAX_POS=16
+          torch.set_num_threads(2)
+
+          def carry_chain(x):
+              ds=[int(c) for c in str(x)][::-1]; carry=0; flags=[]
+              for k in range(2*len(ds)-1):
+                  s=carry
+                  for i,a in enumerate(ds):
+                      j=k-i
+                      if 0<=j<len(ds): s+=a*ds[j]
+                  carry=s//10; flags.append(carry>0)
+              best=cur=0
+              for f in flags:
+                  cur=cur+1 if f else 0; best=max(best,cur)
+              return best
+          def key_for(x):
+              d=len(str(x)); c='low' if carry_chain(x)<=1 else 'high'; w='expand' if len(str(x*x))==2*d else 'stable'
+              return d,c,w
+          cells=defaultdict(list)
+          for d in DIGIT_LENGTHS:
+              for x in range(10**(d-1),10**d): cells[key_for(x)].append(x)
+
+          # Deterministic support split. This intentionally repairs the seed-0 sniff's use of randomized hash(key).
+          train_cells={}; eval_cells={}
+          for key,xs in sorted(cells.items()):
+              stable=int(hashlib.sha256(repr(key).encode()).hexdigest()[:12],16)
+              rr=random.Random(1000+stable); ys=xs.copy(); rr.shuffle(ys)
+              ntr=max(1,round(TRAIN_COVERAGE*len(ys)))
+              train_cells[key]=ys[:ntr]; eval_cells[key]=ys[ntr:ntr+min(EVAL_PER_CELL,len(ys)-ntr)]
+              assert abs(len(train_cells[key])/len(xs)-TRAIN_COVERAGE)<=.02
+              assert set(train_cells[key]).isdisjoint(eval_cells[key])
+          train_keys=sorted(train_cells)
+
+          def encode_one(x):
+              d=len(str(x)); digs=[int(c)+1 for c in str(x)]; out=f'{x*x:0{2*d}d}'; y=[int(c) for c in out]
+              tok=digs+[SEP]+[QUERY]*(2*d); typ=[0]*d+[1]+[2]*(2*d)
+              pos=list(range(d-1,-1,-1))+[15]+list(range(2*d-1,-1,-1))
+              return tok,typ,pos,y,d+1
+          def collate(xs):
+              enc=[encode_one(x) for x in xs]; L=max(len(e[0]) for e in enc); Q=max(len(e[3]) for e in enc)
+              tok=torch.full((len(xs),L),PAD,dtype=torch.long); typ=torch.zeros((len(xs),L),dtype=torch.long); pos=torch.zeros((len(xs),L),dtype=torch.long); mask=torch.zeros((len(xs),L),dtype=torch.bool); qidx=torch.zeros((len(xs),Q),dtype=torch.long); lab=torch.full((len(xs),Q),-100,dtype=torch.long); qmask=torch.zeros((len(xs),Q),dtype=torch.bool)
+              for i,(t,ty,p,y,qs) in enumerate(enc):
+                  n=len(t); q=len(y); tok[i,:n]=torch.tensor(t); typ[i,:n]=torch.tensor(ty); pos[i,:n]=torch.tensor(p); mask[i,:n]=True; qidx[i,:q]=torch.arange(qs,qs+q); lab[i,:q]=torch.tensor(y); qmask[i,:q]=True
+              return tok,typ,pos,mask,qidx,lab,qmask
+          class Model(nn.Module):
+              def __init__(self):
+                  super().__init__(); self.te=nn.Embedding(VOCAB,D_MODEL); self.ty=nn.Embedding(3,D_MODEL); self.pe=nn.Embedding(MAX_POS,D_MODEL)
+                  layer=nn.TransformerEncoderLayer(D_MODEL,HEADS,4*D_MODEL,batch_first=True,norm_first=True,activation='gelu'); self.enc=nn.TransformerEncoder(layer,LAYERS); self.ln=nn.LayerNorm(D_MODEL); self.head=nn.Linear(D_MODEL,10)
+              def forward(self,tok,typ,pos,mask,qidx):
+                  h=self.te(tok)+self.ty(typ)+self.pe(pos); h=self.enc(h,src_key_padding_mask=~mask); h=self.head(self.ln(h)); return h.gather(1,qidx.unsqueeze(-1).expand(-1,-1,10))
+          @torch.no_grad()
+          def evaluate(m,xs):
+              m.eval(); exact=dc=dt=0
+              for s in range(0,len(xs),256):
+                  tok,typ,pos,mask,qidx,lab,qmask=collate(xs[s:s+256]); pred=m(tok,typ,pos,mask,qidx).argmax(-1); hits=(pred==lab)&qmask
+                  exact+=int(((hits|~qmask).all(1)).sum()); dc+=int(hits.sum()); dt+=int(qmask.sum())
+              return exact/len(xs), dc/dt
+
+          rows=[]
+          for seed in SEEDS:
+              random.seed(seed); torch.manual_seed(seed); m=Model(); opt=torch.optim.AdamW(m.parameters(),lr=LR,weight_decay=.01)
+              for step in range(STEPS):
+                  xs=[]
+                  for _ in range(BATCH):
+                      key=train_keys[random.randrange(len(train_keys))]; pool=train_cells[key]; xs.append(pool[random.randrange(len(pool))])
+                  tok,typ,pos,mask,qidx,lab,qmask=collate(xs); logits=m(tok,typ,pos,mask,qidx); loss=F.cross_entropy(logits.transpose(1,2),lab,ignore_index=-100)
+                  opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(m.parameters(),1.0); opt.step()
+              lo_ex,lo_d=evaluate(m,eval_cells[(3,'low','stable')]); hi_ex,hi_d=evaluate(m,eval_cells[(3,'high','stable')]); drop=hi_ex-lo_ex
+              rows.append({'seed':seed,'low_exact':lo_ex,'high_exact':hi_ex,'exact_contrast_high_minus_low':drop,'low_digit':lo_d,'high_digit':hi_d,'digit_contrast_high_minus_low':hi_d-lo_d,'landmark':drop<=-0.15})
+          hits=sum(r['landmark'] for r in rows)
+          verdict='PASS_CARRY_OBSTRUCTION_REPLICATED' if hits>=2 else 'NEGATIVE_CARRY_LANDMARK_NOT_REPLICATED'
+          out=pathlib.Path('results/one_layer_deeper/carry_replication_v1'); out.mkdir(parents=True,exist_ok=True)
+          with (out/'seeds.csv').open('w',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=rows[0].keys()); w.writeheader(); w.writerows(rows)
+          result={'protocol':'CARRY_REPLICATION_V1','parent_cartography':'d3ad8044c7f68a1f1644d3b09eb546c74dfdfd26','support_split':'sha256(key)-deterministic','alignment':'place','digits':3,'width':'stable','seeds':list(SEEDS),'threshold_exact_drop':0.15,'required_seed_hits':2,'rows':rows,'verdict':verdict,'claim_boundary':'bounded squaring world; promotion only of carry as a replicated candidate obstruction under this frozen architecture/training regime'}
+          (out/'result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          (out/'README.md').write_text('# CARRY_REPLICATION_V1\n\n'+json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+          python /tmp/carry_rep.py
+      - name: Commit replication artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/carry_replication_v1
+          git commit -m 'Record deterministic three-seed carry replication' || exit 0
+          git push
