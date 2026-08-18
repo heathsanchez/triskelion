@@ -1,0 +1,775 @@
+{
+  "rows": [
+    {
+      "seed": 0,
+      "arm": "baseline_msd",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.017699115044247787,
+      "digit": 0.6932153392330384,
+      "final_loss": 0.2580386161804199
+    },
+    {
+      "seed": 0,
+      "arm": "baseline_msd",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.02564102564102564,
+      "digit": 0.7478632478632479,
+      "final_loss": 0.2580386161804199
+    },
+    {
+      "seed": 0,
+      "arm": "baseline_msd",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.0,
+      "digit": 0.5965625,
+      "final_loss": 0.2580386161804199
+    },
+    {
+      "seed": 0,
+      "arm": "baseline_msd",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.11926605504587157,
+      "digit": 0.7717889908256881,
+      "final_loss": 0.2580386161804199
+    },
+    {
+      "seed": 0,
+      "arm": "lsd_first",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.017699115044247787,
+      "digit": 0.6932153392330384,
+      "final_loss": 0.2580388098955154
+    },
+    {
+      "seed": 0,
+      "arm": "lsd_first",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.02564102564102564,
+      "digit": 0.7478632478632479,
+      "final_loss": 0.2580388098955154
+    },
+    {
+      "seed": 0,
+      "arm": "lsd_first",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.0,
+      "digit": 0.5965625,
+      "final_loss": 0.2580388098955154
+    },
+    {
+      "seed": 0,
+      "arm": "lsd_first",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.11926605504587157,
+      "digit": 0.7717889908256881,
+      "final_loss": 0.2580388098955154
+    },
+    {
+      "seed": 0,
+      "arm": "recurrent_msd",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.017699115044247787,
+      "digit": 0.6799410029498525,
+      "final_loss": 0.20696637332439421
+    },
+    {
+      "seed": 0,
+      "arm": "recurrent_msd",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.15384615384615385,
+      "digit": 0.7521367521367521,
+      "final_loss": 0.20696637332439421
+    },
+    {
+      "seed": 0,
+      "arm": "recurrent_msd",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.005,
+      "digit": 0.651875,
+      "final_loss": 0.20696637332439421
+    },
+    {
+      "seed": 0,
+      "arm": "recurrent_msd",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.12844036697247707,
+      "digit": 0.7844036697247706,
+      "final_loss": 0.20696637332439421
+    },
+    {
+      "seed": 1,
+      "arm": "baseline_msd",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.04424778761061947,
+      "digit": 0.6991150442477876,
+      "final_loss": 0.23191467076539993
+    },
+    {
+      "seed": 1,
+      "arm": "baseline_msd",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.1282051282051282,
+      "digit": 0.7521367521367521,
+      "final_loss": 0.23191467076539993
+    },
+    {
+      "seed": 1,
+      "arm": "baseline_msd",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.005,
+      "digit": 0.6396875,
+      "final_loss": 0.23191467076539993
+    },
+    {
+      "seed": 1,
+      "arm": "baseline_msd",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.07339449541284404,
+      "digit": 0.7557339449541285,
+      "final_loss": 0.23191467076539993
+    },
+    {
+      "seed": 1,
+      "arm": "lsd_first",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.04424778761061947,
+      "digit": 0.6991150442477876,
+      "final_loss": 0.23191467821598052
+    },
+    {
+      "seed": 1,
+      "arm": "lsd_first",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.1282051282051282,
+      "digit": 0.7521367521367521,
+      "final_loss": 0.23191467821598052
+    },
+    {
+      "seed": 1,
+      "arm": "lsd_first",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.005,
+      "digit": 0.6396875,
+      "final_loss": 0.23191467821598052
+    },
+    {
+      "seed": 1,
+      "arm": "lsd_first",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.07339449541284404,
+      "digit": 0.7557339449541285,
+      "final_loss": 0.23191467821598052
+    },
+    {
+      "seed": 1,
+      "arm": "recurrent_msd",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.035398230088495575,
+      "digit": 0.6828908554572272,
+      "final_loss": 0.19143568277359008
+    },
+    {
+      "seed": 1,
+      "arm": "recurrent_msd",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.1282051282051282,
+      "digit": 0.7777777777777778,
+      "final_loss": 0.19143568277359008
+    },
+    {
+      "seed": 1,
+      "arm": "recurrent_msd",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.0025,
+      "digit": 0.66,
+      "final_loss": 0.19143568277359008
+    },
+    {
+      "seed": 1,
+      "arm": "recurrent_msd",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.08256880733944955,
+      "digit": 0.7706422018348624,
+      "final_loss": 0.19143568277359008
+    },
+    {
+      "seed": 2,
+      "arm": "baseline_msd",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.008849557522123894,
+      "digit": 0.6651917404129793,
+      "final_loss": 0.24390459954738616
+    },
+    {
+      "seed": 2,
+      "arm": "baseline_msd",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.10256410256410256,
+      "digit": 0.7435897435897436,
+      "final_loss": 0.24390459954738616
+    },
+    {
+      "seed": 2,
+      "arm": "baseline_msd",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.0,
+      "digit": 0.6325,
+      "final_loss": 0.24390459954738616
+    },
+    {
+      "seed": 2,
+      "arm": "baseline_msd",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.06422018348623854,
+      "digit": 0.7729357798165137,
+      "final_loss": 0.24390459954738616
+    },
+    {
+      "seed": 2,
+      "arm": "lsd_first",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.008849557522123894,
+      "digit": 0.6651917404129793,
+      "final_loss": 0.2439046546816826
+    },
+    {
+      "seed": 2,
+      "arm": "lsd_first",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.10256410256410256,
+      "digit": 0.7435897435897436,
+      "final_loss": 0.2439046546816826
+    },
+    {
+      "seed": 2,
+      "arm": "lsd_first",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.0,
+      "digit": 0.6325,
+      "final_loss": 0.2439046546816826
+    },
+    {
+      "seed": 2,
+      "arm": "lsd_first",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.06422018348623854,
+      "digit": 0.7729357798165137,
+      "final_loss": 0.2439046546816826
+    },
+    {
+      "seed": 2,
+      "arm": "recurrent_msd",
+      "digits": 3,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2981366459627329,
+      "eval_n": 113,
+      "exact": 0.02654867256637168,
+      "digit": 0.6769911504424779,
+      "final_loss": 0.20842557549476623
+    },
+    {
+      "seed": 2,
+      "arm": "recurrent_msd",
+      "digits": 3,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30357142857142855,
+      "eval_n": 39,
+      "exact": 0.10256410256410256,
+      "digit": 0.7777777777777778,
+      "final_loss": 0.20842557549476623
+    },
+    {
+      "seed": 2,
+      "arm": "recurrent_msd",
+      "digits": 4,
+      "carry": "high",
+      "width": "stable",
+      "coverage": 0.2999501743896363,
+      "eval_n": 400,
+      "exact": 0.005,
+      "digit": 0.65,
+      "final_loss": 0.20842557549476623
+    },
+    {
+      "seed": 2,
+      "arm": "recurrent_msd",
+      "digits": 4,
+      "carry": "low",
+      "width": "stable",
+      "coverage": 0.30128205128205127,
+      "eval_n": 109,
+      "exact": 0.05504587155963303,
+      "digit": 0.7706422018348624,
+      "final_loss": 0.20842557549476623
+    }
+  ],
+  "effects": [
+    {
+      "seed": 0,
+      "digits": 3,
+      "arm": "baseline_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.007941910596777853,
+      "digit_effect": -0.05464790863020952
+    },
+    {
+      "seed": 0,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "carry_drop",
+      "exact_effect": -0.007941910596777853,
+      "digit_effect": -0.05464790863020952
+    },
+    {
+      "seed": 0,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.13614703880190607,
+      "digit_effect": -0.07219574918689964
+    },
+    {
+      "seed": 0,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "high_rescue",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 0,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 0,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "high_rescue",
+      "exact_effect": 0.0,
+      "digit_effect": -0.013274336283185861
+    },
+    {
+      "seed": 0,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "low_control_move",
+      "exact_effect": 0.12820512820512822,
+      "digit_effect": 0.004273504273504258
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "arm": "baseline_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.11926605504587157,
+      "digit_effect": -0.17522649082568809
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "carry_drop",
+      "exact_effect": -0.11926605504587157,
+      "digit_effect": -0.17522649082568809
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.12344036697247707,
+      "digit_effect": -0.13252866972477062
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "high_rescue",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "high_rescue",
+      "exact_effect": 0.005,
+      "digit_effect": 0.05531249999999999
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "low_control_move",
+      "exact_effect": 0.009174311926605505,
+      "digit_effect": 0.012614678899082521
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "arm": "baseline_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.08395734059450873,
+      "digit_effect": -0.05302170788896454
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "carry_drop",
+      "exact_effect": -0.08395734059450873,
+      "digit_effect": -0.05302170788896454
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.09280689811663262,
+      "digit_effect": -0.09488692232055063
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "high_rescue",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "high_rescue",
+      "exact_effect": -0.008849557522123894,
+      "digit_effect": -0.016224188790560423
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.02564102564102566
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "arm": "baseline_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.06839449541284404,
+      "digit_effect": -0.11604644495412852
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "carry_drop",
+      "exact_effect": -0.06839449541284404,
+      "digit_effect": -0.11604644495412852
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.08006880733944954,
+      "digit_effect": -0.1106422018348624
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "high_rescue",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "high_rescue",
+      "exact_effect": -0.0025,
+      "digit_effect": 0.020312500000000067
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "low_control_move",
+      "exact_effect": 0.009174311926605505,
+      "digit_effect": 0.014908256880733939
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "arm": "baseline_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.09371454504197867,
+      "digit_effect": -0.07839800317676426
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "carry_drop",
+      "exact_effect": -0.09371454504197867,
+      "digit_effect": -0.07839800317676426
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.07601542999773088,
+      "digit_effect": -0.10078662733529986
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "high_rescue",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "arm": "lsd_first",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "high_rescue",
+      "exact_effect": 0.017699115044247787,
+      "digit_effect": 0.01179941002949858
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "arm": "recurrent_msd",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.03418803418803418
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "arm": "baseline_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.06422018348623854,
+      "digit_effect": -0.14043577981651378
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "carry_drop",
+      "exact_effect": -0.06422018348623854,
+      "digit_effect": -0.14043577981651378
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "carry_drop",
+      "exact_effect": -0.05004587155963303,
+      "digit_effect": -0.1206422018348624
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "high_rescue",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "arm": "lsd_first",
+      "kind": "low_control_move",
+      "exact_effect": 0.0,
+      "digit_effect": 0.0
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "high_rescue",
+      "exact_effect": 0.005,
+      "digit_effect": 0.01750000000000007
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "arm": "recurrent_msd",
+      "kind": "low_control_move",
+      "exact_effect": -0.009174311926605505,
+      "digit_effect": -0.002293577981651307
+    }
+  ],
+  "promoted": []
+}
