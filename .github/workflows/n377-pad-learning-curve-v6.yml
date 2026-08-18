@@ -1,0 +1,195 @@
+name: N377 PAD Learning Curve V6
+
+on:
+  push:
+    paths:
+      - '.github/workflows/n377-pad-learning-curve-v6.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  curve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Clone and verify frozen public substrate
+        run: |
+          git clone https://github.com/benjaminW2025/one-layer-deeper.git /tmp/old
+          cd /tmp/old
+          git checkout 697a78d4be579745f3b410c01c966c91e7094ad4
+          test "$(git rev-parse HEAD)" = "697a78d4be579745f3b410c01c966c91e7094ad4"
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Execute frozen single-training learning curves
+        working-directory: /tmp/old
+        run: |
+          cat > /tmp/run_v6.py <<'PY'
+          from __future__ import annotations
+          import json, math, os, platform, random, sys, time
+          from pathlib import Path
+          import torch
+
+          sys.path.insert(0,'/tmp/old/explorations')
+          sys.path.insert(0,'/tmp/old')
+          from harness import EncoderModel, VOCAB_SIZE, gather_target_logits, sequence_loss, _chance_baselines
+          from data.squaring_mod import TOKEN_IDS, number_tokens, digit_token, tokenize_squaring_mod_with_result
+
+          N=377; P=13; Q=29
+          ARMS=('ORIGINAL','PAD_X6')
+          CHECKPOINT_EPOCHS=(6,10,14,18,20)
+          DATA_SEED=45; MODEL_SEED=0; COVERAGE=.50; MAX_EPOCHS=20
+          BATCH=256; LR=3e-4; WEIGHT_DECAY=.01; WARMUP=50; GRAD_CLIP=1.0
+          D_MODEL=128; N_LAYERS=2; N_HEADS=2; MAX_SEQ_LEN=13
+          DEVICE=torch.device('cpu')
+          EXTERNAL_SHA='697a78d4be579745f3b410c01c966c91e7094ad4'
+          PRECOMMIT_COMMIT='ef6396750428e13594d884df71dd7df50c95cb3f'
+          OUT=Path('/tmp/v6out'); OUT.mkdir(parents=True,exist_ok=True)
+
+          rng=random.Random(DATA_SEED+N)
+          space=N*N
+          n_train=int(math.floor(COVERAGE*space)); n_eval=min(2000,space-n_train)
+          vals=rng.sample(range(space),n_train+n_eval)
+          rec=lambda ys:[(P,Q,y,1,y%N) for y in ys]
+          train_records=rec(vals[:n_train]); fresh_records=rec(vals[n_train:])
+          chance_digit,chance_exact=_chance_baselines(fresh_records)
+
+          def prompt_target(record,arm):
+              p,q,x,t,result=record
+              if arm=='ORIGINAL':
+                  return tokenize_squaring_mod_with_result(N,x,t,result,separate_input_output=True)
+              if arm!='PAD_X6': raise ValueError(arm)
+              sx=str(x).zfill(6)
+              prompt=[TOKEN_IDS['N'],*number_tokens(N),TOKEN_IDS['X']]
+              prompt.extend(digit_token(int(ch)) for ch in sx)
+              prompt.extend([TOKEN_IDS['T'],*number_tokens(t)])
+              return prompt,number_tokens(result)
+
+          def tensorize(records,arm):
+              rows=[prompt_target(r,arm) for r in records]
+              max_target=max(len(t) for _,t in rows)
+              b=len(rows)
+              ids=torch.full((b,MAX_SEQ_LEN),TOKEN_IDS['PAD'],dtype=torch.long)
+              mask=torch.zeros((b,MAX_SEQ_LEN),dtype=torch.bool)
+              labels=torch.full((b,max_target),-100,dtype=torch.long)
+              pos=torch.full((b,max_target),-1,dtype=torch.long)
+              for i,(prompt,target) in enumerate(rows):
+                  plen=len(prompt); tlen=len(target)
+                  if plen>MAX_SEQ_LEN: raise RuntimeError((arm,plen,prompt))
+                  ids[i,:plen]=torch.tensor(prompt)
+                  mask[i,:plen]=True
+                  labels[i,:tlen]=torch.tensor(target)
+                  pos[i,:tlen]=torch.arange(plen-tlen,plen)
+              return {'input_ids':ids,'attention_mask':mask,'labels':labels,'target_positions':pos}
+
+          @torch.no_grad()
+          def evaluate(model,tensors):
+              model.eval(); ps=[]; ls=[]; n=tensors['input_ids'].size(0)
+              for s in range(0,n,1024):
+                  e=min(s+1024,n)
+                  b={k:v[s:e].to(DEVICE) for k,v in tensors.items()}
+                  logits=model(b['input_ids'],b['attention_mask']).float()
+                  ps.append(gather_target_logits(logits,b['target_positions']).argmax(-1).cpu())
+                  ls.append(b['labels'].cpu())
+              model.train()
+              preds=torch.cat(ps); labels=torch.cat(ls)
+              valid=labels!=-100; hits=(preds==labels)&valid; exact=(hits|~valid).all(1)
+              digit=float(hits.sum()/valid.sum()); ex=float(exact.float().mean())
+              return {'digit':digit,'digit_excess':digit-chance_digit,
+                      'exact':ex,'exact_excess':ex-chance_exact}
+
+          checkpoint_steps={e:math.ceil(e*n_train/BATCH) for e in CHECKPOINT_EPOCHS}
+          total_steps=checkpoint_steps[MAX_EPOCHS]
+          curves={}; arm_valid={}; t_all=time.time()
+
+          for arm in ARMS:
+              train=tensorize(train_records,arm); fresh=tensorize(fresh_records,arm)
+              torch.manual_seed(MODEL_SEED)
+              model=EncoderModel(VOCAB_SIZE,MAX_SEQ_LEN,D_MODEL,N_LAYERS,N_HEADS).to(DEVICE)
+              opt=torch.optim.AdamW(model.parameters(),lr=LR,weight_decay=WEIGHT_DECAY)
+              sched=torch.optim.lr_scheduler.LambdaLR(opt,lambda s:min(1.0,(s+1)/WARMUP))
+              gen=torch.Generator(device='cpu').manual_seed(MODEL_SEED)
+              tr={k:v.to(DEVICE) for k,v in train.items()}
+              losses=[]; diverged=False; points=[]; t0=time.time()
+              step_to_epoch={s:e for e,s in checkpoint_steps.items()}
+              for step in range(1,total_steps+1):
+                  idx=torch.randint(0,n_train,(BATCH,),generator=gen).to(DEVICE)
+                  b={k:v[idx] for k,v in tr.items()}
+                  logits=model(b['input_ids'],b['attention_mask']).float()
+                  loss=sequence_loss(logits,b['labels'],b['target_positions'])
+                  if not torch.isfinite(loss):
+                      diverged=True; break
+                  opt.zero_grad(set_to_none=True); loss.backward()
+                  torch.nn.utils.clip_grad_norm_(model.parameters(),GRAD_CLIP)
+                  opt.step(); sched.step(); losses.append(float(loss.detach()))
+                  if step in step_to_epoch:
+                      epoch=step_to_epoch[step]
+                      m=evaluate(model,fresh)
+                      point={'epoch':epoch,'step':step,**m,
+                             'recent_loss':sum(losses[-10:])/min(10,len(losses)),
+                             'seconds':time.time()-t0}
+                      points.append(point); print(json.dumps({'arm':arm,**point},sort_keys=True),flush=True)
+              first=sum(losses[:10])/max(1,len(losses[:10])); final=sum(losses[-10:])/max(1,len(losses[-10:]))
+              flat=(not diverged) and bool(losses) and final>.95*first
+              curves[arm]=points
+              arm_valid[arm]=(not diverged) and (not flat) and len(points)==len(CHECKPOINT_EPOCHS)
+
+          by={(arm,p['epoch']):p for arm,pts in curves.items() for p in pts}
+          I={str(e):by[('PAD_X6',e)]['digit_excess']-by[('ORIGINAL',e)]['digit_excess'] for e in CHECKPOINT_EPOCHS} if all(arm_valid.values()) else {}
+          valid=all(arm_valid.values())
+          if (not valid) or I.get('20',-999)<.08:
+              verdict='NULL_N377_V4_EFFECT_NOT_REPRODUCED'; first_cross=None
+          elif I['6']>=.08:
+              verdict='EARLY_PERSISTENT_PAD_ADVANTAGE'; first_cross=6
+          else:
+              verdict='DELAYED_PAD_ADVANTAGE'
+              first_cross=next(e for e in (10,14,18,20) if I[str(e)]>=.08)
+
+          env={
+              'python':sys.version,'torch':torch.__version__,'platform':platform.platform(),
+              'machine':platform.machine(),'processor':platform.processor(),
+              'os_cpu_count':os.cpu_count(),'torch_num_threads':torch.get_num_threads(),
+              'torch_num_interop_threads':torch.get_num_interop_threads(),
+          }
+          summary={
+              'protocol':'N377_PAD_LEARNING_CURVE_V6','precommit_commit':PRECOMMIT_COMMIT,
+              'frozen_external_sha':EXTERNAL_SHA,'N':N,'coverage':n_train/space,
+              'n_train':n_train,'n_eval':n_eval,'checkpoint_steps':checkpoint_steps,
+              'environment':env,'arm_valid':arm_valid,'chance_digit':chance_digit,
+              'chance_exact':chance_exact,'improvement_by_epoch':I,'first_material_checkpoint':first_cross,
+              'curves':curves,'verdict':verdict,
+              'claim_boundary':'Terminal N377 training-dynamics discriminator. Cannot repair N323 or support a generic width-boundary/developmental-intelligence claim.',
+              'seconds_total':time.time()-t_all,
+          }
+          (OUT/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          md=['# N377_PAD_LEARNING_CURVE_V6 result','',f'**Verdict:** `{verdict}`','',
+              '| epoch | ORIGINAL excess | PAD_X6 excess | PAD improvement | ORIGINAL exact | PAD exact |',
+              '|---:|---:|---:|---:|---:|---:|']
+          if valid:
+              for e in CHECKPOINT_EPOCHS:
+                  a=by[('ORIGINAL',e)]; b=by[('PAD_X6',e)]
+                  md.append(f"| {e} | {a['digit_excess']:+.5f} | {b['digit_excess']:+.5f} | {I[str(e)]:+.5f} | {a['exact']:.5f} | {b['exact']:.5f} |")
+          md += ['',f'- first material checkpoint: `{first_cross}`','',
+                 '## Claim boundary','',summary['claim_boundary'],'',
+                 'Regardless of outcome, this width line is terminal as a bridge; next DI work returns to source-distinct real-code episodes.']
+          (OUT/'README.md').write_text('\n'.join(md)+'\n')
+          print('\n'.join(md),flush=True)
+          PY
+          python /tmp/run_v6.py
+      - name: Stage results
+        run: |
+          mkdir -p results/one_layer_deeper/n377_pad_learning_curve_v6
+          cp /tmp/v6out/* results/one_layer_deeper/n377_pad_learning_curve_v6/
+          cat results/one_layer_deeper/n377_pad_learning_curve_v6/README.md
+      - name: Commit result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/n377_pad_learning_curve_v6
+          git commit -m 'Record N377 padding learning curve v6' || exit 0
+          git push
