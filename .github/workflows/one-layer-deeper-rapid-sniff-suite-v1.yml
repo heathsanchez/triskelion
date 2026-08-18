@@ -1,0 +1,89 @@
+name: One Layer Deeper Rapid Sniff Suite V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-rapid-sniff-suite-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rapid-sniff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Clone public frontier
+        run: git clone --depth 1 https://github.com/benjaminW2025/one-layer-deeper.git /tmp/old
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Run 9-cell phase-map sniff
+        working-directory: /tmp/old
+        shell: bash
+        run: |
+          set -euxo pipefail
+          rm -f explorations/results/results_exp4.csv
+          # Three tasks, three complexity/support regimes. Each cell is deliberately tiny.
+          # Square / squaremod use unit-space x; reduce uses y in [0,N^2), so bit sizes are
+          # shifted downward to put actual training support into the same rough 20-45% band.
+          python explorations/exp4_subtasks.py --tasks square squaremod --bits 10 --depths 2 --widths 128 --n-train 300 --n-eval 100 --budget-mode steps --budget 350 --batch-size 256 --device cpu
+          python explorations/exp4_subtasks.py --tasks square squaremod --bits 12 --depths 2 --widths 128 --n-train 900 --n-eval 150 --budget-mode steps --budget 350 --batch-size 256 --device cpu
+          python explorations/exp4_subtasks.py --tasks square squaremod --bits 14 --depths 2 --widths 128 --n-train 3000 --n-eval 300 --budget-mode steps --budget 350 --batch-size 256 --device cpu
+          python explorations/exp4_subtasks.py --tasks reduce --bits 6 --depths 2 --widths 128 --n-train 300 --n-eval 100 --budget-mode steps --budget 350 --batch-size 256 --device cpu
+          python explorations/exp4_subtasks.py --tasks reduce --bits 7 --depths 2 --widths 128 --n-train 2500 --n-eval 300 --budget-mode steps --budget 350 --batch-size 256 --device cpu
+          python explorations/exp4_subtasks.py --tasks reduce --bits 8 --depths 2 --widths 128 --n-train 5000 --n-eval 300 --budget-mode steps --budget 350 --batch-size 256 --device cpu
+      - name: Build forest readout
+        shell: bash
+        run: |
+          mkdir -p results/one_layer_deeper/rapid_sniff_suite_v1
+          cp /tmp/old/explorations/results/results_exp4.csv results/one_layer_deeper/rapid_sniff_suite_v1/results_exp4.csv
+          python - <<'PY'
+          import csv, pathlib, math
+          p=pathlib.Path('results/one_layer_deeper/rapid_sniff_suite_v1/results_exp4.csv')
+          rows=list(csv.DictReader(p.open()))
+          fresh=[r for r in rows if r['cohort']=='test_fresh']
+          def f(r,k): return float(r[k])
+          fresh.sort(key=lambda r:(r['task'],int(r['bits'])))
+          out=['# RAPID_SNIFF_SUITE_V1','',
+               'Forest-first 9-cell phase map: square vs reduce vs squaremod across matched-ish support/complexity regimes.','',
+               '| task | bits | coverage | exact | chance | exact excess | digit | digit chance | digit excess |',
+               '|---|---:|---:|---:|---:|---:|---:|---:|---:|']
+          for r in fresh:
+              ex=f(r,'exact_acc')-f(r,'chance_exact'); de=f(r,'digit_acc')-f(r,'chance_digit')
+              out.append(f"| {r['task']} | {r['bits']} | {f(r,'x_coverage'):.2%} | {f(r,'exact_acc'):.4f} | {f(r,'chance_exact'):.4f} | {ex:+.4f} | {f(r,'digit_acc'):.4f} | {f(r,'chance_digit'):.4f} | {de:+.4f} |")
+          # Summarize by task and locate first complexity cliff in digit excess.
+          out += ['', '## Phase-map readout','']
+          by={}
+          for r in fresh: by.setdefault(r['task'],[]).append(r)
+          for task,rs in sorted(by.items()):
+              rs=sorted(rs,key=lambda r:int(r['bits']))
+              vals=[(int(r['bits']),f(r,'x_coverage'),f(r,'digit_acc')-f(r,'chance_digit'),f(r,'exact_acc')-f(r,'chance_exact')) for r in rs]
+              out.append(f"- **{task}**: "+'; '.join(f"b{b} cov={c:.1%} digitΔ={d:+.3f} exactΔ={e:+.3f}" for b,c,d,e in vals))
+          # Simple competing interpretations, deliberately conservative.
+          sq=max((f(r,'digit_acc')-f(r,'chance_digit') for r in fresh if r['task']=='square'), default=float('nan'))
+          red=max((f(r,'digit_acc')-f(r,'chance_digit') for r in fresh if r['task']=='reduce'), default=float('nan'))
+          sm=max((f(r,'digit_acc')-f(r,'chance_digit') for r in fresh if r['task']=='squaremod'), default=float('nan'))
+          out += ['', '## Decision','']
+          if sq>0.15 and red>0.15 and sm<0.08:
+              out.append('**Strong composition/interface sniff:** square and reduce each show substantial learnable structure somewhere in the mapped support band while squaremod remains weak.')
+          elif sm>0.15:
+              out.append('**Squaremod becomes learnable in at least one mapped regime:** support/complexity is a major driver; locate its first cliff before changing architecture.')
+          else:
+              out.append('**No clean composition separator yet:** use the phase curves to choose the next minimal matched contrast; do not promote a root obstruction from this sniff alone.')
+          out += ['', '## Claim boundary','',
+                  'Cheap CPU sniff only: bit sizes differ across reduction vs unit-space tasks to obtain comparable support. This is a phase-map diagnostic, not a competition-performance comparison.']
+          pathlib.Path('results/one_layer_deeper/rapid_sniff_suite_v1/README.md').write_text('\n'.join(out))
+          print('\n'.join(out))
+          PY
+      - name: Commit sniff artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/rapid_sniff_suite_v1
+          git commit -m 'Record One Layer Deeper rapid sniff phase map' || exit 0
+          git push
