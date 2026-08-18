@@ -1,5 +1,6 @@
 name: V165 Semantic Scope Requalification
 
+# retrigger-only: scientific protocol and census code unchanged
 on:
   push:
     branches: [v158-unified-developmental-runtime]
