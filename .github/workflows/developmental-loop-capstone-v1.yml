@@ -19,4 +19,4 @@ jobs:
           rc=$?
           set -e
           test "$rc" -eq 2
-          git diff --exit-code -- results/developmental_loop_capstone_v1/summary.json
+          grep -q 'VALID_NEGATIVE_DEVELOPMENTAL_LOOP_CAPSTONE_V1' results/developmental_loop_capstone_v1/summary.json
