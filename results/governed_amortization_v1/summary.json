@@ -1,0 +1,13 @@
+{
+  "break_even_count": 77,
+  "eligible": 100,
+  "gates": {"H1": true, "H2": true, "H3": true, "H4": false, "H5": true, "H6": true},
+  "median_first_break_even": 24,
+  "median_ratio_64": 0.9608610567514677,
+  "population_D_64": 47915,
+  "population_M_64": 49269,
+  "population_saving_64": 1354,
+  "protocol": "GOVERNED_AMORTIZATION_V1",
+  "verdict": "VALID_NEGATIVE_GOVERNED_AMORTIZATION_V1",
+  "wins_at_64": 77
+}
