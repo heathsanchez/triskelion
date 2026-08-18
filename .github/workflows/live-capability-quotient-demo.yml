@@ -1,0 +1,48 @@
+name: Live Capability Quotient Demo
+
+on:
+  push:
+    branches: [demo/live-capability-quotient]
+    paths:
+      - 'demo/live_capability_quotient/**'
+      - '.github/workflows/live-capability-quotient-demo.yml'
+  pull_request:
+    paths:
+      - 'demo/live_capability_quotient/**'
+      - '.github/workflows/live-capability-quotient-demo.yml'
+  workflow_dispatch:
+
+jobs:
+  exact-demo:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run exact computation
+        run: python demo/live_capability_quotient/v103_live.py > /tmp/result.json
+      - name: Assert frozen gates and numbers
+        run: |
+          python - <<'PY'
+          import json
+          R=json.load(open('/tmp/result.json'))
+          assert R['verdict']=='PASS_V103_QUOTIENT_LEVEL_OPERATOR_DISCOVERY', R['verdict']
+          assert R['old_language']['closure_size']==16
+          assert R['hidden']['acquisition']==1
+          assert R['hidden']['heldout']==8
+          assert R['discovery']['winners']==[2,4]
+          assert R['search']['cold_semantic_state_expansions']==38415
+          assert R['search']['warm_semantic_state_expansions']==254
+          assert abs(R['search']['compression_factor']-151.24015748031496)<1e-12
+          assert all(R['gates'].values())
+          print('PASS_LIVE_CAPABILITY_QUOTIENT_DEMO')
+          print(json.dumps({
+            'old_closure':R['old_language']['closure_size'],
+            'surface_change':[R['hidden']['acquisition'],R['hidden']['heldout']],
+            'selected':R['discovery']['winners'],
+            'cold':R['search']['cold_semantic_state_expansions'],
+            'warm':R['search']['warm_semantic_state_expansions'],
+            'compression':R['search']['compression_factor']
+          },indent=2))
+          PY
