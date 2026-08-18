@@ -1,0 +1,149 @@
+{
+  "N": 377,
+  "arm_valid": {
+    "ORIGINAL": true,
+    "PAD_X6": true
+  },
+  "chance_digit": 0.1827260958017385,
+  "chance_exact": 0.006,
+  "checkpoint_steps": {
+    "6": 1666,
+    "10": 2776,
+    "14": 3887,
+    "18": 4997,
+    "20": 5552
+  },
+  "claim_boundary": "Terminal N377 training-dynamics discriminator. Cannot repair N323 or support a generic width-boundary/developmental-intelligence claim.",
+  "coverage": 0.49999648206910624,
+  "curves": {
+    "ORIGINAL": [
+      {
+        "digit": 0.17606805264949799,
+        "digit_excess": -0.0066580431522405,
+        "epoch": 6,
+        "exact": 0.008999999612569809,
+        "exact_excess": 0.002999999612569809,
+        "recent_loss": 1.9783649563789367,
+        "seconds": 124.88084483146667,
+        "step": 1666
+      },
+      {
+        "digit": 0.17255409061908722,
+        "digit_excess": -0.010172005182651267,
+        "epoch": 10,
+        "exact": 0.007499999832361937,
+        "exact_excess": 0.0014999998323619364,
+        "recent_loss": 1.9755656361579894,
+        "seconds": 204.04373240470886,
+        "step": 2776
+      },
+      {
+        "digit": 0.17329387366771698,
+        "digit_excess": -0.009432222134021506,
+        "epoch": 14,
+        "exact": 0.008500000461935997,
+        "exact_excess": 0.002500000461935997,
+        "recent_loss": 1.969050407409668,
+        "seconds": 283.3080642223358,
+        "step": 3887
+      },
+      {
+        "digit": 0.21953023970127106,
+        "digit_excess": 0.03680414389953257,
+        "epoch": 18,
+        "exact": 0.017500000074505806,
+        "exact_excess": 0.011500000074505806,
+        "recent_loss": 1.790383243560791,
+        "seconds": 363.05188512802124,
+        "step": 4997
+      },
+      {
+        "digit": 0.23414093255996704,
+        "digit_excess": 0.051414836758228555,
+        "epoch": 20,
+        "exact": 0.01549999974668026,
+        "exact_excess": 0.00949999974668026,
+        "recent_loss": 1.7616771936416626,
+        "seconds": 402.8119332790375,
+        "step": 5552
+      }
+    ],
+    "PAD_X6": [
+      {
+        "digit": 0.1784723550081253,
+        "digit_excess": -0.004253740793613181,
+        "epoch": 6,
+        "exact": 0.009499999694526196,
+        "exact_excess": 0.0034999996945261954,
+        "recent_loss": 1.9782689571380616,
+        "seconds": 120.12663769721985,
+        "step": 1666
+      },
+      {
+        "digit": 0.19992601871490479,
+        "digit_excess": 0.0171999229131663,
+        "epoch": 10,
+        "exact": 0.00800000037997961,
+        "exact_excess": 0.0020000003799796103,
+        "recent_loss": 1.938717520236969,
+        "seconds": 199.6787440776825,
+        "step": 2776
+      },
+      {
+        "digit": 0.424634724855423,
+        "digit_excess": 0.2419086290536845,
+        "epoch": 14,
+        "exact": 0.04450000077486038,
+        "exact_excess": 0.038500000774860384,
+        "recent_loss": 1.3982776165008546,
+        "seconds": 279.87644052505493,
+        "step": 3887
+      },
+      {
+        "digit": 0.5637137293815613,
+        "digit_excess": 0.3809876335798228,
+        "epoch": 18,
+        "exact": 0.11550000309944153,
+        "exact_excess": 0.10950000309944152,
+        "recent_loss": 1.1318471550941467,
+        "seconds": 359.98753356933594,
+        "step": 4997
+      },
+      {
+        "digit": 0.6746809482574463,
+        "digit_excess": 0.4919548524557078,
+        "epoch": 20,
+        "exact": 0.2680000066757202,
+        "exact_excess": 0.2620000066757202,
+        "recent_loss": 0.7643160283565521,
+        "seconds": 400.2007865905762,
+        "step": 5552
+      }
+    ]
+  },
+  "environment": {
+    "machine": "x86_64",
+    "os_cpu_count": 4,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "python": "3.11.15 (main, Jun 16 2026, 21:41:52) [GCC 13.3.0]",
+    "torch": "2.13.0+cpu",
+    "torch_num_interop_threads": 4,
+    "torch_num_threads": 2
+  },
+  "first_material_checkpoint": 14,
+  "frozen_external_sha": "697a78d4be579745f3b410c01c966c91e7094ad4",
+  "improvement_by_epoch": {
+    "10": 0.027371928095817566,
+    "14": 0.251340851187706,
+    "18": 0.3441834896802902,
+    "20": 0.44054001569747925,
+    "6": 0.0024043023586273193
+  },
+  "n_eval": 2000,
+  "n_train": 71064,
+  "precommit_commit": "ef6396750428e13594d884df71dd7df50c95cb3f",
+  "protocol": "N377_PAD_LEARNING_CURVE_V6",
+  "seconds_total": 809.1345036029816,
+  "verdict": "DELAYED_PAD_ADVANTAGE"
+}
