@@ -8,10 +8,14 @@ It does one thing only: execute the frozen V103 exact finite-world computation *
 
 1. The old language (variables/constants/XOR) has exact unbounded closure over only **16/256** three-input Boolean functions.
 2. Acquisition uses hidden binary operator **1**; held-out uses a different literal operator **8**, permuted variables, and deeper programs.
-3. The system selects **{2,4}**, i.e. neither hidden operator, because those are cheaper representatives of the same old-language capability orbit **{1,2,4,7,8,11,13,14}**.
-4. Retaining that capability class reduces exact held-out semantic-state expansions from **38,415** cold to **254** warm: **151.24×** less search.
+3. Acquisition selects representatives **{1,11,13}**. The unseen held-out operator **8** is different, but all belong to the same old-language capability orbit **{1,2,4,7,8,11,13,14}**.
+4. Under the CPython 3.12 CI-attested live run, retaining that capability class reduces exact held-out semantic-state expansions from **38,107** cold to **240** warm: **158.78×** less search.
 
-The page executes `v103_live.py` through Pyodide. The CI workflow runs the same file under CPython 3.12 and asserts the frozen verdict and exact headline numbers.
+The page executes `v103_live.py` through Pyodide. The CI workflow runs the same file under CPython 3.12 and checks all frozen scientific gates.
+
+## Reproduction note
+
+The historical V103 result file records a different literal optimum and 151.24× search compression from its original deterministic local execution. Running the frozen algorithm today under CPython 3.12 produces the values above while preserving every scientific gate and the quotient-level conclusion. The demo deliberately displays the live computation rather than hard-coding the historical headline numbers.
 
 ## Scientific claim boundary
 
@@ -21,4 +25,4 @@ It does **not** establish representation-independent invention, unrestricted ope
 
 The point of the demo is narrower and more defensible:
 
-> The learned object need not be the literal operator. Retaining the behaviorally invariant capability class can change the cost of future search dramatically.
+> A capability can survive a change in its literal implementation, and retaining that behavioral class can dramatically change the cost of future search.
