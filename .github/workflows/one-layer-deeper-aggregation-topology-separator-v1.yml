@@ -1,0 +1,131 @@
+name: One Layer Deeper Aggregation Topology Separator V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-aggregation-topology-separator-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  topology:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        seed: [0,1,2]
+        arm: [flat, balanced, prefix_oracle]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen topology cell
+        shell: bash
+        env:
+          SEED: ${{ matrix.seed }}
+          ARM: ${{ matrix.arm }}
+        run: |
+          cat > /tmp/topology.py <<'PY'
+          import os,json,random,pathlib,torch
+          import torch.nn as nn, torch.nn.functional as F
+          seed=int(os.environ['SEED']); arm=os.environ['ARM']
+          random.seed(seed); torch.manual_seed(seed); torch.set_num_threads(2)
+          STEPS=500; BATCH=256; D=128
+
+          # Synthetic world: 1-4 oracle partial products (0..81). Target is total mod 10 and carry=floor(total/10).
+          # Train/eval totals are generated iid with identical distributions across arms.
+          def sample(n):
+              out=[]
+              for _ in range(n):
+                  k=random.randint(1,4)
+                  vals=[random.randint(0,81) for _ in range(k)]
+                  total=sum(vals); out.append((vals,k,total%10,total//10))
+              return out
+          train=sample(20000); test=sample(6000)
+
+          # Flat receives all product values. Balanced receives pairwise partial sums. Prefix oracle receives exact running partial sums.
+          MAXTOK=10; VOC=256
+          def enc(ex):
+              vals,k,dig,carry=ex
+              if arm=='flat':
+                  seq=[1]+[v+2 for v in vals]
+              elif arm=='balanced':
+                  cur=vals[:]; levels=[]
+                  while len(cur)>1:
+                      nxt=[]
+                      for i in range(0,len(cur),2):
+                          if i+1<len(cur): nxt.append(cur[i]+cur[i+1])
+                          else: nxt.append(cur[i])
+                      levels.extend(nxt); cur=nxt
+                  seq=[1]+[min(253,x)+2 for x in levels]
+              else:
+                  s=0; pref=[]
+                  for v in vals:
+                      s+=v; pref.append(s)
+                  seq=[1]+[min(253,x)+2 for x in pref]
+              seq=seq[:MAXTOK]+[0]*max(0,MAXTOK-len(seq))
+              return seq,dig,carry,k
+
+          class M(nn.Module):
+              def __init__(self):
+                  super().__init__(); self.e=nn.Embedding(VOC,D,padding_idx=0); self.p=nn.Embedding(MAXTOK,D)
+                  layer=nn.TransformerEncoderLayer(D,4,4*D,batch_first=True,norm_first=True,activation='gelu')
+                  self.t=nn.TransformerEncoder(layer,2); self.ld=nn.Linear(D,10); self.lc=nn.Linear(D,40)
+              def forward(self,x):
+                  pos=torch.arange(x.size(1)).unsqueeze(0); h=self.t(self.e(x)+self.p(pos),src_key_padding_mask=(x==0)); z=h[:,0]; return self.ld(z),self.lc(z)
+          m=M(); opt=torch.optim.AdamW(m.parameters(),lr=3e-4,weight_decay=.01)
+          for st in range(STEPS):
+              batch=[train[random.randrange(len(train))] for _ in range(BATCH)]
+              z=[enc(x) for x in batch]; x=torch.tensor([a[0] for a in z]); yd=torch.tensor([a[1] for a in z]); yc=torch.tensor([min(39,a[2]) for a in z])
+              od,oc=m(x); loss=F.cross_entropy(od,yd)+F.cross_entropy(oc,yc)
+              opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(m.parameters(),1.0); opt.step()
+          m.eval(); by={i:[0,0] for i in range(1,5)}; joint=0
+          with torch.no_grad():
+              for st in range(0,len(test),512):
+                  sub=test[st:st+512]; z=[enc(x) for x in sub]; x=torch.tensor([a[0] for a in z]); yd=torch.tensor([a[1] for a in z]); yc=torch.tensor([min(39,a[2]) for a in z]); ks=[a[3] for a in z]
+                  pd,pc=m(x); pd=pd.argmax(1); pc=pc.argmax(1); ok=(pd==yd)&(pc==yc); joint+=int(ok.sum())
+                  for i,k in enumerate(ks): by[k][1]+=1; by[k][0]+=int(ok[i])
+          res={'protocol':'AGGREGATION_TOPOLOGY_SEPARATOR_V1','seed':seed,'arm':arm,'steps':STEPS,'joint':joint/len(test),'by_terms':{str(k):v[0]/v[1] for k,v in by.items()}}
+          out=pathlib.Path('results/one_layer_deeper/aggregation_topology_separator_v1/parts'); out.mkdir(parents=True,exist_ok=True)
+          (out/f'{arm}_seed{seed}.json').write_text(json.dumps(res,indent=2,sort_keys=True)+'\n'); print(json.dumps(res,indent=2))
+          PY
+          python /tmp/topology.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: part-${{ matrix.arm }}-${{ matrix.seed }}
+          path: results/one_layer_deeper/aggregation_topology_separator_v1/parts/*.json
+
+  collect:
+    needs: topology
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: part-*
+          path: /tmp/parts
+          merge-multiple: true
+      - name: Freeze verdict and commit
+        run: |
+          python - <<'PY'
+          import json,pathlib,statistics
+          fs=sorted(pathlib.Path('/tmp/parts').glob('*.json')); rows=[json.loads(p.read_text()) for p in fs]
+          arms={a:[r for r in rows if r['arm']==a] for a in ('flat','balanced','prefix_oracle')}
+          def mean4(a): return statistics.mean(r['by_terms']['4'] for r in arms[a])
+          f,b,p=mean4('flat'),mean4('balanced'),mean4('prefix_oracle')
+          verdict='NO_TOPOLOGY_RESCUE'
+          if b-f>=.15: verdict='BALANCED_TOPOLOGY_RESCUE'
+          if p-f>=.15: verdict='PREFIX_STATE_RESCUE' if verdict=='NO_TOPOLOGY_RESCUE' else verdict+'+PREFIX_STATE_RESCUE'
+          out={'protocol':'AGGREGATION_TOPOLOGY_SEPARATOR_V1','threshold':.15,'rows':rows,'term4_mean':{'flat':f,'balanced':b,'prefix_oracle':p},'balanced_rescue':b-f,'prefix_rescue':p-f,'verdict':verdict,'claim_boundary':'bounded oracle-product aggregation micro-world only'}
+          d=pathlib.Path('results/one_layer_deeper/aggregation_topology_separator_v1'); d.mkdir(parents=True,exist_ok=True); (d/'result.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n'); (d/'README.md').write_text('# AGGREGATION_TOPOLOGY_SEPARATOR_V1\n\n```json\n'+json.dumps(out,indent=2,sort_keys=True)+'\n```\n'); print(json.dumps(out,indent=2))
+          PY
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/aggregation_topology_separator_v1
+          git commit -m 'Record aggregation topology separator V1' || exit 0
+          git push
