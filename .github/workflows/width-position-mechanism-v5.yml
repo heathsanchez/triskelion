@@ -1,0 +1,265 @@
+name: Width Position Mechanism V5
+
+on:
+  push:
+    paths:
+      - '.github/workflows/width-position-mechanism-v5.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/width-position-mechanism-v5.yml'
+      - 'precommits/WIDTH_POSITION_MECHANISM_V5_PRECOMMIT_20260818.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discriminate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Clone and verify frozen public substrate
+        run: |
+          git clone https://github.com/benjaminW2025/one-layer-deeper.git /tmp/old
+          cd /tmp/old
+          git checkout 697a78d4be579745f3b410c01c966c91e7094ad4
+          test "$(git rev-parse HEAD)" = "697a78d4be579745f3b410c01c966c91e7094ad4"
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Execute frozen six-epoch mechanism screen
+        working-directory: /tmp/old
+        run: |
+          cat > /tmp/run_v5.py <<'PY'
+          from __future__ import annotations
+          import json, math, random, sys, time
+          from pathlib import Path
+          import torch
+
+          sys.path.insert(0, '/tmp/old/explorations')
+          sys.path.insert(0, '/tmp/old')
+          from harness import EncoderModel, VOCAB_SIZE, gather_target_logits, sequence_loss, _chance_baselines
+          from data.squaring_mod import TOKEN_IDS, number_tokens, digit_token, tokenize_squaring_mod_with_result
+
+          CELLS=[(323,17,19),(377,13,29)]
+          ARMS=('ORIGINAL','PAD_X6','X_ALIGN_MASK6','T_ALIGN_MASK6')
+          DATA_SEED=45
+          MODEL_SEED=0
+          COVERAGE=.50
+          EPOCHS=6
+          BATCH=256
+          LR=3e-4
+          WEIGHT_DECAY=.01
+          WARMUP=50
+          GRAD_CLIP=1.0
+          D_MODEL=128
+          N_LAYERS=2
+          N_HEADS=2
+          MAX_SEQ_LEN=13
+          DEVICE=torch.device('cpu')
+          EXTERNAL_SHA='697a78d4be579745f3b410c01c966c91e7094ad4'
+          PRECOMMIT_COMMIT='d3ae96b5d43d90066ea28e552678e445088a7393'
+          OUT=Path('/tmp/v5out'); OUT.mkdir(parents=True,exist_ok=True)
+
+          def records_for(N,p,q):
+              rng=random.Random(DATA_SEED+N)
+              space=N*N
+              n_train=int(math.floor(COVERAGE*space))
+              n_eval=min(2000,space-n_train)
+              vals=rng.sample(range(space),n_train+n_eval)
+              rec=lambda ys:[(p,q,y,1,y%N) for y in ys]
+              return n_train,n_eval,rec(vals[:n_train]),rec(vals[n_train:])
+
+          def encoded_row(record,arm):
+              p,q,x,t,result=record
+              N=p*q
+              target=number_tokens(result)
+              if arm=='ORIGINAL':
+                  prompt,target2=tokenize_squaring_mod_with_result(N,x,t,result,separate_input_output=True)
+                  assert target2==target
+                  return prompt,target,[True]*len(prompt)
+
+              xdigits=number_tokens(x)
+              if len(xdigits)>6:
+                  raise RuntimeError((N,x,len(xdigits)))
+              prefix=[TOKEN_IDS['N'],*number_tokens(N),TOKEN_IDS['X']]
+              suffix=[TOKEN_IDS['T'],*number_tokens(t)]
+              gap=6-len(xdigits)
+
+              if arm=='PAD_X6':
+                  zeros=[digit_token(0)]*gap
+                  prompt=prefix+zeros+xdigits+suffix
+                  return prompt,target,[True]*len(prompt)
+
+              if arm=='X_ALIGN_MASK6':
+                  pads=[TOKEN_IDS['PAD']]*gap
+                  prompt=prefix+pads+xdigits+suffix
+                  mask=[True]*len(prefix)+[False]*gap+[True]*(len(xdigits)+len(suffix))
+                  return prompt,target,mask
+
+              if arm=='T_ALIGN_MASK6':
+                  pads=[TOKEN_IDS['PAD']]*gap
+                  prompt=prefix+xdigits+pads+suffix
+                  mask=[True]*(len(prefix)+len(xdigits))+[False]*gap+[True]*len(suffix)
+                  return prompt,target,mask
+
+              raise ValueError(arm)
+
+          def tensorize(records,arm):
+              rows=[encoded_row(r,arm) for r in records]
+              max_target_len=max(len(t) for _,t,_ in rows)
+              batch=len(rows)
+              input_ids=torch.full((batch,MAX_SEQ_LEN),TOKEN_IDS['PAD'],dtype=torch.long)
+              attention_mask=torch.zeros((batch,MAX_SEQ_LEN),dtype=torch.bool)
+              labels=torch.full((batch,max_target_len),-100,dtype=torch.long)
+              target_positions=torch.full((batch,max_target_len),-1,dtype=torch.long)
+              for i,(prompt,target,mask) in enumerate(rows):
+                  plen=len(prompt); tlen=len(target)
+                  if plen>MAX_SEQ_LEN or len(mask)!=plen:
+                      raise RuntimeError((arm,plen,len(mask),prompt))
+                  input_ids[i,:plen]=torch.tensor(prompt,dtype=torch.long)
+                  attention_mask[i,:plen]=torch.tensor(mask,dtype=torch.bool)
+                  labels[i,:tlen]=torch.tensor(target,dtype=torch.long)
+                  target_positions[i,:tlen]=torch.arange(plen-tlen,plen,dtype=torch.long)
+              return {'input_ids':input_ids,'attention_mask':attention_mask,'labels':labels,'target_positions':target_positions}
+
+          @torch.no_grad()
+          def predict(model,tensors):
+              model.eval(); ps=[]; ls=[]; n=tensors['input_ids'].size(0)
+              for s in range(0,n,1024):
+                  stop=min(s+1024,n)
+                  b={k:v[s:stop].to(DEVICE) for k,v in tensors.items()}
+                  logits=model(b['input_ids'],b['attention_mask']).float()
+                  ps.append(gather_target_logits(logits,b['target_positions']).argmax(-1).cpu())
+                  ls.append(b['labels'].cpu())
+              model.train()
+              return torch.cat(ps),torch.cat(ls)
+
+          def run_cell(N,p,q,arm):
+              n_train,n_eval,train_records,fresh_records=records_for(N,p,q)
+              train=tensorize(train_records,arm); fresh=tensorize(fresh_records,arm)
+              steps=math.ceil(EPOCHS*n_train/BATCH)
+              torch.manual_seed(MODEL_SEED)
+              model=EncoderModel(VOCAB_SIZE,MAX_SEQ_LEN,D_MODEL,N_LAYERS,N_HEADS).to(DEVICE)
+              opt=torch.optim.AdamW(model.parameters(),lr=LR,weight_decay=WEIGHT_DECAY)
+              sched=torch.optim.lr_scheduler.LambdaLR(opt,lambda s:min(1.0,(s+1)/WARMUP))
+              gen=torch.Generator(device='cpu').manual_seed(MODEL_SEED)
+              tr={k:v.to(DEVICE) for k,v in train.items()}
+              losses=[]; diverged=False; t0=time.time()
+              for step in range(steps):
+                  idx=torch.randint(0,n_train,(BATCH,),generator=gen).to(DEVICE)
+                  b={k:v[idx] for k,v in tr.items()}
+                  logits=model(b['input_ids'],b['attention_mask']).float()
+                  loss=sequence_loss(logits,b['labels'],b['target_positions'])
+                  if not torch.isfinite(loss):
+                      diverged=True; break
+                  opt.zero_grad(set_to_none=True); loss.backward()
+                  torch.nn.utils.clip_grad_norm_(model.parameters(),GRAD_CLIP)
+                  opt.step(); sched.step(); losses.append(float(loss.detach()))
+              first=sum(losses[:10])/max(1,len(losses[:10]))
+              final=sum(losses[-10:])/max(1,len(losses[-10:]))
+              flat=(not diverged) and bool(losses) and final>.95*first
+              preds,labels=predict(model,fresh)
+              valid=labels!=-100; hits=(preds==labels)&valid; exact=(hits|~valid).all(1)
+              digit=float(hits.sum()/valid.sum()); ex=float(exact.float().mean())
+              cd,ce=_chance_baselines(fresh_records)
+              return {
+                  'N':N,'arm':arm,'coverage':n_train/(N*N),'n_train':n_train,'n_eval':n_eval,
+                  'epochs':EPOCHS,'steps':len(losses),'first_loss':first,'final_loss':final,
+                  'diverged':diverged,'flat':flat,'digit':digit,'chance_digit':cd,
+                  'digit_excess':digit-cd,'exact':ex,'chance_exact':ce,'exact_excess':ex-ce,
+                  'max_seq_len':MAX_SEQ_LEN,'seconds':time.time()-t0,
+              }
+
+          cells=[]
+          for N,p,q in CELLS:
+              for arm in ARMS:
+                  c=run_cell(N,p,q,arm); cells.append(c); print(json.dumps(c,sort_keys=True),flush=True)
+
+          by={(c['N'],c['arm']):c for c in cells}
+          E=lambda N,A:by[(N,A)]['digit_excess']
+          I=lambda N,A:E(N,A)-E(N,'ORIGINAL')
+          valid=all((not c['diverged']) and (not c['flat']) for c in cells)
+          eligibility={
+              'E0_TRAINING_VALID':valid,
+              'E1_PAD_SIGNATURE_REPRODUCED':I(377,'PAD_X6')>=.06,
+              'E2_PAD_377_SPECIFIC':I(377,'PAD_X6')-I(323,'PAD_X6')>=.06,
+          }
+
+          target_sufficient=(
+              I(377,'T_ALIGN_MASK6')>=.05 and
+              I(377,'T_ALIGN_MASK6')>=.75*I(377,'PAD_X6') and
+              I(377,'T_ALIGN_MASK6')-I(323,'T_ALIGN_MASK6')>=.05
+          )
+          x_sufficient=(
+              I(377,'X_ALIGN_MASK6')>=.05 and
+              I(377,'X_ALIGN_MASK6')>=.75*I(377,'PAD_X6') and
+              I(377,'X_ALIGN_MASK6')-I(323,'X_ALIGN_MASK6')>=.05
+          )
+          zero_required=(
+              I(377,'X_ALIGN_MASK6')<=.30*I(377,'PAD_X6') and
+              I(377,'T_ALIGN_MASK6')<=.30*I(377,'PAD_X6')
+          )
+
+          if not all(eligibility.values()):
+              verdict='NULL_FAST_SCREEN_V4_SIGNATURE_NOT_REPRODUCED'
+          elif target_sufficient:
+              verdict='TARGET_POSITION_ALIGNMENT_SUFFICIENT'
+          elif x_sufficient:
+              verdict='X_POSITION_ALIGNMENT_SUFFICIENT'
+          elif zero_required:
+              verdict='LITERAL_ZERO_CONTENT_REQUIRED'
+          else:
+              verdict='MIXED_POSITION_CONTENT_MECHANISM'
+
+          improvements={str(N):{A:I(N,A) for A in ARMS if A!='ORIGINAL'} for N,_,_ in CELLS}
+          summary={
+              'protocol':'WIDTH_POSITION_MECHANISM_V5',
+              'precommit_commit':PRECOMMIT_COMMIT,
+              'frozen_external_sha':EXTERNAL_SHA,
+              'verdict':verdict,'eligibility':eligibility,
+              'classification_flags':{
+                  'target_position_alignment_sufficient':target_sufficient,
+                  'x_position_alignment_sufficient':x_sufficient,
+                  'literal_zero_content_required':zero_required,
+              },
+              'improvements':improvements,'cells':cells,
+              'v4_verdict_preserved':'NO_WIDTH_REPRESENTATION_REPAIR',
+              'claim_boundary':'Fast matched mechanism discriminator only. It cannot overturn V4, establish fresh-modulus generality, or support a developmental-intelligence claim.'
+          }
+          (OUT/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          md=['# WIDTH_POSITION_MECHANISM_V5 result','',f'**Verdict:** `{verdict}`','',
+              '| N | arm | digit | chance | excess | exact | improvement vs ORIGINAL |',
+              '|---:|---|---:|---:|---:|---:|---:|']
+          for N,_,_ in CELLS:
+              for A in ARMS:
+                  c=by[(N,A)]; imp=0.0 if A=='ORIGINAL' else I(N,A)
+                  md.append(f"| {N} | {A} | {c['digit']:.5f} | {c['chance_digit']:.5f} | {c['digit_excess']:+.5f} | {c['exact']:.5f} | {imp:+.5f} |")
+          md += ['', '## Frozen eligibility']
+          md += [f"- {k}: `{'PASS' if v else 'FAIL'}`" for k,v in eligibility.items()]
+          md += ['', '## Classification flags',
+                 f"- target-position alignment sufficient: `{target_sufficient}`",
+                 f"- X-position alignment sufficient: `{x_sufficient}`",
+                 f"- literal-zero content required: `{zero_required}`",'',
+                 '## Scientific boundary','',summary['claim_boundary'],'',
+                 'V4 remains `NO_WIDTH_REPRESENTATION_REPAIR` regardless of this screen.']
+          (OUT/'README.md').write_text('\n'.join(md)+'\n')
+          print('\n'.join(md),flush=True)
+          PY
+          python /tmp/run_v5.py
+      - name: Stage results
+        run: |
+          mkdir -p results/one_layer_deeper/width_position_mechanism_v5
+          cp /tmp/v5out/* results/one_layer_deeper/width_position_mechanism_v5/
+          cat results/one_layer_deeper/width_position_mechanism_v5/README.md
+      - name: Commit push-run artifacts
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/width_position_mechanism_v5
+          git commit -m 'Record width-position mechanism v5' || exit 0
+          git push
