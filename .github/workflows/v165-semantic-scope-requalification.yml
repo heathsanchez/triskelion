@@ -1,0 +1,55 @@
+name: V165 Semantic Scope Requalification
+
+on:
+  push:
+    branches: [v158-unified-developmental-runtime]
+    paths:
+      - 'protocols/V165_SEMANTIC_SCOPE_REQUALIFICATION_PRECOMMIT.md'
+      - 'cp3/v165_semantic_scope_requalification.py'
+      - '.github/workflows/v165-semantic-scope-requalification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v6
+      - name: Freeze V165 provenance before census
+        run: |
+          git rev-parse HEAD
+          python -m py_compile cp3/v165_semantic_scope_requalification.py
+          sha256sum protocols/V165_SEMANTIC_SCOPE_REQUALIFICATION_PRECOMMIT.md cp3/v165_semantic_scope_requalification.py cp3/FROZEN_EVAL_MATRIX.json cp3/v159_safe_persistent_runner.py cp3_frozen/acquisition/CAPABILITY.json
+      - name: Clone frozen BugsInPy snapshot
+        run: |
+          git clone --depth 1 https://github.com/soarsmu/BugsInPy.git BugsInPy
+          test "$(git -C BugsInPy rev-parse HEAD)" = "11c5f1eea954a42132cfd06bf257766a7963e0fd"
+      - name: Run zero-model semantic scope census
+        run: |
+          mkdir -p artifacts
+          PYTHONPATH="$PWD:$PWD/cp3:$PWD/cp3/vendor/cp1" python -B cp3/v165_semantic_scope_requalification.py --bugsinpy "$PWD/BugsInPy" --out "$PWD/artifacts/v165"
+      - name: Show V165 census verdict
+        if: always()
+        run: |
+          if [ -f artifacts/v165/V165_SCOPE_CENSUS.json ]; then
+            python - <<'PY'
+          import json
+          r=json.load(open('artifacts/v165/V165_SCOPE_CENSUS.json'))
+          print('V165 VERDICT', r.get('verdict'))
+          print('eligible_cases', r.get('eligible_cases'))
+          for row in r.get('rows', []):
+              print(row['case'], row.get('task_status'), row.get('semantically_eligible'))
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v165-semantic-scope-requalification
+          path: artifacts/v165/
+          if-no-files-found: warn
