@@ -1,0 +1,50 @@
+name: One Layer Deeper Baseline Hard Control
+
+on:
+  push:
+    branches: [one-layer-deeper]
+    paths:
+      - '.github/workflows/one-layer-deeper-baseline-hard.yml'
+  workflow_dispatch:
+
+jobs:
+  baseline-hard-h1:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv and One Layer Deeper CLI
+        run: |
+          set -euo pipefail
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          "$HOME/.local/bin/uv" tool install git+https://github.com/tilde-research/one-layer-deeper.git@4ceff9570f98b8ee4625b88b3331a839c4ac4283
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Restore One Layer Deeper authentication
+        env:
+          ONE_LAYER_CONFIG_B64: ${{ secrets.ONE_LAYER_CONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$ONE_LAYER_CONFIG_B64" || { echo 'ONE_LAYER_CONFIG_B64 is missing'; exit 2; }
+          mkdir -p "$HOME/.config/one-layer"
+          printf '%s' "$ONE_LAYER_CONFIG_B64" | base64 --decode > "$HOME/.config/one-layer/config.json"
+          chmod 600 "$HOME/.config/one-layer/config.json"
+      - name: Stage untouched official baseline_adamw
+        run: |
+          set -euo pipefail
+          git clone --no-checkout https://github.com/tilde-research/one-layer-deeper.git /tmp/old
+          cd /tmp/old
+          git checkout 4ceff9570f98b8ee4625b88b3331a839c4ac4283 -- submissions/baseline_adamw/submission.py
+          test "$(git hash-object submissions/baseline_adamw/submission.py)" = "bb749296a8207d5c232fe641180beca46f6320ba"
+          cp submissions/baseline_adamw/submission.py /tmp/baseline_adamw_submission.py
+          echo 'OFFICIAL_BASELINE_BLOB=bb749296a8207d5c232fe641180beca46f6320ba'
+      - name: Validate untouched baseline
+        run: one-layer validate /tmp/baseline_adamw_submission.py
+      - name: Hosted H100 HARD H1 — baseline control
+        run: |
+          set -o pipefail
+          one-layer submit /tmp/baseline_adamw_submission.py --tier hard --dataset h1 --wait | tee baseline_hard_h1.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: one-layer-deeper-baseline-hard-h1-${{ github.sha }}
+          path: baseline_hard_h1.log
+          if-no-files-found: ignore
