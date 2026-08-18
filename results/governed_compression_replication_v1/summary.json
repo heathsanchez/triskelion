@@ -1,0 +1,11 @@
+{
+  "eligible": 100,
+  "gates": {"H1": true, "H2": false, "H3": false, "H4": false, "H5": true},
+  "median_D_over_M": 1.0903983656792646,
+  "population_D": 9342,
+  "population_M": 8538,
+  "population_saving": -804,
+  "protocol": "GOVERNED_COMPRESSION_REPLICATION_V1",
+  "verdict": "VALID_NEGATIVE_GOVERNED_COMPRESSION_REPLICATION_V1",
+  "wins_D_lt_M": 8
+}
