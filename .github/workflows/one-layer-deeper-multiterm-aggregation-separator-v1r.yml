@@ -1,0 +1,151 @@
+name: One Layer Deeper Multi-Term Aggregation Separator V1R
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-multiterm-aggregation-separator-v1r.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  separator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run feasible matched multi-term aggregation separator
+        shell: bash
+        run: |
+          cat > /tmp/multiterm_v1r.py <<'PY'
+          import csv, json, random, pathlib, statistics
+          from collections import defaultdict
+          import torch
+          import torch.nn as nn
+          import torch.nn.functional as F
+
+          SEEDS=(0,1,2)
+          STEPS=500
+          BATCH=256
+          D=128
+          LAYERS=2
+          HEADS=4
+          LR=3e-4
+          N_TERMS=(1,2,3,4)
+          TOTALS=tuple(range(10,81))
+          TRAIN_PER_CELL=8
+          EVAL_PER_CELL=4
+          torch.set_num_threads(2)
+          ARMS=('pairs','products')
+
+          def generate_candidates(n,total,need):
+              out=[]; seen=set(); rr=random.Random(100000+n*997+total)
+              for _ in range(200000):
+                  if len(out)>=need: break
+                  cin=rr.randrange(0,10)
+                  pairs=[(rr.randrange(0,10),rr.randrange(0,10)) for _ in range(n)]
+                  if cin+sum(a*b for a,b in pairs)!=total: continue
+                  key=(cin,tuple(pairs))
+                  if key in seen: continue
+                  seen.add(key); out.append((cin,pairs))
+              return out
+
+          cells={}
+          for n in N_TERMS:
+              for total in TOTALS:
+                  xs=generate_candidates(n,total,TRAIN_PER_CELL+EVAL_PER_CELL)
+                  if len(xs)>=TRAIN_PER_CELL+EVAL_PER_CELL:
+                      cells[(n,total)]=(xs[:TRAIN_PER_CELL],xs[TRAIN_PER_CELL:])
+          common_totals=[t for t in TOTALS if all((n,t) in cells for n in N_TERMS)][:24]
+          assert len(common_totals)>=8, common_totals
+
+          train=[]; test=[]
+          for n in N_TERMS:
+              for total in common_totals:
+                  tr,te=cells[(n,total)]
+                  train += [(n,total,cin,pairs) for cin,pairs in tr]
+                  test += [(n,total,cin,pairs) for cin,pairs in te]
+
+          PAD=0; SEP=1; CIN=2; PAIR=3; PROD=4; QUERY=5
+          DIG_OFF=6; PROD_OFF=16; VOCAB=98; MAXLEN=24
+
+          def enc(row,arm):
+              n,total,cin,pairs=row; toks=[CIN,DIG_OFF+cin,SEP]
+              if arm=='pairs':
+                  for a,b in pairs: toks += [PAIR,DIG_OFF+a,DIG_OFF+b]
+              else:
+                  for a,b in pairs: toks += [PROD,PROD_OFF+a*b]
+              toks += [SEP,QUERY,QUERY]
+              return toks,[len(toks)-2,len(toks)-1],[total%10,total//10]
+
+          def collate(rows,arm):
+              es=[enc(r,arm) for r in rows]; L=max(len(e[0]) for e in es)
+              tok=torch.full((len(es),L),PAD,dtype=torch.long); mask=torch.zeros((len(es),L),dtype=torch.bool)
+              qidx=torch.zeros((len(es),2),dtype=torch.long); lab=torch.zeros((len(es),2),dtype=torch.long)
+              for i,(t,q,y) in enumerate(es):
+                  tok[i,:len(t)]=torch.tensor(t); mask[i,:len(t)]=True; qidx[i]=torch.tensor(q); lab[i]=torch.tensor(y)
+              return tok,mask,qidx,lab
+
+          class M(nn.Module):
+              def __init__(self):
+                  super().__init__(); self.te=nn.Embedding(VOCAB,D); self.pe=nn.Embedding(MAXLEN,D)
+                  layer=nn.TransformerEncoderLayer(D,HEADS,4*D,batch_first=True,norm_first=True,activation='gelu')
+                  self.enc=nn.TransformerEncoder(layer,LAYERS); self.ln=nn.LayerNorm(D); self.ones=nn.Linear(D,10); self.carry=nn.Linear(D,9)
+              def forward(self,tok,mask,qidx):
+                  p=torch.arange(tok.shape[1],device=tok.device).unsqueeze(0)
+                  h=self.te(tok)+self.pe(p); h=self.enc(h,src_key_padding_mask=~mask)
+                  h=self.ln(h.gather(1,qidx.unsqueeze(-1).expand(-1,-1,D)))
+                  return self.ones(h[:,0]),self.carry(h[:,1])
+
+          rows=[]
+          for seed in SEEDS:
+              for arm in ARMS:
+                  random.seed(seed); torch.manual_seed(seed); model=M(); opt=torch.optim.AdamW(model.parameters(),lr=LR,weight_decay=.01); rr=random.Random(seed+71)
+                  losses=[]
+                  for _ in range(STEPS):
+                      batch=[train[rr.randrange(len(train))] for _ in range(BATCH)]
+                      tok,mask,qidx,lab=collate(batch,arm); lo,lc=model(tok,mask,qidx)
+                      loss=F.cross_entropy(lo,lab[:,0])+F.cross_entropy(lc,lab[:,1])
+                      opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(model.parameters(),1.0); opt.step(); losses.append(float(loss.detach()))
+                  by=defaultdict(lambda:[0,0,0,0]); model.eval()
+                  with torch.no_grad():
+                      for st in range(0,len(test),512):
+                          sub=test[st:st+512]; tok,mask,qidx,lab=collate(sub,arm); lo,lc=model(tok,mask,qidx); po=lo.argmax(-1); pc=lc.argmax(-1)
+                          for i,r in enumerate(sub):
+                              n=r[0]; b=by[n]; b[1]+=1; b[0]+=int(po[i]==lab[i,0] and pc[i]==lab[i,1]); b[2]+=int(po[i]==lab[i,0]); b[3]+=int(pc[i]==lab[i,1])
+                  for n in N_TERMS:
+                      ex,N,ones,carry=by[n]
+                      rows.append({'seed':seed,'arm':arm,'n_terms':n,'n':N,'exact':ex/N,'ones_acc':ones/N,'carry_acc':carry/N,'final_loss':statistics.mean(losses[-20:])})
+
+          idx={(r['seed'],r['arm'],r['n_terms']):r for r in rows}
+          effects=[]
+          for arm in ARMS:
+              vals=[idx[(s,arm,4)]['exact']-idx[(s,arm,1)]['exact'] for s in SEEDS]
+              effects.append({'arm':arm,'effects':vals,'mean':statistics.mean(vals)})
+          prod=next(x for x in effects if x['arm']=='products'); pairs=next(x for x in effects if x['arm']=='pairs')
+          promote_aggregation=(prod['mean']<=-0.15 and all(x<0 for x in prod['effects']))
+          promote_product_comp=(not promote_aggregation and pairs['mean']<=-0.15 and all(x<0 for x in pairs['effects']))
+          verdict='PROMOTE_MULTI_TERM_AGGREGATION' if promote_aggregation else ('PROMOTE_FACTOR_PRODUCT_COMPOSITION' if promote_product_comp else 'NO_PROMOTION')
+
+          out=pathlib.Path('results/one_layer_deeper/multiterm_aggregation_separator_v1r'); out.mkdir(parents=True,exist_ok=True)
+          with (out/'results.csv').open('w',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=rows[0].keys()); w.writeheader(); w.writerows(rows)
+          summary={'protocol':'MULTITERM_AGGREGATION_SEPARATOR_V1R','apparatus_repair':'TRAIN_PER_CELL 24->8 and EVAL_PER_CELL 12->4 only; original V1 had no feasible n_terms=1 cells','common_totals':common_totals,'rows':rows,'effects':effects,'promote_aggregation':promote_aggregation,'promote_product_comp':promote_product_comp,'verdict':verdict,'decision_rule':'promotion requires >=15pp mean n=4 minus n=1 exact degradation with same negative direction on all 3 seeds','claim_boundary':'synthetic coefficient-aggregation micro-world only'}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          (out/'README.md').write_text('# MULTITERM_AGGREGATION_SEPARATOR_V1R\n\n```json\n'+json.dumps(summary,indent=2,sort_keys=True)+'\n```\n')
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+          python /tmp/multiterm_v1r.py
+      - name: Commit separator artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/multiterm_aggregation_separator_v1r
+          git commit -m 'Record repaired multi-term aggregation separator V1R' || exit 0
+          git push
