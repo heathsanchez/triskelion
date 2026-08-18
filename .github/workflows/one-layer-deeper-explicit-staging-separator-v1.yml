@@ -1,0 +1,176 @@
+name: One Layer Deeper Explicit Staging Separator V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-explicit-staging-separator-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  staging-separator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Clone public frontier
+        run: git clone --depth 1 https://github.com/benjaminW2025/one-layer-deeper.git /tmp/old
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Run explicit staging separator
+        working-directory: /tmp/old
+        shell: bash
+        run: |
+          cat > /tmp/staging_separator.py <<'PY'
+          import math, random, sys, json, pathlib
+          import torch
+          sys.path.insert(0, '/tmp/old/explorations')
+          sys.path.insert(0, '/tmp/old')
+          from exp4_subtasks import build_subtask_data
+          from harness import EncoderModel, sequence_loss, gather_target_logits, _tokenize
+          from data.squaring_mod import DIGIT_OFFSET, VOCAB_SIZE
+
+          DEVICE=torch.device('cpu')
+          STEPS=450
+          WIDTH=128
+          LAYERS=2
+          BATCH=128
+          LR=3e-4
+
+          def train_bundle(bundle, seed=0):
+              torch.manual_seed(seed)
+              model=EncoderModel(VOCAB_SIZE,bundle.max_seq_len,WIDTH,LAYERS,max(2,WIDTH//64)).to(DEVICE)
+              opt=torch.optim.AdamW(model.parameters(),lr=LR,weight_decay=0.01)
+              train={k:v.to(DEVICE) for k,v in bundle.train.items()}
+              n=train['input_ids'].size(0)
+              g=torch.Generator().manual_seed(seed)
+              for step in range(STEPS):
+                  idx=torch.randint(0,n,(BATCH,),generator=g)
+                  batch={k:v[idx] for k,v in train.items()}
+                  logits=model(batch['input_ids'],batch['attention_mask'])
+                  loss=sequence_loss(logits,batch['labels'],batch['target_positions'])
+                  opt.zero_grad(set_to_none=True); loss.backward(); torch.nn.utils.clip_grad_norm_(model.parameters(),1.0); opt.step()
+              return model
+
+          @torch.no_grad()
+          def predict_tokens(model,tensors):
+              model.eval(); logits=model(tensors['input_ids'],tensors['attention_mask'])
+              pred=gather_target_logits(logits,tensors['target_positions']).argmax(-1)
+              return pred
+
+          def exact_rate(pred, labels):
+              valid=labels!=-100
+              hits=(pred==labels)&valid
+              return float((hits|~valid).all(1).float().mean())
+
+          def decode_ints(pred,labels):
+              out=[]
+              for p,l in zip(pred.tolist(),labels.tolist()):
+                  digs=[]
+                  for tok,lab in zip(p,l):
+                      if lab==-100: continue
+                      d=tok-DIGIT_OFFSET
+                      if d<0 or d>9:
+                          digs=None; break
+                      digs.append(str(d))
+                  out.append(None if digs is None or not digs else int(''.join(digs)))
+              return out
+
+          rows=[]
+          for bits,n_train,n_eval in [(8,80,30),(10,300,100)]:
+              # Same data seed => same modulus across square/reduce/squaremod.
+              sq_bundle,sq_meta=build_subtask_data(task='square',bits=bits,n_train=n_train,n_eval=n_eval,seed=45,drop_irrelevant=False)
+              sm_bundle,sm_meta=build_subtask_data(task='squaremod',bits=bits,n_train=n_train,n_eval=n_eval,seed=45,drop_irrelevant=False)
+              # Reduction gets a large support set so stage 2 is not intentionally starved.
+              red_train=min(5000, max(500, int((sq_meta['modulus']**2)*0.30)))
+              red_eval=min(300, max(60,n_eval))
+              red_bundle,red_meta=build_subtask_data(task='reduce',bits=bits,n_train=red_train,n_eval=red_eval,seed=45,drop_irrelevant=False)
+              p,q,_,_,_=sq_bundle.train_records[0]; N=p*q
+              assert N==red_meta['modulus']==sm_meta['modulus']
+
+              sq=train_bundle(sq_bundle,0); red=train_bundle(red_bundle,1); direct=train_bundle(sm_bundle,2)
+
+              # Fresh x cohort disjoint from square/direct training.
+              used={(a*b,x) for a,b,x,_,_ in sq_bundle.train_records}
+              rng=random.Random(991+bits)
+              xs=[]
+              while len(xs)<n_eval:
+                  x=rng.randrange(1,N)
+                  if math.gcd(x,N)==1 and (N,x) not in used and x not in xs: xs.append(x)
+              sq_records=[(p,q,x,1,x*x) for x in xs]
+              sm_records=[(p,q,x,1,(x*x)%N) for x in xs]
+              sq_t=_tokenize(sq_records,sq_bundle.max_seq_len)
+              sm_t=_tokenize(sm_records,sm_bundle.max_seq_len)
+              sq_pred=predict_tokens(sq,sq_t)
+              direct_pred=predict_tokens(direct,sm_t)
+              sq_exact=exact_rate(sq_pred,sq_t['labels'])
+              direct_exact=exact_rate(direct_pred,sm_t['labels'])
+              pred_y=decode_ints(sq_pred,sq_t['labels'])
+
+              # Oracle-stage reduction: expose the true intermediate y=x^2.
+              oracle_records=[(p,q,x*x,1,(x*x)%N) for x in xs]
+              oracle_t=_tokenize(oracle_records,red_bundle.max_seq_len)
+              oracle_pred=predict_tokens(red,oracle_t)
+              oracle_exact=exact_rate(oracle_pred,oracle_t['labels'])
+
+              # Learned chain: pass model A's predicted y to model B. Invalid/out-of-range y = chain failure.
+              valid_idx=[]; chain_records=[]
+              for i,y in enumerate(pred_y):
+                  if y is not None and 0<=y<N*N:
+                      valid_idx.append(i); chain_records.append((p,q,y,1,y%N))
+              chain_hits=0
+              if chain_records:
+                  chain_t=_tokenize(chain_records,red_bundle.max_seq_len)
+                  chain_pred=predict_tokens(red,chain_t)
+                  valid=chain_t['labels']!=-100
+                  stage2=(chain_pred==chain_t['labels'])&valid
+                  stage2_exact=((stage2|~valid).all(1)).tolist()
+                  for j,i in enumerate(valid_idx):
+                      # Count only if final answer equals the true squaremod answer, not merely pred_y mod N.
+                      pred_final=decode_ints(chain_pred[j:j+1],chain_t['labels'][j:j+1])[0]
+                      if pred_final==(xs[i]*xs[i])%N: chain_hits+=1
+              chain_exact=chain_hits/len(xs)
+              rows.append(dict(bits=bits,N=N,n=len(xs),square_exact=sq_exact,oracle_stage_reduce_exact=oracle_exact,learned_chain_exact=chain_exact,direct_squaremod_exact=direct_exact,reduce_train_coverage=red_meta['x_coverage']))
+
+          out={'experiment':'EXPLICIT_STAGING_SEPARATOR_V1','rows':rows}
+          print(json.dumps(out,indent=2))
+          pathlib.Path('/tmp/staging_separator_result.json').write_text(json.dumps(out,indent=2))
+          PY
+          python /tmp/staging_separator.py
+      - name: Build decision artifact
+        shell: bash
+        run: |
+          mkdir -p results/one_layer_deeper/explicit_staging_separator_v1
+          cp /tmp/staging_separator_result.json results/one_layer_deeper/explicit_staging_separator_v1/result.json
+          python - <<'PY'
+          import json, pathlib
+          d=json.load(open('/tmp/staging_separator_result.json'))
+          out=['# EXPLICIT_STAGING_SEPARATOR_V1','',
+               'Tests whether exposing the intermediate y=x^2 rescues modular reduction relative to direct x->x^2 mod N learning.','',
+               '| bits | N | square exact | oracle y→reduce exact | learned square→reduce chain | direct squaremod exact | reduce support |',
+               '|---:|---:|---:|---:|---:|---:|---:|']
+          for r in d['rows']:
+              out.append(f"| {r['bits']} | {r['N']} | {r['square_exact']:.3f} | {r['oracle_stage_reduce_exact']:.3f} | {r['learned_chain_exact']:.3f} | {r['direct_squaremod_exact']:.3f} | {r['reduce_train_coverage']:.1%} |")
+          margins=[r['oracle_stage_reduce_exact']-r['direct_squaremod_exact'] for r in d['rows']]
+          out += ['', '## Decision','']
+          if min(margins)>0.10:
+              out.append('**Explicit-intermediate separator PASSES:** giving stage 2 the correct y=x² produces a large rescue over direct squaremod at every tested scale. This localizes a composition/interface obstruction, subject to the primitive-capability caveat below.')
+          else:
+              out.append('**No robust explicit-intermediate rescue:** composition/interface is not yet isolated; inspect primitive exactness and scale effects before intervention.')
+          out += ['', '## Claim boundary','',
+                  'Oracle-stage performance asks whether reduction can act when the intermediate is represented explicitly and correctly. Learned-chain performance additionally requires exact square predictions, so it is bounded by square-stage errors. This is a rapid CPU separator, not a leaderboard result.']
+          pathlib.Path('results/one_layer_deeper/explicit_staging_separator_v1/README.md').write_text('\n'.join(out))
+          print('\n'.join(out))
+          PY
+      - name: Commit separator artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/explicit_staging_separator_v1
+          git commit -m 'Record explicit staging separator' || exit 0
+          git push
