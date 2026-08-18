@@ -1,0 +1,22 @@
+name: Governed Amortization V1
+on:
+  push:
+    branches: [agent/governed-amortization-v1]
+  workflow_dispatch:
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reproduce valid negative
+        shell: bash
+        run: |
+          set +e
+          python experiments/governed_amortization_v1.py
+          rc=$?
+          set -e
+          test "$rc" -eq 2
+          grep -q 'VALID_NEGATIVE_GOVERNED_AMORTIZATION_V1' results/governed_amortization_v1/summary.json
