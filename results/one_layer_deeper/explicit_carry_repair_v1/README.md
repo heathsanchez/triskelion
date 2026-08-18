@@ -1,0 +1,132 @@
+# EXPLICIT_CARRY_CAUSAL_REPAIR_V1
+
+{
+  "arms": [
+    "BASELINE",
+    "TRUE_CARRY",
+    "SHAM_CARRY"
+  ],
+  "claim_boundary": "bounded squaring world under frozen architecture/training/support; tests causal representational repair of replicated carry obstruction",
+  "hard_eval_cell": {
+    "alignment": "place",
+    "carry": "high",
+    "digits": 3,
+    "width": "stable"
+  },
+  "intervention": "incoming carry state explicitly embedded at each output query position",
+  "parent_obstruction": "35245a78ee5c9e84bd983b738288c53102aaaf57",
+  "protocol": "EXPLICIT_CARRY_CAUSAL_REPAIR_V1",
+  "recovery_threshold": 0.15,
+  "required_seed_hits": 2,
+  "rows": [
+    {
+      "arm": "BASELINE",
+      "high_digit": 0.7050147492625368,
+      "high_exact": 0.04424778761061947,
+      "low_digit": 0.7905982905982906,
+      "low_exact": 0.23076923076923078,
+      "seed": 0
+    },
+    {
+      "arm": "TRUE_CARRY",
+      "high_digit": 0.7743362831858407,
+      "high_exact": 0.11504424778761062,
+      "low_digit": 0.8675213675213675,
+      "low_exact": 0.41025641025641024,
+      "seed": 0
+    },
+    {
+      "arm": "SHAM_CARRY",
+      "high_digit": 0.7109144542772862,
+      "high_exact": 0.02654867256637168,
+      "low_digit": 0.8162393162393162,
+      "low_exact": 0.2564102564102564,
+      "seed": 0
+    },
+    {
+      "arm": "BASELINE",
+      "high_digit": 0.7050147492625368,
+      "high_exact": 0.07079646017699115,
+      "low_digit": 0.7948717948717948,
+      "low_exact": 0.2564102564102564,
+      "seed": 1
+    },
+    {
+      "arm": "TRUE_CARRY",
+      "high_digit": 0.7625368731563422,
+      "high_exact": 0.08849557522123894,
+      "low_digit": 0.8846153846153846,
+      "low_exact": 0.4358974358974359,
+      "seed": 1
+    },
+    {
+      "arm": "SHAM_CARRY",
+      "high_digit": 0.7212389380530974,
+      "high_exact": 0.07079646017699115,
+      "low_digit": 0.7863247863247863,
+      "low_exact": 0.1794871794871795,
+      "seed": 1
+    },
+    {
+      "arm": "BASELINE",
+      "high_digit": 0.7020648967551623,
+      "high_exact": 0.04424778761061947,
+      "low_digit": 0.8162393162393162,
+      "low_exact": 0.23076923076923078,
+      "seed": 2
+    },
+    {
+      "arm": "TRUE_CARRY",
+      "high_digit": 0.7713864306784661,
+      "high_exact": 0.12389380530973451,
+      "low_digit": 0.8803418803418803,
+      "low_exact": 0.46153846153846156,
+      "seed": 2
+    },
+    {
+      "arm": "SHAM_CARRY",
+      "high_digit": 0.7300884955752213,
+      "high_exact": 0.07079646017699115,
+      "low_digit": 0.7692307692307693,
+      "low_exact": 0.10256410256410256,
+      "seed": 2
+    }
+  ],
+  "seed_results": [
+    {
+      "baseline_high_exact": 0.04424778761061947,
+      "recovered": false,
+      "seed": 0,
+      "sham_high_exact": 0.02654867256637168,
+      "true_gain_vs_baseline": 0.07079646017699115,
+      "true_gain_vs_sham": 0.08849557522123894,
+      "true_high_exact": 0.11504424778761062
+    },
+    {
+      "baseline_high_exact": 0.07079646017699115,
+      "recovered": false,
+      "seed": 1,
+      "sham_high_exact": 0.07079646017699115,
+      "true_gain_vs_baseline": 0.017699115044247787,
+      "true_gain_vs_sham": 0.017699115044247787,
+      "true_high_exact": 0.08849557522123894
+    },
+    {
+      "baseline_high_exact": 0.04424778761061947,
+      "recovered": false,
+      "seed": 2,
+      "sham_high_exact": 0.07079646017699115,
+      "true_gain_vs_baseline": 0.07964601769911504,
+      "true_gain_vs_sham": 0.05309734513274336,
+      "true_high_exact": 0.12389380530973451
+    }
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "sham": "same-cell donor carry trajectory, identical channel shape/cardinality",
+  "support_split": "identical sha256(key)-deterministic support",
+  "verdict": "NEGATIVE_EXPLICIT_CARRY_NO_REPLICATED_RECOVERY"
+}
