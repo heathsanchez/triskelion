@@ -1,0 +1,66 @@
+{
+  "claim_boundary": "Integrated exact finite-world causal evidence only. Does not establish open-world natural-code autonomy, arbitrary ontology creation, representation-independent invention, neural learning, or broad generality.",
+  "headline": {
+    "K": {
+      "cegis_rounds": 5,
+      "sealed_expr": "~((z&~(x)))",
+      "sealed_sem": 245,
+      "target_min_size": 5,
+      "target_sem": 245
+    },
+    "O2": {
+      "B": 7,
+      "after_K_ablation": false,
+      "after_K_restore": true,
+      "cold": false,
+      "corrupted": false,
+      "development": true,
+      "installed_expr": "~((x^K(z,0,y)))",
+      "memory_inline": true,
+      "sem": 180
+    },
+    "corrupted": {
+      "candidate": "((x&~(z))^z)",
+      "candidate_sem": 250,
+      "independently_admitted_as_K": false,
+      "observations": [[0,0],[1,1],[5,1],[4,1]]
+    },
+    "gates": {
+      "G10_development_changes_development": true,
+      "G1_old_closure_obstruction": true,
+      "G2_nonpreenumerated_verified_synthesis": true,
+      "G3_install_changes_reachability": true,
+      "G4_cold_fails_within_B": true,
+      "G5_memory_fails_within_B": false,
+      "G6_corrupted_does_not_match_downstream": true,
+      "G7_ablate_restore": true,
+      "G8_counterevidence_refines_scope": true,
+      "G9_scope_ablation_recreates_failure": true
+    },
+    "scope": {
+      "chosen_scope": "C_EQ_0",
+      "counterexample_row": 0,
+      "protected_l0_sem": 60,
+      "scope_validity": {"ANY": false,"C_EQ_0": true,"C_EQ_1": false,"NEVER": false},
+      "without_revision_recreates_failure": true,
+      "without_revision_scope": "ANY"
+    }
+  },
+  "protocol": "DEVELOPMENTAL_LOOP_CAPSTONE_V1",
+  "sweep": {
+    "G1": 100,
+    "G10_development_changes_development": 100,
+    "G2": 100,
+    "G3": 100,
+    "G4": 100,
+    "G5_memory_separator": 48,
+    "G6_corrupted_separator": 100,
+    "G7_ablate_restore": 100,
+    "G8_scope_revision": 100,
+    "G9_scope_ablation": 100,
+    "episodes": 100,
+    "full_capstone_passes": 48,
+    "headline_pass": false
+  },
+  "verdict": "VALID_NEGATIVE_DEVELOPMENTAL_LOOP_CAPSTONE_V1"
+}
