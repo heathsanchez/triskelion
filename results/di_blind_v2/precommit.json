@@ -1,0 +1,17 @@
+{
+  "arena_artifact": 8931227426,
+  "arena_rev": "8254ae7dc7d6c10dbea94b6761dcb1e4ccdfdee6",
+  "arena_run": 31005978773,
+  "case_count": 161,
+  "checker_rev": "514ab33fc0262c491a0af1846cc3887f48411e36",
+  "exposed_order": "0a5e5552a8f7d7463f20c2be999c03350e29abb03a0fa8b08389b79dcee8b1c8",
+  "exposed_rank": 5,
+  "exposed_sha256": "7f166e26d8b79ca496b066644bbe199faefa4c5fb3c6ded01e35ff4ec628a309",
+  "order_salt": "TRISKELION_BLIND_VOW_V2_LINEPATCH",
+  "ordered_manifest_sha256": "caf1aa533d6771a3846dbed565ed63c119bbf6cb930c6d0b052501c8fb4e8ff8",
+  "protected_suffix_count": 156,
+  "protected_suffix_sha256": "0af59a04e3a870c08dadfc2c20d2fa075db1b50ededa2960726e190ab1ef7b9c",
+  "protocol": "DI_BLIND_V2_AUTONOMOUS_CONSTRUCTION",
+  "v1_exposed_sha_excluded": "323a6140d9acc906193ddc22fa4f3391a3f259357853427c2f82382c71a1e051",
+  "vow_rev": "15c1b933f87eed2b23c176665730baea37706daa"
+}
