@@ -1,0 +1,68 @@
+name: Oracle Products Accumulator V1 Parallel
+
+on:
+  push:
+    paths:
+      - 'experiments/oracle_products_accumulator_v1_matrix.py'
+      - '.github/workflows/oracle-products-accumulator-v1-parallel.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  arm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [0,1,2]
+        arm: [pairs, oracle_products, accum]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen cell
+        run: |
+          mkdir -p out
+          python experiments/oracle_products_accumulator_v1_matrix.py --seed ${{ matrix.seed }} --arm ${{ matrix.arm }} --out out/${{ matrix.seed }}_${{ matrix.arm }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cell-${{ matrix.seed }}-${{ matrix.arm }}
+          path: out/*.json
+
+  aggregate:
+    needs: arm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cell-*
+          path: cells
+          merge-multiple: true
+      - name: Aggregate frozen verdict
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          rows=[json.loads(p.read_text()) for p in sorted(pathlib.Path('cells').glob('*.json'))]
+          assert len(rows)==9, len(rows)
+          def m(arm): return sum(r['by_terms']['4'] for r in rows if r['arm']==arm)/3
+          pair4=m('pairs'); prod4=m('oracle_products'); accum4=m('accum')
+          oracle=prod4-pair4; accum=accum4-prod4
+          verdict='PRODUCT_FORMATION_OR_COMPOSITION_BOTTLENECK' if oracle>=.15 else ('AGGREGATION_STATE_REDUCTION_BOTTLENECK' if accum>=.15 else 'NO_DECISIVE_RESCUE_REMAP_REQUIRED')
+          result={'protocol':'ORACLE_PRODUCTS_ACCUMULATOR_V1','seeds':[0,1,2],'steps':500,'rows':rows,'term4_pair_mean':pair4,'term4_oracle_products_mean':prod4,'term4_accumulator_mean':accum4,'oracle_products_rescue_vs_pairs':oracle,'accumulator_rescue_vs_oracle_products':accum,'threshold':.15,'verdict':verdict,'execution_topology':'9 independent matrix jobs; scientific protocol unchanged'}
+          out=pathlib.Path('results/one_layer_deeper/oracle_products_accumulator_v1_parallel'); out.mkdir(parents=True,exist_ok=True)
+          (out/'result.json').write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(result,indent=2,sort_keys=True))
+          PY
+      - name: Commit verdict
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/oracle_products_accumulator_v1_parallel/result.json
+          git commit -m 'Record parallel oracle products accumulator verdict' || exit 0
+          git push
