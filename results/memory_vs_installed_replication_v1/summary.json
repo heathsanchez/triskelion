@@ -1,0 +1,9 @@
+{
+  "core_passes": 100,
+  "fresh_seeds": "100..199",
+  "gates": {"H1": true, "H2": true, "H3": true, "H4": true},
+  "memory_separators": 52,
+  "positive_cost_gap_or_censored": 52,
+  "protocol": "MEMORY_VS_INSTALLED_REPLICATION_V1",
+  "verdict": "PASS_MEMORY_VS_INSTALLED_REPLICATION_V1"
+}
