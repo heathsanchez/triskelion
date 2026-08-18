@@ -1,0 +1,160 @@
+# PAIR_DECOMPOSITION_CAUSAL_REPAIR_V1
+
+{
+  "claim_boundary": "bounded squaring representation test only",
+  "intervention": "per-output-place contributing operand-pair identities; no products/carries/labels",
+  "middle_recovery_threshold": 0.15,
+  "parent_carry_repair": "e09829cb2ada7b2e2aded83ebd30b4572a445a1c",
+  "parent_map": "a541fb8545fdaf1b099075f871a6b36727063a90",
+  "primary_cell": {
+    "carry": "high",
+    "digits": 3,
+    "width": "stable"
+  },
+  "protocol": "PAIR_DECOMPOSITION_CAUSAL_REPAIR_V1",
+  "required_seed_hits": 2,
+  "rows": [
+    {
+      "arm": "BASELINE",
+      "hard_digit": 0.700589970501475,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.017699115044247787,
+      "hard_middle_digit": 0.5508849557522124,
+      "pool_digit": 0.6615168539325843,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.0453857791225416,
+      "pool_middle_digit": 0.5393227744401966,
+      "seed": 0
+    },
+    {
+      "arm": "TRUE_PAIRS",
+      "hard_digit": 0.7064896755162242,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.05309734513274336,
+      "hard_middle_digit": 0.5597345132743363,
+      "pool_digit": 0.6472712680577849,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.04236006051437216,
+      "pool_middle_digit": 0.5199344620425996,
+      "seed": 0
+    },
+    {
+      "arm": "SHAM_PAIRS",
+      "hard_digit": 0.7035398230088495,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.061946902654867256,
+      "hard_middle_digit": 0.5553097345132744,
+      "pool_digit": 0.656099518459069,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.057488653555219364,
+      "pool_middle_digit": 0.5319497542326598,
+      "seed": 0
+    },
+    {
+      "arm": "BASELINE",
+      "hard_digit": 0.7094395280235988,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.08849557522123894,
+      "hard_middle_digit": 0.5641592920353983,
+      "pool_digit": 0.6573033707865169,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.057488653555219364,
+      "pool_middle_digit": 0.533588203167668,
+      "seed": 1
+    },
+    {
+      "arm": "TRUE_PAIRS",
+      "hard_digit": 0.6991150442477876,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.04424778761061947,
+      "hard_middle_digit": 0.5486725663716814,
+      "pool_digit": 0.6534911717495987,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.05143721633888049,
+      "pool_middle_digit": 0.528399781540142,
+      "seed": 1
+    },
+    {
+      "arm": "SHAM_PAIRS",
+      "hard_digit": 0.7064896755162242,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.07079646017699115,
+      "hard_middle_digit": 0.5597345132743363,
+      "pool_digit": 0.6530898876404494,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.05597579425113464,
+      "pool_middle_digit": 0.5278536318951392,
+      "seed": 1
+    },
+    {
+      "arm": "BASELINE",
+      "hard_digit": 0.7109144542772862,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.07964601769911504,
+      "hard_middle_digit": 0.5663716814159292,
+      "pool_digit": 0.6687399678972713,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.06656580937972768,
+      "pool_middle_digit": 0.5491534680502458,
+      "seed": 2
+    },
+    {
+      "arm": "TRUE_PAIRS",
+      "hard_digit": 0.7064896755162242,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.07964601769911504,
+      "hard_middle_digit": 0.5597345132743363,
+      "pool_digit": 0.6591091492776886,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.059001512859304085,
+      "pool_middle_digit": 0.5360458765701802,
+      "seed": 2
+    },
+    {
+      "arm": "SHAM_PAIRS",
+      "hard_digit": 0.7123893805309734,
+      "hard_edge_digit": 1.0,
+      "hard_exact": 0.061946902654867256,
+      "hard_middle_digit": 0.5685840707964602,
+      "pool_digit": 0.6637239165329053,
+      "pool_edge_digit": 1.0,
+      "pool_exact": 0.07261724659606657,
+      "pool_middle_digit": 0.5423265974877116,
+      "seed": 2
+    }
+  ],
+  "seed_results": [
+    {
+      "exact_gain_vs_baseline": 0.035398230088495575,
+      "exact_gain_vs_sham": -0.008849557522123894,
+      "middle_gain_vs_baseline": 0.008849557522123908,
+      "middle_gain_vs_sham": 0.004424778761061954,
+      "recovered": false,
+      "seed": 0
+    },
+    {
+      "exact_gain_vs_baseline": -0.04424778761061947,
+      "exact_gain_vs_sham": -0.02654867256637168,
+      "middle_gain_vs_baseline": -0.015486725663716894,
+      "middle_gain_vs_sham": -0.01106194690265494,
+      "recovered": false,
+      "seed": 1
+    },
+    {
+      "exact_gain_vs_baseline": 0.0,
+      "exact_gain_vs_sham": 0.017699115044247787,
+      "middle_gain_vs_baseline": -0.006637168141592875,
+      "middle_gain_vs_sham": -0.008849557522123908,
+      "recovered": false,
+      "seed": 2
+    }
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "sham": "cyclic wrong-place pair decomposition with identical token budget and pair vocabulary",
+  "support_split": "identical sha256(key)-deterministic",
+  "verdict": "NEGATIVE_PAIR_DECOMPOSITION_NO_REPLICATED_REPAIR"
+}
