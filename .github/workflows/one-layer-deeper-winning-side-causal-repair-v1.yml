@@ -1,0 +1,138 @@
+name: One Layer Deeper Winning-Side Causal Repair V1
+
+on:
+  push:
+    paths:
+      - 'results/one_layer_deeper/multiterm_aggregation_separator_v1r/summary.json'
+      - '.github/workflows/one-layer-deeper-winning-side-causal-repair-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run precommitted winning-side repair
+        shell: bash
+        run: |
+          cat > /tmp/winning_side.py <<'PY'
+          import csv,json,random,pathlib,statistics
+          from collections import defaultdict
+          import torch, torch.nn as nn, torch.nn.functional as F
+
+          parent=pathlib.Path('results/one_layer_deeper/multiterm_aggregation_separator_v1r/summary.json')
+          if not parent.exists():
+              print('parent result not present; workflow-only precommit event')
+              raise SystemExit(0)
+          P=json.loads(parent.read_text()); verdict=P['verdict']
+          if verdict=='NO_PROMOTION':
+              out=pathlib.Path('results/one_layer_deeper/winning_side_causal_repair_v1'); out.mkdir(parents=True,exist_ok=True)
+              (out/'summary.json').write_text(json.dumps({'protocol':'WINNING_SIDE_CAUSAL_REPAIR_V1','parent_verdict':verdict,'verdict':'STOP_NO_WINNING_SIDE'},indent=2)+'\n')
+              print('STOP_NO_WINNING_SIDE'); raise SystemExit(0)
+
+          SEEDS=(0,1,2); STEPS=500; BATCH=256; D=128; LAYERS=2; HEADS=4; LR=3e-4
+          N_TERMS=(1,2,3,4); TOTALS=tuple(P['common_totals']); TRAIN_PER_CELL=8; EVAL_PER_CELL=4
+          torch.set_num_threads(2)
+
+          def gen(n,total,need):
+              out=[];seen=set();rr=random.Random(100000+n*997+total)
+              for _ in range(200000):
+                  if len(out)>=need: break
+                  cin=rr.randrange(10); pairs=[(rr.randrange(10),rr.randrange(10)) for _ in range(n)]
+                  if cin+sum(a*b for a,b in pairs)!=total: continue
+                  k=(cin,tuple(pairs))
+                  if k in seen: continue
+                  seen.add(k);out.append((cin,pairs))
+              return out
+          train=[];test=[]
+          for n in N_TERMS:
+              for total in TOTALS:
+                  xs=gen(n,total,TRAIN_PER_CELL+EVAL_PER_CELL); assert len(xs)>=12
+                  train += [(n,total,c,p) for c,p in xs[:8]]; test += [(n,total,c,p) for c,p in xs[8:12]]
+
+          # Branch is fixed by parent separator. AGGREGATION branch receives exact products in all arms;
+          # TRUE_STAGE additionally receives the subtotal of cin + first n-1 products, reducing final aggregation to one add.
+          # PRODUCT_COMPOSITION branch receives factor pairs in all arms; TRUE_LOCAL_PRODUCTS additionally receives exact local products.
+          branch='AGGREGATION' if verdict=='PROMOTE_MULTI_TERM_AGGREGATION' else 'PRODUCT_COMPOSITION'
+          ARMS=('BASELINE','TRUE_REPAIR','SHAM_REPAIR')
+          PAD=0; SEP=1; CIN=2; PAIR=3; PROD=4; SUBTOTAL=5; QUERY=6; DIG_OFF=7; VAL_OFF=17; VOCAB=140; MAXLEN=32
+
+          # deterministic donor map within n_terms, rotated across rows; no target matching and therefore no answer-preserving sham.
+          donor={}
+          grouped=defaultdict(list)
+          for r in train+test: grouped[r[0]].append(r)
+          for n,rs in grouped.items():
+              for i,r in enumerate(rs): donor[(n,r[1],r[2],tuple(r[3]))]=rs[(i+1)%len(rs)]
+
+          def enc(row,arm):
+              n,total,cin,pairs=row; toks=[CIN,DIG_OFF+cin,SEP]
+              if branch=='AGGREGATION':
+                  for a,b in pairs: toks += [PROD,VAL_OFF+a*b]
+                  if arm!='BASELINE':
+                      source=row if arm=='TRUE_REPAIR' else donor[(n,total,cin,tuple(pairs))]
+                      sn,st,sc,sp=source
+                      subtotal=sc+sum(a*b for a,b in sp[:-1])
+                      toks += [SUBTOTAL,VAL_OFF+subtotal]
+              else:
+                  source=row if arm=='TRUE_REPAIR' else donor[(n,total,cin,tuple(pairs))]
+                  donor_products=[a*b for a,b in source[3]]
+                  for j,(a,b) in enumerate(pairs):
+                      toks += [PAIR,DIG_OFF+a,DIG_OFF+b]
+                      if arm!='BASELINE': toks += [PROD,VAL_OFF+donor_products[j % len(donor_products)]]
+              toks += [SEP,QUERY,QUERY]
+              return toks,[len(toks)-2,len(toks)-1],[total%10,total//10]
+
+          def collate(rows,arm):
+              es=[enc(r,arm) for r in rows];L=max(len(e[0]) for e in es)
+              tok=torch.full((len(es),L),PAD,dtype=torch.long);mask=torch.zeros((len(es),L),dtype=torch.bool);qidx=torch.zeros((len(es),2),dtype=torch.long);lab=torch.zeros((len(es),2),dtype=torch.long)
+              for i,(t,q,y) in enumerate(es):
+                  tok[i,:len(t)]=torch.tensor(t);mask[i,:len(t)]=1;qidx[i]=torch.tensor(q);lab[i]=torch.tensor(y)
+              return tok,mask,qidx,lab
+          class M(nn.Module):
+              def __init__(self):
+                  super().__init__();self.te=nn.Embedding(VOCAB,D);self.pe=nn.Embedding(MAXLEN,D)
+                  layer=nn.TransformerEncoderLayer(D,HEADS,4*D,batch_first=True,norm_first=True,activation='gelu');self.enc=nn.TransformerEncoder(layer,LAYERS);self.ln=nn.LayerNorm(D);self.ones=nn.Linear(D,10);self.carry=nn.Linear(D,9)
+              def forward(self,tok,mask,qidx):
+                  p=torch.arange(tok.shape[1]).unsqueeze(0);h=self.te(tok)+self.pe(p);h=self.enc(h,src_key_padding_mask=~mask);h=self.ln(h.gather(1,qidx.unsqueeze(-1).expand(-1,-1,D)));return self.ones(h[:,0]),self.carry(h[:,1])
+
+          rows=[]
+          for seed in SEEDS:
+              for arm in ARMS:
+                  random.seed(seed);torch.manual_seed(seed);m=M();opt=torch.optim.AdamW(m.parameters(),lr=LR,weight_decay=.01);rr=random.Random(seed+71)
+                  for _ in range(STEPS):
+                      batch=[train[rr.randrange(len(train))] for _ in range(BATCH)];tok,mask,qidx,lab=collate(batch,arm);lo,lc=m(tok,mask,qidx);loss=F.cross_entropy(lo,lab[:,0])+F.cross_entropy(lc,lab[:,1]);opt.zero_grad(set_to_none=True);loss.backward();nn.utils.clip_grad_norm_(m.parameters(),1.0);opt.step()
+                  by=defaultdict(lambda:[0,0]);m.eval()
+                  with torch.no_grad():
+                      tok,mask,qidx,lab=collate(test,arm);lo,lc=m(tok,mask,qidx);po=lo.argmax(-1);pc=lc.argmax(-1)
+                      for i,r in enumerate(test):
+                          n=r[0];by[n][1]+=1;by[n][0]+=int(po[i]==lab[i,0] and pc[i]==lab[i,1])
+                  for n in N_TERMS: rows.append({'seed':seed,'arm':arm,'n_terms':n,'exact':by[n][0]/by[n][1],'n':by[n][1]})
+
+          idx={(r['seed'],r['arm'],r['n_terms']):r for r in rows}; seed_results=[]
+          for seed in SEEDS:
+              t=idx[(seed,'TRUE_REPAIR',4)]['exact'];b=idx[(seed,'BASELINE',4)]['exact'];s=idx[(seed,'SHAM_REPAIR',4)]['exact'];c1=idx[(seed,'TRUE_REPAIR',1)]['exact']-idx[(seed,'BASELINE',1)]['exact']
+              hit=(t-b>=.15 and t-s>=.15 and abs(c1)<.10)
+              seed_results.append({'seed':seed,'true_n4':t,'baseline_n4':b,'sham_n4':s,'gain_vs_baseline':t-b,'gain_vs_sham':t-s,'n1_control_move':c1,'hit':hit})
+          hits=sum(x['hit'] for x in seed_results); passed=hits>=2
+          final='PASS_STAGED_ACCUMULATION_CAUSAL_REPAIR' if passed and branch=='AGGREGATION' else ('PASS_LOCAL_PRODUCT_INTERMEDIATE_CAUSAL_REPAIR' if passed else 'NEGATIVE_WINNING_SIDE_NO_REPLICATED_REPAIR')
+          out=pathlib.Path('results/one_layer_deeper/winning_side_causal_repair_v1');out.mkdir(parents=True,exist_ok=True)
+          summary={'protocol':'WINNING_SIDE_CAUSAL_REPAIR_V1','parent_verdict':verdict,'branch':branch,'arms':ARMS,'rows':rows,'seed_results':seed_results,'required_seed_hits':2,'threshold':0.15,'control_rule':'n=1 true-vs-baseline absolute move <10pp','verdict':final,'claim_boundary':'synthetic matched micro-world only'}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n');(out/'README.md').write_text('# WINNING_SIDE_CAUSAL_REPAIR_V1\n\n```json\n'+json.dumps(summary,indent=2,sort_keys=True)+'\n```\n');print(json.dumps(summary,indent=2,sort_keys=True))
+          PY
+          python /tmp/winning_side.py
+      - name: Commit repair artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/winning_side_causal_repair_v1
+          git commit -m 'Record winning-side causal repair V1' || exit 0
+          git push
