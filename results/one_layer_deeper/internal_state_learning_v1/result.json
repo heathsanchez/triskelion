@@ -1,0 +1,182 @@
+{
+  "claim_boundary": "bounded oracle-product aggregation micro-world; no intermediate state is provided at inference",
+  "per_seed": [
+    {
+      "hit": false,
+      "seed": 0,
+      "term4": {
+        "baseline": 0.04862023653088042,
+        "sham_aux": 0.03350854139290407,
+        "true_aux": 0.020367936925098553
+      },
+      "true_gain_vs_best_control": -0.028252299605781867
+    },
+    {
+      "hit": false,
+      "seed": 1,
+      "term4": {
+        "baseline": 0.04186046511627907,
+        "sham_aux": 0.037209302325581395,
+        "true_aux": 0.02458471760797342
+      },
+      "true_gain_vs_best_control": -0.01727574750830565
+    },
+    {
+      "hit": false,
+      "seed": 2,
+      "term4": {
+        "baseline": 0.048184818481848184,
+        "sham_aux": 0.03498349834983498,
+        "true_aux": 0.021122112211221122
+      },
+      "true_gain_vs_best_control": -0.02706270627062706
+    }
+  ],
+  "protocol": "INTERNAL_STATE_LEARNING_V1",
+  "required_seed_hits": 2,
+  "rows": [
+    {
+      "arm": "baseline",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.053778080326752895,
+        "3": 0.045454545454545456,
+        "4": 0.04862023653088042
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.289,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 0,
+      "steps": 500
+    },
+    {
+      "arm": "baseline",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.06984553391537945,
+        "3": 0.06263194933145672,
+        "4": 0.04186046511627907
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.30683333333333335,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 1,
+      "steps": 500
+    },
+    {
+      "arm": "baseline",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.0679419525065963,
+        "3": 0.06905890318212593,
+        "4": 0.048184818481848184
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.295,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 2,
+      "steps": 500
+    },
+    {
+      "arm": "sham_aux",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.05105513955071477,
+        "3": 0.04077540106951872,
+        "4": 0.03350854139290407
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.2833333333333333,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 0,
+      "steps": 500
+    },
+    {
+      "arm": "sham_aux",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.07521826729348556,
+        "3": 0.05207600281491907,
+        "4": 0.037209302325581395
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.3045,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 1,
+      "steps": 500
+    },
+    {
+      "arm": "sham_aux",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.07058047493403694,
+        "3": 0.06431956668923494,
+        "4": 0.03498349834983498
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.2911666666666667,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 2,
+      "steps": 500
+    },
+    {
+      "arm": "true_aux",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.049693669162695714,
+        "3": 0.0427807486631016,
+        "4": 0.020367936925098553
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.2801666666666667,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 0,
+      "steps": 500
+    },
+    {
+      "arm": "true_aux",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.07320349227669577,
+        "3": 0.05207600281491907,
+        "4": 0.02458471760797342
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.30083333333333334,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 1,
+      "steps": 500
+    },
+    {
+      "arm": "true_aux",
+      "auxiliary_weight": 0.5,
+      "by_terms": {
+        "1": 1.0,
+        "2": 0.052770448548812667,
+        "3": 0.046716316858496955,
+        "4": 0.021122112211221122
+      },
+      "inference_input": "identical flat oracle products for all arms",
+      "joint": 0.2788333333333333,
+      "protocol": "INTERNAL_STATE_LEARNING_V1",
+      "seed": 2,
+      "steps": 500
+    }
+  ],
+  "term4_mean": {
+    "baseline": 0.04622184004300256,
+    "sham_aux": 0.03523378068944015,
+    "true_aux": 0.022024922248097697
+  },
+  "threshold": 0.15,
+  "true_gain_vs_best_control": -0.024196917794904862,
+  "verdict": "NEGATIVE_INTERNAL_STATE_LEARNING_NO_REPLICATED_RESCUE"
+}
