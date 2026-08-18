@@ -1,0 +1,190 @@
+name: DI O1 to O2 Dependency Gate
+
+on:
+  push:
+    branches: [agent/di-blind-developmental-challenge-v2]
+    paths:
+      - 'results/di_blind_v2/result.json'
+      - 'protocols/DI_O1_O2_DEPENDENCY_PRECOMMIT.md'
+      - 'experiments/DI_O1_O2_*.py'
+      - '.github/workflows/di-o1-o2-dependency.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dependency-gate:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message != 'result: publish DI blind V2 VALID_NEGATIVE_V2_NO_CONSTRUCTION'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      CHECKER_REV: 514ab33fc0262c491a0af1846cc3887f48411e36
+      VOW_REV: 15c1b933f87eed2b23c176665730baea37706daa
+      ARENA_ARTIFACT: 8931227426
+      ORDER_SALT: TRISKELION_DI_O1_O2_DEPENDENCY_V1
+      V1_EXPOSED_SHA: 323a6140d9acc906193ddc22fa4f3391a3f259357853427c2f82382c71a1e051
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/di-blind-developmental-challenge-v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require V2 autonomous O1 pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f results/di_blind_v2/result.json
+          python - <<'PY'
+          import json
+          x=json.load(open('results/di_blind_v2/result.json'))
+          if x.get('verdict')!='PASS_DI_BLIND_V2_AUTONOMOUS_CONSTRUCTION':
+              raise SystemExit('O1 gate inert: V2 did not PASS autonomous construction')
+          if not x.get('selected'): raise SystemExit('V2 PASS missing selected O1')
+          print('O1',x['selected']['proposal_sha256'])
+          PY
+      - name: Install frozen proposer dependency
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7'
+      - name: Require provider secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Build pristine D0 checker and D1 checker with exact autonomous O1
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/pmatos/vow-lean-kernel checker-cold
+          git -C checker-cold checkout "$CHECKER_REV"
+          git clone https://github.com/vow-lang/vow checker-cold/vow
+          git -C checker-cold/vow checkout "$VOW_REV"
+          ROOT="$(pwd)/checker-cold"
+          ( cd checker-cold/vow && cargo build --all )
+          ( cd checker-cold/vow && bash scripts/concat_vow.sh clif > "$ROOT/compiler_clif.vow" )
+          ( cd checker-cold/vow && ulimit -v 2000000 && ./target/debug/vow build --no-verify --no-cache "$ROOT/compiler_clif.vow" -o "$ROOT/vowc" )
+          ( cd checker-cold && VOWC="$ROOT/vowc" bash scripts/build.sh )
+          cp -a checker-cold checker-developed
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          x=json.load(open('results/di_blind_v2/result.json')); e=x['selected']; root=Path('checker-developed'); p=root/e['path']; original=p.read_text(); lines=original.splitlines(); s=int(e['start_line']); t=int(e['end_line']); new=str(e['new_text']).splitlines()
+          p.write_text('\n'.join(lines[:s-1]+new+lines[t:])+('\n' if original.endswith('\n') else ''))
+          got=hashlib.sha256(p.read_bytes()).hexdigest(); want=e['developed_source_sha256']
+          if got!=want: raise SystemExit(f'O1 source hash mismatch {got} != {want}')
+          print('O1_SOURCE_HASH',got)
+          PY
+          ROOT="$(pwd)/checker-developed"; ( cd checker-developed && VOWC="$ROOT/vowc" bash scripts/build.sh )
+          test -x checker-cold/lean_checker; test -x checker-developed/lean_checker
+      - name: Freeze common O2 target before either model call
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p blind-di-o1o2
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o /tmp/o1o2-arena.zip
+          mkdir /tmp/o1o2-artifact arena-tests
+          unzip -q /tmp/o1o2-arena.zip -d /tmp/o1o2-artifact
+          tar -xzf /tmp/o1o2-artifact/lean-arena-tests.tar.gz -C arena-tests
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os,subprocess
+          root=Path('arena-tests'); salt=os.environ['ORDER_SALT']; v1=os.environ['V1_EXPOSED_SHA']; v2=json.load(open('results/di_blind_v2/result.json')); v2sha=v2['exposed']['sha256']; rows=[]
+          for expected,sub in [('accept','good'),('reject','bad')]:
+              for p in (root/sub).rglob('*.ndjson'):
+                  rel=str(p.relative_to(root)); sha=hashlib.sha256(p.read_bytes()).hexdigest(); order=hashlib.sha256((salt+'\0'+rel+'\0'+sha).encode()).hexdigest(); rows.append({'order':order,'rel':rel,'expected':expected,'sha256':sha})
+          rows.sort(key=lambda x:x['order']); canonical=json.dumps(rows,separators=(',',':'),sort_keys=True).encode(); commitment=hashlib.sha256(canonical).hexdigest(); Path('/tmp/di_o1o2_manifest_initial.json').write_bytes(canonical)
+          def run(exe,p):
+              try: cp=subprocess.run([str(Path(exe).resolve()),str(p.resolve())],capture_output=True,text=True,timeout=30); rc=cp.returncode
+              except subprocess.TimeoutExpired as e: rc=124; cp=type('X',(),{'stdout':e.stdout or '','stderr':e.stderr or ''})()
+              st='accept' if rc==0 else ('reject' if rc==1 else ('decline' if rc==2 else 'error')); return st,rc,cp
+          chosen=None
+          for rank,m in enumerate(rows,1):
+              if m['sha256'] in {v1,v2sha}: continue
+              p=root/m['rel']; cst,crc,ccp=run('checker-cold/lean_checker',p); dst,drc,dcp=run('checker-developed/lean_checker',p)
+              if cst!=m['expected'] and dst!=m['expected']:
+                  chosen={**m,'rank':rank,'cold_status':cst,'developed_status':dst,'cold_rc':crc,'developed_rc':drc}
+                  Path('blind-di-o1o2/exposed.ndjson').write_bytes(p.read_bytes())
+                  Path('blind-di-o1o2/cold_baseline.json').write_text(json.dumps({'expected':m['expected'],'status':cst,'return_code':crc,'stdout_tail':(ccp.stdout or '')[-12000:] if isinstance(ccp.stdout,str) else '','stderr_tail':(ccp.stderr or '')[-12000:] if isinstance(ccp.stderr,str) else ''},indent=2))
+                  Path('blind-di-o1o2/developed_baseline.json').write_text(json.dumps({'expected':m['expected'],'status':dst,'return_code':drc,'stdout_tail':(dcp.stdout or '')[-12000:] if isinstance(dcp.stdout,str) else '','stderr_tail':(dcp.stderr or '')[-12000:] if isinstance(dcp.stderr,str) else ''},indent=2)); break
+          if chosen is None: raise SystemExit('no common unresolved O2 target')
+          v2bytes=Path('results/di_blind_v2/result.json').read_bytes(); pre={'protocol':'DI_O1_O2_DEPENDENCY_V1','ordered_manifest_sha256':commitment,'order_salt':salt,'excluded_exposed_sha256':[v1,v2sha],'exposed_rank':chosen['rank'],'exposed_order':chosen['order'],'exposed_sha256':chosen['sha256'],'v2_result_sha256':hashlib.sha256(v2bytes).hexdigest(),'o1_proposal_sha256':v2['selected']['proposal_sha256'],'budget':{'model':'Qwen/Qwen3.5-9B','generations_per_arm':16,'temperature':0.7,'max_tokens':2200,'hidden_regressions':32,'base_weight_updates':0}}
+          Path('blind-di-o1o2/precommit.json').write_text(json.dumps(pre,indent=2,sort_keys=True)+'\n'); Path('blind-di-o1o2/exposed.json').write_text(json.dumps(chosen,indent=2,sort_keys=True)+'\n'); print(json.dumps(pre,indent=2))
+          PY
+          rm -rf arena-tests /tmp/o1o2-artifact /tmp/o1o2-arena.zip /tmp/di_o1o2_manifest_initial.json
+          test ! -e arena-tests
+      - name: Generate and seal COLD candidate batch
+        env:
+          DI_ROOT: checker-cold
+          DI_ARM: cold
+        run: |
+          python experiments/DI_O1_O2_PROPOSE.py
+          sha256sum blind-di-o1o2/cold_candidates.json > blind-di-o1o2/cold_candidates.sha256
+      - name: Generate and seal DEVELOPED candidate batch
+        env:
+          DI_ROOT: checker-developed
+          DI_ARM: developed
+        run: |
+          python experiments/DI_O1_O2_PROPOSE.py
+          sha256sum blind-di-o1o2/developed_candidates.json > blind-di-o1o2/developed_candidates.sha256
+      - name: Re-download protected corpus only after both arms are sealed
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o /tmp/o1o2-eval.zip
+          mkdir /tmp/o1o2-eval-artifact arena-tests
+          unzip -q /tmp/o1o2-eval.zip -d /tmp/o1o2-eval-artifact
+          tar -xzf /tmp/o1o2-eval-artifact/lean-arena-tests.tar.gz -C arena-tests
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os
+          root=Path('arena-tests'); salt=os.environ['ORDER_SALT']; rows=[]
+          for expected,sub in [('accept','good'),('reject','bad')]:
+              for p in (root/sub).rglob('*.ndjson'):
+                  rel=str(p.relative_to(root)); sha=hashlib.sha256(p.read_bytes()).hexdigest(); order=hashlib.sha256((salt+'\0'+rel+'\0'+sha).encode()).hexdigest(); rows.append({'order':order,'rel':rel,'expected':expected,'sha256':sha})
+          rows.sort(key=lambda x:x['order']); canonical=json.dumps(rows,separators=(',',':'),sort_keys=True).encode(); Path('/tmp/di_o1o2_manifest_eval.json').write_bytes(canonical); got=hashlib.sha256(canonical).hexdigest(); want=json.load(open('blind-di-o1o2/precommit.json'))['ordered_manifest_sha256']; assert got==want,(got,want); print('REPRODUCED',got)
+          PY
+      - name: Evaluate COLD arm
+        env:
+          DI_ROOT: checker-cold
+          DI_ARM: cold
+        run: python experiments/DI_O1_O2_EVALUATE_ARM.py
+      - name: Evaluate DEVELOPED arm
+        env:
+          DI_ROOT: checker-developed
+          DI_ARM: developed
+        run: python experiments/DI_O1_O2_EVALUATE_ARM.py
+      - name: Compare matched reachability
+        run: python experiments/DI_O1_O2_COMPARE.py
+      - name: Publish dependency record
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f blind-di-o1o2/result.json || { echo 'No scientific result: infrastructure null'; exit 0; }
+          mkdir -p results/di_o1_o2_dependency
+          cp blind-di-o1o2/precommit.json results/di_o1_o2_dependency/precommit.json
+          cp blind-di-o1o2/exposed.json results/di_o1_o2_dependency/exposed.json
+          cp blind-di-o1o2/cold_candidates.sha256 results/di_o1_o2_dependency/cold_candidates.sha256
+          cp blind-di-o1o2/developed_candidates.sha256 results/di_o1_o2_dependency/developed_candidates.sha256
+          cp blind-di-o1o2/cold_result.json results/di_o1_o2_dependency/cold_result.json
+          cp blind-di-o1o2/developed_result.json results/di_o1_o2_dependency/developed_result.json
+          cp blind-di-o1o2/result.json results/di_o1_o2_dependency/result.json
+          python - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path('results/di_o1_o2_dependency'); files={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.iterdir()) if p.is_file()}; (root/'PUBLISHED_MANIFEST.json').write_text(json.dumps({'protocol':'DI_O1_O2_DEPENDENCY_V1','files':files},indent=2,sort_keys=True)+'\n')
+          PY
+          git config user.name 'github-actions[bot]'; git config user.email '41898282+github-actions[bot]@users.noreply.github.com'; git add results/di_o1_o2_dependency
+          git diff --cached --quiet && exit 0
+          VERDICT=$(python -c "import json; print(json.load(open('blind-di-o1o2/result.json'))['verdict'])")
+          git commit -m "result: publish DI O1-O2 dependency ${VERDICT}"
+          git push origin HEAD:agent/di-blind-developmental-challenge-v2
+      - name: Upload full dependency audit bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: di-o1-o2-dependency-audit
+          path: blind-di-o1o2/
+          if-no-files-found: warn
