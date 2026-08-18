@@ -7,6 +7,9 @@ on:
       - '.github/workflows/one-layer-deeper-baseline-hard.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   baseline-hard-h1:
     runs-on: ubuntu-24.04
@@ -39,12 +42,29 @@ jobs:
       - name: Validate untouched baseline
         run: one-layer validate /tmp/baseline_adamw_submission.py
       - name: Hosted H100 HARD H1 — baseline control
+        id: submit
         run: |
+          set +e
           set -o pipefail
-          one-layer submit /tmp/baseline_adamw_submission.py --tier hard --dataset h1 --wait | tee baseline_hard_h1.log
+          one-layer submit /tmp/baseline_adamw_submission.py --tier hard --dataset h1 --wait 2>&1 | tee baseline_hard_h1.log
+          rc=${PIPESTATUS[0]}
+          echo "submit_rc=$rc" >> "$GITHUB_OUTPUT"
+          exit 0
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: one-layer-deeper-baseline-hard-h1-${{ github.sha }}
           path: baseline_hard_h1.log
           if-no-files-found: ignore
+      - name: Persist baseline Hard control log
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/one_layer_deeper/hard_controls
+          cp baseline_hard_h1.log experiments/one_layer_deeper/hard_controls/baseline_adamw_hard_h1.log
+          printf 'official_baseline_blob=bb749296a8207d5c232fe641180beca46f6320ba\nupstream_commit=4ceff9570f98b8ee4625b88b3331a839c4ac4283\nsubmit_rc=%s\n' '${{ steps.submit.outputs.submit_rc }}' > experiments/one_layer_deeper/hard_controls/baseline_adamw_hard_h1.meta
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add experiments/one_layer_deeper/hard_controls/baseline_adamw_hard_h1.log experiments/one_layer_deeper/hard_controls/baseline_adamw_hard_h1.meta
+          git commit -m 'Record untouched baseline AdamW Hard h1 control' || exit 0
+          git push
