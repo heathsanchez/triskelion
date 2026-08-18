@@ -1,0 +1,30 @@
+{
+  "protocol": "DI_BLIND_V2_AUTONOMOUS_CONSTRUCTION",
+  "base_model": "Qwen/Qwen3.5-9B",
+  "base_weight_updates": 0,
+  "seed": 20260819,
+  "candidate_count": 16,
+  "temperature": 0.7,
+  "max_tokens": 2200,
+  "prompt_sha256": "cd68508d00a9d3bcdd6e393b2e76c02eff3e1f9d8347d41ac8eab9bf3bb8615a",
+  "patch_schema": "single_line_range_replacement_v1",
+  "admissible_count": 3,
+  "candidates": [
+    {"index":0,"raw_sha256":"582480ecb9ed6df11482155294580f83be7daca09044041e968669875a05e1f3","admissible":false,"admissibility_reason":"not_object"},
+    {"index":1,"raw_sha256":"5d908dc3798eedfc32cfb9b1f9ad22160175652848096b936a1ab35bddec395e","admissible":false,"admissibility_reason":"not_object"},
+    {"index":2,"raw_sha256":"ff75cc229f2985798a7e18e575bb6082e347f9a3a5fddb0c07ec2cfc69e6bc81","admissible":true,"admissibility_reason":"ok"},
+    {"index":3,"raw_sha256":"bb7b97e12a5316a3c3dfac76c6795a8253af971d92f3c0d8dfb747c551577cca","admissible":false,"admissibility_reason":"too_many_replaced_lines"},
+    {"index":4,"raw_sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","admissible":false,"admissibility_reason":"not_object"},
+    {"index":5,"raw_sha256":"0c41ec7619a4f0d3d8d6b54ad4bcafaf1c729c3cae963f3afbe14c40b646cd17","admissible":false,"admissibility_reason":"not_object"},
+    {"index":6,"raw_sha256":"9ae4e786cbf6842271e293229875a30d871ebfb8ae5bc42ead8f126e27693b62","admissible":false,"admissibility_reason":"not_object"},
+    {"index":7,"raw_sha256":"1a42813540d0b2cbf9f5dcf5e9fde4fdf7a80b77f0401fd40dc25a102eb0de9f","admissible":false,"admissibility_reason":"path_outside_allowed_surface"},
+    {"index":8,"raw_sha256":"b683e6336b3c76f390315d902e5cc1b13c4eb870c7d1afead027065968e78d9d","admissible":false,"admissibility_reason":"missing_fields"},
+    {"index":9,"raw_sha256":"485386ba9a6d33f41513bbb14ab582b4f38e3e32fb81d620d6cda03239ed32e7","admissible":true,"admissibility_reason":"ok"},
+    {"index":10,"raw_sha256":"f9017f2372bd6380a5b84090b48b46b39e677aa5304a2b3c9cbd7d6bc2958723","admissible":false,"admissibility_reason":"not_object"},
+    {"index":11,"raw_sha256":"7e3925bc690d7a57123568a4df1b6a5f6efd12225c4b22019006398af789b346","admissible":true,"admissibility_reason":"ok"},
+    {"index":12,"raw_sha256":"7fb03e1c4bd0137c9705ad3ace08ff69be9f2fc883c3318921419076e30cf447","admissible":false,"admissibility_reason":"not_object"},
+    {"index":13,"raw_sha256":"4f0c078bb4488307eedf3d690989aec5f7b8e7c3c80be718b5a8ab804b74343a","admissible":false,"admissibility_reason":"not_object"},
+    {"index":14,"raw_sha256":"65e563671985df397665bc99759aa0592f2193d6fcdae73774914726b6211503","admissible":false,"admissibility_reason":"not_object"},
+    {"index":15,"raw_sha256":"8c6b18983b71eb12dac0e678db348de694f425de970ca27f6b9177f7b307e0f8","admissible":false,"admissibility_reason":"not_object"}
+  ]
+}

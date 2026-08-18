@@ -1,0 +1,7 @@
+{
+  "expected": "reject",
+  "status": "accept",
+  "return_code": 0,
+  "stdout_tail": "Checking decl 0/6 arena=12\n",
+  "stderr_tail": ""
+}

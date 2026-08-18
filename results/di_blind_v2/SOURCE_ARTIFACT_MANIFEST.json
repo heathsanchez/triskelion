@@ -1,0 +1,14 @@
+{
+  "source_run_id": 32082377508,
+  "source_artifact_id": 9305985284,
+  "source_artifact_digest": "sha256:0636cda44aa21dcf0b0dbf15ac67ddb400fad6db24b043b0e4a468cb74b21a70",
+  "source_files_sha256": {
+    "precommit.json": "a7ba530c660330196c6173a101ddbc415326269ae17ce2a871f87e3e481a0702",
+    "exposed.json": "6122b4b178d783bad5cf7eb75730cb469876d225d3a97ce980c36baa9b6c83bb",
+    "exposed_baseline.json": "2d87519b84c743012593a0bfb1f3ffd86034f8f7e324d2190676826bc8903c92",
+    "candidates.sha256": "164d2b5338c2484a2d08d8735dd656d5df7a7c739b48c5b2c426bdd4a6812528",
+    "candidate_manifest.json": "e6e8f7bd406bfd99eafe1461a9026d4bc037c9f3facab6369fc1274052410606",
+    "result.json": "e08e0bfdbd92c034908604394f04ab452b202369e1f0fcbedee3ee807e0c3173"
+  },
+  "note": "The committed public result preserves verdict-relevant fields while replacing verbose compiler stderr tails with SHA-256 plus byte length. The complete original result is anchored above and remains in the immutable Actions artifact."
+}

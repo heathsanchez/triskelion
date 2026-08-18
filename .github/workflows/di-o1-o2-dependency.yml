@@ -1,0 +1,40 @@
+name: DI O1 to O2 Dependency Eligibility
+
+on:
+  push:
+    branches: [agent/di-blind-developmental-challenge-v2]
+    paths:
+      - 'results/di_blind_v2/result.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eligibility:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/di-blind-developmental-challenge-v2
+      - name: Classify O1 prerequisite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('results/di_blind_v2/result.json')
+          if not p.exists():
+              print('O1_O2_STATUS=INAPPLICABLE_NO_PUBLISHED_V2_RESULT')
+              raise SystemExit(0)
+          x=json.loads(p.read_text())
+          verdict=x.get('verdict')
+          print('V2_VERDICT='+str(verdict))
+          if verdict != 'PASS_DI_BLIND_V2_AUTONOMOUS_CONSTRUCTION' or not x.get('selected'):
+              print('O1_O2_STATUS=INAPPLICABLE_NO_AUTONOMOUS_O1')
+              print('The preregistered O1->O2 dependency experiment is not executed because its causal prerequisite failed.')
+              raise SystemExit(0)
+          print('O1_O2_STATUS=ELIGIBLE_AUTONOMOUS_O1_PRESENT')
+          print('This V2-bound workflow is intentionally archival. A passing O1 must be advanced on a freshly frozen dependency branch before any O2 target is exposed.')
+          PY
