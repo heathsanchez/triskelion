@@ -1,0 +1,175 @@
+{
+  "models": [
+    {
+      "seed": 0,
+      "exact": 0.010804321728691477,
+      "final_loss": 0.43126353025436404
+    },
+    {
+      "seed": 1,
+      "exact": 0.011404561824729893,
+      "final_loss": 0.4078890383243561
+    },
+    {
+      "seed": 2,
+      "exact": 0.0078031212484993995,
+      "final_loss": 0.4297588586807251
+    }
+  ],
+  "top_separators": [
+    {
+      "feature": "edge_distance",
+      "threshold": 1,
+      "mean_effect_hi_minus_lo": -0.7101300268535086,
+      "seed_effects": [
+        -0.7166740281018067,
+        -0.7031674934124593,
+        -0.7105485590462599
+      ],
+      "abs_effect": 0.7101300268535086
+    },
+    {
+      "feature": "n_terms",
+      "threshold": 2,
+      "mean_effect_hi_minus_lo": -0.6432681807277663,
+      "seed_effects": [
+        -0.6401159355945191,
+        -0.6452982044969671,
+        -0.6443904020918125
+      ],
+      "abs_effect": 0.6432681807277663
+    },
+    {
+      "feature": "edge_distance",
+      "threshold": 2,
+      "mean_effect_hi_minus_lo": -0.6188526048904811,
+      "seed_effects": [
+        -0.6145970937912814,
+        -0.6223724628556839,
+        -0.619588258024478
+      ],
+      "abs_effect": 0.6188526048904811
+    },
+    {
+      "feature": "n_terms",
+      "threshold": 1,
+      "mean_effect_hi_minus_lo": -0.6024701599220966,
+      "seed_effects": [
+        -0.6041114178041015,
+        -0.6068825237545803,
+        -0.596416538207608
+      ],
+      "abs_effect": 0.6024701599220966
+    },
+    {
+      "feature": "n_terms",
+      "threshold": 3,
+      "mean_effect_hi_minus_lo": -0.5344605670944148,
+      "seed_effects": [
+        -0.5337543483525324,
+        -0.5363963562785562,
+        -0.5332309966521559
+      ],
+      "abs_effect": 0.5344605670944148
+    },
+    {
+      "feature": "carry_in",
+      "threshold": 0,
+      "mean_effect_hi_minus_lo": -0.5267992908219361,
+      "seed_effects": [
+        -0.5325946131491659,
+        -0.519311943475112,
+        -0.5284913158415303
+      ],
+      "abs_effect": 0.5267992908219361
+    },
+    {
+      "feature": "carry_in",
+      "threshold": 9,
+      "mean_effect_hi_minus_lo": -0.5254187757378174,
+      "seed_effects": [
+        -0.5251319063143446,
+        -0.5378935741249142,
+        -0.5132308467741935
+      ],
+      "abs_effect": 0.5254187757378174
+    },
+    {
+      "feature": "edge_distance",
+      "threshold": 0,
+      "mean_effect_hi_minus_lo": -0.5253473655248314,
+      "seed_effects": [
+        -0.5279612051176228,
+        -0.5283739166322741,
+        -0.5197069748245976
+      ],
+      "abs_effect": 0.5253473655248314
+    },
+    {
+      "feature": "carry_in",
+      "threshold": 8,
+      "mean_effect_hi_minus_lo": -0.5246925141364563,
+      "seed_effects": [
+        -0.5155289330922243,
+        -0.5484833806940498,
+        -0.5100652286230948
+      ],
+      "abs_effect": 0.5246925141364563
+    },
+    {
+      "feature": "carry_in",
+      "threshold": 11,
+      "mean_effect_hi_minus_lo": -0.5076254354183508,
+      "seed_effects": [
+        -0.5036835526497331,
+        -0.5301259887732079,
+        -0.48906676483211176
+      ],
+      "abs_effect": 0.5076254354183508
+    }
+  ],
+  "position_gap": [
+    {
+      "seed": 0,
+      "digits": 3,
+      "edge_mean": 1.0,
+      "middle_mean": 0.4703947368421053,
+      "gap_middle_minus_edge": -0.5296052631578947
+    },
+    {
+      "seed": 0,
+      "digits": 4,
+      "edge_mean": 1.0,
+      "middle_mean": 0.47214883311316597,
+      "gap_middle_minus_edge": -0.527851166886834
+    },
+    {
+      "seed": 1,
+      "digits": 3,
+      "edge_mean": 1.0,
+      "middle_mean": 0.475328947368421,
+      "gap_middle_minus_edge": -0.524671052631579
+    },
+    {
+      "seed": 1,
+      "digits": 4,
+      "edge_mean": 1.0,
+      "middle_mean": 0.4713782474680757,
+      "gap_middle_minus_edge": -0.5286217525319243
+    },
+    {
+      "seed": 2,
+      "digits": 3,
+      "edge_mean": 1.0,
+      "middle_mean": 0.4638157894736842,
+      "gap_middle_minus_edge": -0.5361842105263158
+    },
+    {
+      "seed": 2,
+      "digits": 4,
+      "edge_mean": 1.0,
+      "middle_mean": 0.48139586085424924,
+      "gap_middle_minus_edge": -0.5186041391457508
+    }
+  ]
+}
