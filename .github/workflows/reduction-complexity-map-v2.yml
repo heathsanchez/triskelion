@@ -1,0 +1,220 @@
+name: Reduction Complexity Map V2
+
+on:
+  push:
+    paths:
+      - '.github/workflows/reduction-complexity-map-v2.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/reduction-complexity-map-v2.yml'
+      - 'precommits/REDUCTION_COMPLEXITY_MAP_V2_PRECOMMIT_20260818.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Clone pinned public frontier
+        run: |
+          git clone https://github.com/benjaminW2025/one-layer-deeper.git /tmp/old
+          cd /tmp/old
+          git checkout 54bfc36f23f95ca3243755151823867f0aaaf82a || true
+          git rev-parse HEAD
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Execute frozen matched-coverage complexity map
+        working-directory: /tmp/old
+        run: |
+          cat > /tmp/run_v2.py <<'PY'
+          from __future__ import annotations
+          import csv, json, math, random, sys, time
+          from collections import defaultdict
+          from pathlib import Path
+          import torch
+
+          sys.path.insert(0, '/tmp/old/explorations')
+          sys.path.insert(0, '/tmp/old')
+          from harness import (
+              EncoderModel, VOCAB_SIZE, gather_target_logits, sequence_loss,
+              _tokenize, _chance_baselines,
+          )
+          from data.squaring_mod import _sample_rsa_factors
+
+          DATA_SEED = 45
+          MODEL_SEED = 0
+          BITS = [6,7,8,9]
+          COVERAGE = 0.50
+          EPOCHS = 20
+          BATCH = 256
+          LR = 3e-4
+          WEIGHT_DECAY = 0.01
+          WARMUP = 50
+          GRAD_CLIP = 1.0
+          D_MODEL = 128
+          N_LAYERS = 2
+          N_HEADS = 2
+          DEVICE = torch.device('cpu')
+          OUT = Path('/tmp/v2out')
+          OUT.mkdir(parents=True, exist_ok=True)
+
+          def build_data(bits:int):
+              rng = random.Random(DATA_SEED)
+              p,q = _sample_rsa_factors(modulus_bits=bits, rng=rng)
+              N = p*q
+              space = N*N
+              n_train = int(math.floor(COVERAGE * space))
+              available = space - n_train
+              n_eval = min(2000, available)
+              values = rng.sample(range(space), n_train + n_eval)
+              train_y = values[:n_train]
+              fresh_y = values[n_train:]
+              def recs(vals):
+                  return [(p,q,y,1,y % N) for y in vals]
+              train_records = recs(train_y)
+              fresh_records = recs(fresh_y)
+              from data.squaring_mod import tokenize_squaring_mod_with_result
+              def plen(r):
+                  pp,qq,y,t,res=r
+                  ids,_ = tokenize_squaring_mod_with_result(pp*qq,y,t,res,separate_input_output=True)
+                  return len(ids)
+              max_seq_len=max(plen(r) for r in train_records+fresh_records)
+              return N, n_train, n_eval, train_records, fresh_records, _tokenize(train_records,max_seq_len), _tokenize(fresh_records,max_seq_len), max_seq_len
+
+          @torch.no_grad()
+          def predict(model, tensors, batch_size=1024):
+              model.eval()
+              preds=[]; labels=[]
+              n=tensors['input_ids'].size(0)
+              for start in range(0,n,batch_size):
+                  stop=min(start+batch_size,n)
+                  b={k:v[start:stop].to(DEVICE) for k,v in tensors.items()}
+                  logits=model(b['input_ids'],b['attention_mask'])
+                  p=gather_target_logits(logits.float(), b['target_positions']).argmax(dim=-1).cpu()
+                  preds.append(p); labels.append(b['labels'].cpu())
+              model.train()
+              return torch.cat(preds), torch.cat(labels)
+
+          cell_summaries=[]
+          per_rows=[]
+          for bits in BITS:
+              N,n_train,n_eval,train_records,fresh_records,train,fresh,max_seq_len=build_data(bits)
+              steps=int(math.ceil(EPOCHS*n_train/BATCH))
+              torch.manual_seed(MODEL_SEED)
+              model=EncoderModel(VOCAB_SIZE,max_seq_len,D_MODEL,N_LAYERS,N_HEADS).to(DEVICE)
+              opt=torch.optim.AdamW(model.parameters(),lr=LR,weight_decay=WEIGHT_DECAY)
+              sched=torch.optim.lr_scheduler.LambdaLR(opt,lambda s:min(1.0,(s+1)/max(WARMUP,1)))
+              gen=torch.Generator(device='cpu').manual_seed(MODEL_SEED)
+              tr={k:v.to(DEVICE) for k,v in train.items()}
+              losses=[]; t0=time.time(); diverged=False
+              for step in range(steps):
+                  idx=torch.randint(0,n_train,(BATCH,),generator=gen).to(DEVICE)
+                  b={k:v[idx] for k,v in tr.items()}
+                  logits=model(b['input_ids'],b['attention_mask'])
+                  loss=sequence_loss(logits.float(),b['labels'],b['target_positions'])
+                  opt.zero_grad(set_to_none=True); loss.backward()
+                  torch.nn.utils.clip_grad_norm_(model.parameters(),GRAD_CLIP)
+                  opt.step(); sched.step()
+                  lv=float(loss.detach()); losses.append(lv)
+                  if math.isnan(lv) or math.isinf(lv): diverged=True; break
+              first=sum(losses[:10])/max(1,len(losses[:10])); final=sum(losses[-10:])/max(1,len(losses[-10:]))
+              flat=(not diverged) and bool(losses) and final>0.95*first
+              preds,labels=predict(model,fresh)
+              valid=labels!=-100
+              hits=(preds==labels)&valid
+              exact=(hits|~valid).all(dim=1)
+              digit_acc=float(hits.sum()/valid.sum())
+              exact_acc=float(exact.float().mean())
+              chance_digit,chance_exact=_chance_baselines(fresh_records)
+
+              bins=defaultdict(lambda:[0,0,0,0])
+              qwidth=defaultdict(lambda:[0,0,0,0])
+              for i,rec in enumerate(fresh_records):
+                  p,q,y,t,r=rec
+                  qq=y//N
+                  norm=qq/(N-1) if N>1 else 0.0
+                  bi=0 if norm<.25 else 1 if norm<.5 else 2 if norm<.75 else 3
+                  key=['Q0_25','Q25_50','Q50_75','Q75_100'][bi]
+                  eh=int(exact[i]); dh=int(hits[i].sum()); dt=int(valid[i].sum())
+                  bins[key][0]+=eh; bins[key][1]+=1; bins[key][2]+=dh; bins[key][3]+=dt
+                  qw=len(str(qq)); qwidth[qw][0]+=eh; qwidth[qw][1]+=1; qwidth[qw][2]+=dh; qwidth[qw][3]+=dt
+                  per_rows.append({
+                      'bits':bits,'N':N,'y':y,'q':qq,'r':r,
+                      'N_digits':len(str(N)),'y_digits':len(str(y)),
+                      'q_digits':qw,'r_digits':len(str(r)),
+                      'q_norm':round(norm,8),'q_bin':key,'exact':eh,
+                      'correct_digits':dh,'valid_digits':dt,
+                  })
+              bsum={k:{'n':v[1],'exact':v[0]/v[1],'digit':v[2]/v[3]} for k,v in sorted(bins.items())}
+              qsum={str(k):{'n':v[1],'exact':v[0]/v[1],'digit':v[2]/v[3]} for k,v in sorted(qwidth.items())}
+              cell={
+                  'bits':bits,'N':N,'space':N*N,'n_train':n_train,'coverage':n_train/(N*N),
+                  'n_eval':n_eval,'epochs':EPOCHS,'steps':len(losses),'first_loss':first,'final_loss':final,
+                  'diverged':diverged,'flat_from_start':flat,'train_seconds':time.time()-t0,
+                  'digit_acc':digit_acc,'exact_acc':exact_acc,'chance_digit':chance_digit,'chance_exact':chance_exact,
+                  'digit_excess':digit_acc-chance_digit,'exact_excess':exact_acc-chance_exact,
+                  'q_bins':bsum,'q_digit_width':qsum,
+              }
+              cell_summaries.append(cell)
+              print(json.dumps(cell,sort_keys=True),flush=True)
+
+          eligible=[c for c in cell_summaries if not c['diverged'] and not c['flat_from_start']]
+          best_so_far=-1.0; material=[]
+          for c in eligible:
+              if best_so_far>=0 and best_so_far-c['digit_excess']>=0.10:
+                  material.append({'bits':c['bits'],'drop_from_best_lower':best_so_far-c['digit_excess']})
+              best_so_far=max(best_so_far,c['digit_excess'])
+          all_positive=bool(eligible) and all(c['digit_excess']>0 for c in eligible)
+          vals=[c['digit_excess'] for c in eligible]
+          monotone_nonincreasing=all(vals[i+1] <= vals[i]+1e-9 for i in range(len(vals)-1)) if len(vals)>1 else False
+          if not eligible:
+              verdict='NULL_OPTIMIZATION'
+          elif material:
+              verdict='QUOTIENT_COMPLEXITY_WALL'
+          elif all_positive and not monotone_nonincreasing:
+              verdict='SUPPORT_DOMINANT_OR_MIXED_NO_MATERIAL_DROP'
+          else:
+              verdict='MIXED_LOCALIZED'
+          summary={
+              'protocol':'REDUCTION_COMPLEXITY_MAP_V2','verdict':verdict,
+              'eligible_cells':len(eligible),'material_drop_flags':material,
+              'all_eligible_digit_excess_positive':all_positive,
+              'monotone_nonincreasing_digit_excess':monotone_nonincreasing,
+              'cells':cell_summaries,
+              'claim_boundary':'Matched CPU diagnostic of one representation and one small encoder; not a universal arithmetic or architecture claim.'
+          }
+          (OUT/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          with (OUT/'per_example.csv').open('w',newline='') as f:
+              fields=list(per_rows[0].keys()); w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(per_rows)
+          md=['# REDUCTION_COMPLEXITY_MAP_V2 result','',f"**Verdict:** `{verdict}`",'', '| bits | N | coverage | steps | digit | chance | excess | exact | chance | excess |', '|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+          for c in cell_summaries:
+              md.append(f"| {c['bits']} | {c['N']} | {c['coverage']:.3%} | {c['steps']} | {c['digit_acc']:.5f} | {c['chance_digit']:.5f} | {c['digit_excess']:+.5f} | {c['exact_acc']:.5f} | {c['chance_exact']:.5f} | {c['exact_excess']:+.5f} |")
+          md += ['', '## Quotient quartiles','']
+          for c in cell_summaries:
+              md.append(f"### bits={c['bits']} N={c['N']}")
+              for k,v in c['q_bins'].items(): md.append(f"- {k}: n={v['n']}, digit={v['digit']:.5f}, exact={v['exact']:.5f}")
+          md += ['', '## Decision flags','', f"- material drop flags: `{material}`", f"- all eligible digit excess positive: `{all_positive}`", f"- monotone nonincreasing digit excess: `{monotone_nonincreasing}`", '', '## Claim boundary','', summary['claim_boundary']]
+          (OUT/'README.md').write_text('\n'.join(md)+'\n')
+          print('\n'.join(md),flush=True)
+          PY
+          python /tmp/run_v2.py
+      - name: Stage results
+        run: |
+          mkdir -p results/one_layer_deeper/reduction_complexity_map_v2
+          cp /tmp/v2out/* results/one_layer_deeper/reduction_complexity_map_v2/
+          cat results/one_layer_deeper/reduction_complexity_map_v2/README.md
+      - name: Commit result artifacts
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/reduction_complexity_map_v2
+          git commit -m 'Record reduction complexity map v2' || exit 0
+          git push
