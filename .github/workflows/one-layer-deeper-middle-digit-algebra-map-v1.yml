@@ -1,0 +1,260 @@
+name: One Layer Deeper Middle-Digit Algebra Map V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-middle-digit-algebra-map-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  algebra-map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run algebraic contribution map
+        shell: bash
+        run: |
+          cat > /tmp/algebra_map.py <<'PY'
+          import csv, json, math, random, pathlib
+          from collections import defaultdict
+          import torch
+          import torch.nn as nn
+          import torch.nn.functional as F
+
+          SEEDS=(0,1,2)
+          TRAIN_COVERAGE=0.30
+          STEPS=500
+          BATCH=256
+          D_MODEL=128
+          LAYERS=2
+          HEADS=4
+          LR=3e-4
+          DIGITS=(3,4)
+          PAD=0; SEP=11; QUERY=12; VOCAB=13; MAX_POS=16
+
+          def coeff_trace(x):
+              ds=[int(c) for c in str(x)][::-1]
+              d=len(ds)
+              carry=0; out=[]
+              for k in range(2*d):
+                  terms=[ds[i]*ds[k-i] for i in range(d) if 0 <= k-i < d]
+                  raw=sum(terms)
+                  total=raw+carry
+                  digit=total%10
+                  carry_out=total//10
+                  out.append({
+                      'lsd_position':k,
+                      'n_terms':len(terms),
+                      'raw_coeff':raw,
+                      'carry_in':carry,
+                      'carry_out':carry_out,
+                      'total_pre_mod':total,
+                      'edge_distance':min(k,2*d-1-k),
+                      'target_digit':digit,
+                  })
+                  carry=carry_out
+              return out
+
+          def carry_chain(x):
+              tr=coeff_trace(x)
+              best=cur=0
+              for z in tr:
+                  flag=z['carry_out']>0
+                  cur=cur+1 if flag else 0
+                  best=max(best,cur)
+              return best
+
+          def stable(x):
+              d=len(str(x)); return len(str(x*x))==2*d-1
+
+          cells={}
+          for d in DIGITS:
+              for cbin in ('low','high'):
+                  xs=[]
+                  for x in range(10**(d-1),10**d):
+                      if not stable(x): continue
+                      c='low' if carry_chain(x)<=1 else 'high'
+                      if c==cbin: xs.append(x)
+                  cells[(d,cbin)]=xs
+
+          def freeze(seed=20260818):
+              train={}; test={}
+              for key,xs in cells.items():
+                  rr=random.Random(seed+100*key[0]+(0 if key[1]=='low' else 1))
+                  ys=xs.copy(); rr.shuffle(ys)
+                  n=max(1,round(TRAIN_COVERAGE*len(ys)))
+                  train[key]=ys[:n]; test[key]=ys[n:]
+              return train,test
+          train_cells,test_cells=freeze()
+          train_keys=sorted(train_cells)
+
+          def encode(x):
+              d=len(str(x)); digs=[int(c)+1 for c in str(x)]
+              out=f'{x*x:0{2*d}d}'
+              targets=[int(c) for c in out]
+              tok=digs+[SEP]+[QUERY]*(2*d)
+              typ=[0]*d+[1]+[2]*(2*d)
+              pos=list(range(len(tok)))
+              qstart=d+1
+              return tok,typ,pos,targets,qstart,d
+
+          def collate(xs):
+              enc=[encode(x) for x in xs]
+              L=max(len(e[0]) for e in enc); Q=max(len(e[3]) for e in enc)
+              tok=torch.full((len(xs),L),PAD,dtype=torch.long)
+              typ=torch.zeros((len(xs),L),dtype=torch.long)
+              pos=torch.zeros((len(xs),L),dtype=torch.long)
+              mask=torch.zeros((len(xs),L),dtype=torch.bool)
+              qidx=torch.zeros((len(xs),Q),dtype=torch.long)
+              lab=torch.full((len(xs),Q),-100,dtype=torch.long)
+              qmask=torch.zeros((len(xs),Q),dtype=torch.bool)
+              ds=[]
+              for i,(t,ty,p,y,qs,d) in enumerate(enc):
+                  n=len(t); q=len(y)
+                  tok[i,:n]=torch.tensor(t); typ[i,:n]=torch.tensor(ty); pos[i,:n]=torch.tensor(p); mask[i,:n]=True
+                  qidx[i,:q]=torch.arange(qs,qs+q); lab[i,:q]=torch.tensor(y); qmask[i,:q]=True; ds.append(d)
+              return tok,typ,pos,mask,qidx,lab,qmask,ds
+
+          class Model(nn.Module):
+              def __init__(self):
+                  super().__init__()
+                  self.te=nn.Embedding(VOCAB,D_MODEL); self.ty=nn.Embedding(3,D_MODEL); self.pe=nn.Embedding(MAX_POS,D_MODEL)
+                  layer=nn.TransformerEncoderLayer(D_MODEL,HEADS,4*D_MODEL,batch_first=True,norm_first=True,activation='gelu')
+                  self.enc=nn.TransformerEncoder(layer,LAYERS)
+                  self.ln=nn.LayerNorm(D_MODEL); self.head=nn.Linear(D_MODEL,10)
+              def forward(self,tok,typ,pos,mask,qidx):
+                  h=self.te(tok)+self.ty(typ)+self.pe(pos)
+                  h=self.enc(h,src_key_padding_mask=~mask)
+                  h=self.head(self.ln(h))
+                  return h.gather(1,qidx.unsqueeze(-1).expand(-1,-1,10))
+
+          def sample_batch(rng):
+              xs=[]
+              for _ in range(BATCH):
+                  key=train_keys[rng.randrange(len(train_keys))]
+                  pool=train_cells[key]; xs.append(pool[rng.randrange(len(pool))])
+              return xs
+
+          all_rows=[]
+          model_summary=[]
+          for seed in SEEDS:
+              random.seed(seed); torch.manual_seed(seed); torch.set_num_threads(2)
+              rng=random.Random(seed)
+              model=Model(); opt=torch.optim.AdamW(model.parameters(),lr=LR,weight_decay=0.01)
+              losses=[]
+              model.train()
+              for step in range(STEPS):
+                  xs=sample_batch(rng)
+                  tok,typ,pos,mask,qidx,lab,qmask,_=collate(xs)
+                  logits=model(tok,typ,pos,mask,qidx)
+                  loss=F.cross_entropy(logits.transpose(1,2),lab,ignore_index=-100)
+                  opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(model.parameters(),1.0); opt.step()
+                  losses.append(float(loss.detach()))
+              model.eval(); exact_total=exact_hit=0
+              with torch.no_grad():
+                  for key in sorted(test_cells):
+                      xs=test_cells[key]
+                      for start in range(0,len(xs),256):
+                          sub=xs[start:start+256]
+                          tok,typ,pos,mask,qidx,lab,qmask,ds=collate(sub)
+                          pred=model(tok,typ,pos,mask,qidx).argmax(-1)
+                          for i,x in enumerate(sub):
+                              d=ds[i]; q=2*d
+                              p=pred[i,:q].tolist(); y=lab[i,:q].tolist()
+                              exact_total+=1; exact_hit+=int(p==y)
+                              trace=coeff_trace(x)
+                              # trace is LSD->MSD arithmetic; model output is MSD->LSD, so reverse index.
+                              for j in range(q):
+                                  sig=q-1-j
+                                  z=trace[sig]
+                                  all_rows.append({
+                                      'seed':seed,'x':x,'digits':d,'carry_bin':key[1],
+                                      'lsd_position':sig,'correct':int(p[j]==y[j]),
+                                      'n_terms':z['n_terms'],'raw_coeff':z['raw_coeff'],
+                                      'carry_in':z['carry_in'],'carry_out':z['carry_out'],
+                                      'total_pre_mod':z['total_pre_mod'],'edge_distance':z['edge_distance'],
+                                      'target_digit':z['target_digit'],
+                                  })
+              model_summary.append({'seed':seed,'exact':exact_hit/max(1,exact_total),'final_loss':sum(losses[-10:])/10})
+
+          outdir=pathlib.Path('results/one_layer_deeper/middle_digit_algebra_map_v1'); outdir.mkdir(parents=True,exist_ok=True)
+          with (outdir/'digit_rows.csv').open('w',newline='') as f:
+              wr=csv.DictWriter(f,fieldnames=all_rows[0].keys()); wr.writeheader(); wr.writerows(all_rows)
+
+          # One-factor threshold mining with minimum support and per-seed consistency.
+          features=('n_terms','raw_coeff','carry_in','carry_out','total_pre_mod','edge_distance')
+          separators=[]
+          for feat in features:
+              vals=sorted(set(r[feat] for r in all_rows))
+              for t in vals[:-1]:
+                  per=[]; ok=True
+                  for seed in SEEDS:
+                      lo=[r['correct'] for r in all_rows if r['seed']==seed and r[feat]<=t]
+                      hi=[r['correct'] for r in all_rows if r['seed']==seed and r[feat]>t]
+                      if len(lo)<100 or len(hi)<100: ok=False; break
+                      per.append(sum(hi)/len(hi)-sum(lo)/len(lo))
+                  if not ok: continue
+                  mean=sum(per)/len(per)
+                  separators.append({'feature':feat,'threshold':t,'mean_effect_hi_minus_lo':mean,'seed_effects':per,'abs_effect':abs(mean)})
+          separators.sort(key=lambda z:z['abs_effect'],reverse=True)
+
+          # Position baseline: quantify middle vs edge gap by seed and digit length.
+          pos=[]
+          for seed in SEEDS:
+              for d in DIGITS:
+                  rs=[r for r in all_rows if r['seed']==seed and r['digits']==d]
+                  by=defaultdict(list)
+                  for r in rs: by[r['lsd_position']].append(r['correct'])
+                  acc={k:sum(v)/len(v) for k,v in by.items()}
+                  edge=[acc[0],acc[2*d-1]]
+                  middle=[acc[k] for k in range(1,2*d-1)]
+                  pos.append({'seed':seed,'digits':d,'edge_mean':sum(edge)/2,'middle_mean':sum(middle)/len(middle),'gap_middle_minus_edge':sum(middle)/len(middle)-sum(edge)/2})
+
+          with (outdir/'separators.csv').open('w',newline='') as f:
+              wr=csv.DictWriter(f,fieldnames=separators[0].keys()); wr.writeheader(); wr.writerows(separators[:100])
+          with (outdir/'position_gap.csv').open('w',newline='') as f:
+              wr=csv.DictWriter(f,fieldnames=pos[0].keys()); wr.writeheader(); wr.writerows(pos)
+
+          top=separators[:10]
+          lines=['# MIDDLE_DIGIT_ALGEBRA_MAP_V1','',
+                 'Three-seed residual remap after the carry-causal suite failed promotion. Same 30% support and 500-step budget; stable-width squaring only.','',
+                 '## Model summary','']
+          for m in model_summary: lines.append(f"- seed {m['seed']}: exact={m['exact']:.4f}, final_loss={m['final_loss']:.4f}")
+          lines += ['', '## Strongest one-factor algebraic separators','',
+                    '| rank | feature | threshold | mean accuracy effect (high-low) | seed effects |',
+                    '|---:|---|---:|---:|---|']
+          for i,z in enumerate(top,1):
+              lines.append(f"| {i} | {z['feature']} | {z['threshold']} | {z['mean_effect_hi_minus_lo']:+.3f} | {','.join(f'{v:+.3f}' for v in z['seed_effects'])} |")
+          lines += ['', '## Position gap','']
+          for z in pos: lines.append(f"- seed {z['seed']} d={z['digits']}: edge={z['edge_mean']:.3f}, middle={z['middle_mean']:.3f}, middle-edge={z['gap_middle_minus_edge']:+.3f}")
+          if top:
+              z=top[0]
+              consistent=all((v>0)==(z['mean_effect_hi_minus_lo']>0) for v in z['seed_effects'])
+              lines += ['', '## Decision','',
+                        f"Top landmark: **{z['feature']} @ {z['threshold']}**, mean effect {z['mean_effect_hi_minus_lo']:+.3f}, same-direction across seeds={consistent}."]
+              if z['abs_effect']>=0.15 and consistent:
+                  lines.append('This clears the rapid landmark threshold for a targeted causal separator; do not yet call it an obstruction until intervention/ablation.')
+              else:
+                  lines.append('No single algebraic coordinate clears the 15pp landmark threshold consistently; next move should test interactions/quotient classes rather than force a one-factor story.')
+          lines += ['', '## Claim boundary','', 'Diagnostic CPU map only; this localizes digit-level squaring residuals and makes no leaderboard or modular-squaring claim.']
+          (outdir/'README.md').write_text('\n'.join(lines))
+          (outdir/'summary.json').write_text(json.dumps({'models':model_summary,'top_separators':top,'position_gap':pos},indent=2))
+          print('\n'.join(lines))
+          PY
+          python /tmp/algebra_map.py
+      - name: Commit algebra map artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/middle_digit_algebra_map_v1
+          git commit -m 'Record middle-digit algebra map V1' || exit 0
+          git push
