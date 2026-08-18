@@ -5,9 +5,6 @@ on:
     branches: [agent/di-blind-developmental-challenge-v2]
     paths:
       - 'results/di_blind_v2/result.json'
-      - 'protocols/DI_O1_O2_DEPENDENCY_PRECOMMIT.md'
-      - 'experiments/DI_O1_O2_*.py'
-      - '.github/workflows/di-o1-o2-dependency.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +12,6 @@ permissions:
 
 jobs:
   dependency-gate:
-    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message != 'result: publish DI blind V2 VALID_NEGATIVE_V2_NO_CONSTRUCTION'
     runs-on: ubuntu-24.04
     timeout-minutes: 300
     env:
@@ -42,7 +38,7 @@ jobs:
           import json
           x=json.load(open('results/di_blind_v2/result.json'))
           if x.get('verdict')!='PASS_DI_BLIND_V2_AUTONOMOUS_CONSTRUCTION':
-              raise SystemExit('O1 gate inert: V2 did not PASS autonomous construction')
+              raise SystemExit('O1 dependency gate not applicable: V2 did not PASS autonomous construction')
           if not x.get('selected'): raise SystemExit('V2 PASS missing selected O1')
           print('O1',x['selected']['proposal_sha256'])
           PY
