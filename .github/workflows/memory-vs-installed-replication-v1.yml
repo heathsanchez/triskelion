@@ -1,0 +1,15 @@
+name: Memory vs Installed Replication V1
+on:
+  push:
+    branches: [agent/memory-vs-installed-replication-v1]
+  workflow_dispatch:
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python experiments/memory_vs_installed_replication_v1.py
+      - run: grep -q 'PASS_MEMORY_VS_INSTALLED_REPLICATION_V1' results/memory_vs_installed_replication_v1/summary.json
