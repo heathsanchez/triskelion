@@ -1,0 +1,22 @@
+name: Developmental Loop Capstone V1
+on:
+  push:
+    branches: [agent/developmental-loop-capstone-v1]
+  workflow_dispatch:
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reproduce frozen scientific result
+        shell: bash
+        run: |
+          set +e
+          python experiments/developmental_loop_capstone_v1.py
+          rc=$?
+          set -e
+          test "$rc" -eq 2
+          git diff --exit-code -- results/developmental_loop_capstone_v1/summary.json
