@@ -1,0 +1,9 @@
+{
+  "baseline_rc": 0,
+  "baseline_status": "accept",
+  "expected": "reject",
+  "order": "0a5e5552a8f7d7463f20c2be999c03350e29abb03a0fa8b08389b79dcee8b1c8",
+  "rank": 5,
+  "rel": "bad/tutorial/071_BogusRecursor.ndjson",
+  "sha256": "7f166e26d8b79ca496b066644bbe199faefa4c5fb3c6ded01e35ff4ec628a309"
+}
