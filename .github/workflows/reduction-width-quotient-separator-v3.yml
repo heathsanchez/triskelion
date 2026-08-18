@@ -1,0 +1,122 @@
+name: Reduction Width vs Quotient Separator V3
+
+on:
+  push:
+    paths:
+      - '.github/workflows/reduction-width-quotient-separator-v3.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/reduction-width-quotient-separator-v3.yml'
+      - 'precommits/REDUCTION_WIDTH_QUOTIENT_SEPARATOR_V3_PRECOMMIT_20260818.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  separator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Clone public frontier
+        run: git clone --depth 1 https://github.com/benjaminW2025/one-layer-deeper.git /tmp/old
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch numpy --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen minimal contrast
+        working-directory: /tmp/old
+        run: |
+          cat > /tmp/run_v3.py <<'PY'
+          import csv, json, math, random, sys, time
+          from collections import defaultdict
+          from pathlib import Path
+          import torch
+          sys.path.insert(0,'/tmp/old/explorations'); sys.path.insert(0,'/tmp/old')
+          from harness import EncoderModel,VOCAB_SIZE,gather_target_logits,sequence_loss,_tokenize,_chance_baselines
+          from data.squaring_mod import tokenize_squaring_mod_with_result
+
+          CELLS=[(247,13,19),(299,13,23),(323,17,19),(377,13,29)]
+          DATA_SEED=45; MODEL_SEED=0; COVERAGE=.50; EPOCHS=20; BATCH=256
+          DEVICE=torch.device('cpu'); OUT=Path('/tmp/v3out'); OUT.mkdir(parents=True,exist_ok=True)
+          V2_ANCHOR=0.20470851988535826
+
+          def build(N,p,q):
+              rng=random.Random(DATA_SEED+N)
+              space=N*N; n_train=int(math.floor(COVERAGE*space)); n_eval=min(2000,space-n_train)
+              vals=rng.sample(range(space),n_train+n_eval); tr=vals[:n_train]; ev=vals[n_train:]
+              rec=lambda ys:[(p,q,y,1,y%N) for y in ys]
+              train_records=rec(tr); fresh_records=rec(ev)
+              def plen(r):
+                  pp,qq,y,t,res=r; ids,_=tokenize_squaring_mod_with_result(pp*qq,y,t,res,separate_input_output=True); return len(ids)
+              m=max(plen(r) for r in train_records+fresh_records)
+              return n_train,n_eval,train_records,fresh_records,_tokenize(train_records,m),_tokenize(fresh_records,m),m
+
+          @torch.no_grad()
+          def predict(model,tensors):
+              model.eval(); ps=[]; ls=[]; n=tensors['input_ids'].size(0)
+              for s in range(0,n,1024):
+                  b={k:v[s:min(s+1024,n)].to(DEVICE) for k,v in tensors.items()}
+                  pred=gather_target_logits(model(b['input_ids'],b['attention_mask']).float(),b['target_positions']).argmax(-1).cpu()
+                  ps.append(pred); ls.append(b['labels'].cpu())
+              model.train(); return torch.cat(ps),torch.cat(ls)
+
+          cells=[]; per=[]
+          for N,p,q in CELLS:
+              n_train,n_eval,train_records,fresh_records,train,fresh,max_len=build(N,p,q)
+              steps=math.ceil(EPOCHS*n_train/BATCH); torch.manual_seed(MODEL_SEED)
+              model=EncoderModel(VOCAB_SIZE,max_len,128,2,2).to(DEVICE)
+              opt=torch.optim.AdamW(model.parameters(),lr=3e-4,weight_decay=.01)
+              sched=torch.optim.lr_scheduler.LambdaLR(opt,lambda s:min(1.0,(s+1)/50))
+              gen=torch.Generator(device='cpu').manual_seed(MODEL_SEED)
+              tr={k:v.to(DEVICE) for k,v in train.items()}; losses=[]; t0=time.time()
+              for step in range(steps):
+                  idx=torch.randint(0,n_train,(BATCH,),generator=gen).to(DEVICE); b={k:v[idx] for k,v in tr.items()}
+                  loss=sequence_loss(model(b['input_ids'],b['attention_mask']).float(),b['labels'],b['target_positions'])
+                  opt.zero_grad(set_to_none=True); loss.backward(); torch.nn.utils.clip_grad_norm_(model.parameters(),1.0); opt.step(); sched.step(); losses.append(float(loss.detach()))
+              first=sum(losses[:10])/10; final=sum(losses[-10:])/10; flat=final>.95*first
+              preds,labels=predict(model,fresh); valid=labels!=-100; hits=(preds==labels)&valid; exact=(hits|~valid).all(1)
+              digit=float(hits.sum()/valid.sum()); ex=float(exact.float().mean()); cd,ce=_chance_baselines(fresh_records)
+              qb=defaultdict(lambda:[0,0,0,0]); yw=defaultdict(lambda:[0,0,0,0])
+              for i,(_,_,y,_,r) in enumerate(fresh_records):
+                  qq=y//N; norm=qq/(N-1); key=['Q0_25','Q25_50','Q50_75','Q75_100'][0 if norm<.25 else 1 if norm<.5 else 2 if norm<.75 else 3]
+                  eh=int(exact[i]); dh=int(hits[i].sum()); dt=int(valid[i].sum()); width=len(str(y))
+                  for d,k in ((qb,key),(yw,str(width))): d[k][0]+=eh; d[k][1]+=1; d[k][2]+=dh; d[k][3]+=dt
+                  per.append({'N':N,'y':y,'q':qq,'r':r,'y_digits':width,'q_digits':len(str(qq)),'q_norm':round(norm,8),'q_bin':key,'y_six_digits':width==6,'exact':eh,'correct_digits':dh,'valid_digits':dt})
+              fmt=lambda d:{k:{'n':v[1],'exact':v[0]/v[1],'digit':v[2]/v[3]} for k,v in sorted(d.items())}
+              c={'N':N,'N2':N*N,'max_y_digits':len(str(N*N-1)),'coverage':n_train/(N*N),'n_train':n_train,'n_eval':n_eval,'steps':steps,'first_loss':first,'final_loss':final,'flat':flat,'digit':digit,'chance_digit':cd,'digit_excess':digit-cd,'exact':ex,'chance_exact':ce,'exact_excess':ex-ce,'q_bins':fmt(qb),'y_width':fmt(yw),'seconds':time.time()-t0}
+              cells.append(c); print(json.dumps(c,sort_keys=True),flush=True)
+
+          byN={c['N']:c for c in cells}; drop_anchor=V2_ANCHOR-byN[299]['digit_excess']; drop_width=byN[299]['digit_excess']-byN[323]['digit_excess']
+          degraded299=drop_anchor>=.10; width_drop=drop_width>=.10
+          if degraded299 and width_drop: verdict='COMBINED_BOUNDARY'
+          elif width_drop: verdict='INPUT_WIDTH_BOUNDARY'
+          elif degraded299: verdict='QUOTIENT_SCALE_BOUNDARY'
+          else: verdict='NO_MATERIAL_BOUNDARY_IN_THIS_WINDOW'
+          summary={'protocol':'REDUCTION_WIDTH_QUOTIENT_SEPARATOR_V3','verdict':verdict,'v2_anchor_N143_digit_excess':V2_ANCHOR,'drop_anchor_to_N299':drop_anchor,'drop_N299_to_N323':drop_width,'cells':cells,'claim_boundary':'Minimal behavioral separator in one decimal representation/small encoder.'}
+          (OUT/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          with (OUT/'per_example.csv').open('w',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=list(per[0])); w.writeheader(); w.writerows(per)
+          md=['# REDUCTION_WIDTH_QUOTIENT_SEPARATOR_V3 result','',f'**Verdict:** `{verdict}`','', '| N | N² | max y digits | coverage | digit | chance | excess | exact | chance | excess |','|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+          for c in cells: md.append(f"| {c['N']} | {c['N2']} | {c['max_y_digits']} | {c['coverage']:.3%} | {c['digit']:.5f} | {c['chance_digit']:.5f} | {c['digit_excess']:+.5f} | {c['exact']:.5f} | {c['chance_exact']:.5f} | {c['exact_excess']:+.5f} |")
+          md += ['',f'- V2 N=143 anchor -> N=299 digit-excess drop: `{drop_anchor:+.5f}`',f'- N=299 -> N=323 boundary drop: `{drop_width:+.5f}`','', '## Quotient quartiles']
+          for c in cells:
+              md.append(f"### N={c['N']}"); md += [f"- {k}: n={v['n']}, digit={v['digit']:.5f}, exact={v['exact']:.5f}" for k,v in c['q_bins'].items()]
+          (OUT/'README.md').write_text('\n'.join(md)+'\n'); print('\n'.join(md),flush=True)
+          PY
+          python /tmp/run_v3.py
+      - name: Stage results
+        run: |
+          mkdir -p results/one_layer_deeper/reduction_width_quotient_separator_v3
+          cp /tmp/v3out/* results/one_layer_deeper/reduction_width_quotient_separator_v3/
+          cat results/one_layer_deeper/reduction_width_quotient_separator_v3/README.md
+      - name: Commit push-run artifacts
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/reduction_width_quotient_separator_v3
+          git commit -m 'Record reduction width-vs-quotient separator v3' || exit 0
+          git push
