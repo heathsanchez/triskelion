@@ -1,0 +1,228 @@
+name: One Layer Deeper Carry Causal Suite V1
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-layer-deeper-carry-causal-suite-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  causal-carry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU torch
+        run: python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Run frozen causal carry suite
+        shell: bash
+        run: |
+          cat > /tmp/carry_suite.py <<'PY'
+          import csv, json, random, pathlib, statistics
+          from collections import defaultdict
+          import torch
+          import torch.nn as nn
+          import torch.nn.functional as F
+
+          # PRECOMMIT: replicate the seed-0 carry landmark and test two independent
+          # interventions that specifically predict rescue of carry-heavy cases.
+          SEEDS=(0,1,2)
+          COVERAGE=0.30
+          STEPS=450
+          BATCH=256
+          EVAL_CAP=400
+          D_MODEL=128; HEADS=4; LAYERS=2; LR=3e-4
+          DIGITS=(3,4)
+          WIDTH='stable'  # strongest clean candidate, removes width expansion rival
+          ARMS=('baseline_msd','lsd_first','recurrent_msd')
+          torch.set_num_threads(2)
+
+          def carry_chain(x):
+              ds=[int(c) for c in str(x)][::-1]
+              carry=0; flags=[]
+              for k in range(2*len(ds)-1):
+                  s=carry
+                  for i,a in enumerate(ds):
+                      j=k-i
+                      if 0 <= j < len(ds): s += a*ds[j]
+                  carry=s//10; flags.append(carry>0)
+              best=cur=0
+              for f in flags:
+                  cur=cur+1 if f else 0; best=max(best,cur)
+              return best
+
+          def basin(x):
+              d=len(str(x)); c='low' if carry_chain(x)<=1 else 'high'
+              w='expand' if len(str(x*x))==2*d else 'stable'
+              return d,c,w
+
+          raw=defaultdict(list)
+          for d in DIGITS:
+              for x in range(10**(d-1),10**d):
+                  k=basin(x)
+                  if k[2]==WIDTH: raw[k].append(x)
+
+          # Same frozen support and fresh eval examples for every seed/arm.
+          train_cells={}; eval_cells={}
+          for k,xs in sorted(raw.items()):
+              rr=random.Random(777000 + 100*k[0] + (1 if k[1]=='high' else 0))
+              ys=xs.copy(); rr.shuffle(ys)
+              n=max(1,round(COVERAGE*len(ys)))
+              train_cells[k]=ys[:n]
+              eval_cells[k]=ys[n:n+min(EVAL_CAP,len(ys)-n)]
+              assert set(train_cells[k]).isdisjoint(eval_cells[k])
+              assert abs(n/len(xs)-COVERAGE)<=0.02
+          keys=sorted(train_cells)
+
+          PAD=0; SEP=11; QUERY=12; VOCAB=13; MAXPOS=20
+
+          def encode(x,arm):
+              d=len(str(x)); inp=[int(c)+1 for c in str(x)]
+              target=[int(c) for c in f'{x*x:0{2*d}d}']
+              if arm=='lsd_first': target=target[::-1]
+              toks=inp+[SEP]+[QUERY]*(2*d)
+              types=[0]*d+[1]+[2]*(2*d)
+              # Place-value positions on input; query positions follow requested output order.
+              pos=list(range(d-1,-1,-1))+[19]
+              if arm=='lsd_first': pos+=list(range(0,2*d))
+              else: pos+=list(range(2*d-1,-1,-1))
+              qs=d+1
+              return toks,types,pos,target,qs,d
+
+          def collate(xs,arm):
+              enc=[encode(x,arm) for x in xs]
+              L=max(len(z[0]) for z in enc); Q=max(len(z[3]) for z in enc)
+              tok=torch.zeros((len(xs),L),dtype=torch.long); typ=torch.zeros_like(tok); pos=torch.zeros_like(tok)
+              mask=torch.zeros((len(xs),L),dtype=torch.bool); qidx=torch.zeros((len(xs),Q),dtype=torch.long)
+              lab=torch.full((len(xs),Q),-100,dtype=torch.long); qmask=torch.zeros((len(xs),Q),dtype=torch.bool)
+              ds=[]
+              for i,(t,ty,p,y,qs,d) in enumerate(enc):
+                  n=len(t); q=len(y); tok[i,:n]=torch.tensor(t); typ[i,:n]=torch.tensor(ty); pos[i,:n]=torch.tensor(p); mask[i,:n]=1
+                  qidx[i,:q]=torch.arange(qs,qs+q); lab[i,:q]=torch.tensor(y); qmask[i,:q]=1; ds.append(d)
+              return tok,typ,pos,mask,qidx,lab,qmask,ds
+
+          class Block(nn.Module):
+              def __init__(self):
+                  super().__init__()
+                  self.ln1=nn.LayerNorm(D_MODEL); self.attn=nn.MultiheadAttention(D_MODEL,HEADS,batch_first=True)
+                  self.ln2=nn.LayerNorm(D_MODEL); self.ff=nn.Sequential(nn.Linear(D_MODEL,4*D_MODEL),nn.GELU(),nn.Linear(4*D_MODEL,D_MODEL))
+              def forward(self,h,mask):
+                  z=self.ln1(h); a,_=self.attn(z,z,z,key_padding_mask=~mask,need_weights=False); h=h+a; return h+self.ff(self.ln2(h))
+
+          class Model(nn.Module):
+              def __init__(self,arm):
+                  super().__init__(); self.arm=arm
+                  self.te=nn.Embedding(VOCAB,D_MODEL); self.ty=nn.Embedding(3,D_MODEL); self.pe=nn.Embedding(MAXPOS,D_MODEL)
+                  self.blocks=nn.ModuleList(Block() for _ in range(LAYERS))
+                  self.shared=Block() if arm=='recurrent_msd' else None
+                  self.step=nn.Embedding(3,D_MODEL) if arm=='recurrent_msd' else None
+                  self.ln=nn.LayerNorm(D_MODEL); self.head=nn.Linear(D_MODEL,10)
+              def forward(self,tok,typ,pos,mask,qidx):
+                  h=self.te(tok)+self.ty(typ)+self.pe(pos)
+                  for b in self.blocks: h=b(h,mask)
+                  if self.shared is not None:
+                      # Three tied global refinement passes: tests whether iterative state propagation
+                      # rescues carry-heavy cases without changing the observable representation.
+                      for r in range(3):
+                          h=h+self.step.weight[r][None,None,:]
+                          h=self.shared(h,mask)
+                  logits=self.head(self.ln(h))
+                  return logits.gather(1,qidx.unsqueeze(-1).expand(-1,-1,10))
+
+          def sample_batch(rng):
+              xs=[]
+              for _ in range(BATCH):
+                  k=keys[rng.randrange(len(keys))]; pool=train_cells[k]; xs.append(pool[rng.randrange(len(pool))])
+              return xs
+
+          @torch.no_grad()
+          def evaluate(model,arm,xs):
+              model.eval(); ex=dc=dt=0
+              for s in range(0,len(xs),256):
+                  sub=xs[s:s+256]; tok,typ,pos,mask,qidx,lab,qmask,_=collate(sub,arm)
+                  pr=model(tok,typ,pos,mask,qidx).argmax(-1); hit=(pr==lab)&qmask
+                  ex+=int((hit|~qmask).all(1).sum()); dc+=int(hit.sum()); dt+=int(qmask.sum())
+              return ex/max(1,len(xs)),dc/max(1,dt)
+
+          rows=[]
+          for seed in SEEDS:
+              for arm in ARMS:
+                  random.seed(seed); torch.manual_seed(seed); rng=random.Random(seed+991)
+                  m=Model(arm); opt=torch.optim.AdamW(m.parameters(),lr=LR,weight_decay=.01); losses=[]
+                  m.train()
+                  for st in range(STEPS):
+                      xs=sample_batch(rng); tok,typ,pos,mask,qidx,lab,qmask,_=collate(xs,arm)
+                      lg=m(tok,typ,pos,mask,qidx); loss=F.cross_entropy(lg.transpose(1,2),lab,ignore_index=-100)
+                      opt.zero_grad(set_to_none=True); loss.backward(); nn.utils.clip_grad_norm_(m.parameters(),1.0); opt.step(); losses.append(float(loss))
+                  for k in keys:
+                      d,c,w=k; ex,dig=evaluate(m,arm,eval_cells[k])
+                      rows.append(dict(seed=seed,arm=arm,digits=d,carry=c,width=w,coverage=len(train_cells[k])/len(raw[k]),eval_n=len(eval_cells[k]),exact=ex,digit=dig,final_loss=sum(losses[-10:])/10))
+
+          # Aggregate paired low-v-high drops and intervention gains within each seed/digit.
+          idx={(r['seed'],r['arm'],r['digits'],r['carry']):r for r in rows}
+          effects=[]
+          for seed in SEEDS:
+              for d in DIGITS:
+                  for arm in ARMS:
+                      lo=idx[(seed,arm,d,'low')]; hi=idx[(seed,arm,d,'high')]
+                      effects.append(dict(seed=seed,digits=d,arm=arm,kind='carry_drop',exact_effect=hi['exact']-lo['exact'],digit_effect=hi['digit']-lo['digit']))
+                  baseH=idx[(seed,'baseline_msd',d,'high')]; baseL=idx[(seed,'baseline_msd',d,'low')]
+                  for arm in ('lsd_first','recurrent_msd'):
+                      h=idx[(seed,arm,d,'high')]; l=idx[(seed,arm,d,'low')]
+                      effects.append(dict(seed=seed,digits=d,arm=arm,kind='high_rescue',exact_effect=h['exact']-baseH['exact'],digit_effect=h['digit']-baseH['digit']))
+                      effects.append(dict(seed=seed,digits=d,arm=arm,kind='low_control_move',exact_effect=l['exact']-baseL['exact'],digit_effect=l['digit']-baseL['digit']))
+
+          out=pathlib.Path('results/one_layer_deeper/carry_causal_suite_v1'); out.mkdir(parents=True,exist_ok=True)
+          with (out/'cells.csv').open('w',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=rows[0].keys()); w.writeheader(); w.writerows(rows)
+          with (out/'effects.csv').open('w',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=effects[0].keys()); w.writeheader(); w.writerows(effects)
+
+          def mean_effect(kind,arm,d):
+              vs=[e['exact_effect'] for e in effects if e['kind']==kind and e['arm']==arm and e['digits']==d]
+              return statistics.mean(vs),vs
+          lines=['# CARRY_CAUSAL_SUITE_V1','',
+                 'Frozen 3-seed causal suite after SQUARE_EXACTNESS_CARTOGRAPHY_V1. Coverage=30%, 450 steps, stable-width only, identical support/eval sets across arms.','',
+                 '## Precommitted decisions','',
+                 '- Promote carry obstruction if baseline low→high exact drop is >=15pp on mean and negative in all 3 seeds for either digit length.',
+                 '- Promote LSB-first repair if high-carry exact gain vs baseline is >=15pp mean while low-carry control moves <10pp absolute.',
+                 '- Promote recurrent propagation repair under the same rule.',
+                 '- Otherwise retain carry as a landmark but do not claim causal repair.','',
+                 '| digits | arm | low exact mean | high exact mean | carry drop |',
+                 '|---:|---|---:|---:|---:|']
+          for d in DIGITS:
+              for arm in ARMS:
+                  los=[idx[(s,arm,d,'low')]['exact'] for s in SEEDS]; his=[idx[(s,arm,d,'high')]['exact'] for s in SEEDS]
+                  lines.append(f"| {d} | {arm} | {statistics.mean(los):.3f} | {statistics.mean(his):.3f} | {statistics.mean(his)-statistics.mean(los):+.3f} |")
+          lines += ['', '## Intervention effects','']
+          for d in DIGITS:
+              for arm in ('lsd_first','recurrent_msd'):
+                  hr,hvs=mean_effect('high_rescue',arm,d); lc,lvs=mean_effect('low_control_move',arm,d)
+                  lines.append(f"- d={d} **{arm}**: high-carry rescue={hr:+.3f} seeds={[round(x,3) for x in hvs]}; low-control move={lc:+.3f} seeds={[round(x,3) for x in lvs]}")
+          # Machine decision.
+          promoted=[]
+          for d in DIGITS:
+              drop,vs=mean_effect('carry_drop','baseline_msd',d)
+              if drop<=-0.15 and all(v<0 for v in vs): promoted.append(f'carry_obstruction_d{d}')
+              for arm in ('lsd_first','recurrent_msd'):
+                  hr,hvs=mean_effect('high_rescue',arm,d); lc,lvs=mean_effect('low_control_move',arm,d)
+                  if hr>=0.15 and abs(lc)<0.10: promoted.append(f'{arm}_repair_d{d}')
+          lines += ['', '## Decision','', f"Promoted under frozen rules: **{', '.join(promoted) if promoted else 'none'}**",'',
+                    '## Claim boundary','', 'CPU causal separator on squaring only; no leaderboard or modular-squaring claim. LSB-first is a representation probe; recurrent_msd is an architecture probe.']
+          (out/'README.md').write_text('\n'.join(lines)); (out/'summary.json').write_text(json.dumps(dict(rows=rows,effects=effects,promoted=promoted),indent=2))
+          print('\n'.join(lines))
+          PY
+          python /tmp/carry_suite.py
+      - name: Commit causal suite artifacts
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/one_layer_deeper/carry_causal_suite_v1
+          git commit -m 'Record causal carry propagation suite V1' || exit 0
+          git push
