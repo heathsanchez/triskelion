@@ -1,0 +1,29 @@
+name: effective-language-expansion-v1
+
+on:
+  push:
+    branches:
+      - agent/effective-language-expansion-v1
+  pull_request:
+    paths:
+      - 'experiments/effective_language_expansion_v1.py'
+      - 'protocols/EFFECTIVE_LANGUAGE_EXPANSION_V1_PRECOMMIT.md'
+      - 'results/effective_language_expansion_v1/result.json'
+      - '.github/workflows/effective-language-expansion-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Re-run frozen experiment
+        run: python experiments/effective_language_expansion_v1.py
+      - name: Verify committed result is reproduced
+        run: git diff --exit-code -- results/effective_language_expansion_v1/result.json
