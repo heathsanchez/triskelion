@@ -14,6 +14,8 @@ concurrency:
   group: v149-natural-third-rung-context-repair
   cancel-in-progress: false
 
+# apparatus-only retrigger: scientific protocol and execution semantics unchanged
+
 jobs:
   causal:
     runs-on: ubuntu-latest
