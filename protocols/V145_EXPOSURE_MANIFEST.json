@@ -1,0 +1,99 @@
+{
+  "manifest_id": "V145_PREEXECUTION_EXPOSURE_MANIFEST_V1",
+  "status": "PARTIAL_CONSERVATIVE_KNOWN_EXPOSURES",
+  "purpose": "Prevent previously semantically inspected BugsInPy cases from being narrated as blind natural discovery targets in V145 or a successor.",
+  "rule": "Any case with prior semantic repair/source/patch exposure is ineligible for the strongest blind-natural-E3 claim. Eligibility-only runtime/reproduction exposure does not by itself disqualify a case.",
+  "known_semantically_exposed_cases": [
+    {
+      "case": "pandas/66",
+      "exposure": "developer repair semantically classified as DEPENDENCY_LIFT and retained in prior external-stack work",
+      "source_artifacts": [
+        "WITBROCK_PROSPECTIVE_NATIVE_EXTERNAL_V10_PRECOMMIT.json",
+        "WITBROCK_ULTIMATE_STACK_EXTERNAL_COMBO_V1.json"
+      ],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "youtube-dl/9",
+      "exposure": "developer patch inspected and semantic class revised to STATE_INTRODUCTION",
+      "source_artifacts": [
+        "WITBROCK_PROSPECTIVE_NATIVE_EXTERNAL_V10_PRECOMMIT.json",
+        "WITBROCK_NATIVE_EXTERNAL_AUDIT_V10.md"
+      ],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "keras/26",
+      "exposure": "listed as previously revealed before V10 target selection",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_NATIVE_EXTERNAL_V10_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "matplotlib/28",
+      "exposure": "listed as previously revealed before V10 target selection",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_NATIVE_EXTERNAL_V10_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "matplotlib/5",
+      "exposure": "listed as previously revealed before V10 target selection",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_NATIVE_EXTERNAL_V10_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "matplotlib/9",
+      "exposure": "listed as previously revealed before V10 target selection",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_NATIVE_EXTERNAL_V10_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "keras/41",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "scrapy/12",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "tornado/4",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "youtube-dl/2",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "PySnooper/3",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "matplotlib/23",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "tqdm/2",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    },
+    {
+      "case": "fastapi/16",
+      "exposure": "pre-freeze inspected during earlier V9b lineage",
+      "source_artifacts": ["WITBROCK_PROSPECTIVE_BUGSINPY_V9C_PRECOMMIT.json"],
+      "disqualifies_blind_natural_e3": true
+    }
+  ],
+  "important_boundary": "This manifest is conservative but not claimed complete. A candidate not listed here is not automatically clean; a complete preexecution exposure search/audit is still required before promotion as the replacement E3."
+}
