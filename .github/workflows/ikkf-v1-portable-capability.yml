@@ -1,0 +1,72 @@
+name: IKKF V1 Portable Capability
+
+on:
+  push:
+    branches:
+      - agent/ikkf-portable-capability-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-capability:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Export verified capability from frozen closure
+        run: |
+          cd experiments
+          python IKKF_V1_EXPORT_CAPABILITY.py
+      - name: Upload capability only
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v1-capability
+          path: experiments/artifacts/ikkf_v1_export/CAPABILITY.json
+          if-no-files-found: error
+      - name: Upload export audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v1-export-audit
+          path: experiments/artifacts/ikkf_v1_export/EXPORT_RESULT.json
+          if-no-files-found: error
+
+  compile-capability:
+    needs: export-capability
+    runs-on: ubuntu-24.04
+    env:
+      RIVER_API_KEY: ${{ secrets.RIVER_API_KEY }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen neural dependencies
+        run: python -m pip install 'river-client==0.6.1' 'protobuf>=6.31.1,<7' transformers
+      - name: Require River secret
+        run: test -n "$RIVER_API_KEY"
+      - name: Download only exported capability from Phase A
+        uses: actions/download-artifact@v4
+        with:
+          name: ikkf-v1-capability
+          path: experiments/incoming
+      - name: Show Phase-A boundary
+        run: |
+          test -f experiments/incoming/CAPABILITY.json
+          test ! -e experiments/incoming/EXPORT_RESULT.json
+          find experiments/incoming -maxdepth 1 -type f -printf '%f\n'
+      - name: Compile, uninstall, and independently recompile capability
+        run: |
+          cd experiments
+          python IKKF_V1_COMPILE_CAPABILITY.py
+      - name: Upload scientific result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ikkf-v1-portable-capability-result
+          path: experiments/artifacts/ikkf_v1_compile/RESULT.json
+          if-no-files-found: warn

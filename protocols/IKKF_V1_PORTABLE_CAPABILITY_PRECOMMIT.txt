@@ -1,0 +1,48 @@
+IKKF V1 — PORTABLE VERIFIED CAPABILITY PRECOMMIT
+Date: 2026-08-14
+
+Question
+Can a compact verified capability object, separated from the episode that produced it and from any first compiled checkpoint, reproducibly install a held-out capability into a fresh neural instance?
+
+Frozen substrate
+- Base model: Qwen/Qwen3.5-9B
+- Starting checkpoint: river://02f13904-fe14-4f1a-a30d-05c945b8b137/weights/v15_C_lineage_step4
+- External corpus: jkoppel/QuixBugs commit 4257f44b0ff1181dedaedee6a447e133219fcebf
+- Existing verified primitives: A=CMP@0, B=BIN@0, C=CONST@0
+- Target capability: the minimal verified composition that repairs AB_TEST=find_in_sorted.
+- Discovery variants: 0..15 only.
+- Held-out evaluation variants: 100..107 only; they are not used to select the exported plan or training dose.
+- Threshold: 0.75.
+
+Phase A — export
+1. Confirm the unmodified AB_TEST mutation fails on all discovery variants.
+2. Enumerate subset compositions of existing verified primitives A and B.
+3. Select the shortest composition that passes the external QuixBugs tests on every discovery variant.
+4. Export only a compact JSON capability package containing identity, scope/target family, plan, dependencies, verifier provenance, source commit, and hashes. Do not export model outputs, trajectories, optimizer state, gradients, or a compiled checkpoint.
+
+Phase B — fresh compilation
+The compiler job receives the exported capability package and repository runtime code, but no Phase-A trajectory or neural checkpoint produced by Phase A.
+1. Load the frozen starting checkpoint and verify direct held-out AB_TEST score <0.75.
+2. Verify the capability plan against all proceduralization examples before any gradient update.
+3. Compile the capability with regression-sensitive rehearsal of A/B/C, with maximum 10 steps, batch 16, LR 5e-5.
+4. Reload the resulting checkpoint in a fresh River session and require held-out AB_TEST >=0.75 and A/B/C >=0.75.
+5. Uninstall control: reload the untouched starting checkpoint in another fresh session and require AB_TEST <0.75.
+6. Recompile control: from the same untouched starting checkpoint and the same exported capability package only, perform a second independent compilation; reload it and require AB_TEST >=0.75 and A/B/C >=0.75.
+7. Package integrity: the SHA256 of the capability bytes consumed by both compilations must equal the Phase-A export hash.
+
+Frozen scientific PASS gates
+- export_old_target_fails
+- export_capability_verified
+- package_contains_no_checkpoint_or_trajectory
+- baseline_heldout_fails
+- first_compile_passes
+- ancestors_survive_first_compile
+- first_reload_passes
+- uninstall_restores_failure
+- second_compile_passes
+- ancestors_survive_second_compile
+- second_reload_passes
+- same_capability_hash_both_compiles
+
+PASS headline boundary
+A PASS establishes a bounded portable-capability result on this frozen QuixBugs/River substrate: the compact verified capability representation is sufficient to reproducibly create held-out direct neural competence from the same pre-capability checkpoint, without replaying the original discovery trajectory or reusing the first compiled checkpoint. It does NOT establish model-family-independent transfer, unrestricted capability compilation, or open-ended self-improvement.
