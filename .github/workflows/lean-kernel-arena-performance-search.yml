@@ -1,0 +1,127 @@
+name: Lean Kernel Arena performance search
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-growth]
+  workflow_dispatch:
+
+jobs:
+  perf-search:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Benchmark baseline vs native vs PGO
+        shell: bash
+        run: |
+          set -euo pipefail
+          NANODA_REV=418320295890faed83a96fd97907b12a3b6728c2
+          ARENA_ARTIFACT=8931227426
+          git clone https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          git -C nanoda_lib checkout "$NANODA_REV"
+          cat > nanoda_lib/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+
+          python3 - <<'PY'
+          from pathlib import Path
+          src=Path('.github/workflows/lean-kernel-arena-growth.yml').read_text().splitlines()
+          marker='Repair only the representation identified by T1'; start=end=None
+          for i,line in enumerate(src):
+              if marker in line:
+                  for j in range(i+1,len(src)):
+                      if "python3 - <<'PY'" in src[j]: start=j+1; break
+                  break
+          for j in range(start,len(src)):
+              if src[j].strip()=='PY': end=j; break
+          if start is None or end is None: raise SystemExit('repair program not found')
+          Path('/tmp/apply_representation_patch.py').write_text('\n'.join(line[10:] if line.startswith('          ') else line for line in src[start:end])+'\n')
+          PY
+          (cd nanoda_lib && python3 /tmp/apply_representation_patch.py)
+
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o tests.zip
+          mkdir artifact arena-tests perf-results
+          unzip -q tests.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('arena-tests')
+          fs=list((root/'good').rglob('*.ndjson'))+list((root/'bad').rglob('*.ndjson'))
+          largest=sorted(fs,key=lambda p:p.stat().st_size,reverse=True)[:24]
+          largest=sorted(largest,key=lambda p:hashlib.sha256(str(p.relative_to(root)).encode()).hexdigest())
+          Path('perf-results/workload.txt').write_text('\n'.join(str(p) for p in largest)+'\n')
+          Path('perf-results/workload.json').write_text(json.dumps([{'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in largest],indent=2))
+          print('workload bytes',sum(p.stat().st_size for p in largest),'files',len(largest))
+          PY
+
+          (cd nanoda_lib && cargo build --release)
+          cp nanoda_lib/target/release/nanoda_bin perf-results/mathgraph-baseline
+
+          (cd nanoda_lib && CARGO_TARGET_DIR=target-native RUSTFLAGS='-C target-cpu=native' cargo build --release)
+          cp nanoda_lib/target-native/release/nanoda_bin perf-results/mathgraph-native
+
+          rm -rf nanoda_lib/pgo nanoda_lib/target-pgo-gen nanoda_lib/target-pgo-use
+          mkdir -p nanoda_lib/pgo
+          rustup component add llvm-tools-preview
+          PROF="$(rustc --print sysroot)/lib/rustlib/$(rustc -vV | sed -n 's/^host: //p')/bin/llvm-profdata"
+          test -x "$PROF"
+          "$PROF" --version | tee perf-results/llvm-profdata-version.txt
+          rustc -vV | tee perf-results/rustc-version.txt
+          (cd nanoda_lib && CARGO_TARGET_DIR=target-pgo-gen RUSTFLAGS="-C target-cpu=native -C profile-generate=$PWD/pgo" cargo build --release)
+          while read -r f; do nanoda_lib/target-pgo-gen/release/nanoda_bin nanoda_lib/config.json < "$f" >/dev/null 2>/dev/null || true; done < perf-results/workload.txt
+          "$PROF" merge -o nanoda_lib/pgo/merged.profdata nanoda_lib/pgo
+          (cd nanoda_lib && CARGO_TARGET_DIR=target-pgo-use RUSTFLAGS="-C target-cpu=native -C profile-use=$PWD/pgo/merged.profdata -C llvm-args=-pgo-warn-missing-function" cargo build --release)
+          cp nanoda_lib/target-pgo-use/release/nanoda_bin perf-results/mathgraph-pgo
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,time,json,statistics
+          root=Path.cwd(); cfg=root/'nanoda_lib/config.json'; workload=[Path(x) for x in Path('perf-results/workload.txt').read_text().splitlines()]
+          bins={k:root/'perf-results'/v for k,v in {'baseline':'mathgraph-baseline','native':'mathgraph-native','pgo':'mathgraph-pgo'}.items()}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          cases=[]
+          for kind,expected in [('good','accept'),('bad','reject')]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'): cases.append((p,expected))
+          correctness={}
+          for name,exe in bins.items():
+              ok=0; bad=[]
+              for p,expected in cases:
+                  with p.open('rb') as f: rc=subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+                  if status(rc)==expected: ok+=1
+                  else: bad.append({'file':str(p),'expected':expected,'got':status(rc),'rc':rc})
+              correctness[name]={'correct':ok,'total':len(cases),'failures':bad}
+          for exe in bins.values():
+              for p in workload[:3]:
+                  with p.open('rb') as f: subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+          samples={k:[] for k in bins}
+          orders=[['baseline','native','pgo'],['pgo','native','baseline'],['native','baseline','pgo'],['pgo','baseline','native'],['native','pgo','baseline'],['baseline','pgo','native']]
+          for order in orders:
+              for name in order:
+                  t=time.perf_counter()
+                  for p in workload:
+                      with p.open('rb') as f: subprocess.run([str(bins[name]),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+                  samples[name].append(time.perf_counter()-t)
+          med={k:statistics.median(v) for k,v in samples.items()}; base=med['baseline']
+          summary={'correctness':correctness,'samples_seconds':samples,'median_seconds':med,'speedup_vs_baseline':{k:base/v for k,v in med.items()},'binary_bytes':{k:p.stat().st_size for k,p in bins.items()},'winner':min(med,key=med.get)}
+          Path('perf-results/summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True))
+          print(json.dumps(summary,indent=2,sort_keys=True))
+          if any(v['correct']!=v['total'] for v in correctness.values()): raise SystemExit('correctness regression')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lean-kernel-arena-performance-search
+          path: perf-results/

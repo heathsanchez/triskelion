@@ -1,0 +1,81 @@
+name: Lean Kernel Arena blind Vow diagnose
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [agent/lean-kernel-arena-growth]
+
+jobs:
+  diagnose-exposed-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: read
+    env:
+      CHECKER_REV: 514ab33fc0262c491a0af1846cc3887f48411e36
+      VOW_REV: 15c1b933f87eed2b23c176665730baea37706daa
+      ARENA_ARTIFACT: 8931227426
+      EXPOSED_REL: good/undecidability/alg-conv-trans-acc-left.ndjson
+      EXPOSED_SHA256: 323a6140d9acc906193ddc22fa4f3391a3f259357853427c2f82382c71a1e051
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch exposed case and frozen source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git clone https://github.com/pmatos/vow-lean-kernel checker
+          git -C checker checkout "$CHECKER_REV"
+          git clone https://github.com/vow-lang/vow checker/vow
+          git -C checker/vow checkout "$VOW_REV"
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o arena.zip
+          mkdir artifact exposed-only blind-vow-diagnose-results
+          unzip -q arena.zip -d artifact
+          tar -xOf artifact/lean-arena-tests.tar.gz "$EXPOSED_REL" > exposed-only/exposed.ndjson
+          echo "$EXPOSED_SHA256  exposed-only/exposed.ndjson" | sha256sum -c -
+
+      - name: Instrument theorem boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('checker/kernel/infer.vow')
+          s = p.read_text()
+          a = '    let ty_sort: u64 = ensure_sort(env, infer(env, ty));'
+          b = '    let val_ty: u64 = infer(env, val);'
+          c = '    if is_def_eq_pi(env, val_ty, ty) == 0 {'
+          assert s.count(a) >= 2 and s.count(b) >= 2 and s.count(c) >= 2
+          start = s.index('fn check_theorem(env: Environment, ty: u64, val: u64) -> u64 {')
+          end = s.index('\n}\n\npub fn check_decl_idx', start) + 2
+          pre, fn, post = s[:start], s[start:end], s[end:]
+          fn = fn.replace(a, a + '\n    print_str(String::from("TRISK_DIAG ty_sort=")); print_u64(ty_sort); print_str(String::from(" err=")); print_u64(is_err(ty_sort)); print_str(String::from(" zero=")); if is_err(ty_sort) == 0 { print_u64(is_level_zero(env, ty_sort)); } else { print_u64(9); } print_str(String::from("\\n"));', 1)
+          fn = fn.replace(b, b + '\n    print_str(String::from("TRISK_DIAG val_ty=")); print_u64(val_ty); print_str(String::from(" err=")); print_u64(is_err(val_ty)); print_str(String::from("\\n"));', 1)
+          fn = fn.replace(c, '    let trisk_wv: u64 = whnf(env, val_ty);\n    let trisk_wt: u64 = whnf(env, ty);\n    let trisk_d12: u64 = is_def_eq(env, val_ty, ty);\n    let trisk_d21: u64 = is_def_eq(env, ty, val_ty);\n    let trisk_dpi: u64 = is_def_eq_pi(env, val_ty, ty);\n    print_str(String::from("TRISK_DIAG whnf_val=")); print_u64(trisk_wv); print_str(String::from(" tag=")); print_u64(env.exprs.tags[trisk_wv]); print_str(String::from(" whnf_decl=")); print_u64(trisk_wt); print_str(String::from(" tag=")); print_u64(env.exprs.tags[trisk_wt]); print_str(String::from(" deq12=")); print_u64(trisk_d12); print_str(String::from(" deq21=")); print_u64(trisk_d21); print_str(String::from(" deqpi=")); print_u64(trisk_dpi); print_str(String::from("\\n"));\n    if trisk_dpi == 0 {', 1)
+          p.write_text(pre + fn + post)
+          PY
+
+      - name: Build and run exposed case only
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$(pwd)/checker"
+          ( cd checker/vow && cargo build --all )
+          ( cd checker/vow && bash scripts/concat_vow.sh clif > "$ROOT/compiler_clif.vow" )
+          ( cd checker/vow && ulimit -v 2000000 && ./target/debug/vow build --no-verify --no-cache "$ROOT/compiler_clif.vow" -o "$ROOT/vowc" )
+          ( cd checker && VOWC="$ROOT/vowc" bash scripts/build.sh )
+          set +e
+          checker/lean_checker "$(pwd)/exposed-only/exposed.ndjson" > blind-vow-diagnose-results/stdout.txt 2> blind-vow-diagnose-results/stderr.txt
+          rc=$?
+          set -e
+          echo "$rc" > blind-vow-diagnose-results/rc.txt
+          grep -E 'TRISK_DIAG|FAIL decl' blind-vow-diagnose-results/stdout.txt | tail -100 | tee blind-vow-diagnose-results/diagnostic.txt
+
+      - name: Upload exposed-only diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-kernel-arena-blind-vow-diagnose
+          path: blind-vow-diagnose-results/

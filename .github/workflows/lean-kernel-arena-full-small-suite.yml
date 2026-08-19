@@ -1,0 +1,117 @@
+name: Lean Kernel Arena full downloadable suite
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-growth]
+  workflow_dispatch:
+
+jobs:
+  full-suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run all downloadable Arena tests baseline vs repaired
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NANODA_REV=418320295890faed83a96fd97907b12a3b6728c2
+          ARENA_RUN=31005978773
+          ARENA_ARTIFACT=8931227426
+          git clone https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          git -C nanoda_lib checkout "$NANODA_REV"
+          cat > nanoda_lib/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" -o test-tarball-artifact.zip
+          mkdir artifact arena-tests lean-kernel-arena-full-small-suite-results
+          unzip -q test-tarball-artifact.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          cd nanoda_lib && cargo build --release && cd ..
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,json,hashlib
+          root=Path.cwd(); exe=root/'nanoda_lib/target/release/nanoda_bin'; cfg=root/'nanoda_lib/config.json'; out=root/'lean-kernel-arena-full-small-suite-results'
+          cases=[]
+          for kind,expected in [('good','accept'),('bad','reject')]:
+              for p in (root/'arena-tests'/kind).rglob('*.ndjson'):
+                  rel=str(p.relative_to(root/'arena-tests'))
+                  cases.append((hashlib.sha256(rel.encode()).hexdigest(),rel,p,expected))
+          cases.sort()
+          manifest=[{'order_hash':h,'name':rel,'expected':expected,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for h,rel,p,expected in cases]
+          (out/'manifest.json').write_text(json.dumps(manifest,indent=2))
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          rows=[]
+          for _,rel,p,expected in cases:
+              with p.open('rb') as f: rc=subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+              s=status(rc); correct=(s==expected)
+              rows.append({'name':rel,'expected':expected,'raw_rc':rc,'status':s,'correct':correct})
+          (out/'baseline.json').write_text(json.dumps(rows,indent=2))
+          print('BASELINE total',len(rows),'correct',sum(r['correct'] for r in rows),'declines',sum(r['status']=='decline' for r in rows))
+          PY
+
+          python3 - <<'PY'
+          from pathlib import Path
+          src=Path('.github/workflows/lean-kernel-arena-growth.yml').read_text().splitlines(); marker='Repair only the representation identified by T1'; start=end=None
+          for i,line in enumerate(src):
+              if marker in line:
+                  for j in range(i+1,len(src)):
+                      if "python3 - <<'PY'" in src[j]: start=j+1; break
+                  break
+          for j in range(start,len(src)):
+              if src[j].strip()=='PY': end=j; break
+          if start is None or end is None: raise SystemExit('proven repair program not found')
+          Path('/tmp/apply_representation_patch.py').write_text('\n'.join(line[10:] if line.startswith('          ') else line for line in src[start:end])+'\n')
+          PY
+          cd nanoda_lib && python3 /tmp/apply_representation_patch.py && git diff -- src/parser.rs > ../lean-kernel-arena-full-small-suite-results/representation-map.patch && cargo build --release && cd ..
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess,json
+          root=Path.cwd(); exe=root/'nanoda_lib/target/release/nanoda_bin'; cfg=root/'nanoda_lib/config.json'; out=root/'lean-kernel-arena-full-small-suite-results'
+          manifest=json.loads((out/'manifest.json').read_text()); base={r['name']:r for r in json.loads((out/'baseline.json').read_text())}
+          def status(rc): return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          rows=[]
+          for m in manifest:
+              p=root/'arena-tests'/m['name']; expected=m['expected']
+              with p.open('rb') as f: rc=subprocess.run([str(exe),str(cfg)],stdin=f,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode
+              s=status(rc); rows.append({'name':m['name'],'expected':expected,'raw_rc':rc,'status':s,'correct':s==expected})
+          (out/'patched.json').write_text(json.dumps(rows,indent=2))
+          gains=[]; regressions=[]; changed=[]
+          for r in rows:
+              b=base[r['name']]
+              if b['status']!=r['status']: changed.append({'name':r['name'],'expected':r['expected'],'baseline':b['status'],'patched':r['status'],'baseline_rc':b['raw_rc'],'patched_rc':r['raw_rc']})
+              if not b['correct'] and r['correct']: gains.append(r['name'])
+              if b['correct'] and not r['correct']: regressions.append(r['name'])
+          summary={
+            'arena_run':31005978773,'arena_artifact':8931227426,'nanoda_rev':'418320295890faed83a96fd97907b12a3b6728c2',
+            'total':len(rows),'good_total':sum(r['expected']=='accept' for r in rows),'bad_total':sum(r['expected']=='reject' for r in rows),
+            'baseline_correct':sum(r['correct'] for r in base.values()),'patched_correct':sum(r['correct'] for r in rows),
+            'baseline_accept_correct':sum(r['expected']=='accept' and r['correct'] for r in base.values()),
+            'patched_accept_correct':sum(r['expected']=='accept' and r['correct'] for r in rows),
+            'baseline_reject_correct':sum(r['expected']=='reject' and r['correct'] for r in base.values()),
+            'patched_reject_correct':sum(r['expected']=='reject' and r['correct'] for r in rows),
+            'baseline_declines':sum(r['status']=='decline' for r in base.values()),'patched_declines':sum(r['status']=='decline' for r in rows),
+            'gains':gains,'regressions':regressions,'changed':changed,'no_regressions':not regressions,
+            'patched_false_accepts':[r['name'] for r in rows if r['expected']=='reject' and r['status']=='accept']
+          }
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          if regressions or summary['patched_false_accepts']: raise SystemExit('full suite regression/soundness gate failed')
+          PY
+      - name: Upload full-suite audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-kernel-arena-full-small-suite-results
+          path: lean-kernel-arena-full-small-suite-results/

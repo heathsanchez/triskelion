@@ -1,0 +1,102 @@
+name: Lean Kernel Arena tutorial closure
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-growth]
+  workflow_dispatch:
+
+jobs:
+  closure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test retained representation capability on later tutorial failures
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NANODA_REV=418320295890faed83a96fd97907b12a3b6728c2
+          ARENA_RUN=31005978773
+          ARENA_ARTIFACT=8931227426
+          git clone https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          git -C nanoda_lib checkout "$NANODA_REV"
+          cat > nanoda_lib/config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/leanprover/lean-kernel-arena/actions/artifacts/${ARENA_ARTIFACT}/zip" \
+            -o test-tarball-artifact.zip
+          mkdir artifact arena-tests
+          unzip -q test-tarball-artifact.zip -d artifact
+          tar -xzf artifact/lean-arena-tests.tar.gz -C arena-tests
+          for n in 129_dup_defs 130_dup_ind_def 131_dup_ctor_def 132_dup_rec_def 133_misnamed_rec_user 134_dup_rec_def2 135_dup_ctor_rec 136_DupConCon; do
+            f=$(find arena-tests -type f -name "${n}.ndjson" | head -n1)
+            test -n "$f"; cp "$f" "${n}.ndjson"
+          done
+          cd nanoda_lib && cargo build --release && cd ..
+          mkdir -p lean-kernel-arena-tutorial-closure-results
+          run_case() {
+            local label=$1 f=$2
+            set +e
+            nanoda_lib/target/release/nanoda_bin nanoda_lib/config.json < "$f" >/dev/null 2>"lean-kernel-arena-tutorial-closure-results/${label}.stderr"
+            local rc=$?; set -e; echo "$rc"
+          }
+          for f in 129_dup_defs.ndjson 130_dup_ind_def.ndjson 131_dup_ctor_def.ndjson 132_dup_rec_def.ndjson 133_misnamed_rec_user.ndjson 134_dup_rec_def2.ndjson 135_dup_ctor_rec.ndjson 136_DupConCon.ndjson; do
+            echo "$f $(run_case "${f%.ndjson}.baseline" "$f")" >> lean-kernel-arena-tutorial-closure-results/baseline.txt
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          src=Path('.github/workflows/lean-kernel-arena-growth.yml').read_text().splitlines(); marker='Repair only the representation identified by T1'; start=end=None
+          for i,line in enumerate(src):
+              if marker in line:
+                  for j in range(i+1,len(src)):
+                      if "python3 - <<'PY'" in src[j]: start=j+1; break
+                  break
+          for j in range(start,len(src)):
+              if src[j].strip()=='PY': end=j; break
+          if start is None or end is None: raise SystemExit('proven repair program not found')
+          Path('/tmp/apply_representation_patch.py').write_text('\n'.join(line[10:] if line.startswith('          ') else line for line in src[start:end])+'\n')
+          PY
+          cd nanoda_lib && python3 /tmp/apply_representation_patch.py && cargo build --release && cd ..
+          for f in 129_dup_defs.ndjson 130_dup_ind_def.ndjson 131_dup_ctor_def.ndjson 132_dup_rec_def.ndjson 133_misnamed_rec_user.ndjson 134_dup_rec_def2.ndjson 135_dup_ctor_rec.ndjson 136_DupConCon.ndjson; do
+            echo "$f $(run_case "${f%.ndjson}.patched" "$f")" >> lean-kernel-arena-tutorial-closure-results/patched.txt
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          def load(p):
+              d={}
+              for line in Path(p).read_text().splitlines():
+                  n,rc=line.rsplit(' ',1); d[n]=int(rc)
+              return d
+          def arena_status(rc):
+              return 'accept' if rc==0 else ('decline' if rc==2 else 'reject')
+          b=load('lean-kernel-arena-tutorial-closure-results/baseline.txt'); p=load('lean-kernel-arena-tutorial-closure-results/patched.txt')
+          anchor='129_dup_defs.ndjson'
+          later=['130_dup_ind_def.ndjson','131_dup_ctor_def.ndjson','132_dup_rec_def.ndjson','133_misnamed_rec_user.ndjson','134_dup_rec_def2.ndjson','135_dup_ctor_rec.ndjson','136_DupConCon.ndjson']
+          bs={k:arena_status(v) for k,v in b.items()}; ps={k:arena_status(v) for k,v in p.items()}
+          summary={'arena_run':31005978773,'arena_artifact':8931227426,'nanoda_rev':'418320295890faed83a96fd97907b12a3b6728c2',
+                   'baseline_raw':b,'patched_raw':p,'baseline_status':bs,'patched_status':ps,
+                   'baseline_later_all_decline':all(bs[x]=='decline' for x in later),
+                   'patched_later_all_reject':all(ps[x]=='reject' for x in later),
+                   'existing_duplicate_definition_rejection_preserved':bs[anchor]=='reject' and ps[anchor]=='reject',
+                   'closure_gain_count':sum(bs[x]=='decline' and ps[x]=='reject' for x in later)}
+          Path('lean-kernel-arena-tutorial-closure-results/summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)); print(json.dumps(summary,indent=2,sort_keys=True))
+          if not (summary['baseline_later_all_decline'] and summary['patched_later_all_reject'] and summary['existing_duplicate_definition_rejection_preserved'] and summary['closure_gain_count']==7):
+              raise SystemExit('tutorial closure gate failed')
+          PY
+      - name: Upload tutorial closure audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-kernel-arena-tutorial-closure-results
+          path: lean-kernel-arena-tutorial-closure-results/

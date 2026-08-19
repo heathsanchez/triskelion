@@ -1,0 +1,316 @@
+name: Lean Kernel Arena causal growth
+
+on:
+  push:
+    branches: [agent/lean-kernel-arena-growth]
+  workflow_dispatch:
+
+jobs:
+  nanoda-growth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run frozen baseline, representation repair, transfer, and ablation
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          NANODA_REV=418320295890faed83a96fd97907b12a3b6728c2
+          git clone https://github.com/ammkrn/nanoda_lib.git nanoda_lib
+          cd nanoda_lib
+          git checkout "$NANODA_REV"
+
+          cat > config.json <<'JSON'
+          {
+            "use_stdin": true,
+            "nat_extension": true,
+            "string_extension": true,
+            "unpermitted_axiom_hard_error": false,
+            "unsafe_permit_all_axioms": true,
+            "num_threads": 4
+          }
+          JSON
+
+          mkdir -p fixtures ../lean-kernel-arena-growth-results
+
+          # Exact static Arena case: first exposed failure.
+          cat > fixtures/level-index-out-of-order.ndjson <<'EOF'
+          {"meta":{"exporter":{"name":"handcrafted","version":"0.1.0"},"format":{"version":"3.1.0"},"lean":{"githash":"2fcce7258eeb6e324366bc25f9058293b04b7547","version":"4.29.1"}}}
+          {"in":1,"str":{"pre":0,"str":"foo"}}
+          {"il":2,"succ":0}
+          {"il":1,"succ":2}
+          {"ie":0,"sort":1}
+          {"axiom":{"isUnsafe":false,"levelParams":[],"name":1,"type":0}}
+          EOF
+
+          # Exact static Arena case: held-out transfer target.
+          cat > fixtures/sparse-name-index.ndjson <<'EOF'
+          {"meta":{"exporter":{"name":"handcrafted","version":"0.1.0"},"format":{"version":"3.1.0"},"lean":{"githash":"2fcce7258eeb6e324366bc25f9058293b04b7547","version":"4.29.1"}}}
+          {"in":2,"str":{"pre":0,"str":"foo"}}
+          {"ie":4,"sort":0}
+          {"axiom":{"isUnsafe":false,"levelParams":[],"name":2,"type":4}}
+          EOF
+
+          # Dense/ordered semantic controls for the same two tiny proofs.
+          cat > fixtures/level-index-canonical.ndjson <<'EOF'
+          {"meta":{"exporter":{"name":"handcrafted","version":"0.1.0"},"format":{"version":"3.1.0"},"lean":{"githash":"2fcce7258eeb6e324366bc25f9058293b04b7547","version":"4.29.1"}}}
+          {"in":1,"str":{"pre":0,"str":"foo"}}
+          {"il":1,"succ":0}
+          {"il":2,"succ":1}
+          {"ie":0,"sort":2}
+          {"axiom":{"isUnsafe":false,"levelParams":[],"name":1,"type":0}}
+          EOF
+
+          cat > fixtures/sparse-name-canonical.ndjson <<'EOF'
+          {"meta":{"exporter":{"name":"handcrafted","version":"0.1.0"},"format":{"version":"3.1.0"},"lean":{"githash":"2fcce7258eeb6e324366bc25f9058293b04b7547","version":"4.29.1"}}}
+          {"in":1,"str":{"pre":0,"str":"foo"}}
+          {"ie":0,"sort":0}
+          {"axiom":{"isUnsafe":false,"levelParams":[],"name":1,"type":0}}
+          EOF
+
+          cargo build --release
+
+          run_case() {
+            local label="$1"
+            local file="$2"
+            set +e
+            target/release/nanoda_bin config.json < "$file" > "../lean-kernel-arena-growth-results/${label}.stdout" 2> "../lean-kernel-arena-growth-results/${label}.stderr"
+            local rc=$?
+            set -e
+            echo "$rc"
+          }
+
+          baseline_t1=$(run_case baseline_t1 fixtures/level-index-out-of-order.ndjson)
+          baseline_t2=$(run_case baseline_t2 fixtures/sparse-name-index.ndjson)
+          baseline_c1=$(run_case baseline_control1 fixtures/level-index-canonical.ndjson)
+          baseline_c2=$(run_case baseline_control2 fixtures/sparse-name-canonical.ndjson)
+
+          test "$baseline_t1" -ne 0
+          test "$baseline_t2" -ne 0
+          test "$baseline_c1" -eq 0
+          test "$baseline_c2" -eq 0
+
+          cp src/parser.rs ../lean-kernel-arena-growth-results/parser.original.rs
+
+          # Repair only the representation identified by T1: external back-reference
+          # identifiers are keys, not internal hash-cons DAG positions.
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('src/parser.rs')
+          s = p.read_text()
+
+          def rep(old, new, n=1):
+              global s
+              c = s.count(old)
+              if c != n:
+                  raise SystemExit(f'patch anchor count {c}, expected {n}: {old[:80]!r}')
+              s = s.replace(old, new, n)
+
+          rep(
+          """    mutual_block_sizes: FxHashMap<NamePtr<'a>, (usize, usize)>\n}""",
+          """    mutual_block_sizes: FxHashMap<NamePtr<'a>, (usize, usize)>,
+              name_backrefs: FxHashMap<u32, NamePtr<'a>>,
+              level_backrefs: FxHashMap<u32, LevelPtr<'a>>,
+              expr_backrefs: FxHashMap<u32, ExprPtr<'a>>
+          }"""
+          )
+
+          rep(
+          """    pub fn new(buf_reader: R, config: Config) -> Self {
+                  Self {
+                      buf_reader,
+                      line_num: 0usize,
+                      dag: LeanDag::new(&config),
+                      declars: new_fx_index_map(),
+                      notations: new_fx_hash_map(),
+                      config,
+                      skipped: Vec::new(),
+                      mutual_block_sizes: new_fx_hash_map()
+                  }
+              }""",
+          """    pub fn new(buf_reader: R, config: Config) -> Self {
+                  let dag = LeanDag::new(&config);
+                  let mut name_backrefs = new_fx_hash_map();
+                  let mut level_backrefs = new_fx_hash_map();
+                  name_backrefs.insert(0, NamePtr::from(DagMarker::ExportFile, 0));
+                  level_backrefs.insert(0, LevelPtr::from(DagMarker::ExportFile, 0));
+                  Self {
+                      buf_reader,
+                      line_num: 0usize,
+                      dag,
+                      declars: new_fx_index_map(),
+                      notations: new_fx_hash_map(),
+                      config,
+                      skipped: Vec::new(),
+                      mutual_block_sizes: new_fx_hash_map(),
+                      name_backrefs,
+                      level_backrefs,
+                      expr_backrefs: new_fx_hash_map()
+                  }
+              }"""
+          )
+
+          rep(
+          """    fn get_name_ptr(&self, idx: u32) -> NamePtr<'a> {
+                  let out = crate::util::Ptr::from(DagMarker::ExportFile, idx as usize);
+                  assert!((idx as usize) < self.dag.names.len());
+                  out
+              }
+
+              fn get_level_ptr(&self, idx: u32) -> LevelPtr<'a> {
+                  let out = crate::util::Ptr::from(DagMarker::ExportFile, idx as usize);
+                  assert!((idx as usize) < self.dag.levels.len());
+                  out
+              }
+              fn get_names(&self, idxs: &[u32]) -> Vec<NamePtr<'a>> {
+                  let mut names = Vec::new();
+                  for idx in idxs.iter().copied() {
+                      assert!(self.dag.names.get_index(idx as usize).is_some());
+                      names.push(NamePtr::from(DagMarker::ExportFile, idx as usize));
+                  }
+                  names
+              }""",
+          """    fn get_name_ptr(&self, idx: u32) -> NamePtr<'a> {
+                  *self.name_backrefs.get(&idx).unwrap_or_else(|| panic!(\"unknown Name back-reference {}\", idx))
+              }
+
+              fn get_level_ptr(&self, idx: u32) -> LevelPtr<'a> {
+                  *self.level_backrefs.get(&idx).unwrap_or_else(|| panic!(\"unknown Level back-reference {}\", idx))
+              }
+              fn get_names(&self, idxs: &[u32]) -> Vec<NamePtr<'a>> {
+                  idxs.iter().copied().map(|idx| self.get_name_ptr(idx)).collect()
+              }"""
+          )
+
+          rep(
+          """    fn get_levels_ptr(&mut self, idxs: &[u32]) -> LevelsPtr<'a> {
+                  let mut levels = Vec::new();
+                  for idx in idxs.iter().copied() {
+                      levels.push(LevelPtr::from(DagMarker::ExportFile, idx as usize));
+                  }
+                  LevelsPtr::from(DagMarker::ExportFile, self.dag.uparams.insert_full(Arc::from(levels)).0)
+              }
+
+              fn get_expr_ptr(&self, idx: u32) -> ExprPtr<'a> {
+                  let out = crate::util::Ptr::from(DagMarker::ExportFile, idx as usize);
+                  assert!((idx as usize) < self.dag.exprs.len());
+                  out
+              }""",
+          """    fn get_levels_ptr(&mut self, idxs: &[u32]) -> LevelsPtr<'a> {
+                  let levels = idxs.iter().copied().map(|idx| self.get_level_ptr(idx)).collect::<Vec<_>>();
+                  LevelsPtr::from(DagMarker::ExportFile, self.dag.uparams.insert_full(Arc::from(levels)).0)
+              }
+
+              fn get_expr_ptr(&self, idx: u32) -> ExprPtr<'a> {
+                  *self.expr_backrefs.get(&idx).unwrap_or_else(|| panic!(\"unknown Expr back-reference {}\", idx))
+              }"""
+          )
+
+          anchor = """    fn has_fvars(&self, e: ExprPtr<'a>) -> bool { self.dag.exprs.get_index(e.idx()).unwrap().has_fvars() }\n"""
+          binders = """
+
+              fn bind_name(&mut self, assigned: Option<BackRef>, (idx, _inserted): (usize, bool)) {
+                  let ext = match assigned.expect(\"missing Name back-reference\") {
+                      BackRef::In(i) => i,
+                      other => panic!(\"wrong Name back-reference kind: {:?}\", other),
+                  };
+                  if self.name_backrefs.insert(ext, NamePtr::from(DagMarker::ExportFile, idx)).is_some() {
+                      panic!(\"duplicate Name back-reference {}\", ext);
+                  }
+              }
+
+              fn bind_level(&mut self, assigned: Option<BackRef>, (idx, _inserted): (usize, bool)) {
+                  let ext = match assigned.expect(\"missing Level back-reference\") {
+                      BackRef::Il(i) => i,
+                      other => panic!(\"wrong Level back-reference kind: {:?}\", other),
+                  };
+                  if self.level_backrefs.insert(ext, LevelPtr::from(DagMarker::ExportFile, idx)).is_some() {
+                      panic!(\"duplicate Level back-reference {}\", ext);
+                  }
+              }
+
+              fn bind_expr(&mut self, assigned: Option<BackRef>, (idx, _inserted): (usize, bool)) {
+                  let ext = match assigned.expect(\"missing Expr back-reference\") {
+                      BackRef::Ie(i) => i,
+                      other => panic!(\"wrong Expr back-reference kind: {:?}\", other),
+                  };
+                  if self.expr_backrefs.insert(ext, ExprPtr::from(DagMarker::ExportFile, idx)).is_some() {
+                      panic!(\"duplicate Expr back-reference {}\", ext);
+                  }
+              }
+          """
+          rep(anchor, anchor + binders)
+
+          counts = {
+              'name': s.count('assigned_idx.unwrap().assert_in(insert_result);'),
+              'level': s.count('assigned_idx.unwrap().assert_il(insert_result);'),
+              'expr': s.count('assigned_idx.unwrap().assert_ie(insert_result);'),
+          }
+          if not all(counts.values()):
+              raise SystemExit(f'missing bind call families: {counts}')
+          s = s.replace('assigned_idx.unwrap().assert_in(insert_result);', 'self.bind_name(assigned_idx, insert_result);')
+          s = s.replace('assigned_idx.unwrap().assert_il(insert_result);', 'self.bind_level(assigned_idx, insert_result);')
+          s = s.replace('assigned_idx.unwrap().assert_ie(insert_result);', 'self.bind_expr(assigned_idx, insert_result);')
+
+          p.write_text(s)
+          print('bind replacements:', counts)
+          PY
+
+          git diff -- src/parser.rs > ../lean-kernel-arena-growth-results/representation-map.patch
+          cargo build --release
+
+          patched_t1=$(run_case patched_t1 fixtures/level-index-out-of-order.ndjson)
+          patched_t2=$(run_case patched_t2 fixtures/sparse-name-index.ndjson)
+          patched_c1=$(run_case patched_control1 fixtures/level-index-canonical.ndjson)
+          patched_c2=$(run_case patched_control2 fixtures/sparse-name-canonical.ndjson)
+
+          test "$patched_t1" -eq 0
+          test "$patched_t2" -eq 0
+          test "$patched_c1" -eq 0
+          test "$patched_c2" -eq 0
+
+          # Causal ablation: remove exactly the retained representation repair.
+          git checkout -- src/parser.rs
+          cargo build --release
+          ablated_t2=$(run_case ablated_t2 fixtures/sparse-name-index.ndjson)
+          test "$ablated_t2" -ne 0
+
+          python3 - <<PY
+          import json
+          result = {
+            "nanoda_rev": "$NANODA_REV",
+            "baseline": {
+              "level_index_out_of_order": int("$baseline_t1"),
+              "sparse_name_index": int("$baseline_t2"),
+              "canonical_level_control": int("$baseline_c1"),
+              "canonical_name_control": int("$baseline_c2")
+            },
+            "patched": {
+              "level_index_out_of_order": int("$patched_t1"),
+              "sparse_name_index": int("$patched_t2"),
+              "canonical_level_control": int("$patched_c1"),
+              "canonical_name_control": int("$patched_c2")
+            },
+            "ablated": {"sparse_name_index": int("$ablated_t2")},
+            "gates": {
+              "old_closure_obstruction": int("$baseline_t1") != 0,
+              "necessity_current_case": int("$patched_t1") == 0,
+              "independent_transfer": int("$baseline_t2") != 0 and int("$patched_t2") == 0,
+              "causal_ablation": int("$patched_t2") == 0 and int("$ablated_t2") != 0,
+              "dense_controls_preserved": int("$baseline_c1") == int("$baseline_c2") == int("$patched_c1") == int("$patched_c2") == 0
+            }
+          }
+          with open('../lean-kernel-arena-growth-results/result.json', 'w') as f:
+              json.dump(result, f, indent=2, sort_keys=True)
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload causal audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-kernel-arena-growth-results
+          path: lean-kernel-arena-growth-results/
