@@ -1,0 +1,14 @@
+{
+  "normalized_residual": {
+    "residual_family": "hidden_computed_family_parameter_type1",
+    "fixed_top_level_parameter": false,
+    "constructor_local_symbolic_parameter": false,
+    "downstream_instance_requested_over_symbolic_parameter": false,
+    "specialized_concrete_type_has_available_instance": false,
+    "failure_is_not_universe_mismatch": false,
+    "failure_is_not_constructor_overapplication": true,
+    "failure_is_not_parser_or_build_error": true,
+    "source_state": "D0_K2",
+    "interpretation": "Cold state stops at the earlier obstruction and does not expose the R2 specialization-before-instance-synthesis schema."
+  }
+}
