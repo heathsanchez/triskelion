@@ -1,0 +1,38 @@
+name: V135 Daniel residual-gated constructor
+
+on:
+  push:
+    branches: [agent/v135-daniel-residual-gated-constructor]
+  workflow_dispatch:
+
+jobs:
+  v135-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run frozen residual-gated constructor evaluator
+        run: |
+          set -euo pipefail
+          mkdir -p results/v135
+          python3 experiments/V135_RESIDUAL_GATED_CONSTRUCTOR.py \
+            --cold fixtures/v135/cold_residual.json \
+            --developed fixtures/v135/developed_residual.json \
+            --out results/v135/residual_gated_constructor_result.json
+      - name: Assert frozen constructibility distinction
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          p='results/v135/residual_gated_constructor_result.json'
+          r=json.load(open(p))
+          assert r['verdict']=='PASS_CONSTRUCTIBILITY_DIFFERENCE', r['verdict']
+          assert r['cold']['constructible'] is False
+          assert r['developed']['constructible'] is True
+          assert r['developed']['emitted']['repair_family']=='SpecializeBeforeInstanceSynthesis'
+          print('PASS_V135_CONSTRUCTOR_GATE_SMOKE')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v135-residual-gated-constructor
+          path: results/v135/
