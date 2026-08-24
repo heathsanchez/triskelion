@@ -1,0 +1,20 @@
+valid: /tmp/baseline_adamw/submission.py (3628 bytes)
+queued: 180be21e-1262-46ad-aa33-ae357bd5d29f
+tier:   hard
+data:   h1
+left:   2 today
+view:   https://onelayerdeeper.ai/submissions/180be21e-1262-46ad-aa33-ae357bd5d29f
+[queued] submission.py
+[running] submission.py
+[succeeded] submission.py
+submission  180be21e-1262-46ad-aa33-ae357bd5d29f
+file        submission.py
+status      succeeded
+score       0.03%
+max T       None certified
+OOD N max T None certified
+tier        hard
+dataset     H1 · Hidden evaluation
+suite       h100_hard_h1.json
+run         46a5c903-6426-4b99-9656-2ca116386780
+modal call  fc-01M0TXN4C8EAQX7NET2N272V3A
