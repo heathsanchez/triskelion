@@ -37,16 +37,18 @@ jobs:
           cd /tmp/old
           git checkout 4ceff9570f98b8ee4625b88b3331a839c4ac4283 -- submissions/baseline_adamw/submission.py
           test "$(git hash-object submissions/baseline_adamw/submission.py)" = "bb749296a8207d5c232fe641180beca46f6320ba"
-          cp submissions/baseline_adamw/submission.py /tmp/baseline_adamw_submission.py
+          mkdir -p /tmp/baseline_adamw
+          cp submissions/baseline_adamw/submission.py /tmp/baseline_adamw/submission.py
+          test "$(git hash-object /tmp/baseline_adamw/submission.py)" = "bb749296a8207d5c232fe641180beca46f6320ba"
           echo 'OFFICIAL_BASELINE_BLOB=bb749296a8207d5c232fe641180beca46f6320ba'
       - name: Validate untouched baseline
-        run: one-layer validate /tmp/baseline_adamw_submission.py
+        run: one-layer validate /tmp/baseline_adamw/submission.py
       - name: Hosted H100 HARD H1 — baseline control
         id: submit
         run: |
           set +e
           set -o pipefail
-          one-layer submit /tmp/baseline_adamw_submission.py --tier hard --dataset h1 --wait 2>&1 | tee baseline_hard_h1.log
+          one-layer submit /tmp/baseline_adamw/submission.py --tier hard --dataset h1 --wait 2>&1 | tee baseline_hard_h1.log
           rc=${PIPESTATUS[0]}
           echo "submit_rc=$rc" >> "$GITHUB_OUTPUT"
           exit 0
