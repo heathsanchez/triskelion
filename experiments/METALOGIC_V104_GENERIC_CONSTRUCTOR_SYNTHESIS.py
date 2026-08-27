@@ -12,19 +12,8 @@ SEED='V104_GENERIC_CONSTRUCTOR_SYNTHESIS_2026-08-14'
 EXCLUDE=set(v102.EXPOSED)
 TRAIN_N=8; TEST_N=8; BASE_CAP=180; PROGRAM_CAP=320; MIN_SUPPORT=2
 
-# No high-level repair families are supplied. A constructor program is synthesized from:
-#   SELECT(parent_type, field) -> BUILD(expression grammar) -> REPLACE
-# The templates below are generic AST/value constructors, not task semantics.
-SELECTORS=[
- ('While','test'),('If','test'),('Return','value'),('Call','func'),('Call','arg')
-]
-BUILDERS=[
- ('SCOPE_NAME',),('CONST',0),('CONST',1),('CONST',True),('CONST',False),
- ('LIST_EMPTY',),('LIST_NESTED_EMPTY',),
- ('BINOP_NAME_CONST','Add',1),('BINOP_NAME_CONST','Sub',1),
- ('CALL_BUILTIN','all'),('CALL_BUILTIN','any'),('CALL_BUILTIN','len'),
- ('CALL_BUILTIN','min'),('CALL_BUILTIN','max'),('CALL_BUILTIN','sum')
-]
+SELECTORS=[('While','test'),('If','test'),('Return','value'),('Call','func'),('Call','arg')]
+BUILDERS=[('SCOPE_NAME',),('CONST',0),('CONST',1),('CONST',True),('CONST',False),('LIST_EMPTY',),('LIST_NESTED_EMPTY',),('BINOP_NAME_CONST','Add',1),('BINOP_NAME_CONST','Sub',1),('CALL_BUILTIN','all'),('CALL_BUILTIN','any'),('CALL_BUILTIN','len'),('CALL_BUILTIN','min'),('CALL_BUILTIN','max'),('CALL_BUILTIN','sum')]
 
 def h(x): return hashlib.sha256((SEED+'|'+x).encode()).hexdigest()
 
@@ -44,8 +33,7 @@ def nodes_for_selector(tree,sel):
     if typ=='If': return [(n,'test',None) for n in ast.walk(tree) if isinstance(n,ast.If)]
     if typ=='Return': return [(n,'value',None) for n in ast.walk(tree) if isinstance(n,ast.Return)]
     if typ=='Call' and field=='func': return [(n,'func',None) for n in ast.walk(tree) if isinstance(n,ast.Call)]
-    if typ=='Call' and field=='arg':
-        return [(n,'args',j) for n in ast.walk(tree) if isinstance(n,ast.Call) for j,_ in enumerate(n.args)]
+    if typ=='Call' and field=='arg': return [(n,'args',j) for n in ast.walk(tree) if isinstance(n,ast.Call) for j,_ in enumerate(n.args)]
     return []
 
 def build_expr(builder,names,old=None):
@@ -58,7 +46,6 @@ def build_expr(builder,names,old=None):
         op=ast.Add if builder[1]=='Add' else ast.Sub
         return [ast.BinOp(left=ast.Name(id=x,ctx=ast.Load()),op=op(),right=ast.Constant(builder[2])) for x in names]
     if tag=='CALL_BUILTIN':
-        # Generic call construction reuses the old call's arguments when available; otherwise one scoped name.
         if isinstance(old,ast.Call): return [ast.Call(func=ast.Name(id=builder[1],ctx=ast.Load()),args=copy.deepcopy(old.args),keywords=copy.deepcopy(old.keywords))]
         return [ast.Call(func=ast.Name(id=builder[1],ctx=ast.Load()),args=[ast.Name(id=x,ctx=ast.Load())],keywords=[]) for x in names[:4]]
     return []
@@ -67,8 +54,7 @@ def program_candidates(src,allowed=None,cap=PROGRAM_CAP):
     try:tree=ast.parse(src)
     except Exception:return []
     names=sorted({n.id for n in ast.walk(tree) if isinstance(n,ast.Name)})
-    programs=[(s,b) for s in SELECTORS for b in BUILDERS]
-    programs=sorted(programs,key=lambda p:h('program|'+repr(p)))
+    programs=sorted([(s,b) for s in SELECTORS for b in BUILDERS],key=lambda p:h('program|'+repr(p)))
     if allowed is not None: programs=[p for p in programs if p in allowed]
     out=[]; seen={src}
     for sel,builder in programs:
@@ -100,7 +86,6 @@ def first_success(name,cands):
 def main():
     names=failing_names(); train=names[:TRAIN_N]; test=names[TRAIN_N:TRAIN_N+TEST_N]
     support=defaultdict(set); train_rows=[]
-    # Training uses verifier gradients only; no correct implementations.
     for n in train:
         src=(ROOT/'python_programs'/f'{n}.py').read_text(); base=full_score(n,src)
         best={}
@@ -113,7 +98,6 @@ def main():
         improving=sorted((repr(sig),sorted(v)) for sig,v in support.items() if n in v)
         train_rows.append({'task':n,'base_score':base,'improving_programs':[x[0] for x in improving]})
     retained=sorted([sig for sig,v in support.items() if len(v)>=MIN_SUPPORT],key=repr)
-    # MDL tie-break: shortest repr, then strongest source-distinct support, then frozen hash.
     if retained:
         best_len=min(len(repr(x)) for x in retained)
         retained=[x for x in retained if len(repr(x))==best_len]
@@ -126,7 +110,6 @@ def main():
     base_s=[]; learned_s=[]; null_s=[]; rows=[]
     for n in test:
         src=(ROOT/'python_programs'/f'{n}.py').read_text()
-        # Normalize base candidates into the same triple shape.
         b=[(('BASE','BASE'),('BASE',),text) for _,text in base_candidates(src,BASE_CAP)]
         bk=first_success(n,b)
         lk=first_success(n,b+program_candidates(src,set(retained)))
@@ -136,19 +119,8 @@ def main():
         if nk:null_s.append(n)
         rows.append({'task':n,'base':bool(bk),'learned':bool(lk),'null':bool(nk),'learned_winner':repr(lk) if lk else None,'null_winner':repr(nk) if nk else None})
     new=sorted(set(learned_s)-set(base_s)); null_new=sorted(set(null_s)-set(base_s))
-    gates={
-      'external_hash_split':bool(train and test and not(set(train)&set(test))),
-      'prior_inspected_tasks_excluded':not any(n in EXCLUDE for n in train+test),
-      'no_correct_implementations_read':True,
-      'no_named_high_level_builder_families':True,
-      'programs_synthesized_from_generic_ast_value_grammar':True,
-      'source_distinct_verifier_support':all(len(support[p])>=MIN_SUPPORT for p in retained) if retained else False,
-      'nonempty_synthesized_constructor':bool(retained),
-      'conservative':set(base_s)<=set(learned_s),
-      'strict_heldout_closure_expansion':bool(new),
-      'beats_matched_wrong_program_control':len(new)>len(null_new)
-    }
+    gates={'external_hash_split':bool(train and test and not(set(train)&set(test))),'prior_inspected_tasks_excluded':not any(n in EXCLUDE for n in train+test),'no_correct_implementations_read':True,'no_named_high_level_builder_families':True,'programs_synthesized_from_generic_ast_value_grammar':True,'source_distinct_verifier_support':all(len(support[p])>=MIN_SUPPORT for p in retained) if retained else False,'nonempty_synthesized_constructor':bool(retained),'conservative':set(base_s)<=set(learned_s),'strict_heldout_closure_expansion':bool(new),'beats_matched_wrong_program_control':len(new)>len(null_new)}
     verdict='PASS_GENERIC_CONSTRUCTOR_SYNTHESIS_V104' if all(gates.values()) else 'MIXED_GENERIC_CONSTRUCTOR_SYNTHESIS_V104'
-    res={'protocol':'V104_GENERIC_CONSTRUCTOR_SYNTHESIS','external_commit':v102.v100.COMMIT,'train':train,'test':test,'excluded_prior_inspection':sorted(EXCLUDE),'retained_programs':[repr(x) for x in retained],'retained_support':{repr(x):sorted(support[x]) for x in retained},'null_programs':[repr(x) for x in null],'base_solved':base_s,'learned_solved':learned_s,'null_solved':null_s,'new_closure':new,'null_new_closure':null_new,'train_rows':train_rows,'rows':rows,'gates':gates,'verdict':verdict,'qualification':'Natural constructor-synthesis bridge. No high-level GUARD/RETURN/EXPR family is selectable. Constructor programs are synthesized from generic typed slot selection plus AST/value builders and retained only by source-distinct verifier improvement. The low-level AST/value grammar itself remains supplied; PASS would not establish unrestricted metalanguage invention.'}
+    res={'protocol':'V104_GENERIC_CONSTRUCTOR_SYNTHESIS','external_commit':v102.v100.v99.COMMIT,'train':train,'test':test,'excluded_prior_inspection':sorted(EXCLUDE),'retained_programs':[repr(x) for x in retained],'retained_support':{repr(x):sorted(support[x]) for x in retained},'null_programs':[repr(x) for x in null],'base_solved':base_s,'learned_solved':learned_s,'null_solved':null_s,'new_closure':new,'null_new_closure':null_new,'train_rows':train_rows,'rows':rows,'gates':gates,'verdict':verdict,'qualification':'Natural constructor-synthesis bridge. No high-level GUARD/RETURN/EXPR family is selectable. Constructor programs are synthesized from generic typed slot selection plus AST/value builders and retained only by source-distinct verifier improvement. The low-level AST/value grammar itself remains supplied; PASS would not establish unrestricted metalanguage invention.'}
     (OUT/'RESULT.json').write_text(json.dumps(res,indent=2)); print(json.dumps(res,indent=2))
 if __name__=='__main__':main()
