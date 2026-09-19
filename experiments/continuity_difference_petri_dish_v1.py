@@ -14,7 +14,6 @@ from experiments.cross_world_nucleus_invariance_v1 import (
     WorldConfig,
     fit_finite_relation,
     initial_state as inherited_initial_state,
-    relabel_config,
     stable,
     world_configs,
 )
@@ -773,10 +772,30 @@ def evaluate_scenario(scenario: Scenario) -> dict[str, object]:
 
 
 def relabel_scenario(scenario: Scenario) -> Scenario:
-    # Relabel only primitive visible values. Generated target values stay row-wise
-    # identical, preserving the extensional hidden ecology under a bijection of
-    # the environmental interface.
-    config = relabel_config(scenario.config)
+    # Apply an independent bijection to each primitive feature's visible
+    # alphabet. Generated target vectors stay row-wise identical. Because each
+    # primitive map is bijective, every hidden extensional dependency is
+    # preserved while the environmental surface vocabulary changes.
+    primitive = {}
+    for feature_id, values in scenario.config.primitive.items():
+        alphabet = sorted(set(values), key=stable)
+        if len(alphabet) <= 1:
+            mapping = {value: value for value in alphabet}
+        else:
+            mapping = {
+                alphabet[i]: alphabet[(i + 1) % len(alphabet)]
+                for i in range(len(alphabet))
+            }
+        primitive[feature_id] = tuple(mapping[value] for value in values)
+
+    config = WorldConfig(
+        world_id=scenario.config.world_id + "-relabel",
+        primitive=primitive,
+        alphabet=scenario.config.alphabet,
+        schedule=scenario.config.schedule,
+        surface=scenario.config.surface + "-bijective-feature-relabel",
+        relabelled=True,
+    )
     return Scenario(
         config=config,
         seed=scenario.seed + ":RELABEL",
