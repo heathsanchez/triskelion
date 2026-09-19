@@ -1,0 +1,97 @@
+name: Whakapapa Causality V1
+
+on:
+  push:
+    branches:
+      - experiment/whakapapa-causality-v1
+    paths:
+      - 'experiments/whakapapa_causality_v1.py'
+      - 'protocols/WHAKAPAPA_CAUSALITY_V1_PRECOMMIT.md'
+      - 'protocols/WHAKAPAPA_CAUSALITY_V1_PRECOMMIT_ADDENDUM.md'
+      - '.github/workflows/whakapapa-causality-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: whakapapa-causality-v1
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/whakapapa-causality-v1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor ad5e8349c24f82db8fbe917288e2cd2beefed1aa HEAD
+          git merge-base --is-ancestor 8dcb5858ca6a0b7add988b2bc4298b15e4dd4ec1 HEAD
+          test -f protocols/WHAKAPAPA_CAUSALITY_V1_PRECOMMIT.md
+          test -f protocols/WHAKAPAPA_CAUSALITY_V1_PRECOMMIT_ADDENDUM.md
+          test -f experiments/cross_world_nucleus_invariance_v1.py
+
+      - name: Run frozen experiment
+        run: |
+          python experiments/whakapapa_causality_v1.py             | tee /tmp/whakapapa-causality-v1.log
+
+      - name: Validate scientific result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(
+              Path('results/whakapapa_causality_v1/result.json').read_text()
+          )
+
+          assert p['protocol'] == 'WHAKAPAPA_CAUSALITY_V1'
+          assert p['precommit_commit'] == 'ad5e8349c24f82db8fbe917288e2cd2beefed1aa'
+          assert p['addendum_commit'] == '8dcb5858ca6a0b7add988b2bc4298b15e4dd4ec1'
+          assert p['verdict'] in {
+              'PASS_WHAKAPAPA_CAUSALITY_AND_IRREDUCIBLE_NUCLEUS_V1',
+              'PASS_WHAKAPAPA_CAUSALITY_REDUCED_NUCLEUS_V1',
+              'NUCLEUS_PASS_WHAKAPAPA_NEGATIVE_V1',
+              'WHAKAPAPA_PASS_NUCLEUS_PARTIAL_V1',
+              'PARTIAL_WHAKAPAPA_CAUSALITY_V1',
+              'VALID_NEGATIVE_WHAKAPAPA_CAUSALITY_V1',
+          }
+          assert set(p['headline']) == {
+              'binary', 'ternary', 'symbolic', 'temporal', 'graph'
+          }
+          assert p['sweep']['worlds'] == 125
+          assert len(p['headline_nucleus_gates']) == 8
+          assert len(p['headline_whakapapa_gates']) == 10
+
+          print('SCIENTIFIC_VERDICT=' + p['verdict'])
+          print(json.dumps(p['headline_nucleus_gates'], indent=2, sort_keys=True))
+          print(json.dumps(p['headline_whakapapa_gates'], indent=2, sort_keys=True))
+          print(json.dumps(p['sweep'], indent=2, sort_keys=True))
+          PY
+
+      - name: Commit authoritative scientific result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/whakapapa_causality_v1/result.json             results/whakapapa_causality_v1/sweep.json
+          git commit -m 'Record whakapapa causality V1 result' || exit 0
+          git push origin HEAD:experiment/whakapapa-causality-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: whakapapa-causality-v1-evidence
+          path: |
+            results/whakapapa_causality_v1/result.json
+            results/whakapapa_causality_v1/sweep.json
+            /tmp/whakapapa-causality-v1.log
+          if-no-files-found: warn
