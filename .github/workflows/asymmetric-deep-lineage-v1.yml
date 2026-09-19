@@ -41,7 +41,8 @@ jobs:
 
       - name: Run asymmetric deep lineage
         run: |
-          python experiments/asymmetric_deep_lineage_v1.py             | tee /tmp/asymmetric-deep-lineage-v1.log
+          set -o pipefail
+          PYTHONPATH=. python experiments/asymmetric_deep_lineage_v1.py | tee /tmp/asymmetric-deep-lineage-v1.log
 
       - name: Validate scientific result
         run: |
