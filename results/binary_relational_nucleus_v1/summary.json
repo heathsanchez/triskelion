@@ -1,0 +1,171 @@
+{
+  "complete_laws": [
+    1,
+    2,
+    4,
+    7,
+    11,
+    13
+  ],
+  "laws": [
+    {
+      "closure_size": 5,
+      "law": 0,
+      "no_constants_closure_size": 4,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": true,
+      "truth_table": "0000"
+    },
+    {
+      "closure_size": 256,
+      "law": 1,
+      "no_constants_closure_size": 256,
+      "robust_survivor": false,
+      "salt_passes": 22,
+      "symmetric": true,
+      "truth_table": "1000"
+    },
+    {
+      "closure_size": 256,
+      "law": 2,
+      "no_constants_closure_size": 38,
+      "robust_survivor": true,
+      "salt_passes": 25,
+      "symmetric": false,
+      "truth_table": "0100"
+    },
+    {
+      "closure_size": 8,
+      "law": 3,
+      "no_constants_closure_size": 6,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": false,
+      "truth_table": "1100"
+    },
+    {
+      "closure_size": 256,
+      "law": 4,
+      "no_constants_closure_size": 38,
+      "robust_survivor": true,
+      "salt_passes": 25,
+      "symmetric": false,
+      "truth_table": "0010"
+    },
+    {
+      "closure_size": 8,
+      "law": 5,
+      "no_constants_closure_size": 6,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": false,
+      "truth_table": "1010"
+    },
+    {
+      "closure_size": 16,
+      "law": 6,
+      "no_constants_closure_size": 8,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": true,
+      "truth_table": "0110"
+    },
+    {
+      "closure_size": 256,
+      "law": 7,
+      "no_constants_closure_size": 256,
+      "robust_survivor": false,
+      "salt_passes": 16,
+      "symmetric": true,
+      "truth_table": "1110"
+    },
+    {
+      "closure_size": 9,
+      "law": 8,
+      "no_constants_closure_size": 7,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": true,
+      "truth_table": "0001"
+    },
+    {
+      "closure_size": 16,
+      "law": 9,
+      "no_constants_closure_size": 8,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": true,
+      "truth_table": "1001"
+    },
+    {
+      "closure_size": 5,
+      "law": 10,
+      "no_constants_closure_size": 3,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": false,
+      "truth_table": "0101"
+    },
+    {
+      "closure_size": 256,
+      "law": 11,
+      "no_constants_closure_size": 38,
+      "robust_survivor": true,
+      "salt_passes": 25,
+      "symmetric": false,
+      "truth_table": "1101"
+    },
+    {
+      "closure_size": 5,
+      "law": 12,
+      "no_constants_closure_size": 3,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": false,
+      "truth_table": "0011"
+    },
+    {
+      "closure_size": 256,
+      "law": 13,
+      "no_constants_closure_size": 38,
+      "robust_survivor": true,
+      "salt_passes": 25,
+      "symmetric": false,
+      "truth_table": "1011"
+    },
+    {
+      "closure_size": 9,
+      "law": 14,
+      "no_constants_closure_size": 7,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": true,
+      "truth_table": "0111"
+    },
+    {
+      "closure_size": 5,
+      "law": 15,
+      "no_constants_closure_size": 4,
+      "robust_survivor": false,
+      "salt_passes": 0,
+      "symmetric": true,
+      "truth_table": "1111"
+    }
+  ],
+  "robust_survivors": [
+    2,
+    4,
+    11,
+    13
+  ],
+  "survivor_equivalence_classes": [
+    [
+      2,
+      4,
+      11,
+      13
+    ]
+  ],
+  "verdict": "PASS_BINARY_RELATIONAL_NUCLEUS_CLASS_V1"
+}
