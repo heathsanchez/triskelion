@@ -114,6 +114,10 @@ def generate_exact_parent_target(
     left = active[left_id].values
     right = active[right_id].values
 
+    seen_targets: set[tuple[Hashable, ...]] = set()
+    support_size = len(set(zip(left, right)))
+    max_unique_targets = len(config.alphabet) ** support_size
+
     for counter in range(65536):
         target = generated_target(
             left=left,
@@ -123,6 +127,12 @@ def generate_exact_parent_target(
             generation=index,
             counter=counter,
         )
+        if target in seen_targets:
+            if len(seen_targets) >= max_unique_targets:
+                break
+            continue
+        seen_targets.add(target)
+
         if any(feature.values == target for feature in active.values()):
             continue
 
@@ -1045,25 +1055,27 @@ def compact_headline(world: dict[str, object]) -> dict[str, object]:
 
 def sweep_summary(rows: list[dict[str, object]]) -> dict[str, object]:
     total = len(rows)
+    valid = [row for row in valid if row["result"] is not None]
+    inadmissible = total - len(valid)
 
     def base(row: dict[str, object]) -> dict[str, object]:
         return row["result"]
 
-    dmi_full = sum(base(row)["nucleus"]["DMI"]["depth"] == 8 for row in rows)
-    graph_exact = sum(base(row)["generated_graph_exact"] for row in rows)
+    dmi_full = sum(base(row)["nucleus"]["DMI"]["depth"] == 8 for row in valid)
+    graph_exact = sum(base(row)["generated_graph_exact"] for row in valid)
     cold_full = sum(
         base(row)["nucleus"]["DMI_COLD"]["depth"] == 8
-        for row in rows
+        for row in valid
     )
     dm_loss = sum(
         base(row)["nucleus"]["DM"]["depth"]
         < base(row)["nucleus"]["DMI"]["depth"]
-        for row in rows
+        for row in valid
     )
     di_loss = sum(
         base(row)["nucleus"]["DI"]["depth"]
         < base(row)["nucleus"]["DMI"]["depth"]
-        for row in rows
+        for row in valid
     )
     mi_penalty = sum(
         (
@@ -1076,7 +1088,7 @@ def sweep_summary(rows: list[dict[str, object]]) -> dict[str, object]:
             and base(row)["nucleus"]["MI"]["verifier_candidate_checks"]
             > base(row)["nucleus"]["DMI"]["verifier_candidate_checks"]
         )
-        for row in rows
+        for row in valid
     )
 
     true_t1_success = 0
@@ -1088,7 +1100,7 @@ def sweep_summary(rows: list[dict[str, object]]) -> dict[str, object]:
     sham_bad_or_expensive = 0
     true_full_equiv = 0
 
-    for row in rows:
+    for row in valid:
         result = base(row)
         a = result["ancestry"]
         if a is None:
@@ -1152,6 +1164,8 @@ def sweep_summary(rows: list[dict[str, object]]) -> dict[str, object]:
 
     return {
         "worlds": total,
+        "admissible_worlds": len(valid),
+        "inadmissible_worlds": inadmissible,
         "dmi_full_lineage": dmi_full,
         "generated_graph_exact": graph_exact,
         "cold_full_lineage": cold_full,
@@ -1226,13 +1240,19 @@ def main() -> int:
         config = configs[world_id]
         for index in range(25):
             seed = f"{WORLD_SEEDS[world_id]}:SWEEP:{index:03d}"
-            scenario = build_scenario(config, seed)
-            result = evaluate_scenario(scenario)
+            try:
+                scenario = build_scenario(config, seed)
+                result = evaluate_scenario(scenario)
+                construction_error = None
+            except RuntimeError as exc:
+                result = None
+                construction_error = str(exc)
             sweep_rows.append(
                 {
                     "world_id": world_id,
                     "seed": seed,
                     "result": result,
+                    "construction_error": construction_error,
                 }
             )
 
@@ -1270,6 +1290,15 @@ def main() -> int:
     compact_sweep = []
     for row in sweep_rows:
         r = row["result"]
+        if r is None:
+            compact_sweep.append(
+                {
+                    "world_id": row["world_id"],
+                    "seed": row["seed"],
+                    "construction_error": row["construction_error"],
+                }
+            )
+            continue
         a = r["ancestry"]
         compact_sweep.append(
             {
