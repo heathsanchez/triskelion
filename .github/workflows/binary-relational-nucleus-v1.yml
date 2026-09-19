@@ -1,0 +1,86 @@
+name: Binary Relational Nucleus V1
+
+on:
+  push:
+    branches:
+      - experiment/binary-relational-nucleus-v1
+    paths:
+      - 'experiments/binary_relational_nucleus_v1.py'
+      - 'protocols/BINARY_RELATIONAL_NUCLEUS_V1_PRECOMMIT.md'
+      - '.github/workflows/binary-relational-nucleus-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: binary-relational-nucleus-v1
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/binary-relational-nucleus-v1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor 0722d9f6ce65e83066d01330606cf3894e5b1bce HEAD
+          test -f protocols/BINARY_RELATIONAL_NUCLEUS_V1_PRECOMMIT.md
+          test -f experiments/binary_relational_nucleus_v1.py
+
+      - name: Run exhaustive binary-law tournament
+        run: |
+          python experiments/binary_relational_nucleus_v1.py             | tee /tmp/binary-relational-nucleus-v1.log
+
+      - name: Validate scientific result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(
+              Path('results/binary_relational_nucleus_v1/result.json').read_text()
+          )
+          assert p['protocol'] == 'BINARY_RELATIONAL_NUCLEUS_V1'
+          assert p['precommit_commit'] == '0722d9f6ce65e83066d01330606cf3894e5b1bce'
+          assert len(p['laws']) == 16
+          assert p['universe']['semantic_functions'] == 256
+          assert p['verdict'] in {
+              'PASS_BINARY_RELATIONAL_NUCLEUS_CLASS_V1',
+              'PARTIAL_BINARY_RELATIONAL_NUCLEUS_V1',
+              'REDUCED_BELOW_BINARY_PAIR_V1',
+              'VALID_NEGATIVE_BINARY_RELATIONAL_NUCLEUS_V1',
+          }
+          print('SCIENTIFIC_VERDICT=' + p['verdict'])
+          print('COMPLETE_LAWS=' + json.dumps(p['complete_laws']))
+          print('ROBUST_SURVIVORS=' + json.dumps(p['robust_survivors']))
+          print('EQUIV_CLASSES=' + json.dumps(p['survivor_equivalence_classes']))
+          print(json.dumps(p['survivor_summary'], indent=2, sort_keys=True))
+          PY
+
+      - name: Commit authoritative scientific result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/binary_relational_nucleus_v1/result.json             results/binary_relational_nucleus_v1/summary.json
+          git commit -m 'Record binary relational nucleus V1 result' || exit 0
+          git push origin HEAD:experiment/binary-relational-nucleus-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: binary-relational-nucleus-v1-evidence
+          path: |
+            results/binary_relational_nucleus_v1/result.json
+            results/binary_relational_nucleus_v1/summary.json
+            /tmp/binary-relational-nucleus-v1.log
+          if-no-files-found: warn
