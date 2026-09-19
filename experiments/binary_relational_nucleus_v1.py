@@ -587,6 +587,27 @@ def twin_and_recombination(law: int, salt: str, lineage: dict[str, object]) -> d
     }
 
 
+def exact_relabel_isomorphism(law: int) -> bool:
+    """Exhaustively verify the 0<->1 conjugacy on the whole semantic algebra.
+
+    This identity is stronger than replaying one selected lineage: if it holds
+    for every semantic input pair, then every recursively composed expression,
+    exact minimum-cost relation, remove/restore reachability predicate, and
+    complemented external-verifier consequence is preserved under the frozen
+    representation relabelling.
+    """
+    tlaw = conjugate_symbol_law(law)
+    for left in range(256):
+        cleft = complement_sem(left)
+        for right in range(256):
+            cright = complement_sem(right)
+            original = apply_law(law, left, right)
+            transformed = apply_law(tlaw, cleft, cright)
+            if complement_sem(original) != transformed:
+                return False
+    return True
+
+
 def transformed_cost_invariance(
     law: int,
     leaves: tuple[int, ...],
@@ -653,6 +674,7 @@ def run_salt(law: int, salt: str) -> dict[str, object]:
             tuple(BASE_LEAVES),
             9,
         )
+        relabel_ok &= exact_relabel_isomorphism(law)
 
     gates = {
         "L2_g1_cegis": bool(lineage.get("depth", 0) >= 1),
