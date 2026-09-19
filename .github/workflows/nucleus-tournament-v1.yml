@@ -1,0 +1,78 @@
+name: Nucleus Tournament V1
+
+on:
+  push:
+    branches:
+      - experiment/nucleus-tournament-v1
+    paths:
+      - 'experiments/nucleus_tournament_v1.py'
+      - 'protocols/NUCLEUS_TOURNAMENT_V1_PRECOMMIT.md'
+      - '.github/workflows/nucleus-tournament-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nucleus-tournament-v1
+  cancel-in-progress: false
+
+jobs:
+  tournament:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/nucleus-tournament-v1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify frozen precommit ancestry
+        run: |
+          git merge-base --is-ancestor 5a1cf1d01e05937e48b848225a1b35c24a67c980 HEAD
+          test -f protocols/NUCLEUS_TOURNAMENT_V1_PRECOMMIT.md
+
+      - name: Run sealed nucleus tournament
+        run: |
+          python experiments/nucleus_tournament_v1.py | tee /tmp/nucleus-tournament-v1.log
+
+      - name: Enforce frozen verdict
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(Path('results/nucleus_tournament_v1/result.json').read_text())
+          assert p['precommit_commit'] == '5a1cf1d01e05937e48b848225a1b35c24a67c980'
+          assert p['verdict'] == 'PASS_TRIADIC_NUCLEUS_SIGNAL_V1', p['verdict']
+          assert all(p['headline_gates'].values()), p['headline_gates']
+          assert p['sweep']['strong_pass'], p['sweep']
+          assert p['headline']['runs']['DMI']['depth'] == 6
+          assert p['headline']['runs']['DMI_COLD']['depth'] < 6
+          assert p['headline']['causal_ablation']['pass']
+          assert p['headline']['metamorphosis']['pass']
+          print('PASS_TRIADIC_NUCLEUS_SIGNAL_V1')
+          print(json.dumps(p['sweep'], indent=2, sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/nucleus_tournament_v1/result.json results/nucleus_tournament_v1/sweep.json
+          git commit -m 'Record nucleus tournament V1 result' || exit 0
+          git push origin HEAD:experiment/nucleus-tournament-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nucleus-tournament-v1-evidence
+          path: |
+            results/nucleus_tournament_v1/result.json
+            results/nucleus_tournament_v1/sweep.json
+            /tmp/nucleus-tournament-v1.log
+          if-no-files-found: warn
