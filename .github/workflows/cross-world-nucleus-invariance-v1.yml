@@ -1,0 +1,87 @@
+name: Cross-World Nucleus Invariance V1
+
+on:
+  push:
+    branches:
+      - experiment/cross-world-nucleus-invariance-v1
+    paths:
+      - 'experiments/cross_world_nucleus_invariance_v1.py'
+      - 'protocols/CROSS_WORLD_NUCLEUS_INVARIANCE_V1_PRECOMMIT.md'
+      - '.github/workflows/cross-world-nucleus-invariance-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cross-world-nucleus-invariance-v1
+  cancel-in-progress: false
+
+jobs:
+  tournament:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/cross-world-nucleus-invariance-v1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective precommit ancestry
+        run: |
+          git merge-base --is-ancestor ce2bab8a033ece27e5f77441ebb5a62ece84b2ad HEAD
+          test -f protocols/CROSS_WORLD_NUCLEUS_INVARIANCE_V1_PRECOMMIT.md
+
+      - name: Run frozen cross-world tournament
+        run: |
+          python experiments/cross_world_nucleus_invariance_v1.py             | tee /tmp/cross-world-nucleus-v1.log
+
+      - name: Validate scientific result schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('results/cross_world_nucleus_invariance_v1/result.json')
+          p = json.loads(path.read_text())
+
+          assert p['protocol'] == 'CROSS_WORLD_NUCLEUS_INVARIANCE_V1'
+          assert p['precommit_commit'] == 'ce2bab8a033ece27e5f77441ebb5a62ece84b2ad'
+          assert p['verdict'] in {
+              'PASS_CROSS_WORLD_NUCLEUS_INVARIANCE_V1',
+              'REDUCED_CROSS_WORLD_NUCLEUS_V1',
+              'PARTIAL_CROSS_WORLD_NUCLEUS_SIGNAL_V1',
+              'VALID_NEGATIVE_CROSS_WORLD_NUCLEUS_V1',
+          }
+          assert set(p['headline']) == {
+              'binary','ternary','symbolic','temporal','graph'
+          }
+          assert p['sweep']['worlds'] == 125
+          assert len(p['headline_gates']) == 12
+
+          print('SCIENTIFIC_VERDICT=' + p['verdict'])
+          print(json.dumps(p['headline_gates'], indent=2, sort_keys=True))
+          print(json.dumps(p['sweep'], indent=2, sort_keys=True))
+          PY
+
+      - name: Commit authoritative scientific result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/cross_world_nucleus_invariance_v1/result.json             results/cross_world_nucleus_invariance_v1/sweep.json
+          git commit -m 'Record cross-world nucleus invariance V1 result' || exit 0
+          git push origin HEAD:experiment/cross-world-nucleus-invariance-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cross-world-nucleus-invariance-v1-evidence
+          path: |
+            results/cross_world_nucleus_invariance_v1/result.json
+            results/cross_world_nucleus_invariance_v1/sweep.json
+            /tmp/cross-world-nucleus-v1.log
+          if-no-files-found: warn
