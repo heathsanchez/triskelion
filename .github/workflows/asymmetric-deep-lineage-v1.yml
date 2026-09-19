@@ -1,0 +1,89 @@
+name: Asymmetric Deep Lineage V1
+
+on:
+  push:
+    branches:
+      - experiment/asymmetric-deep-lineage-v1
+    paths:
+      - 'experiments/asymmetric_deep_lineage_v1.py'
+      - 'protocols/ASYMMETRIC_DEEP_LINEAGE_V1_PRECOMMIT.md'
+      - '.github/workflows/asymmetric-deep-lineage-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: asymmetric-deep-lineage-v1
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/asymmetric-deep-lineage-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor dce9650c84afcf3e118b90ae5502d170fa184375 HEAD
+          test -f protocols/ASYMMETRIC_DEEP_LINEAGE_V1_PRECOMMIT.md
+          test -f experiments/asymmetric_deep_lineage_v1.py
+          test -f experiments/binary_relational_nucleus_v1.py
+
+      - name: Run asymmetric deep lineage
+        run: |
+          python experiments/asymmetric_deep_lineage_v1.py             | tee /tmp/asymmetric-deep-lineage-v1.log
+
+      - name: Validate scientific result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(
+              Path('results/asymmetric_deep_lineage_v1/result.json').read_text()
+          )
+          assert p['protocol'] == 'ASYMMETRIC_DEEP_LINEAGE_V1'
+          assert p['precommit_commit'] == 'dce9650c84afcf3e118b90ae5502d170fa184375'
+          assert set(p['anchor_audit']) == {'1','2','4','7','11','13'}
+          assert len(p['headline_gates']) == 16
+          assert p['verdict'] in {
+              'PASS_ASYMMETRIC_DEEP_LINEAGE_V1',
+              'PASS_ASYMMETRIC_CLASS_WITH_FINITE_STALL_V1',
+              'PARTIAL_ASYMMETRIC_DEEP_LINEAGE_V1',
+              'VALID_NEGATIVE_ASYMMETRIC_DEEP_LINEAGE_V1',
+          }
+          print('SCIENTIFIC_VERDICT=' + p['verdict'])
+          print(json.dumps(p['optimal_asymmetry'], indent=2, sort_keys=True))
+          print(json.dumps(p['canonical_deep_lineage'], indent=2, sort_keys=True))
+          print(json.dumps(p['twin_history_probe'], indent=2, sort_keys=True))
+          print(json.dumps(p['recombination_probe'], indent=2, sort_keys=True))
+          print(json.dumps(p['headline_gates'], indent=2, sort_keys=True))
+          PY
+
+      - name: Commit authoritative scientific result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/asymmetric_deep_lineage_v1/result.json             results/asymmetric_deep_lineage_v1/summary.json
+          git commit -m 'Record asymmetric deep lineage V1 result' || exit 0
+          git push origin HEAD:experiment/asymmetric-deep-lineage-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: asymmetric-deep-lineage-v1-evidence
+          path: |
+            results/asymmetric_deep_lineage_v1/result.json
+            results/asymmetric_deep_lineage_v1/summary.json
+            /tmp/asymmetric-deep-lineage-v1.log
+          if-no-files-found: warn
