@@ -7,15 +7,15 @@ from experiments.structural_audit_phenotype_split_v1 import (
     independent_metrics,
     v4_descriptor,
     reconstruct_v4_canonical_orbits,
+    orbit_symmetry_diagnostic,
     FAMILY_FIELDS,
 )
 
 
 class StructuralAuditV1Tests(unittest.TestCase):
     def test_projection_left_metrics(self):
-        # d(a,b)=a, ground=0
-        code = encode_op([a for a in range(3) for b in range(3)])
-        key = canonical_key(code)
+        # Raw d(a,b)=a, ground=0. Do not canonicalize through transpose here.
+        key = encode_op([a for a in range(3) for b in range(3)])
         m = independent_metrics(key)
         self.assertEqual((m["d0"], m["d1"], m["d2"], m["d3"]), (3,3,3,3))
         self.assertEqual(m["recombinant3"], 0)
@@ -23,6 +23,15 @@ class StructuralAuditV1Tests(unittest.TestCase):
         self.assertEqual(m["recur_distinct_max"], 2)
         self.assertEqual(m["recur_cycle_sum"], 15)
         self.assertEqual(m["recur_cycle_max"], 2)
+
+    def test_projection_exposes_transpose_sensitive_recurrence(self):
+        key = encode_op([a for a in range(3) for b in range(3)])
+        diag = orbit_symmetry_diagnostic(key)
+        self.assertEqual(diag["carrier_relabel_differences"], [])
+        self.assertIn("recur_cycle_sum", diag["transpose_differences"])
+        self.assertIn("recur_cycle_max", diag["transpose_differences"])
+        self.assertNotIn("d3", diag["transpose_differences"])
+        self.assertNotIn("recombinant3", diag["transpose_differences"])
 
     def test_v4_reconstructs_projection_orbit_uniquely(self):
         code = encode_op([a for a in range(3) for b in range(3)])
