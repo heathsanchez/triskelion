@@ -1,0 +1,77 @@
+name: Retrospective Nucleus Purification V1
+
+on:
+  push:
+    branches:
+      - experiment/retrospective-nucleus-purification-v1
+    paths:
+      - 'experiments/retrospective_nucleus_purification_v1.py'
+      - 'protocols/RETROSPECTIVE_NUCLEUS_PURIFICATION_V1_PRECOMMIT.md'
+      - '.github/workflows/retrospective-nucleus-purification-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/retrospective-nucleus-purification-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze
+        run: |
+          git merge-base --is-ancestor 89b56be88ce3ab95f57e64caeadf8e324b0024bb HEAD
+          test -f protocols/RETROSPECTIVE_NUCLEUS_PURIFICATION_V1_PRECOMMIT.md
+          test -f experiments/retrospective_nucleus_purification_v1.py
+
+      - name: Run retrospective purification
+        run: |
+          set -o pipefail
+          python experiments/retrospective_nucleus_purification_v1.py | tee /tmp/retrospective-nucleus-purification-v1.log
+
+      - name: Validate authoritative result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/retrospective_nucleus_purification_v1/result.json').read_text())
+          assert p['protocol']=='RETROSPECTIVE_NUCLEUS_PURIFICATION_V1'
+          assert p['precommit_commit']=='89b56be88ce3ab95f57e64caeadf8e324b0024bb'
+          assert p['parent_result_hash']=='b68ff7c70c8685f98d671367b1f536dba64664a16d0b64aa555d97091a3c2d1f'
+          assert len(p['headline_gates'])==16
+          assert p['verdict'] in {
+            'PASS_RETROSPECTIVE_NUCLEUS_PURIFICATION_V1',
+            'PARTIAL_RETROSPECTIVE_NUCLEUS_PURIFICATION_V1',
+            'VALID_NEGATIVE_RETROSPECTIVE_NUCLEUS_PURIFICATION_V1'
+          }
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['retrospective_minimizer'],indent=2,sort_keys=True))
+          print(json.dumps(p['boolean_end_equivalent_relations_ground1'],indent=2))
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/retrospective_nucleus_purification_v1
+          git commit -m 'Record retrospective nucleus purification V1 result' || exit 0
+          git push origin HEAD:experiment/retrospective-nucleus-purification-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retrospective-nucleus-purification-v1-evidence
+          path: |
+            results/retrospective_nucleus_purification_v1
+            /tmp/retrospective-nucleus-purification-v1.log
+          if-no-files-found: warn
