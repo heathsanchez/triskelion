@@ -1,0 +1,86 @@
+name: Developmental IR V4 Universal Model Bridge
+
+on:
+  push:
+    branches:
+      - experiment/developmental-ir-v4-universal-model-bridge
+    paths:
+      - 'experiments/developmental_ir_v4_universal_model_bridge.py'
+      - 'protocols/DEVELOPMENTAL_IR_V4_UNIVERSAL_MODEL_BRIDGE_PRECOMMIT.md'
+      - '.github/workflows/developmental-ir-v4-universal-model-bridge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: developmental-ir-v4-universal-model-bridge
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/developmental-ir-v4-universal-model-bridge
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor 7421929a44cbbaecbfa6f3c2340f0dce7252cbe1 HEAD
+          test -f protocols/DEVELOPMENTAL_IR_V4_UNIVERSAL_MODEL_BRIDGE_PRECOMMIT.md
+          test -f experiments/developmental_ir_v4_universal_model_bridge.py
+
+      - name: Run exact universal-model bridge
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python experiments/developmental_ir_v4_universal_model_bridge.py | tee /tmp/developmental-ir-v4-universal-model-bridge.log
+
+      - name: Validate scientific result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/developmental_ir_v4_universal_model_bridge/result.json').read_text())
+          assert p['protocol']=='DEVELOPMENTAL_IR_V4_UNIVERSAL_MODEL_BRIDGE'
+          assert p['precommit_commit']=='7421929a44cbbaecbfa6f3c2340f0dce7252cbe1'
+          assert p['three_input_algebra']['reachable_functions']==256
+          assert len(p['headline_gates'])==20
+          assert p['verdict'] in {
+              'PASS_DEVELOPMENTAL_IR_V4_UNIVERSAL_MODEL_BRIDGE',
+              'PARTIAL_DEVELOPMENTAL_IR_V4_UNIVERSAL_MODEL_BRIDGE',
+              'VALID_NEGATIVE_DEVELOPMENTAL_IR_V4_UNIVERSAL_MODEL_BRIDGE',
+          }
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['branch_separator'],indent=2,sort_keys=True))
+          print(json.dumps(p['three_input_algebra'],indent=2,sort_keys=True))
+          print(json.dumps(p['rule110'],indent=2,sort_keys=True))
+          print(json.dumps(p['bounded_evolution'],indent=2,sort_keys=True))
+          print(json.dumps(p['efficiency'],indent=2,sort_keys=True))
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/developmental_ir_v4_universal_model_bridge/result.json             results/developmental_ir_v4_universal_model_bridge/summary.json
+          git commit -m 'Record developmental IR V4 universal model bridge result' || exit 0
+          git push origin HEAD:experiment/developmental-ir-v4-universal-model-bridge
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: developmental-ir-v4-universal-model-bridge-evidence
+          path: |
+            results/developmental_ir_v4_universal_model_bridge/result.json
+            results/developmental_ir_v4_universal_model_bridge/summary.json
+            /tmp/developmental-ir-v4-universal-model-bridge.log
+          if-no-files-found: warn
