@@ -1,0 +1,83 @@
+name: Developmental IR V7 Native Backend Reality Check
+
+on:
+  push:
+    branches:
+      - experiment/developmental-ir-v7-native-backend-reality-check
+    paths:
+      - 'experiments/developmental_ir_v7_native_backend_reality_check.py'
+      - 'protocols/DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK_PRECOMMIT.md'
+      - '.github/workflows/developmental-ir-v7-native-backend-reality-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: developmental-ir-v7-native-backend-reality-check
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/developmental-ir-v7-native-backend-reality-check
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor a820dc2c66789f0d877b68ff7d86bceed8e08c3c HEAD
+          test -f protocols/DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK_PRECOMMIT.md
+          test -f experiments/developmental_ir_v7_native_backend_reality_check.py
+          test -f results/developmental_ir_v6_blind_grammar_expansion/result.json
+
+      - name: Run native backend reality check
+        run: |
+          set -o pipefail
+          python experiments/developmental_ir_v7_native_backend_reality_check.py | tee /tmp/developmental-ir-v7-native-backend-reality-check.log
+
+      - name: Validate scientific result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/developmental_ir_v7_native_backend_reality_check/result.json').read_text())
+          assert p['protocol']=='DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK'
+          assert p['precommit_commit']=='a820dc2c66789f0d877b68ff7d86bceed8e08c3c'
+          assert p['macro_count']==24
+          assert len(p['headline_gates'])==12
+          assert p['verdict'] in {
+              'PASS_DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK',
+              'PARTIAL_DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK',
+              'VALID_NEGATIVE_DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK',
+          }
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['metrics'],indent=2,sort_keys=True))
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/developmental_ir_v7_native_backend_reality_check/result.json             results/developmental_ir_v7_native_backend_reality_check/summary.json
+          git commit -m 'Record developmental IR V7 native backend reality check' || exit 0
+          git push origin HEAD:experiment/developmental-ir-v7-native-backend-reality-check
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: developmental-ir-v7-native-backend-reality-check-evidence
+          path: |
+            results/developmental_ir_v7_native_backend_reality_check/result.json
+            results/developmental_ir_v7_native_backend_reality_check/summary.json
+            /tmp/developmental-ir-v7-native-backend-reality-check.log
+          if-no-files-found: warn
