@@ -1,0 +1,96 @@
+{
+  "archive": {
+    "bit_capabilities": 5937,
+    "low16_ids": [
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      450,
+      451,
+      452,
+      453,
+      454,
+      455,
+      497,
+      498,
+      499
+    ],
+    "recombinant_caps": 1445,
+    "recombinant_caps_later_reused": 1037,
+    "top16_ids": [
+      1,
+      2,
+      24,
+      60,
+      9,
+      32,
+      10,
+      17,
+      11,
+      124,
+      15,
+      14,
+      13,
+      12,
+      16,
+      38
+    ]
+  },
+  "controls": {
+    "cold_exec": 321263035,
+    "developmental_p45": 44619775,
+    "low16_delta": 0,
+    "no_promotion_exec": 321263035,
+    "no_recomb_p45": 113652280,
+    "no_warrant_installed": 0,
+    "phase5_full": 42791359,
+    "phase5_low16_ablated": 42791359,
+    "phase5_top16_ablated": 53928375,
+    "top16_delta": 11137016
+  },
+  "headline_gates": {
+    "S10_twin_dev_lt_50pct_syntax": true,
+    "S11_phase5_hit_rate_ge_90pct": true,
+    "S12_cold_ge_4x_dev": true,
+    "S13_no_promotion_ge_4x_dev": true,
+    "S14_no_warrant_zero": true,
+    "S15_50_recombinant_caps_reused": true,
+    "S16_no_recomb_higher_p45": true,
+    "S17_top16_ablation_ge_15pct": true,
+    "S18_low16_less_than_half_top_delta": true,
+    "S19_no_duplicate_semantics": true,
+    "S1_v2_prerequisites_exact": true,
+    "S20_deterministic_replay": true,
+    "S2_each_required_template_exact": true,
+    "S3_each_direct_template_all_halt": true,
+    "S4_all_1500_tasks_exact": true,
+    "S5_memory_separator": true,
+    "S6_branch_separator": false,
+    "S7_loop_separator": true,
+    "S8_dev_lt_25pct_local": true,
+    "S9_total_lt_40pct_local": true
+  },
+  "learning": {
+    "max_task_ancestry_depth": 16,
+    "phase5_hit_rate": 0.97
+  },
+  "ledger_hash": "e166c70622fcdc842e401b758081263b858f5024213e7594c18521f2ae78c674",
+  "separators": {
+    "branch": false,
+    "loop": true,
+    "memory": true
+  },
+  "totals": {
+    "developmental": 50763595,
+    "developmental_total": 50771032,
+    "local_dag": 321263035,
+    "promotion": 5937,
+    "syntax_isa": 204497233,
+    "verify": 1500
+  },
+  "verdict": "PARTIAL_DEVELOPMENTAL_IR_V3_STATEFUL_VM"
+}
