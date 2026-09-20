@@ -1,6 +1,6 @@
 {
-  "aggregate_hash_forward": "a79aaeebacaf94afdfb9b93d680543cd0d3cef86681910f33a986af70575e1b7",
-  "aggregate_hash_reverse": "e3333b93e0aec545058f420186dde3f982c222f5bf26f444dc58bec7aa14bce8",
+  "aggregate_hash_forward": "cd625501f2e1a9add3bc1f3b9bfdad4d67542bda0d805dfe32a4ef58157917a1",
+  "aggregate_hash_reverse": "cd625501f2e1a9add3bc1f3b9bfdad4d67542bda0d805dfe32a4ef58157917a1",
   "audit": {
     "first_mismatch": {
       "d0": null,
@@ -56,16 +56,16 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 193,
           "sufficient": false
@@ -75,16 +75,16 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 35,
           "sufficient": false
@@ -94,16 +94,16 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 159,
           "sufficient": false
@@ -113,16 +113,16 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 23,
           "sufficient": false
@@ -162,24 +162,24 @@
           "first_counterexample": {
             "differences": {
               "d1": [
-                6,
+                7,
                 9
               ],
               "d2": [
-                11,
-                32
+                9,
+                21
               ],
               "d3": [
-                18,
-                158
+                9,
+                21
               ],
               "recombinant3": [
-                13,
-                142
+                3,
+                10
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 219,
           "sufficient": false
@@ -189,24 +189,24 @@
           "first_counterexample": {
             "differences": {
               "d1": [
-                4,
-                6
+                5,
+                7
               ],
               "d2": [
-                6,
-                12
+                9,
+                22
               ],
               "d3": [
-                6,
-                12
+                15,
+                93
               ],
               "recombinant3": [
-                3,
-                5
+                9,
+                76
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 39,
           "sufficient": false
@@ -216,24 +216,24 @@
           "first_counterexample": {
             "differences": {
               "d1": [
-                6,
+                7,
                 9
               ],
               "d2": [
-                11,
-                32
+                9,
+                21
               ],
               "d3": [
-                18,
-                158
+                9,
+                21
               ],
               "recombinant3": [
-                13,
-                142
+                3,
+                10
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 188,
           "sufficient": false
@@ -243,24 +243,24 @@
           "first_counterexample": {
             "differences": {
               "d1": [
-                4,
-                6
+                5,
+                7
               ],
               "d2": [
-                6,
-                12
+                9,
+                22
               ],
               "d3": [
-                6,
-                12
+                15,
+                93
               ],
               "recombinant3": [
-                3,
-                5
+                9,
+                76
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 26,
           "sufficient": false
@@ -298,17 +298,17 @@
           "collision_classes": 219,
           "first_counterexample": {
             "differences": {
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 212,
           "sufficient": false
@@ -317,13 +317,17 @@
           "collision_classes": 39,
           "first_counterexample": {
             "differences": {
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 34,
           "sufficient": false
@@ -332,17 +336,17 @@
           "collision_classes": 188,
           "first_counterexample": {
             "differences": {
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 181,
           "sufficient": false
@@ -351,13 +355,17 @@
           "collision_classes": 26,
           "first_counterexample": {
             "differences": {
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 21,
           "sufficient": false
@@ -396,19 +404,19 @@
             "differences": {
               "mutation_complete": [
                 0,
-                3
+                5
               ],
               "mutation_generative": [
-                2,
-                17
+                17,
+                18
               ],
               "mutation_ref_independent": [
-                16,
-                2
+                1,
+                0
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 207,
           "sufficient": false
@@ -419,19 +427,15 @@
             "differences": {
               "mutation_complete": [
                 0,
-                1
+                7
               ],
               "mutation_generative": [
-                2,
-                16
-              ],
-              "mutation_ref_independent": [
-                16,
-                2
+                17,
+                18
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 36,
           "sufficient": false
@@ -442,19 +446,19 @@
             "differences": {
               "mutation_complete": [
                 0,
-                3
+                5
               ],
               "mutation_generative": [
-                2,
-                17
+                17,
+                18
               ],
               "mutation_ref_independent": [
-                16,
-                2
+                1,
+                0
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 175,
           "sufficient": false
@@ -465,19 +469,15 @@
             "differences": {
               "mutation_complete": [
                 0,
-                1
+                7
               ],
               "mutation_generative": [
-                2,
-                16
-              ],
-              "mutation_ref_independent": [
-                16,
-                2
+                17,
+                18
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 23,
           "sufficient": false
@@ -518,24 +518,24 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ],
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 215,
           "sufficient": false
@@ -545,20 +545,24 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ],
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 36,
           "sufficient": false
@@ -568,24 +572,24 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ],
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 184,
           "sufficient": false
@@ -595,20 +599,24 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ],
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 23,
           "sufficient": false
@@ -654,40 +662,40 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "d1": [
-                6,
+                7,
                 9
               ],
               "d2": [
-                11,
-                32
+                9,
+                21
               ],
               "d3": [
-                18,
-                158
+                9,
+                21
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ],
               "recombinant3": [
-                13,
-                142
+                3,
+                10
               ],
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 219,
           "sufficient": false
@@ -697,36 +705,40 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "d1": [
-                4,
-                6
+                5,
+                7
               ],
               "d2": [
-                6,
-                12
+                9,
+                22
               ],
               "d3": [
-                6,
-                12
+                15,
+                93
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ],
               "recombinant3": [
-                3,
-                5
+                9,
+                76
               ],
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 39,
           "sufficient": false
@@ -736,40 +748,40 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "d1": [
-                6,
+                7,
                 9
               ],
               "d2": [
-                11,
-                32
+                9,
+                21
               ],
               "d3": [
-                18,
-                158
+                9,
+                21
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ],
               "recombinant3": [
-                13,
-                142
+                3,
+                10
               ],
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 188,
           "sufficient": false
@@ -779,36 +791,40 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "d1": [
-                4,
-                6
+                5,
+                7
               ],
               "d2": [
-                6,
-                12
+                9,
+                22
               ],
               "d3": [
-                6,
-                12
+                15,
+                93
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ],
               "recombinant3": [
-                3,
-                5
+                9,
+                76
               ],
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 26,
           "sufficient": false
@@ -857,52 +873,52 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "d1": [
-                6,
+                7,
                 9
               ],
               "d2": [
-                11,
-                32
+                9,
+                21
               ],
               "d3": [
-                18,
-                158
+                9,
+                21
               ],
               "mutation_complete": [
                 0,
-                3
+                5
               ],
               "mutation_generative": [
-                2,
-                17
+                17,
+                18
               ],
               "mutation_ref_independent": [
-                16,
-                2
+                1,
+                0
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ],
               "recombinant3": [
-                13,
-                142
+                3,
+                10
               ],
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 219,
           "sufficient": false
@@ -912,48 +928,48 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "d1": [
-                4,
-                6
+                5,
+                7
               ],
               "d2": [
-                6,
-                12
+                9,
+                22
               ],
               "d3": [
-                6,
-                12
+                15,
+                93
               ],
               "mutation_complete": [
                 0,
-                1
+                7
               ],
               "mutation_generative": [
-                2,
-                16
-              ],
-              "mutation_ref_independent": [
-                16,
-                2
+                17,
+                18
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ],
               "recombinant3": [
-                3,
-                5
+                9,
+                76
               ],
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 39,
           "sufficient": false
@@ -963,52 +979,52 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                18,
-                258
+                9,
+                21
               ],
               "d1": [
-                6,
+                7,
                 9
               ],
               "d2": [
-                11,
-                32
+                9,
+                21
               ],
               "d3": [
-                18,
-                158
+                9,
+                21
               ],
               "mutation_complete": [
                 0,
-                3
+                5
               ],
               "mutation_generative": [
-                2,
-                17
+                17,
+                18
               ],
               "mutation_ref_independent": [
-                16,
-                2
+                1,
+                0
               ],
               "no_ground": [
-                18,
-                130
+                6,
+                11
               ],
               "recombinant3": [
-                13,
-                142
+                3,
+                10
               ],
-              "recur_cycle_sum": [
-                25,
-                27
+              "recur_distinct_max": [
+                5,
+                4
               ],
               "recur_distinct_sum": [
-                39,
-                41
+                37,
+                36
               ]
             },
-            "key_a": 30,
-            "key_b": 82
+            "key_a": 10579,
+            "key_b": 16403
           },
           "heterogeneous_collision_classes": 188,
           "sufficient": false
@@ -1018,48 +1034,48 @@
           "first_counterexample": {
             "differences": {
               "binary": [
-                6,
-                12
+                19,
+                259
               ],
               "d1": [
-                4,
-                6
+                5,
+                7
               ],
               "d2": [
-                6,
-                12
+                9,
+                22
               ],
               "d3": [
-                6,
-                12
+                15,
+                93
               ],
               "mutation_complete": [
                 0,
-                1
+                7
               ],
               "mutation_generative": [
-                2,
-                16
-              ],
-              "mutation_ref_independent": [
-                16,
-                2
+                17,
+                18
               ],
               "no_ground": [
-                6,
-                11
+                18,
+                130
               ],
               "recombinant3": [
-                3,
-                5
+                9,
+                76
               ],
-              "recur_distinct_max": [
-                5,
-                4
+              "recur_cycle_sum": [
+                21,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                45
               ]
             },
-            "key_a": 2430,
-            "key_b": 6642
+            "key_a": 12271,
+            "key_b": 13040
           },
           "heterogeneous_collision_classes": 26,
           "sufficient": false
@@ -1152,7 +1168,7 @@
     "SA13_derived_labels_excluded": true,
     "SA14_counterexamples_for_insufficient": true,
     "SA15_256_symmetry_audits": true,
-    "SA16_independent_payload_hashes_match": false,
+    "SA16_independent_payload_hashes_match": true,
     "SA1_all_5130_representatives": true,
     "SA2_weight_sum_59049": true,
     "SA3_depth_recomputed_all": true,
@@ -1284,5 +1300,5 @@
     "source_contained_all": true,
     "unique_all": true
   },
-  "verdict": "PARTIAL_STRUCTURAL_AUDIT_PHENOTYPE_SPLIT_V1"
+  "verdict": "PASS_STRUCTURAL_AUDIT_PHENOTYPE_SPLIT_V1"
 }
