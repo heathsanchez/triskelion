@@ -10,49 +10,42 @@ def hn(*x):return int(H(*x)[:16],16)
 V=tuple(sum(1<<r for r in range(64) if (r>>j)&1) for j in range(6))
 def D(a,b):return ((~a)&MASK)&b
 
-# Exact transparent-form optimizer, computed lazily for consequences that
-# actually occur. This is extensionally the same frozen candidate set as the
-# precommit (environment variables, D expressions up to cost 12), but avoids
-# eagerly closing the enormous six-input space before the experiment starts.
-#
-# COST_BUCKET[c] contains exact consequences first reached with c D nodes.
-# ensure_form(s) advances the dynamic-programming frontier only until s is
-# proved reachable at minimum cost or the frozen cost-12 bound is exhausted.
-BANK={s:(0,f"x{i}") for i,s in enumerate(V)}
-BANK[MASK]=(0,"1")
-COST_BUCKET={0:list(BANK)}
-FORM_FRONTIER_MAX=0
-
-def _advance_form_frontier(target=None):
-    global FORM_FRONTIER_MAX
-    for total in range(FORM_FRONTIER_MAX+1,13):
+# Deterministic bounded transparent-form bank from the retry addendum.
+# This is intentionally sampled rather than an exhaustive six-input closure.
+def form_bank():
+    bank={s:(0,f"x{i}") for i,s in enumerate(V)}
+    bank[MASK]=(0,"1")
+    bycost={0:list(bank)}
+    pool=list(bank)
+    for cost in range(1,13):
+        admiss=[]
+        for ca in range(cost):
+            cb=cost-1-ca
+            if bycost.get(ca) and bycost.get(cb):
+                admiss.append((ca,cb))
         new={}
-        # c = 1 + ca + cb
-        for ca in range(total):
-            cb=total-1-ca
-            for a in COST_BUCKET.get(ca,()):
-                ea=BANK[a][1]
-                for b in COST_BUCKET.get(cb,()):
-                    s=D(a,b);e=f"D({ea},{BANK[b][1]})"
-                    if s in BANK:
-                        continue
-                    if s not in new or e<new[s]:
-                        new[s]=e
-        if new:
-            for s,e in sorted(new.items(),key=lambda kv:(kv[1],kv[0])):
-                BANK[s]=(total,e)
-            COST_BUCKET[total]=list(new)
-        else:
-            COST_BUCKET[total]=[]
-        FORM_FRONTIER_MAX=total
-        if target is not None and target in BANK:
-            return
+        if not admiss:
+            bycost[cost]=[]
+            continue
+        for j in range(4096):
+            ca,cb=admiss[hn("CWF-V1-BANK",cost,j,"C")%len(admiss)]
+            la=bycost[ca]; lb=bycost[cb]
+            a=la[hn("CWF-V1-BANK",cost,j,"L")%len(la)]
+            b=lb[hn("CWF-V1-BANK",cost,j,"R")%len(lb)]
+            s=D(a,b); e=f"D({bank[a][1]},{bank[b][1]})"
+            if s in bank:
+                continue
+            if s not in new or e<new[s]:
+                new[s]=e
+        bycost[cost]=[]
+        for s,e in sorted(new.items(),key=lambda kv:(kv[1],kv[0])):
+            if s not in bank:
+                bank[s]=(cost,e)
+                bycost[cost].append(s)
+                pool.append(s)
+    return bank
 
-def ensure_form(s):
-    if s not in BANK and FORM_FRONTIER_MAX<12:
-        _advance_form_frontier(s)
-    return BANK.get(s)
-
+BANK=form_bank()
 @dataclass
 class C:
     i:int;s:int;p:tuple;dep:int;born:int;inh:int;form:int;digest:str
@@ -85,8 +78,14 @@ class W:
         dep=1 if not p else 1+max(self.c[x].dep for x in p)
         form=inh
         if self.opt:
-            hit=ensure_form(s)
-            if hit is not None: form=min(form,hit[0])
+            # Candidate 2: rebuild the same constructor from the parents' current
+            # optimized transparent forms. This preserves consequence and ancestry
+            # while decoupling execution depth from provenance depth.
+            if p:
+                form=min(form,5+sum(self.c[x].form for x in p))
+            hit=BANK.get(s)
+            if hit is not None:
+                form=min(form,hit[0])
         dig=H("verify",s,p,ep)
         i=self.n;self.n+=1;z=C(i,s,p,dep,ep,inh,form,dig);self.c[i]=z;self.by[s]=i
         for x in p:self.c[x].ch.add(i)
