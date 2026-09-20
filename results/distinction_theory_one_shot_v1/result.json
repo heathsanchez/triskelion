@@ -1,0 +1,168 @@
+{
+  "D2_reconstructs_operation_orbit": false,
+  "aggregation_hash": "7d5028ebbc22a04898dc8c985336dfee3e645f1e47f05a0a1fe6d040d1df1090",
+  "audit": {
+    "failures": [],
+    "passed": 256,
+    "total": 256
+  },
+  "claim_boundary": "Exact finite sufficiency test on the authoritative 3-element developmental census only.",
+  "classification": "DISTINCTION_THEORY_NOT_SUFFICIENT_UNDER_V1",
+  "headline_gates": {
+    "DT10_D0_homogeneity_checked": true,
+    "DT11_D1_homogeneity_checked": true,
+    "DT12_D2_homogeneity_checked": true,
+    "DT13_compression_stats_all": true,
+    "DT14_counterexamples_for_insufficient": true,
+    "DT15_256_symmetry_audits": true,
+    "DT16_deterministic_hash": true,
+    "DT1_all_5130_orbits": true,
+    "DT2_weight_sum_59049": true,
+    "DT3_D0_canonicalized": true,
+    "DT4_D1_canonicalized": true,
+    "DT5_D2_canonicalized": true,
+    "DT6_protected_phenotype_all": true,
+    "DT7_D0_collision_classes": true,
+    "DT8_D1_collision_classes": true,
+    "DT9_D2_collision_classes": true
+  },
+  "precommit_commit": "e522b0b1ffb9554c4834e8608620ff73c00fd3d3",
+  "protected_phenotype_fields": [
+    "binary",
+    "no_ground",
+    "d3",
+    "recombinant3",
+    "recur_distinct_sum",
+    "mutation_complete",
+    "mutation_generative",
+    "mutation_ref_independent",
+    "joint_developmental",
+    "pareto"
+  ],
+  "protocol": "DISTINCTION_THEORY_ONE_SHOT_V1",
+  "representations": [
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 1633,
+      "compression_ratio_orbits": 0.3198830409356725,
+      "counterexample": {
+        "class_size": 2,
+        "key_a": 0,
+        "key_b": 9841,
+        "phenotype_differences": {
+          "binary": [
+            3,
+            4
+          ],
+          "d3": [
+            3,
+            4
+          ],
+          "mutation_generative": [
+            2,
+            17
+          ],
+          "mutation_ref_independent": [
+            16,
+            1
+          ],
+          "recur_distinct_sum": [
+            23,
+            27
+          ]
+        }
+      },
+      "developmentally_sufficient": false,
+      "heterogeneous_collision_classes": 1633,
+      "injective": false,
+      "largest_collision_class_orbits": 15,
+      "largest_collision_class_raw_weight": 108,
+      "name": "D0_pure_distinction_dynamics",
+      "raw_weighted_collision_mass": 58977,
+      "unique_signatures": 1641
+    },
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 265,
+      "compression_ratio_orbits": 0.9426900584795321,
+      "counterexample": {
+        "class_size": 2,
+        "key_a": 0,
+        "key_b": 9841,
+        "phenotype_differences": {
+          "binary": [
+            3,
+            4
+          ],
+          "d3": [
+            3,
+            4
+          ],
+          "mutation_generative": [
+            2,
+            17
+          ],
+          "mutation_ref_independent": [
+            16,
+            1
+          ],
+          "recur_distinct_sum": [
+            23,
+            27
+          ]
+        }
+      },
+      "developmentally_sufficient": false,
+      "heterogeneous_collision_classes": 265,
+      "injective": false,
+      "largest_collision_class_orbits": 10,
+      "largest_collision_class_raw_weight": 72,
+      "name": "D1_pointed_distinction_dynamics",
+      "raw_weighted_collision_mass": 6117,
+      "unique_signatures": 4836
+    },
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 258,
+      "compression_ratio_orbits": 0.9444444444444444,
+      "counterexample": {
+        "class_size": 2,
+        "key_a": 0,
+        "key_b": 9841,
+        "phenotype_differences": {
+          "binary": [
+            3,
+            4
+          ],
+          "d3": [
+            3,
+            4
+          ],
+          "mutation_generative": [
+            2,
+            17
+          ],
+          "mutation_ref_independent": [
+            16,
+            1
+          ],
+          "recur_distinct_sum": [
+            23,
+            27
+          ]
+        }
+      },
+      "developmentally_sufficient": false,
+      "heterogeneous_collision_classes": 258,
+      "injective": false,
+      "largest_collision_class_orbits": 5,
+      "largest_collision_class_raw_weight": 36,
+      "name": "D2_anonymous_distinction_action",
+      "raw_weighted_collision_mass": 5925,
+      "unique_signatures": 4845
+    }
+  ],
+  "strength": "NO_SUFFICIENT_DISTINCTION_REPRESENTATION",
+  "total_raw_weight": 59049,
+  "verdict": "PASS_DISTINCTION_THEORY_ONE_SHOT_V1"
+}
