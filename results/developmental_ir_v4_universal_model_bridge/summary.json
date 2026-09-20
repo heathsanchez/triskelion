@@ -1,0 +1,106 @@
+{
+  "bounded_evolution": {
+    "11": {
+      "cell_updates": 704,
+      "disagreements": 0,
+      "exact": true,
+      "lanes": 2048,
+      "steps": 64,
+      "width": 11
+    },
+    "16": {
+      "cell_updates": 1024,
+      "disagreements": 0,
+      "exact": true,
+      "lanes": 65536,
+      "steps": 64,
+      "width": 16
+    },
+    "5": {
+      "cell_updates": 320,
+      "disagreements": 0,
+      "exact": true,
+      "lanes": 32,
+      "steps": 64,
+      "width": 5
+    },
+    "7": {
+      "cell_updates": 448,
+      "disagreements": 0,
+      "exact": true,
+      "lanes": 128,
+      "steps": 64,
+      "width": 7
+    }
+  },
+  "branch_separator": {
+    "all_halt": true,
+    "differing_lane_count": 32640,
+    "differing_output_bits": 8,
+    "direct_exact": true,
+    "mutated_all_halt": true,
+    "mutation_changes_protected_output": true
+  },
+  "efficiency": {
+    "ablate_r110_d_nodes": 7168,
+    "execution_ratio_parametric_over_expanded": 0.14285714285714285,
+    "total_ratio_parametric_over_expanded": 0.14313616071428573,
+    "width16_expanded_dag_d_nodes": 7168,
+    "width16_parametric_invocations": 1024,
+    "width16_parametric_total_with_verify_promote": 1026
+  },
+  "evolution_hash": "7c5935676be6adf0b7eb7a14947dc2e01427118b70ee54396cfceec804d032fe",
+  "headline_gates": {
+    "U10_width7_exact": true,
+    "U11_width11_exact": true,
+    "U12_width16_exact": true,
+    "U13_zero_cell_time_disagreements": true,
+    "U14_parametric_cost_le_25pct_expanded": true,
+    "U15_parametric_total_le_30pct_expanded": true,
+    "U16_ablation_restores_expanded_path": true,
+    "U17_r110_reused_all_1024_width16_updates": true,
+    "U18_exactly_256_unique_local_consequences": true,
+    "U19_deterministic_replay": true,
+    "U1_all_256_derived": true,
+    "U20_bounded_bridge_claim_only": true,
+    "U2_all_canonical_expressions_exact": true,
+    "U3_corrected_branch_exact": true,
+    "U4_corrected_branch_all_halt": true,
+    "U5_branch_mutation_changes_output": true,
+    "U6_rule110_found_without_special_synthesis": true,
+    "U7_rule110_eight_rows_exact": true,
+    "U8_parametric_promotion_after_verification": true,
+    "U9_width5_exact": true
+  },
+  "rule110": {
+    "eight_row_exact": true,
+    "expression": "D(D(D(D(D(p,1),q),r),D(D(r,q),1)),1)",
+    "minimum_d_cost": 7,
+    "parametric_capability_verified": true,
+    "rule_number": 110,
+    "table_000_to_111": "01110110"
+  },
+  "table_hash": "af82cfa1b8918e65ea4a2918554cb746a0365cc8f4ae32dfd54f7cd0bdc325bc",
+  "three_input_algebra": {
+    "cost_histogram": {
+      "0": 4,
+      "1": 10,
+      "10": 3,
+      "11": 1,
+      "12": 1,
+      "2": 21,
+      "3": 31,
+      "4": 38,
+      "5": 46,
+      "6": 55,
+      "7": 23,
+      "8": 16,
+      "9": 7
+    },
+    "exact_canonical_expressions": 256,
+    "reachable_functions": 256,
+    "table_hash": "af82cfa1b8918e65ea4a2918554cb746a0365cc8f4ae32dfd54f7cd0bdc325bc",
+    "unique_truth_tables": 256
+  },
+  "verdict": "PASS_DEVELOPMENTAL_IR_V4_UNIVERSAL_MODEL_BRIDGE"
+}
