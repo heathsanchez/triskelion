@@ -1,0 +1,65 @@
+{
+  "amortization": {
+    "break_even_task": 5,
+    "cold_loss_fraction_of_dev_savings": 0.014114404457785334,
+    "first_1k_mean_dev_exec": 63.166,
+    "last_1k_mean_dev_exec": 5.891,
+    "no_promotion_loss_fraction_of_dev_savings": 0.014114404457785334,
+    "post5k_ancestor_invocation_fraction": 1.0
+  },
+  "archive": {
+    "capabilities": 14947,
+    "max_capability_ancestry_depth": 16,
+    "recombinant_capabilities": 5000,
+    "recombinant_children_later_reused": 1034,
+    "semantic_reuse_hits": 49178,
+    "syntax_reuse_hits": 33028
+  },
+  "controls": {
+    "cold_exec": 11007428,
+    "corrupted_target_rejected": true,
+    "developmental_phase4_exec": 29677,
+    "no_promotion_exec": 11007428,
+    "no_recombination_phase4_exec": 48243,
+    "no_warrant_installed": 0
+  },
+  "derived_source_ops": {
+    "AND": "D(D(p,1),q)",
+    "EQ": "D(D(p,q),D(D(q,p),1))",
+    "IMP": "D(D(q,p),1)",
+    "NAND": "D(D(D(p,1),q),1)",
+    "NOR": "D(p,D(q,1))",
+    "NOT": "D(p,1)",
+    "OR": "D(D(p,D(q,1)),1)",
+    "XOR": "D(D(D(p,q),D(D(q,p),1)),1)"
+  },
+  "headline_gates": {
+    "E10_no_promotion_loses_ge_80pct_savings": false,
+    "E11_no_warrant_installs_zero": true,
+    "E12_corrupt_target_rejected": true,
+    "E13_100_recombinant_children_later_reused": true,
+    "E14_no_recomb_higher_after_first1000_phase4": true,
+    "E15_no_duplicate_protected_semantics": true,
+    "E16_deterministic_replay": true,
+    "E1_all_16_relations_derived": true,
+    "E2_zero_semantic_disagreements": true,
+    "E3_dev_exec_lt_50pct_tree": true,
+    "E4_dev_exec_lt_75pct_local": true,
+    "E5_total_break_even_exists": true,
+    "E6_last1k_marginal_lower_than_first1k": true,
+    "E7_post5k_ancestor_invocation_ge_80pct": true,
+    "E8_semantic_twin_dev_lt_50pct_syntax": true,
+    "E9_cold_loses_ge_80pct_savings": false
+  },
+  "ledger_hash": "3db2badf17c2139afbcf5e8de3e7dd361fbde83d33b7f9f3573787f949b7c9c6",
+  "totals": {
+    "developmental_exec": 178186,
+    "developmental_total_with_authority": 213133,
+    "local_dag_exec": 11007428,
+    "promotion": 14947,
+    "syntax_only_exec": 180653,
+    "tree_exec": 767425719,
+    "verify": 20000
+  },
+  "verdict": "PARTIAL_DEVELOPMENTAL_IR_V1"
+}

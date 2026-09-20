@@ -1,0 +1,282 @@
+{
+  "amortization": {
+    "break_even_task": 5,
+    "cold_loss_fraction_of_dev_savings": 0.014114404457785334,
+    "first_1k_mean_dev_exec": 63.166,
+    "last_1k_mean_dev_exec": 5.891,
+    "no_promotion_loss_fraction_of_dev_savings": 0.014114404457785334,
+    "post5k_ancestor_invocation_fraction": 1.0
+  },
+  "archive": {
+    "capabilities": 14947,
+    "max_capability_ancestry_depth": 16,
+    "recombinant_capabilities": 5000,
+    "recombinant_children_later_reused": 1034,
+    "semantic_reuse_hits": 49178,
+    "syntax_reuse_hits": 33028
+  },
+  "claim_boundary": "Exact finite 12-input Boolean workload under the frozen abstract execution-cost model. Positive results support a verified developmental IR with promoted semantic capabilities; they do not establish lower wall-clock time than production compilers, Turing universality, or superiority to lambda calculus/type theory.",
+  "controls": {
+    "cold_exec": 11007428,
+    "corrupted_target_rejected": true,
+    "developmental_phase4_exec": 29677,
+    "no_promotion_exec": 11007428,
+    "no_recombination_phase4_exec": 48243,
+    "no_warrant_installed": 0
+  },
+  "cost_vector_hash": "40fa401ee8c6c67b93b2f17575b70e88098bc94382298211534cd907fdae3ef4",
+  "derived_relations": {
+    "0": {
+      "d_cost": 1,
+      "formula": "D(1,1)",
+      "stats": {
+        "d_nodes": 1,
+        "p_occurrences": 0,
+        "q_occurrences": 0
+      },
+      "table_00_01_10_11": "0000"
+    },
+    "1": {
+      "d_cost": 2,
+      "formula": "D(p,D(q,1))",
+      "stats": {
+        "d_nodes": 2,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "1000"
+    },
+    "10": {
+      "d_cost": 0,
+      "formula": "q",
+      "stats": {
+        "d_nodes": 0,
+        "p_occurrences": 0,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "0101"
+    },
+    "11": {
+      "d_cost": 2,
+      "formula": "D(D(q,p),1)",
+      "stats": {
+        "d_nodes": 2,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "1101"
+    },
+    "12": {
+      "d_cost": 0,
+      "formula": "p",
+      "stats": {
+        "d_nodes": 0,
+        "p_occurrences": 1,
+        "q_occurrences": 0
+      },
+      "table_00_01_10_11": "0011"
+    },
+    "13": {
+      "d_cost": 2,
+      "formula": "D(D(p,q),1)",
+      "stats": {
+        "d_nodes": 2,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "1011"
+    },
+    "14": {
+      "d_cost": 3,
+      "formula": "D(D(p,D(q,1)),1)",
+      "stats": {
+        "d_nodes": 3,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "0111"
+    },
+    "15": {
+      "d_cost": 0,
+      "formula": "1",
+      "stats": {
+        "d_nodes": 0,
+        "p_occurrences": 0,
+        "q_occurrences": 0
+      },
+      "table_00_01_10_11": "1111"
+    },
+    "2": {
+      "d_cost": 1,
+      "formula": "D(p,q)",
+      "stats": {
+        "d_nodes": 1,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "0100"
+    },
+    "3": {
+      "d_cost": 1,
+      "formula": "D(p,1)",
+      "stats": {
+        "d_nodes": 1,
+        "p_occurrences": 1,
+        "q_occurrences": 0
+      },
+      "table_00_01_10_11": "1100"
+    },
+    "4": {
+      "d_cost": 1,
+      "formula": "D(q,p)",
+      "stats": {
+        "d_nodes": 1,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "0010"
+    },
+    "5": {
+      "d_cost": 1,
+      "formula": "D(q,1)",
+      "stats": {
+        "d_nodes": 1,
+        "p_occurrences": 0,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "1010"
+    },
+    "6": {
+      "d_cost": 5,
+      "formula": "D(D(D(p,q),D(D(q,p),1)),1)",
+      "stats": {
+        "d_nodes": 5,
+        "p_occurrences": 2,
+        "q_occurrences": 2
+      },
+      "table_00_01_10_11": "0110"
+    },
+    "7": {
+      "d_cost": 3,
+      "formula": "D(D(D(p,1),q),1)",
+      "stats": {
+        "d_nodes": 3,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "1110"
+    },
+    "8": {
+      "d_cost": 2,
+      "formula": "D(D(p,1),q)",
+      "stats": {
+        "d_nodes": 2,
+        "p_occurrences": 1,
+        "q_occurrences": 1
+      },
+      "table_00_01_10_11": "0001"
+    },
+    "9": {
+      "d_cost": 4,
+      "formula": "D(D(p,q),D(D(q,p),1))",
+      "stats": {
+        "d_nodes": 4,
+        "p_occurrences": 2,
+        "q_occurrences": 2
+      },
+      "table_00_01_10_11": "1001"
+    }
+  },
+  "headline_gates": {
+    "E10_no_promotion_loses_ge_80pct_savings": false,
+    "E11_no_warrant_installs_zero": true,
+    "E12_corrupt_target_rejected": true,
+    "E13_100_recombinant_children_later_reused": true,
+    "E14_no_recomb_higher_after_first1000_phase4": true,
+    "E15_no_duplicate_protected_semantics": true,
+    "E16_deterministic_replay": true,
+    "E1_all_16_relations_derived": true,
+    "E2_zero_semantic_disagreements": true,
+    "E3_dev_exec_lt_50pct_tree": true,
+    "E4_dev_exec_lt_75pct_local": true,
+    "E5_total_break_even_exists": true,
+    "E6_last1k_marginal_lower_than_first1k": true,
+    "E7_post5k_ancestor_invocation_ge_80pct": true,
+    "E8_semantic_twin_dev_lt_50pct_syntax": true,
+    "E9_cold_loses_ge_80pct_savings": false
+  },
+  "kernel": {
+    "ground": 1,
+    "inputs": 12,
+    "primitives": [
+      "GROUND",
+      "INPUT",
+      "D",
+      "VERIFY",
+      "PROMOTE"
+    ],
+    "relation": "D(a,b)=not(a) and b",
+    "rows": 4096
+  },
+  "ledger_hash": "3db2badf17c2139afbcf5e8de3e7dd361fbde83d33b7f9f3573787f949b7c9c6",
+  "per_phase": {
+    "curriculum": {
+      "cap_hits": 1924,
+      "developmental": 63166,
+      "local_dag": 68796,
+      "promotion": 947,
+      "syntax_hits": 28,
+      "syntax_only": 68686,
+      "tasks": 1000,
+      "tree": 224199,
+      "verify": 1000
+    },
+    "descendant": {
+      "cap_hits": 27288,
+      "developmental": 80343,
+      "local_dag": 6802111,
+      "promotion": 9000,
+      "syntax_hits": 18000,
+      "syntax_only": 72055,
+      "tasks": 9000,
+      "tree": 505121084,
+      "verify": 9000
+    },
+    "recombinant": {
+      "cap_hits": 14966,
+      "developmental": 29677,
+      "local_dag": 727519,
+      "promotion": 5000,
+      "syntax_hits": 10000,
+      "syntax_only": 24912,
+      "tasks": 5000,
+      "tree": 3241739,
+      "verify": 5000
+    },
+    "semantic_twin": {
+      "cap_hits": 5000,
+      "developmental": 5000,
+      "local_dag": 3409002,
+      "promotion": 0,
+      "syntax_hits": 5000,
+      "syntax_only": 15000,
+      "tasks": 5000,
+      "tree": 258838697,
+      "verify": 5000
+    }
+  },
+  "precommit_commit": "9d3771bb2eab4c3bbf0c083a6bc839d3f21513c3",
+  "protocol": "DEVELOPMENTAL_IR_V1",
+  "replay_cost_vector_hash": "40fa401ee8c6c67b93b2f17575b70e88098bc94382298211534cd907fdae3ef4",
+  "replay_ledger_hash": "3db2badf17c2139afbcf5e8de3e7dd361fbde83d33b7f9f3573787f949b7c9c6",
+  "totals": {
+    "developmental_exec": 178186,
+    "developmental_total_with_authority": 213133,
+    "local_dag_exec": 11007428,
+    "promotion": 14947,
+    "syntax_only_exec": 180653,
+    "tree_exec": 767425719,
+    "verify": 20000
+  },
+  "verdict": "PARTIAL_DEVELOPMENTAL_IR_V1"
+}
