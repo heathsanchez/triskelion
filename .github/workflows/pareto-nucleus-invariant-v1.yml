@@ -1,0 +1,86 @@
+name: Pareto Nucleus Invariant V1
+
+on:
+  push:
+    branches:
+      - experiment/pareto-nucleus-invariant-v1
+    paths:
+      - 'experiments/pareto_nucleus_invariant_v1.py'
+      - 'protocols/PARETO_NUCLEUS_INVARIANT_V1_PRECOMMIT.md'
+      - 'protocols/PARETO_NUCLEUS_INVARIANT_V1_ADDENDUM.md'
+      - '.github/workflows/pareto-nucleus-invariant-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  invariant:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/pareto-nucleus-invariant-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freezes and inputs
+        run: |
+          git merge-base --is-ancestor b454381d44f9dc9bb92923909c64674b02b8fc74 HEAD
+          git merge-base --is-ancestor e98308bd06e3bc1a39a9ee60fdfd05be02dfa337 HEAD
+          test -f results/ternary_pointed_nucleus_census_v1/result.json
+          test -f results/ternary_developmental_nucleus_census_v1/result.json
+
+      - name: Run Pareto invariant census
+        run: |
+          set -o pipefail
+          python experiments/pareto_nucleus_invariant_v1.py \
+            results/ternary_pointed_nucleus_census_v1/result.json \
+            results/ternary_developmental_nucleus_census_v1/result.json \
+            results/pareto_nucleus_invariant_v1 \
+            | tee /tmp/pareto-nucleus-invariant-v1.log
+
+      - name: Validate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/pareto_nucleus_invariant_v1/result.json').read_text())
+          assert p['protocol']=='PARETO_NUCLEUS_INVARIANT_V1'
+          assert p['precommit_commit']=='b454381d44f9dc9bb92923909c64674b02b8fc74'
+          assert p['addendum_commit']=='e98308bd06e3bc1a39a9ee60fdfd05be02dfa337'
+          assert len(p['pareto_keys'])==16
+          assert p['term_count']==471
+          assert p['audit']['total']==256
+          assert len(p['headline_gates'])==16
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps({
+            'pareto_common_nontrivial_identity_count':p['pareto_common_nontrivial_identity_count'],
+            'exclusive_identity_count':p['exclusive_identity_count'],
+            'five_rarest_identities':p['five_rarest_identities'],
+            'reports':p['required_reports'],
+            'gates':p['headline_gates'],
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/pareto_nucleus_invariant_v1
+          git commit -m 'Record Pareto nucleus invariant V1 result' || exit 0
+          git push origin HEAD:experiment/pareto-nucleus-invariant-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pareto-nucleus-invariant-v1-evidence
+          path: |
+            results/pareto_nucleus_invariant_v1
+            /tmp/pareto-nucleus-invariant-v1.log
+          if-no-files-found: warn
