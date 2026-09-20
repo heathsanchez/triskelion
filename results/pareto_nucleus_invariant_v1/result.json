@@ -1,0 +1,361 @@
+{
+  "addendum_commit": "e98308bd06e3bc1a39a9ee60fdfd05be02dfa337",
+  "aggregation_hash": "02018f320e5097f215554fba71943b1b2458457c5f74da66e319f843e0ad6cf1",
+  "audit": {
+    "passed": 256,
+    "total": 256
+  },
+  "claim_boundary": "Exact finite analysis of the authoritative 3-element pointed-operation population and terms with at most three d-nodes.",
+  "exclusive_identity_count": 0,
+  "five_rarest_identities": [],
+  "headline_gates": {
+    "PIN10_common_identities_hold_all_pareto": true,
+    "PIN11_identity_prevalence_reported": true,
+    "PIN12_common_feature_analysis": true,
+    "PIN13_two_feature_search": true,
+    "PIN14_all_separators": true,
+    "PIN15_256_symmetry_audits": true,
+    "PIN16_deterministic_hash": true,
+    "PIN1_recover_16_pareto": true,
+    "PIN2_all_5130_orbits": true,
+    "PIN3_weight_sum_59049": true,
+    "PIN4_translation_features_all": true,
+    "PIN5_rowcol_features_all": true,
+    "PIN6_minor_features_all": true,
+    "PIN7_universal_algebra_features_all": true,
+    "PIN8_recurrence_features_all": true,
+    "PIN9_terms_deterministic": true
+  },
+  "pareto_common_feature_properties": [
+    {
+      "complete_prevalence": 0.5717779408168256,
+      "complete_raw_weight": 14028,
+      "feature": "constant_rows_cols",
+      "joint_prevalence": 0.928,
+      "joint_raw_weight": 1392,
+      "value": 0
+    },
+    {
+      "complete_prevalence": 0.5717779408168256,
+      "complete_raw_weight": 14028,
+      "feature": "constant_translations",
+      "joint_prevalence": 0.928,
+      "joint_raw_weight": 1392,
+      "value": 0
+    },
+    {
+      "complete_prevalence": 0.5717779408168256,
+      "complete_raw_weight": 14028,
+      "feature": "translation_image_min",
+      "joint_prevalence": 0.928,
+      "joint_raw_weight": 1392,
+      "value": 2
+    },
+    {
+      "complete_prevalence": 0.7762289068231841,
+      "complete_raw_weight": 19044,
+      "feature": "pointed_minor_any_constant",
+      "joint_prevalence": 0.96,
+      "joint_raw_weight": 1440,
+      "value": false
+    },
+    {
+      "complete_prevalence": 0.7767180239667401,
+      "complete_raw_weight": 19056,
+      "feature": "pointed_minor_distinct",
+      "joint_prevalence": 0.992,
+      "joint_raw_weight": 1488,
+      "value": 3
+    },
+    {
+      "complete_prevalence": 0.8642699926632429,
+      "complete_raw_weight": 21204,
+      "feature": "translation_image_max",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 3
+    },
+    {
+      "complete_prevalence": 0.9033993641477134,
+      "complete_raw_weight": 22164,
+      "feature": "rowcol_hamming_max",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 3
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "congruence_count",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 2
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "ground_orbit_size",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 3
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "no_pointed_proper_subalgebra",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": true
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "pointed_automorphism_group_size",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 1
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "pointed_proper_subalgebras",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 0
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "recurrence_bijective_both",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": false
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "simple",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": true
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "translation_transitive",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": true
+    }
+  ],
+  "pareto_common_nontrivial_identity_count": 0,
+  "pareto_keys": [
+    827,
+    1157,
+    1391,
+    1888,
+    2041,
+    2743,
+    2873,
+    3394,
+    3602,
+    3940,
+    4309,
+    4330,
+    7865,
+    8429,
+    13273,
+    14183
+  ],
+  "precommit_commit": "b454381d44f9dc9bb92923909c64674b02b8fc74",
+  "protocol": "PARETO_NUCLEUS_INVARIANT_V1",
+  "required_reports": {
+    "R10_classification": "no simple invariant within frozen search language",
+    "R1_any_pareto_common_nontrivial_identity": false,
+    "R2_rarest_identity": null,
+    "R3_any_exclusive_identity": false,
+    "R4_rarest_single_common_feature": {
+      "complete_prevalence": 0.5717779408168256,
+      "complete_raw_weight": 14028,
+      "feature": "constant_rows_cols",
+      "joint_prevalence": 0.928,
+      "joint_raw_weight": 1392,
+      "value": 0
+    },
+    "R5_rarest_two_feature_conjunction": {
+      "complete_prevalence": 0.462704817803864,
+      "complete_raw_weight": 11352,
+      "features": [
+        "constant_rows_cols",
+        "pointed_minor_distinct"
+      ],
+      "joint_prevalence": 0.92,
+      "joint_raw_weight": 1380,
+      "values": [
+        0,
+        3
+      ]
+    },
+    "R6_all_pareto_translation_transitive": true,
+    "R7_pareto_universal_algebra": {
+      "all_no_pointed_proper_subalgebra": true,
+      "all_simple": true
+    },
+    "R8_pareto_recurrence": {
+      "all_bijective_any_orientation": false,
+      "common_signature": false
+    },
+    "R9_strongest_new_separator_vs_joint": {
+      "feature": "constant_translations",
+      "kind": "scalar_relative",
+      "score": 0.999999999986111
+    },
+    "identity_separator_class": "no Pareto-common nontrivial low-complexity identity"
+  },
+  "separator_boolean": {
+    "no_pointed_proper_subalgebra": {
+      "complete_prevalence": 1.0,
+      "joint_prevalence": 1.0,
+      "pareto_prevalence": 1.0
+    },
+    "pointed_minor_any_constant": {
+      "complete_prevalence": 0.22377109317681584,
+      "joint_prevalence": 0.04,
+      "pareto_prevalence": 0.0
+    },
+    "pointed_minor_any_permutation": {
+      "complete_prevalence": 0.6299828808999756,
+      "joint_prevalence": 0.776,
+      "pareto_prevalence": 0.9375
+    },
+    "recurrence_bijective_any": {
+      "complete_prevalence": 0.02690144289557349,
+      "joint_prevalence": 0.104,
+      "pareto_prevalence": 0.5625
+    },
+    "recurrence_bijective_both": {
+      "complete_prevalence": 0.0,
+      "joint_prevalence": 0.0,
+      "pareto_prevalence": 0.0
+    },
+    "simple": {
+      "complete_prevalence": 1.0,
+      "joint_prevalence": 1.0,
+      "pareto_prevalence": 1.0
+    },
+    "translation_transitive": {
+      "complete_prevalence": 1.0,
+      "joint_prevalence": 1.0,
+      "pareto_prevalence": 1.0
+    }
+  },
+  "separator_scalar": {
+    "bijective_translations": {
+      "complete_weighted_mean": 1.541208119344583,
+      "joint_weighted_mean": 2.592,
+      "pareto_mean": 3.375
+    },
+    "congruence_count": {
+      "complete_weighted_mean": 2.0,
+      "joint_weighted_mean": 2.0,
+      "pareto_mean": 2.0
+    },
+    "constant_rows_cols": {
+      "complete_weighted_mean": 0.5057471264367817,
+      "joint_weighted_mean": 0.072,
+      "pareto_mean": 0.0
+    },
+    "constant_translations": {
+      "complete_weighted_mean": 0.5057471264367817,
+      "joint_weighted_mean": 0.072,
+      "pareto_mean": 0.0
+    },
+    "distinct_translations": {
+      "complete_weighted_mean": 5.473465394962093,
+      "joint_weighted_mean": 5.72,
+      "pareto_mean": 5.6875
+    },
+    "ground_orbit_size": {
+      "complete_weighted_mean": 3.0,
+      "joint_weighted_mean": 3.0,
+      "pareto_mean": 3.0
+    },
+    "permutation_rows_cols": {
+      "complete_weighted_mean": 1.541208119344583,
+      "joint_weighted_mean": 2.592,
+      "pareto_mean": 3.375
+    },
+    "pointed_automorphism_group_size": {
+      "complete_weighted_mean": 1.0,
+      "joint_weighted_mean": 1.0,
+      "pareto_mean": 1.0
+    },
+    "pointed_minor_distinct": {
+      "complete_weighted_mean": 2.7735387625336267,
+      "joint_weighted_mean": 2.992,
+      "pareto_mean": 3.0
+    },
+    "pointed_proper_subalgebras": {
+      "complete_weighted_mean": 0.0,
+      "joint_weighted_mean": 0.0,
+      "pareto_mean": 0.0
+    },
+    "proper_subalgebras": {
+      "complete_weighted_mean": 0.7175348495964784,
+      "joint_weighted_mean": 0.336,
+      "pareto_mean": 0.4375
+    },
+    "recurrence_cycle_count_mean": {
+      "complete_weighted_mean": 1.5473220836390316,
+      "joint_weighted_mean": 1.436,
+      "pareto_mean": 1.78125
+    },
+    "recurrence_cyclic_states_mean": {
+      "complete_weighted_mean": 4.047444362924921,
+      "joint_weighted_mean": 5.02,
+      "pareto_mean": 5.84375
+    },
+    "recurrence_max_basin_mean": {
+      "complete_weighted_mean": 7.982391782831988,
+      "joint_weighted_mean": 8.188,
+      "pareto_mean": 7.46875
+    },
+    "recurrence_max_cycle_mean": {
+      "complete_weighted_mean": 3.35509904622157,
+      "joint_weighted_mean": 4.36,
+      "pareto_mean": 4.40625
+    },
+    "rowcol_hamming_max": {
+      "complete_weighted_mean": 2.903399364147713,
+      "joint_weighted_mean": 3.0,
+      "pareto_mean": 3.0
+    },
+    "rowcol_hamming_min": {
+      "complete_weighted_mean": 1.0802152115431647,
+      "joint_weighted_mean": 1.408,
+      "pareto_mean": 1.625
+    },
+    "translation_image_max": {
+      "complete_weighted_mean": 2.864269992663243,
+      "joint_weighted_mean": 3.0,
+      "pareto_mean": 3.0
+    },
+    "translation_image_mean": {
+      "complete_weighted_mean": 2.1725768321513,
+      "joint_weighted_mean": 2.42,
+      "pareto_mean": 2.5625
+    },
+    "translation_image_min": {
+      "complete_weighted_mean": 1.5717779408168255,
+      "joint_weighted_mean": 1.928,
+      "pareto_mean": 2.0
+    },
+    "translation_monoid_size": {
+      "complete_weighted_mean": 23.40498899486427,
+      "joint_weighted_mean": 26.12,
+      "pareto_mean": 26.625
+    }
+  },
+  "term_count": 471,
+  "verdict": "PASS_PARETO_NUCLEUS_INVARIANT_V1"
+}
