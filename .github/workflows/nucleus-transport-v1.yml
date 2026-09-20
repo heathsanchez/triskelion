@@ -1,0 +1,73 @@
+name: Nucleus Transport V1
+
+on:
+  push:
+    branches:
+      - experiment/nucleus-transport-v1
+    paths:
+      - 'experiments/nucleus_transport_v1.py'
+      - 'protocols/NUCLEUS_TRANSPORT_V1_PRECOMMIT.md'
+      - '.github/workflows/nucleus-transport-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/nucleus-transport-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze
+        run: |
+          git merge-base --is-ancestor fdf4ebd18dc7e2195ead3d247b1125491c874bc6 HEAD
+          test -f protocols/NUCLEUS_TRANSPORT_V1_PRECOMMIT.md
+          test -f experiments/nucleus_transport_v1.py
+
+      - name: Run nucleus transport
+        run: |
+          set -o pipefail
+          python experiments/nucleus_transport_v1.py | tee /tmp/nucleus-transport-v1.log
+
+      - name: Validate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/nucleus_transport_v1/result.json').read_text())
+          assert p['protocol']=='NUCLEUS_TRANSPORT_V1'
+          assert p['precommit_commit']=='fdf4ebd18dc7e2195ead3d247b1125491c874bc6'
+          assert len(p['headline_gates'])==10
+          assert p['verdict'] in {'PASS_NUCLEUS_TRANSPORT_V1','PARTIAL_NUCLEUS_TRANSPORT_V1','VALID_NEGATIVE_NUCLEUS_TRANSPORT_V1'}
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['transported_worlds'],indent=2))
+          print(json.dumps(p['comparisons'],indent=2,sort_keys=True))
+          print(json.dumps(p['required_reports'],indent=2,sort_keys=True))
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/nucleus_transport_v1
+          git commit -m 'Record nucleus transport V1 result' || exit 0
+          git push origin HEAD:experiment/nucleus-transport-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nucleus-transport-v1-evidence
+          path: |
+            results/nucleus_transport_v1
+            /tmp/nucleus-transport-v1.log
+          if-no-files-found: warn
