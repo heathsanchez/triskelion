@@ -1,0 +1,115 @@
+{
+  "claim_boundary": "Exact finite six-input Boolean ecology and abstract developmental cost only.",
+  "costs": {
+    "cold": 280177,
+    "depth1": 105457,
+    "full": 143318,
+    "heldout": 14000,
+    "heldout_cold": 1951197589727,
+    "no_reentry": 105457
+  },
+  "episodes": 20000,
+  "hashes": {
+    "ancestry": "8e961791d42912a188023ad7c306df6ddd506c20d6e51291eda99fcbba1de76b",
+    "archive": "a09cf0c9438116be4bda0e0301a79df988d484c6792f3537b24f125cd6a9a273",
+    "cost": "98fdde040b96ed03a6c960ef1724546a7bec5e0487200913f036845778477e78",
+    "promotion": "bddab7bc2e0a0ba6e4ffe463eb61bf4bd32ee8c979a45663d93ea3f2fc99f98a",
+    "revocation": "595cec8fb48a2271ad47d208a347de86bbe70e51ba8179520351d86701a6ff92"
+  },
+  "headline_gates": {
+    "W10_after8_two_nonfound_50pct": true,
+    "W11_100_cross_lineage": false,
+    "W12_25_recombinant_later_parents": false,
+    "W13_no_reentry_depth_le2": true,
+    "W14_depth1_depth_le2": true,
+    "W15_full_lt70pct_no_reentry": false,
+    "W16_full_lt70pct_depth1": false,
+    "W17_full_lt35pct_cold": false,
+    "W18_knockout_raises_cost": true,
+    "W19_restore_exact": true,
+    "W1_zero_wrong": true,
+    "W20_target_revoked_before_next": true,
+    "W21_descendants_revoked": true,
+    "W22_outside99pct_preserved": true,
+    "W23_no_ancestry_separator": false,
+    "W24_recovery90pct_hit": true,
+    "W25_new_postrev_depth4": true,
+    "W26_heldout_hit90pct": true,
+    "W27_heldout_lt40pct_cold": true,
+    "W28_no_warrant_zero": true,
+    "W29_no_duplicate_semantics": true,
+    "W2_all_verified_before_use": true,
+    "W30_deterministic_replay": true,
+    "W3_no_names_in_policy": true,
+    "W4_eight_founders": true,
+    "W5_500_children": true,
+    "W6_depth8": true,
+    "W7_depth16": true,
+    "W8_depth32": true,
+    "W9_after4_nonfound_parent_80pct": true
+  },
+  "knockouts": [
+    {
+      "ancestor": 1,
+      "cone": 6657,
+      "depth": 4,
+      "full": 100,
+      "raised": true,
+      "removed": 1185332757942,
+      "restored": 100,
+      "restored_exact": true
+    },
+    {
+      "ancestor": 1,
+      "cone": 6657,
+      "depth": 8,
+      "full": 100,
+      "raised": true,
+      "removed": 1185332757942,
+      "restored": 100,
+      "restored_exact": true
+    },
+    {
+      "ancestor": 1,
+      "cone": 6657,
+      "depth": 16,
+      "full": 100,
+      "raised": true,
+      "removed": 1185332757942,
+      "restored": 100,
+      "restored_exact": true
+    },
+    {
+      "ancestor": 1,
+      "cone": 6657,
+      "depth": 32,
+      "full": 100,
+      "raised": true,
+      "removed": 1185332757942,
+      "restored": 100,
+      "restored_exact": true
+    }
+  ],
+  "metrics": {
+    "after4_nonfound_fraction": 1.0,
+    "after8_two_nonfound_fraction": 0.9974267616785432,
+    "children": 8574,
+    "cross_lineage": 20,
+    "founders": 24,
+    "max_depth": 73,
+    "post_hit": 0.9070606025357683,
+    "postrev_new_max_depth": 73,
+    "pre_hit": 0.9077044438601104,
+    "recombinant_later_parents": 20,
+    "recovery_ratio": 0.9992906927704307
+  },
+  "precommit_commit": "8e5046fa121c0468b69a2d4f815b6e6464123f7b",
+  "protocol": "DEEP_WHAKAPAPA_LANGUAGE_V1",
+  "revocation": {
+    "cone_size": 1,
+    "outside_preserved_fraction": 1.0,
+    "target": 7326,
+    "target_depth": 71
+  },
+  "verdict": "PARTIAL_DEEP_WHAKAPAPA_LANGUAGE_V1"
+}
