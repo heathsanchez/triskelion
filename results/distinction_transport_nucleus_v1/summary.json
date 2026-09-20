@@ -1,0 +1,418 @@
+{
+  "DTC_pareto_ranks": {
+    "1157": 100,
+    "13273": 630,
+    "1391": 860,
+    "14183": 653,
+    "1888": 148,
+    "2041": 154,
+    "2743": 969,
+    "2873": 207,
+    "3394": 242,
+    "3602": 261,
+    "3940": 267,
+    "4309": 301,
+    "4330": 308,
+    "7865": 448,
+    "827": 66,
+    "8429": 492
+  },
+  "DTC_percentile_recall": {
+    "0.75": {
+      "pareto_raw_recall": 0.875,
+      "pareto_raw_weight_hit": 168,
+      "pareto_raw_weight_total": 192,
+      "threshold": {
+        "den": 3,
+        "float": 0.6666666666666666,
+        "num": 2
+      }
+    },
+    "0.9": {
+      "pareto_raw_recall": 0.875,
+      "pareto_raw_weight_hit": 168,
+      "pareto_raw_weight_total": 192,
+      "threshold": {
+        "den": 3,
+        "float": 0.6666666666666666,
+        "num": 2
+      }
+    },
+    "0.95": {
+      "pareto_raw_recall": 0.875,
+      "pareto_raw_weight_hit": 168,
+      "pareto_raw_weight_total": 192,
+      "threshold": {
+        "den": 3,
+        "float": 0.6666666666666666,
+        "num": 2
+      }
+    },
+    "0.99": {
+      "pareto_raw_recall": 0.875,
+      "pareto_raw_weight_hit": 168,
+      "pareto_raw_weight_total": 192,
+      "threshold": {
+        "den": 3,
+        "float": 0.6666666666666666,
+        "num": 2
+      }
+    }
+  },
+  "DTC_top_recovery": {
+    "128": 2,
+    "16": 0,
+    "32": 0,
+    "64": 0
+  },
+  "aggregation_hash": "28792b4d72e11f9fe3c1c2ab899f8bec71c6f02a0a83e4c100b7a8a4eacfc5f0",
+  "audit": {
+    "passed": 256,
+    "total": 256
+  },
+  "boolean_realization": {
+    "DTC": {
+      "den": 2,
+      "float": 0.5,
+      "num": 1
+    },
+    "ER": {
+      "den": 2,
+      "float": 0.5,
+      "num": 1
+    },
+    "MC": {
+      "den": 1,
+      "float": 1.0,
+      "num": 1
+    },
+    "S8": {
+      "den": 256,
+      "float": 0.00390625,
+      "num": 1
+    },
+    "SF": {
+      "den": 2,
+      "float": 0.5,
+      "num": 1
+    },
+    "SMC": {
+      "den": 1,
+      "float": 1.0,
+      "num": 1
+    },
+    "SR": {
+      "den": 2,
+      "float": 0.5,
+      "num": 1
+    },
+    "live_graph_strongly_connected": true,
+    "monoid_size": 4,
+    "semigroup_distinction_transitive": true
+  },
+  "classification": "distinction-transport hypothesis supported",
+  "complete_raw_weight": 24534,
+  "correlations": {
+    "DTC": {
+      "G3": 0.39276897448772896,
+      "M": 0.3290772616026935,
+      "P": 0.1982892652047473,
+      "R3": 0.3924653454715458
+    },
+    "ER": {
+      "G3": 0.7065159390721804,
+      "M": 0.24505993538861603,
+      "P": 0.24928689791820932,
+      "R3": 0.7061511604503191
+    },
+    "MC": {
+      "G3": 0.2113319783222162,
+      "M": 0.25279773503874603,
+      "P": 0.0854388214254149,
+      "R3": 0.21112774306058102
+    },
+    "S8": {
+      "G3": 0.5584359169569112,
+      "M": 0.10918380325704058,
+      "P": 0.1832228809827034,
+      "R3": 0.5584137655258077
+    },
+    "SF": {
+      "G3": 0.40592284064344675,
+      "M": 0.2904246666758464,
+      "P": 0.21746028029384654,
+      "R3": 0.40561759745962195
+    },
+    "SMC": {
+      "G3": 0.2113319783222162,
+      "M": 0.25279773503874603,
+      "P": 0.0854388214254149,
+      "R3": 0.21112774306058102
+    },
+    "SR": {
+      "G3": 0.45088494437052995,
+      "M": 0.2961618385643397,
+      "P": 0.25999549207368294,
+      "R3": 0.450686402625929
+    }
+  },
+  "headline_gates": {
+    "DTN10_all_correlations": true,
+    "DTN11_all_quartile_enrichment": true,
+    "DTN12_pareto_common_reported": true,
+    "DTN13_two_feature_search": true,
+    "DTN14_DTC_recovery_reported": true,
+    "DTN15_256_symmetry_audits": true,
+    "DTN16_deterministic_hash": true,
+    "DTN1_all_5130_orbits": true,
+    "DTN2_weight_sum_59049": true,
+    "DTN3_exact_matrices_all": true,
+    "DTN4_exact_P1_P8_all": true,
+    "DTN5_reachability_scc_all": true,
+    "DTN6_grounded_reachability_all": true,
+    "DTN7_monoid_retention_all": true,
+    "DTN8_semigroup_mixing_all": true,
+    "DTN9_DTC_all": true
+  },
+  "pareto_common_exact_properties": [
+    {
+      "complete_prevalence": 0.9107361213010516,
+      "complete_raw_weight": 22344,
+      "feature": "live_graph_strongly_connected",
+      "joint_prevalence": 0.992,
+      "joint_raw_weight": 1488,
+      "value": true
+    },
+    {
+      "complete_prevalence": 0.9107361213010516,
+      "complete_raw_weight": 22344,
+      "feature": "semigroup_distinction_transitive",
+      "joint_prevalence": 0.992,
+      "joint_raw_weight": 1488,
+      "value": true
+    },
+    {
+      "complete_prevalence": 0.9718757642455368,
+      "complete_raw_weight": 23844,
+      "feature": "live_cycle_state_count",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 6
+    },
+    {
+      "complete_prevalence": 0.987772071411103,
+      "complete_raw_weight": 24234,
+      "feature": "grounded_all_reachable",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": true
+    },
+    {
+      "complete_prevalence": 1.0,
+      "complete_raw_weight": 24534,
+      "feature": "dead_distinction_count",
+      "joint_prevalence": 1.0,
+      "joint_raw_weight": 1500,
+      "value": 0
+    }
+  ],
+  "pareto_enrichment": {
+    "DTC": {
+      "complete_weighted_mean": 0.6034000762672488,
+      "joint_weighted_mean": 0.6538630292696789,
+      "pareto_at_or_above_q75": 14,
+      "pareto_fraction_at_or_above_q75": 0.875,
+      "pareto_mean": 0.6614583333333333,
+      "q75": {
+        "den": 3,
+        "float": 0.6666666666666666,
+        "num": 2
+      }
+    },
+    "ER": {
+      "complete_weighted_mean": 0.6960952148039455,
+      "joint_weighted_mean": 0.8026666666666666,
+      "pareto_at_or_above_q75": 16,
+      "pareto_fraction_at_or_above_q75": 1.0,
+      "pareto_mean": 0.8541666666666666,
+      "q75": {
+        "den": 9,
+        "float": 0.7777777777777778,
+        "num": 7
+      }
+    },
+    "MC": {
+      "complete_weighted_mean": 0.9781799407624794,
+      "joint_weighted_mean": 0.9982222222222221,
+      "pareto_at_or_above_q75": 16,
+      "pareto_fraction_at_or_above_q75": 1.0,
+      "pareto_mean": 1.0,
+      "q75": {
+        "den": 1,
+        "float": 1.0,
+        "num": 1
+      }
+    },
+    "S8": {
+      "complete_weighted_mean": 0.09547589971831842,
+      "joint_weighted_mean": 0.20217518289894834,
+      "pareto_at_or_above_q75": 16,
+      "pareto_fraction_at_or_above_q75": 1.0,
+      "pareto_mean": 0.2981132542597038,
+      "q75": {
+        "den": 52488,
+        "float": 0.1310966316110349,
+        "num": 6881
+      }
+    },
+    "SF": {
+      "complete_weighted_mean": 0.6150792670828961,
+      "joint_weighted_mean": 0.6549087809036658,
+      "pareto_at_or_above_q75": 14,
+      "pareto_fraction_at_or_above_q75": 0.875,
+      "pareto_mean": 0.6614583333333333,
+      "q75": {
+        "den": 3,
+        "float": 0.6666666666666666,
+        "num": 2
+      }
+    },
+    "SMC": {
+      "complete_weighted_mean": 0.9781799407624794,
+      "joint_weighted_mean": 0.9982222222222221,
+      "pareto_at_or_above_q75": 16,
+      "pareto_fraction_at_or_above_q75": 1.0,
+      "pareto_mean": 1.0,
+      "q75": {
+        "den": 1,
+        "float": 1.0,
+        "num": 1
+      }
+    },
+    "SR": {
+      "complete_weighted_mean": 0.6262028397381246,
+      "joint_weighted_mean": 0.6549087809036658,
+      "pareto_at_or_above_q75": 14,
+      "pareto_fraction_at_or_above_q75": 0.875,
+      "pareto_mean": 0.6614583333333333,
+      "q75": {
+        "den": 3,
+        "float": 0.6666666666666666,
+        "num": 2
+      }
+    }
+  },
+  "pareto_keys": [
+    827,
+    1157,
+    1391,
+    1888,
+    2041,
+    2743,
+    2873,
+    3394,
+    3602,
+    3940,
+    4309,
+    4330,
+    7865,
+    8429,
+    13273,
+    14183
+  ],
+  "quartiles": {
+    "DTC": {
+      "den": 3,
+      "float": 0.6666666666666666,
+      "num": 2
+    },
+    "ER": {
+      "den": 9,
+      "float": 0.7777777777777778,
+      "num": 7
+    },
+    "MC": {
+      "den": 1,
+      "float": 1.0,
+      "num": 1
+    },
+    "S8": {
+      "den": 52488,
+      "float": 0.1310966316110349,
+      "num": 6881
+    },
+    "SF": {
+      "den": 3,
+      "float": 0.6666666666666666,
+      "num": 2
+    },
+    "SMC": {
+      "den": 1,
+      "float": 1.0,
+      "num": 1
+    },
+    "SR": {
+      "den": 3,
+      "float": 0.6666666666666666,
+      "num": 2
+    }
+  },
+  "required_reports": {
+    "R10_classification": "distinction-transport hypothesis supported",
+    "R1_DTC_positive_all_four": true,
+    "R2_strongest_abs_G3_correlation": {
+      "correlation": 0.7065159390721804,
+      "metric": "ER"
+    },
+    "R3_strongest_abs_P_correlation": {
+      "correlation": 0.25999549207368294,
+      "metric": "SR"
+    },
+    "R4_pareto_above_DTC_q75_fraction": 0.875,
+    "R5_rarest_pareto_common_distinction_property": {
+      "complete_prevalence": 0.9107361213010516,
+      "complete_raw_weight": 22344,
+      "feature": "live_graph_strongly_connected",
+      "joint_prevalence": 0.992,
+      "joint_raw_weight": 1488,
+      "value": true
+    },
+    "R6_rarest_two_feature_distinction_conjunction": {
+      "complete_prevalence": 0.9107361213010516,
+      "complete_raw_weight": 22344,
+      "features": [
+        "live_graph_strongly_connected",
+        "dead_distinction_count"
+      ],
+      "joint_prevalence": 0.992,
+      "joint_raw_weight": 1488,
+      "values": [
+        true,
+        0
+      ]
+    },
+    "R7_DTC_top_recovery": {
+      "128": 2,
+      "16": 0,
+      "32": 0,
+      "64": 0
+    },
+    "R8_all_pareto_live_graph_strongly_connected": true,
+    "R9_all_pareto_semigroup_distinction_transitive": true
+  },
+  "two_feature_conjunction": {
+    "complete_prevalence": 0.9107361213010516,
+    "complete_raw_weight": 22344,
+    "features": [
+      "live_graph_strongly_connected",
+      "dead_distinction_count"
+    ],
+    "joint_prevalence": 0.992,
+    "joint_raw_weight": 1488,
+    "values": [
+      true,
+      0
+    ]
+  },
+  "verdict": "PASS_DISTINCTION_TRANSPORT_NUCLEUS_V1"
+}
