@@ -1,0 +1,323 @@
+{
+  "addendum_commit": "88dad81eea32b4c0676a50a9a42b311c5c731a7a",
+  "archive": {
+    "bit_capabilities": 31044,
+    "low32_ids": [
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      104,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      294,
+      295,
+      296,
+      297,
+      298,
+      299,
+      358,
+      359,
+      360,
+      361,
+      362
+    ],
+    "recombinant_caps": 7370,
+    "recombinant_caps_later_reused": 3532,
+    "top32_ids": [
+      47,
+      46,
+      45,
+      44,
+      48,
+      164,
+      43,
+      342,
+      341,
+      340,
+      42,
+      134,
+      343,
+      339,
+      338,
+      940,
+      1489,
+      33,
+      1,
+      81,
+      689,
+      9,
+      49,
+      271,
+      41,
+      156,
+      50,
+      272,
+      357,
+      51,
+      1108,
+      8
+    ]
+  },
+  "claim_boundary": "Exact finite 8-bit ALU workload and abstract D-operation cost model only; not a wall-clock comparison with production compilers and not a universality claim.",
+  "controls": {
+    "cold_exec": 10337231,
+    "developmental_p45": 159123,
+    "low32_delta": 0,
+    "no_promotion_exec": 10337231,
+    "no_recomb_p45": 240852,
+    "no_warrant_installed": 0,
+    "phase5_full": 64547,
+    "phase5_low32_ablated": 64547,
+    "phase5_top32_ablated": 80708,
+    "top32_delta": 16161
+  },
+  "cost_vector_hash": "5d2a200c0e596bce6dee91ba16638274b700004f2dec98beb232936d315b6978",
+  "derived_relations": {
+    "0": {
+      "cost": 1,
+      "formula": "D(1,1)",
+      "table": "0000"
+    },
+    "1": {
+      "cost": 2,
+      "formula": "D(p,D(q,1))",
+      "table": "1000"
+    },
+    "10": {
+      "cost": 0,
+      "formula": "q",
+      "table": "0101"
+    },
+    "11": {
+      "cost": 2,
+      "formula": "D(D(q,p),1)",
+      "table": "1101"
+    },
+    "12": {
+      "cost": 0,
+      "formula": "p",
+      "table": "0011"
+    },
+    "13": {
+      "cost": 2,
+      "formula": "D(D(p,q),1)",
+      "table": "1011"
+    },
+    "14": {
+      "cost": 3,
+      "formula": "D(D(p,D(q,1)),1)",
+      "table": "0111"
+    },
+    "15": {
+      "cost": 0,
+      "formula": "1",
+      "table": "1111"
+    },
+    "2": {
+      "cost": 1,
+      "formula": "D(p,q)",
+      "table": "0100"
+    },
+    "3": {
+      "cost": 1,
+      "formula": "D(p,1)",
+      "table": "1100"
+    },
+    "4": {
+      "cost": 1,
+      "formula": "D(q,p)",
+      "table": "0010"
+    },
+    "5": {
+      "cost": 1,
+      "formula": "D(q,1)",
+      "table": "1010"
+    },
+    "6": {
+      "cost": 5,
+      "formula": "D(D(D(p,q),D(D(q,p),1)),1)",
+      "table": "0110"
+    },
+    "7": {
+      "cost": 3,
+      "formula": "D(D(D(p,1),q),1)",
+      "table": "1110"
+    },
+    "8": {
+      "cost": 2,
+      "formula": "D(D(p,1),q)",
+      "table": "0001"
+    },
+    "9": {
+      "cost": 4,
+      "formula": "D(D(p,q),D(D(q,p),1))",
+      "table": "1001"
+    }
+  },
+  "headline_gates": {
+    "F10_no_promotion_ge_4x_dev": true,
+    "F11_no_warrant_zero": true,
+    "F12_corrupt_rejected": true,
+    "F13_100_recombinant_caps_reused": true,
+    "F14_no_recomb_higher_p45": true,
+    "F15_top32_ablation_ge_20pct": true,
+    "F16_low32_less_than_half_top_delta": true,
+    "F17_no_duplicate_semantics": true,
+    "F18_deterministic_replay": true,
+    "F1_all_16_relations_derived": true,
+    "F2_all_8bit_ops_exact": true,
+    "F3_zero_semantic_disagreements": true,
+    "F4_dev_lt_25pct_local": true,
+    "F5_total_lt_40pct_local": true,
+    "F6_twin_dev_lt_50pct_syntax": true,
+    "F7_final500_lt_50pct_first500": false,
+    "F8_phase5_hit_rate_ge_90pct": true,
+    "F9_cold_ge_4x_dev": true
+  },
+  "learning": {
+    "final500_mean_dev": 129.094,
+    "first500_mean_dev": 122.944,
+    "max_task_ancestry_depth": 16,
+    "phase5_hit_rate": 1.0
+  },
+  "ledger_hash": "a5391b847c4b241a11760a5404f988e6456957bc980971299faf3e95c3d20202",
+  "operator_verification": {
+    "ADD8": {
+      "local_dag_cost": 130,
+      "ok": true,
+      "tree_cost": 808
+    },
+    "BITAND": {
+      "local_dag_cost": 16,
+      "ok": true,
+      "tree_cost": 16
+    },
+    "BITNOT": {
+      "local_dag_cost": 8,
+      "ok": true,
+      "tree_cost": 8
+    },
+    "BITOR": {
+      "local_dag_cost": 24,
+      "ok": true,
+      "tree_cost": 24
+    },
+    "BITXOR": {
+      "local_dag_cost": 40,
+      "ok": true,
+      "tree_cost": 40
+    },
+    "INC8": {
+      "local_dag_cost": 129,
+      "ok": true,
+      "tree_cost": 962
+    },
+    "MUX8": {
+      "local_dag_cost": 42,
+      "ok": true,
+      "tree_cost": 64
+    },
+    "ROL1": {
+      "local_dag_cost": 0,
+      "ok": true,
+      "tree_cost": 0
+    },
+    "ROR1": {
+      "local_dag_cost": 0,
+      "ok": true,
+      "tree_cost": 0
+    },
+    "SUB8": {
+      "local_dag_cost": 265,
+      "ok": true,
+      "tree_cost": 20828
+    }
+  },
+  "phases": {
+    "curriculum": {
+      "cap_hit_tasks": 991,
+      "developmental": 117027,
+      "local": 289407,
+      "promotion": 5764,
+      "syntax": 230955,
+      "tasks": 1000,
+      "tree": 913685274,
+      "verify": 1000
+    },
+    "descendant": {
+      "cap_hit_tasks": 2500,
+      "developmental": 243995,
+      "local": 4026569,
+      "promotion": 17904,
+      "syntax": 405897,
+      "tasks": 2500,
+      "tree": 78114919984982,
+      "verify": 2500
+    },
+    "frozen": {
+      "cap_hit_tasks": 500,
+      "developmental": 64547,
+      "local": 2138143,
+      "promotion": 0,
+      "syntax": 115388,
+      "tasks": 500,
+      "tree": 12859787401294594,
+      "verify": 500
+    },
+    "recombinant": {
+      "cap_hit_tasks": 1000,
+      "developmental": 94576,
+      "local": 2649862,
+      "promotion": 7370,
+      "syntax": 196934,
+      "tasks": 1000,
+      "tree": 2810449687621914,
+      "verify": 1000
+    },
+    "semantic_twin": {
+      "cap_hit_tasks": 1000,
+      "developmental": 8042,
+      "local": 1233250,
+      "promotion": 6,
+      "syntax": 89801,
+      "tasks": 1000,
+      "tree": 180401890405716,
+      "verify": 1000
+    }
+  },
+  "precommit_commit": "f5f2ee06175257689abd53576de95cb114a7bdf1",
+  "protocol": "DEVELOPMENTAL_IR_V2_ALU_ISA",
+  "replay_cost_vector_hash": "5d2a200c0e596bce6dee91ba16638274b700004f2dec98beb232936d315b6978",
+  "replay_ledger_hash": "a5391b847c4b241a11760a5404f988e6456957bc980971299faf3e95c3d20202",
+  "totals": {
+    "developmental": 528187,
+    "developmental_total": 565231,
+    "local_dag": 10337231,
+    "promotion": 31044,
+    "syntax_isa": 1038975,
+    "tree": 15928754812992480,
+    "verify": 6000
+  },
+  "universe": {
+    "bits_per_word": 8,
+    "input_words": 2,
+    "rows": 65536,
+    "tasks": 6000
+  },
+  "verdict": "PARTIAL_DEVELOPMENTAL_IR_V2_ALU_ISA"
+}
