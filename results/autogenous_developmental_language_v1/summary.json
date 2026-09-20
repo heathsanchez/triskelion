@@ -1,0 +1,85 @@
+{
+  "costs": {
+    "AUTOGENOUS": 16020,
+    "COLD": 84000,
+    "D_ONLY": 84000,
+    "NO_REENTRY": 15930,
+    "NO_REPRICE": 18852,
+    "SYNTAX_MACRO": 84000
+  },
+  "gates": {
+    "A10_cost_lt_50pct_cold": true,
+    "A11_marginal_pre_shift_lt_half_initial": true,
+    "A12_two_shift_schemas_enter_top10": false,
+    "A13_shift_recovery_within_1000": true,
+    "A14_revoked_before_next_execution": true,
+    "A15_descendants_invalidated": true,
+    "A16_unrelated_95pct_preserved": true,
+    "A17_replacement_or_cost_recovery": true,
+    "A18_phasef_lt_40pct_d_only": true,
+    "A19_phasef_hit_rate_ge_90pct": true,
+    "A1_zero_wrong": true,
+    "A20_top8_ablation_ge_25pct": true,
+    "A21_low8_less_than_half_top_delta": true,
+    "A22_no_reentry_worse": false,
+    "A23_within_2x_oracle": true,
+    "A24_deterministic_replay": true,
+    "A2_all_schemas_verified_before_use": true,
+    "A3_no_operator_names_available": true,
+    "A4_at_least_8_schemas": true,
+    "A5_at_least_3_compound": true,
+    "A6_ancestry_depth_ge_3": false,
+    "A7_cost_lt_35pct_d_only": true,
+    "A8_cost_lt_70pct_syntax": true,
+    "A9_cost_lt_80pct_no_reprice": false
+  },
+  "hashes": {
+    "cost": "acf0d52be5f1cd0686776bbd8e470db03fa5d76f1757f44ee527142b1f91fcdc",
+    "promotion": "cf09565898f978dba04ce1ba29d1ae9b415c3d44fdc8259038cf5e92cd5494b2",
+    "revocation": "1dd9566ef5f4fc4c05f0ffc53eed8a1efe24b49c1ce8edbe168b785561dcb6e8",
+    "stream": "d3bc6532d7a59a8a1d76dc8154adfc4de6cabe535c14252105cd8c40b1dff25d"
+  },
+  "metrics": {
+    "compound_schemas": 87,
+    "heldout_cost": 2078,
+    "low8_ablated_cost": 2084,
+    "low8_delta": 6,
+    "max_ancestry_depth": 2,
+    "phasef_hit_rate": 0.9935,
+    "pre_revocation_marginal": 1.084,
+    "pre_shift_marginal": 1.024,
+    "replacement_verified": false,
+    "revocation_recovery_episodes": 100,
+    "schema_count": 250,
+    "shift_born_top10": 0,
+    "shift_recovery_episodes": 500,
+    "top8_ablated_cost": 3134,
+    "top8_delta": 1056
+  },
+  "oracle_cost": 14262,
+  "revocation": {
+    "event": [
+      8001,
+      80,
+      82,
+      [
+        80,
+        240,
+        241,
+        242,
+        243,
+        244
+      ]
+    ],
+    "invalidated": [
+      80,
+      240,
+      241,
+      242,
+      243,
+      244
+    ],
+    "unrelated_preservation_fraction": 1.0
+  },
+  "verdict": "PARTIAL_AUTOGENOUS_DEVELOPMENTAL_LANGUAGE_V1"
+}
