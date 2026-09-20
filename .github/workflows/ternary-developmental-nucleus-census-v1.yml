@@ -1,0 +1,133 @@
+name: Ternary Developmental Nucleus Census V1
+
+on:
+  push:
+    branches:
+      - experiment/ternary-developmental-nucleus-census-v1
+    paths:
+      - 'experiments/ternary_developmental_nucleus_census_v1.cpp'
+      - 'experiments/aggregate_ternary_developmental_nucleus_census_v1.py'
+      - 'protocols/TERNARY_DEVELOPMENTAL_NUCLEUS_CENSUS_V1_PRECOMMIT.md'
+      - 'protocols/TERNARY_DEVELOPMENTAL_NUCLEUS_CENSUS_V1_ADDENDUM.md'
+      - '.github/workflows/ternary-developmental-nucleus-census-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ternary-developmental-nucleus-census-v1
+  cancel-in-progress: false
+
+jobs:
+  developmental:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/ternary-developmental-nucleus-census-v1
+          fetch-depth: 0
+
+      - name: Verify prospective freezes
+        run: |
+          git merge-base --is-ancestor 22d7953e80ed605103a5af82206f0b91d391ba29 HEAD
+          git merge-base --is-ancestor 063309643ac7b43c350e92a15bc27aa3cd0df0a4 HEAD
+          test -f results/ternary_pointed_nucleus_census_v1/result.json
+
+      - name: Compile developmental census engine
+        run: |
+          g++ -O3 -std=c++20 -DNDEBUG experiments/ternary_developmental_nucleus_census_v1.cpp -o /tmp/ternary-dev-census
+
+      - name: Run developmental shard
+        run: |
+          mkdir -p /tmp/dev-shard
+          /tmp/ternary-dev-census \${{ matrix.shard }} 24 /tmp/dev-shard/shard_\${{ matrix.shard }}.tsv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ternary-developmental-shard-\${{ matrix.shard }}
+          path: /tmp/dev-shard/
+          if-no-files-found: error
+          compression-level: 6
+
+  aggregate:
+    needs: developmental
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/ternary-developmental-nucleus-census-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ternary-developmental-shard-*
+          path: /tmp/dev-shards
+          merge-multiple: true
+
+      - name: Aggregate developmental census
+        run: |
+          set -o pipefail
+          python experiments/aggregate_ternary_developmental_nucleus_census_v1.py \
+            /tmp/dev-shards \
+            results/ternary_pointed_nucleus_census_v1/result.json \
+            results/ternary_developmental_nucleus_census_v1 \
+            | tee /tmp/ternary-developmental-census.log
+
+      - name: Validate authoritative result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/ternary_developmental_nucleus_census_v1/result.json').read_text())
+          assert p['protocol']=='TERNARY_DEVELOPMENTAL_NUCLEUS_CENSUS_V1'
+          assert p['precommit_commit']=='22d7953e80ed605103a5af82206f0b91d391ba29'
+          assert p['addendum_commit']=='063309643ac7b43c350e92a15bc27aa3cd0df0a4'
+          assert p['raw_pointed_nuclei']==59049
+          assert p['canonical_orbits']==5130
+          assert p['complete_raw_weight']==24534
+          assert len(p['headline_gates'])==16
+          assert p['verdict'] in {
+            'PASS_TERNARY_DEVELOPMENTAL_NUCLEUS_CENSUS_V1',
+            'PARTIAL_TERNARY_DEVELOPMENTAL_NUCLEUS_CENSUS_V1',
+            'VALID_NEGATIVE_TERNARY_DEVELOPMENTAL_NUCLEUS_CENSUS_V1',
+          }
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps({
+            'thresholds':p['thresholds'],
+            'joint_weight':p['joint_developmental_raw_weight'],
+            'joint_reference_minimal':p['joint_reference_minimal_raw_weight'],
+            'joint_reference_free':p['joint_reference_free_raw_weight'],
+            'reports':p['required_reports'],
+            'gates':p['headline_gates'],
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/ternary_developmental_nucleus_census_v1
+          git commit -m 'Record ternary developmental nucleus census V1 result' || exit 0
+          git push origin HEAD:experiment/ternary-developmental-nucleus-census-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ternary-developmental-nucleus-census-v1-evidence
+          path: |
+            results/ternary_developmental_nucleus_census_v1
+            /tmp/ternary-developmental-census.log
+          if-no-files-found: warn
