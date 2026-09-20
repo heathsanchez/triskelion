@@ -50,6 +50,7 @@ BANK=form_bank()
 class C:
     i:int;s:int;p:tuple;dep:int;born:int;inh:int;form:int;digest:str
     valid:bool=True;ch:set=field(default_factory=set);uses:int=0
+    anc_bits:int=0; desc_count:int=0
 
 class W:
     def __init__(self,reentry=True,opt=True,disjoint=True):
@@ -71,8 +72,8 @@ class W:
             o.add(x);q+=list(self.c[x].ch)
         return o
     def dis(self,a,b):
-        A=self.anc(a)|{a};B=self.anc(b)|{b}
-        return A.isdisjoint(B)
+        # Exact transitive-ancestry disjointness via cached bitsets.
+        return (self.c[a].anc_bits & self.c[b].anc_bits)==0
     def add(self,s,p,ep,inh):
         if s in self.by:return self.by[s],False
         dep=1 if not p else 1+max(self.c[x].dep for x in p)
@@ -87,8 +88,21 @@ class W:
             if hit is not None:
                 form=min(form,hit[0])
         dig=H("verify",s,p,ep)
-        i=self.n;self.n+=1;z=C(i,s,p,dep,ep,inh,form,dig);self.c[i]=z;self.by[s]=i
+        i=self.n;self.n+=1
+        anc_bits=(1<<i)
+        for x in p:
+            anc_bits |= self.c[x].anc_bits
+        z=C(i,s,p,dep,ep,inh,form,dig,anc_bits=anc_bits)
+        self.c[i]=z;self.by[s]=i
         for x in p:self.c[x].ch.add(i)
+        # Exact descendant-count index: every strict ancestor gains this child.
+        strict=anc_bits & ~(1<<i)
+        bits=strict
+        while bits:
+            lsb=bits & -bits
+            aid=lsb.bit_length()-1
+            self.c[aid].desc_count+=1
+            bits-=lsb
         if form<inh:self.formchanges+=1
         self.maxdep=max(self.maxdep,dep);self.prom.append((ep,i,s,p,dep,inh,form,dig))
         if len(p)==2 and self.dis(*p):self.recomb+=1
@@ -102,7 +116,9 @@ class W:
         if not z:return None
         # 20% explicit disjoint mating handled in pair()
         if hn("recent",ep,k)%100<45 and len(z)>4:
-            z=sorted(z,key=lambda i:self.c[i].born)[3*len(z)//4:]
+            # IDs are admitted in nondecreasing birth order, so insertion order
+            # is exactly the preexisting sort-by-birth order.
+            z=z[3*len(z)//4:]
         return z[hn("pick",ep,k)%len(z)]
     def pair(self,ep):
         a=self.choose(ep,0);b=self.choose(ep,1)
@@ -147,8 +163,9 @@ def simulate(reentry=True,opt=True,disjoint=True):
 
 def run():
     f=simulate(); gene=simulate(opt=False); nr=simulate(reentry=False); rnd=simulate(disjoint=False)
-    # COLD is the transparent inherited expansion cost accumulated by full ecology.
-    # snapshot pre-revocation
+    # Snapshot pre-revocation costs before mutating the full world.
+    full_pre_cost=f.cost
+    cold_cost=f.cold
     pre=sum(x.uses>0 for x in f.c.values())/len(f.c)
     # causal probes from real current forms
     probes=[]
@@ -163,7 +180,8 @@ def run():
                        "raised":removed>full,"restored_exact":rest==full})
     # reproductively important revocation
     cand=[x for x in f.c.values() if x.ch]
-    t=max(cand,key=lambda x:(len(f.desc(x.i)),x.dep,-x.i));cone={t.i}|f.desc(t.i)
+    # Same frozen ranking, using exact incrementally maintained descendant counts.
+    t=max(cand,key=lambda x:(x.desc_count,x.dep,-x.i));cone={t.i}|f.desc(t.i)
     outside=[i for i,x in f.c.items() if i not in cone and x.valid]
     for i in cone:
         f.c[i].valid=False
@@ -179,7 +197,7 @@ def run():
     later_recomb=sum(1 for x in f.c.values() if len(x.p)==2 and f.dis(*x.p) and x.uses>0)
     recomb16=any(len(x.p)==2 and f.dis(*x.p) and x.dep>=16 for x in f.c.values())
     unique=len({x.s for x in f.c.values() if x.valid})==sum(x.valid for x in f.c.values())
-    full_pre_cost=simulate().cost;gene_cost=gene.cost;nr_cost=nr.cost;cold_cost=simulate().cold
+    gene_cost=gene.cost;nr_cost=nr.cost
     g={
 "CWF1_zero_wrong":True,"CWF2_all_consequences_verified":True,"CWF3_all_forms_verified":True,
 "CWF4_form_does_not_change_whakapapa":True,"CWF5_500_children":sum(bool(x.p) for x in f.c.values())>=500,
