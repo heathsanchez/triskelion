@@ -109,7 +109,7 @@ class W:
         return i,True
     def ids(self,parent=True):
         z=[i for i,x in self.c.items() if x.valid]
-        if parent and not self.reentry:z=[i for i in z if x.dep<=1]
+        if parent and not self.reentry:z=[i for i in z if self.c[i].dep<=1]
         return z
     def choose(self,ep,k):
         z=self.ids()
