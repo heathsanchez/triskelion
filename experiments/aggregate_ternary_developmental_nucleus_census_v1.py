@@ -96,6 +96,9 @@ def enrichment(rows,feature_pred,joint_pred,complete_pred):
     j=wsum(rows,lambda r:joint_pred(r) and feature_pred(r))/joint_den
     return j/base
 
+def operation_code(fn):
+    return encode_op([fn(a,b) for a in range(3) for b in range(3)])
+
 def stable_hash(rows):
     cols=[
         "key","weight","d0","d1","d2","d3","recombinant3",
