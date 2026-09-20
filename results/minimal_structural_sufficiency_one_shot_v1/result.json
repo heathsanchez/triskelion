@@ -1,0 +1,302 @@
+{
+  "aggregation_hash": "98997350704090bbc3c413bed4dbfd3a857fb33fecacdcfe5c9c614ce4e284ae",
+  "audit": {
+    "failures": [],
+    "passed": 256,
+    "total": 256
+  },
+  "claim_boundary": "Exact finite structure-discovery result only for the frozen six-view lattice and authoritative three-element developmental phenotype.",
+  "frozen_refinement_edges": {
+    "V0_fully_anonymous": [
+      "V1_ground_source_marked",
+      "V2_side_marked"
+    ],
+    "V1_ground_source_marked": [
+      "V3_ground_source_x_side_marked",
+      "V4_generator_incidence_marked"
+    ],
+    "V2_side_marked": [
+      "V3_ground_source_x_side_marked",
+      "V5_fully_marked_elementary_incidence"
+    ],
+    "V3_ground_source_x_side_marked": [
+      "V5_fully_marked_elementary_incidence"
+    ],
+    "V4_generator_incidence_marked": [
+      "V5_fully_marked_elementary_incidence"
+    ],
+    "V5_fully_marked_elementary_incidence": []
+  },
+  "headline_gates": {
+    "MS10_collision_classes_exhaustive": true,
+    "MS11_counterexamples_for_insufficient": true,
+    "MS12_sufficiency_set_reported": true,
+    "MS13_minimal_sufficient_set_reported": true,
+    "MS14_compression_injectivity_all": true,
+    "MS15_256_symmetry_audits": true,
+    "MS16_deterministic_hash": true,
+    "MS1_all_5130_orbits": true,
+    "MS2_weight_sum_59049": true,
+    "MS3_V0_computed_canonicalized": true,
+    "MS4_V1_computed_canonicalized": true,
+    "MS5_V2_computed_canonicalized": true,
+    "MS6_V3_computed_canonicalized": true,
+    "MS7_V4_computed_canonicalized": true,
+    "MS8_V5_computed_canonicalized": true,
+    "MS9_protected_phenotype_all": true
+  },
+  "minimal_sufficient_views": [
+    "V4_generator_incidence_marked"
+  ],
+  "precommit_commit": "932d475629fe85d2b1841a33972cea3bf7e988b1",
+  "protected_phenotype_fields": [
+    "binary",
+    "no_ground",
+    "d3",
+    "recombinant3",
+    "recur_distinct_sum",
+    "mutation_complete",
+    "mutation_generative",
+    "mutation_ref_independent",
+    "joint_developmental",
+    "pareto"
+  ],
+  "protocol": "MINIMAL_STRUCTURAL_SUFFICIENCY_ONE_SHOT_V1",
+  "representations": [
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 219,
+      "compression_ratio_orbits": 0.9538011695906433,
+      "counterexample": {
+        "class_size": 2,
+        "key_a": 30,
+        "key_b": 82,
+        "phenotype_differences": {
+          "binary": [
+            18,
+            258
+          ],
+          "d3": [
+            18,
+            158
+          ],
+          "mutation_complete": [
+            0,
+            3
+          ],
+          "mutation_generative": [
+            2,
+            17
+          ],
+          "mutation_ref_independent": [
+            16,
+            2
+          ],
+          "no_ground": [
+            18,
+            130
+          ],
+          "recombinant3": [
+            13,
+            142
+          ],
+          "recur_distinct_sum": [
+            39,
+            41
+          ]
+        }
+      },
+      "developmentally_sufficient": false,
+      "heterogeneous_collision_classes": 219,
+      "injective": false,
+      "largest_collision_class_orbits": 5,
+      "largest_collision_class_raw_weight": 36,
+      "name": "V0_fully_anonymous",
+      "raw_weighted_collision_mass": 4992,
+      "unique_signatures": 4893
+    },
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 39,
+      "compression_ratio_orbits": 0.9923976608187135,
+      "counterexample": {
+        "class_size": 2,
+        "key_a": 2430,
+        "key_b": 6642,
+        "phenotype_differences": {
+          "binary": [
+            6,
+            12
+          ],
+          "d3": [
+            6,
+            12
+          ],
+          "mutation_complete": [
+            0,
+            1
+          ],
+          "mutation_generative": [
+            2,
+            16
+          ],
+          "mutation_ref_independent": [
+            16,
+            2
+          ],
+          "no_ground": [
+            6,
+            11
+          ],
+          "recombinant3": [
+            3,
+            5
+          ]
+        }
+      },
+      "developmentally_sufficient": false,
+      "heterogeneous_collision_classes": 39,
+      "injective": false,
+      "largest_collision_class_orbits": 2,
+      "largest_collision_class_raw_weight": 24,
+      "name": "V1_ground_source_marked",
+      "raw_weighted_collision_mass": 780,
+      "unique_signatures": 5091
+    },
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 188,
+      "compression_ratio_orbits": 0.961598440545809,
+      "counterexample": {
+        "class_size": 2,
+        "key_a": 30,
+        "key_b": 82,
+        "phenotype_differences": {
+          "binary": [
+            18,
+            258
+          ],
+          "d3": [
+            18,
+            158
+          ],
+          "mutation_complete": [
+            0,
+            3
+          ],
+          "mutation_generative": [
+            2,
+            17
+          ],
+          "mutation_ref_independent": [
+            16,
+            2
+          ],
+          "no_ground": [
+            18,
+            130
+          ],
+          "recombinant3": [
+            13,
+            142
+          ],
+          "recur_distinct_sum": [
+            39,
+            41
+          ]
+        }
+      },
+      "developmentally_sufficient": false,
+      "heterogeneous_collision_classes": 188,
+      "injective": false,
+      "largest_collision_class_orbits": 5,
+      "largest_collision_class_raw_weight": 36,
+      "name": "V2_side_marked",
+      "raw_weighted_collision_mass": 4140,
+      "unique_signatures": 4933
+    },
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 26,
+      "compression_ratio_orbits": 0.9949317738791423,
+      "counterexample": {
+        "class_size": 2,
+        "key_a": 2430,
+        "key_b": 6642,
+        "phenotype_differences": {
+          "binary": [
+            6,
+            12
+          ],
+          "d3": [
+            6,
+            12
+          ],
+          "mutation_complete": [
+            0,
+            1
+          ],
+          "mutation_generative": [
+            2,
+            16
+          ],
+          "mutation_ref_independent": [
+            16,
+            2
+          ],
+          "no_ground": [
+            6,
+            11
+          ],
+          "recombinant3": [
+            3,
+            5
+          ]
+        }
+      },
+      "developmentally_sufficient": false,
+      "heterogeneous_collision_classes": 26,
+      "injective": false,
+      "largest_collision_class_orbits": 2,
+      "largest_collision_class_raw_weight": 24,
+      "name": "V3_ground_source_x_side_marked",
+      "raw_weighted_collision_mass": 468,
+      "unique_signatures": 5104
+    },
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 0,
+      "compression_ratio_orbits": 1.0,
+      "counterexample": null,
+      "developmentally_sufficient": true,
+      "heterogeneous_collision_classes": 0,
+      "injective": true,
+      "largest_collision_class_orbits": 1,
+      "largest_collision_class_raw_weight": 12,
+      "name": "V4_generator_incidence_marked",
+      "raw_weighted_collision_mass": 0,
+      "unique_signatures": 5130
+    },
+    {
+      "canonical_orbits": 5130,
+      "collision_classes": 0,
+      "compression_ratio_orbits": 1.0,
+      "counterexample": null,
+      "developmentally_sufficient": true,
+      "heterogeneous_collision_classes": 0,
+      "injective": true,
+      "largest_collision_class_orbits": 1,
+      "largest_collision_class_raw_weight": 12,
+      "name": "V5_fully_marked_elementary_incidence",
+      "raw_weighted_collision_mass": 0,
+      "unique_signatures": 5130
+    }
+  ],
+  "strength": "ONLY_INJECTIVE_SUFFICIENCY",
+  "sufficient_views": [
+    "V4_generator_incidence_marked",
+    "V5_fully_marked_elementary_incidence"
+  ],
+  "total_raw_weight": 59049,
+  "verdict": "PASS_MINIMAL_STRUCTURAL_SUFFICIENCY_ONE_SHOT_V1"
+}
