@@ -1,0 +1,82 @@
+name: Structural Audit Phenotype Split V1
+
+on:
+  push:
+    branches:
+      - experiment/structural-audit-phenotype-split-v1
+    paths:
+      - 'tests/test_structural_audit_phenotype_split_v1.py'
+      - 'experiments/structural_audit_phenotype_split_v1.py'
+      - 'protocols/STRUCTURAL_AUDIT_PHENOTYPE_SPLIT_V1_PRECOMMIT.md'
+      - '.github/workflows/structural-audit-phenotype-split-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/structural-audit-phenotype-split-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze and inputs
+        run: |
+          git merge-base --is-ancestor 4e22d7d0c1ac3b8e8bbcbec829791a27bc8ec60d HEAD
+          test -f results/ternary_pointed_nucleus_census_v1/result.json
+          test -f results/ternary_developmental_nucleus_census_v1/result.json
+
+      - name: Unit tests
+        run: |
+          python -m unittest tests/test_structural_audit_phenotype_split_v1.py -v
+
+      - name: Run structural audit and phenotype split
+        run: |
+          set -o pipefail
+          python experiments/structural_audit_phenotype_split_v1.py \
+            results/ternary_pointed_nucleus_census_v1/result.json \
+            results/ternary_developmental_nucleus_census_v1/result.json \
+            results/structural_audit_phenotype_split_v1 \
+            | tee /tmp/structural-audit-phenotype-split-v1.log
+
+      - name: Validate result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/structural_audit_phenotype_split_v1/result.json').read_text())
+          assert p['protocol']=='STRUCTURAL_AUDIT_PHENOTYPE_SPLIT_V1'
+          assert p['precommit_commit']=='4e22d7d0c1ac3b8e8bbcbec829791a27bc8ec60d'
+          assert len(p['headline_gates'])==16
+          assert p['audit']['representatives']==5130
+          assert p['symmetry_audit']['total']==256
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print('MEASUREMENT_MISMATCHES='+str(p['audit']['total_mismatches']))
+          print('V4_UNIQUE='+str(p['v4_reconstruction']['unique_all']))
+          print(json.dumps(p['family_analysis'],indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/structural_audit_phenotype_split_v1
+          git commit -m 'Record structural audit phenotype split V1 result' || exit 0
+          git push origin HEAD:experiment/structural-audit-phenotype-split-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: structural-audit-phenotype-split-v1-evidence
+          path: |
+            results/structural_audit_phenotype_split_v1
+            /tmp/structural-audit-phenotype-split-v1.log
+          if-no-files-found: warn
