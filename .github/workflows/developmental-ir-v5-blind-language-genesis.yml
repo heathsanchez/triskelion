@@ -1,0 +1,86 @@
+name: Developmental IR V5 Blind Language Genesis
+
+on:
+  push:
+    branches:
+      - experiment/developmental-ir-v5-blind-language-genesis
+    paths:
+      - 'experiments/developmental_ir_v5_blind_language_genesis.py'
+      - 'protocols/DEVELOPMENTAL_IR_V5_BLIND_LANGUAGE_GENESIS_PRECOMMIT.md'
+      - '.github/workflows/developmental-ir-v5-blind-language-genesis.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: developmental-ir-v5-blind-language-genesis
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/developmental-ir-v5-blind-language-genesis
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor eb0969d4fe67e1fc3dacec4906c350ff6520aabc HEAD
+          test -f protocols/DEVELOPMENTAL_IR_V5_BLIND_LANGUAGE_GENESIS_PRECOMMIT.md
+          test -f experiments/developmental_ir_v5_blind_language_genesis.py
+
+      - name: Run blind language genesis
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python experiments/developmental_ir_v5_blind_language_genesis.py | tee /tmp/developmental-ir-v5-blind-language-genesis.log
+
+      - name: Validate scientific result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/developmental_ir_v5_blind_language_genesis/result.json').read_text())
+          assert p['protocol']=='DEVELOPMENTAL_IR_V5_BLIND_LANGUAGE_GENESIS'
+          assert p['precommit_commit']=='eb0969d4fe67e1fc3dacec4906c350ff6520aabc'
+          assert len(p['latent_pool'])==64
+          assert len(p['headline_gates'])==24
+          assert p['verdict'] in {
+              'PASS_DEVELOPMENTAL_IR_V5_BLIND_LANGUAGE_GENESIS',
+              'PARTIAL_DEVELOPMENTAL_IR_V5_BLIND_LANGUAGE_GENESIS',
+              'VALID_NEGATIVE_DEVELOPMENTAL_IR_V5_BLIND_LANGUAGE_GENESIS',
+          }
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['costs'],indent=2,sort_keys=True))
+          print(json.dumps(p['learning'],indent=2,sort_keys=True))
+          print(json.dumps(p['controls'],indent=2,sort_keys=True))
+          print(json.dumps(p['portability'],indent=2,sort_keys=True))
+          print(json.dumps(p['recognized_posthoc_analysis'],indent=2,sort_keys=True))
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/developmental_ir_v5_blind_language_genesis/result.json             results/developmental_ir_v5_blind_language_genesis/summary.json
+          git commit -m 'Record developmental IR V5 blind language genesis result' || exit 0
+          git push origin HEAD:experiment/developmental-ir-v5-blind-language-genesis
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: developmental-ir-v5-blind-language-genesis-evidence
+          path: |
+            results/developmental_ir_v5_blind_language_genesis/result.json
+            results/developmental_ir_v5_blind_language_genesis/summary.json
+            /tmp/developmental-ir-v5-blind-language-genesis.log
+          if-no-files-found: warn
