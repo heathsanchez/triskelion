@@ -1,0 +1,82 @@
+name: Grow Dissolve Cycle V1
+
+on:
+  push:
+    branches:
+      - experiment/grow-dissolve-cycle-v1
+    paths:
+      - 'experiments/grow_dissolve_cycle_v1.py'
+      - 'protocols/GROW_DISSOLVE_CYCLE_V1_PRECOMMIT.md'
+      - '.github/workflows/grow-dissolve-cycle-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/grow-dissolve-cycle-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze
+        run: |
+          git merge-base --is-ancestor 54f060ef1f4d801e0ca10012f31eaaf3046aca72 HEAD
+          test -f protocols/GROW_DISSOLVE_CYCLE_V1_PRECOMMIT.md
+          test -f experiments/grow_dissolve_cycle_v1.py
+
+      - name: Run grow dissolve cycle
+        run: |
+          set -o pipefail
+          python experiments/grow_dissolve_cycle_v1.py | tee /tmp/grow-dissolve-cycle-v1.log
+
+      - name: Validate authoritative result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/grow_dissolve_cycle_v1/result.json').read_text())
+          assert p['protocol']=='GROW_DISSOLVE_CYCLE_V1'
+          assert p['precommit_commit']=='54f060ef1f4d801e0ca10012f31eaaf3046aca72'
+          assert len(p['headline_gates'])==16
+          assert p['verdict'] in {
+            'PASS_GROW_DISSOLVE_CYCLE_V1',
+            'PARTIAL_GROW_DISSOLVE_CYCLE_V1',
+            'VALID_NEGATIVE_GROW_DISSOLVE_CYCLE_V1'
+          }
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          for n,w in p['worlds'].items():
+              print(n, json.dumps({
+                  'final':w['final'],
+                  'injection':w['injection'],
+                  'coarse_lost':w['coarse_unwarranted_control']['lost_consequences'],
+                  'fixedpoint_with_raw_growth':w['properties']['fixedpoint_with_raw_growth'],
+              },sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/grow_dissolve_cycle_v1
+          git commit -m 'Record grow-dissolve cycle V1 result' || exit 0
+          git push origin HEAD:experiment/grow-dissolve-cycle-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: grow-dissolve-cycle-v1-evidence
+          path: |
+            results/grow_dissolve_cycle_v1
+            /tmp/grow-dissolve-cycle-v1.log
+          if-no-files-found: warn
