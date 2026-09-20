@@ -1,0 +1,542 @@
+{
+  "analysis_hash": "1a83849b412eedda5fbe04c66f69adf2fabd5431ecca849bffe667b745e111fc",
+  "boolean_end_equivalent_relations_ground1": [
+    1,
+    2,
+    4,
+    7
+  ],
+  "boolean_relation_closure_counts_ground1": {
+    "0": 4,
+    "1": 16,
+    "10": 3,
+    "11": 6,
+    "12": 3,
+    "13": 6,
+    "14": 4,
+    "15": 3,
+    "2": 16,
+    "3": 6,
+    "4": 16,
+    "5": 6,
+    "6": 8,
+    "7": 16,
+    "8": 4,
+    "9": 4
+  },
+  "claim_boundary": "Exact finite pointed algebras only; no universal, ontological, biological, physical, mathematical, or intelligence-level minimality claim.",
+  "deterministic_replay": true,
+  "headline_gates": {
+    "P10_ground_not_derivable_every_protected_world": true,
+    "P11_boolean_end_accuracy_underdetermined": true,
+    "P12_minimizer_retains_G_D": true,
+    "P13_context_R_E_separate": true,
+    "P14_retained_components_have_witnesses": true,
+    "P15_Z3_reported_separately": true,
+    "P16_claim_classes_explicit": true,
+    "P1_parent_counts_reproduced": true,
+    "P2_deterministic_exact_replay": true,
+    "P3_protected_worlds_grow": true,
+    "P4_ground_needed_every_protected_world": true,
+    "P5_directed_op_needed_every_protected_world": true,
+    "P6_reentry_needed_every_protected_world": true,
+    "P7_fresh_environment_needed_every_protected_world": true,
+    "P8_reverse_orientation_preserves_all_worlds": true,
+    "P9_alternative_reference_rejected_somewhere": true
+  },
+  "interpretation": {
+    "developmental_sufficiency": "Across the frozen protected worlds, G and D are retained as nucleus components; recursive re-entry R and fresh environmental distinction E are separately retained as developmental conditions.",
+    "end_consequence_sufficiency": "Exact final closure constrains the seed but does not uniquely identify the Boolean operator.",
+    "universal_minimality": "NOT CLAIMED. This is an exact finite retrospective-minimality result under the frozen worlds only."
+  },
+  "parent_result_hash": "b68ff7c70c8685f98d671367b1f536dba64664a16d0b64aa555d97091a3c2d1f",
+  "precommit_commit": "89b56be88ce3ab95f57e64caeadf8e324b0024bb",
+  "protocol": "RETROSPECTIVE_NUCLEUS_PURIFICATION_V1",
+  "retrospective_minimizer": {
+    "retained_developmental_conditions": [
+      "R",
+      "E"
+    ],
+    "retained_nucleus": [
+      "G",
+      "D"
+    ],
+    "world_specific_removable": {
+      "B": [],
+      "H3": [],
+      "K3": [],
+      "T3": [],
+      "Z3": [
+        "G"
+      ]
+    }
+  },
+  "verdict": "PASS_RETROSPECTIVE_NUCLEUS_PURIFICATION_V1",
+  "worlds": {
+    "B": {
+      "ablations": {
+        "D": {
+          "count": 3,
+          "hash": "9ee04bd94e02c5f0869aa24b9f22d205fa428ea6aff2a8d21d039c65de362ffc",
+          "lost": 13,
+          "preserves_full": false,
+          "retained_fraction": 0.1875,
+          "witness": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "E": {
+          "count": 4,
+          "hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410",
+          "lost": 12,
+          "preserves_full": false,
+          "retained_fraction": 0.25,
+          "witness": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "G": {
+          "count": 6,
+          "hash": "3a0ebb5584912e370e5ea4c426d47ca2a912f4b5553395a45111adf90f030daa",
+          "lost": 10,
+          "preserves_full": false,
+          "retained_fraction": 0.375,
+          "witness": [
+            0,
+            1,
+            1,
+            0
+          ]
+        },
+        "R": {
+          "count": 8,
+          "hash": "336ebbd90587eb3bd7ed0cd7b62ec2ccecc1f5f4ae684d8651270b7633fffd17",
+          "lost": 8,
+          "preserves_full": false,
+          "retained_fraction": 0.5,
+          "witness": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "full_count": 16,
+      "full_hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e",
+      "ground_derivable_without_ground": false,
+      "grows_beyond_seed": true,
+      "raw_seed_count": 3,
+      "reference_sweep": {
+        "0": {
+          "count": 6,
+          "hash": "3a0ebb5584912e370e5ea4c426d47ca2a912f4b5553395a45111adf90f030daa",
+          "preserves_full": false
+        },
+        "1": {
+          "count": 16,
+          "hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e",
+          "preserves_full": true
+        }
+      },
+      "reverse_hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e",
+      "reverse_preserves_full": true
+    },
+    "H3": {
+      "ablations": {
+        "D": {
+          "count": 3,
+          "hash": "642a6f4c58ca9f00693fb71cc2f68c53648e200e3e44e1541ed0fd39d9961d0f",
+          "lost": 19,
+          "preserves_full": false,
+          "retained_fraction": 0.13636363636363635,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "E": {
+          "count": 5,
+          "hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43",
+          "lost": 17,
+          "preserves_full": false,
+          "retained_fraction": 0.22727272727272727,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            0,
+            2,
+            2
+          ]
+        },
+        "G": {
+          "count": 7,
+          "hash": "865e7bd28d010e71d40993af58500d5f064158423f71acef32ffe4153ed08a9c",
+          "lost": 15,
+          "preserves_full": false,
+          "retained_fraction": 0.3181818181818182,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            2,
+            2,
+            0,
+            2,
+            2
+          ]
+        },
+        "R": {
+          "count": 8,
+          "hash": "8b837c8ee46ef00ff033dc8b6f08493a952a69baa995fa55dd683d629fc3cca3",
+          "lost": 14,
+          "preserves_full": false,
+          "retained_fraction": 0.36363636363636365,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            0,
+            2,
+            2
+          ]
+        }
+      },
+      "full_count": 22,
+      "full_hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b",
+      "ground_derivable_without_ground": false,
+      "grows_beyond_seed": true,
+      "raw_seed_count": 3,
+      "reference_sweep": {
+        "0": {
+          "count": 7,
+          "hash": "865e7bd28d010e71d40993af58500d5f064158423f71acef32ffe4153ed08a9c",
+          "preserves_full": false
+        },
+        "1": {
+          "count": 22,
+          "hash": "77530b70987165b225e14442b4058e0856a524161b01332f0342b4ea666c60d8",
+          "preserves_full": false
+        },
+        "2": {
+          "count": 22,
+          "hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b",
+          "preserves_full": true
+        }
+      },
+      "reverse_hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b",
+      "reverse_preserves_full": true
+    },
+    "K3": {
+      "ablations": {
+        "D": {
+          "count": 3,
+          "hash": "642a6f4c58ca9f00693fb71cc2f68c53648e200e3e44e1541ed0fd39d9961d0f",
+          "lost": 81,
+          "preserves_full": false,
+          "retained_fraction": 0.03571428571428571,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "E": {
+          "count": 6,
+          "hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c",
+          "lost": 78,
+          "preserves_full": false,
+          "retained_fraction": 0.07142857142857142,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "G": {
+          "count": 18,
+          "hash": "7e7f04108b7532d86a6243fe6ba1d8945bb9a35b706f20eeab4091bba4db79cd",
+          "lost": 66,
+          "preserves_full": false,
+          "retained_fraction": 0.21428571428571427,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "R": {
+          "count": 10,
+          "hash": "b568510a40448586a37d00941b860fbdef6b049d7c44b5097d9d2e628a4da59a",
+          "lost": 74,
+          "preserves_full": false,
+          "retained_fraction": 0.11904761904761904,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "full_count": 84,
+      "full_hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec",
+      "ground_derivable_without_ground": false,
+      "grows_beyond_seed": true,
+      "raw_seed_count": 3,
+      "reference_sweep": {
+        "0": {
+          "count": 19,
+          "hash": "21c32b9c1f0acc4170866277141588e5fe4dca3973bb34c707737c6a6e78a4e0",
+          "preserves_full": false
+        },
+        "1": {
+          "count": 43,
+          "hash": "8388230dd1775d401d5a58ea6dfe4e0ea01cdd874b1079b2ee0ce10b36915ed1",
+          "preserves_full": false
+        },
+        "2": {
+          "count": 84,
+          "hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec",
+          "preserves_full": true
+        }
+      },
+      "reverse_hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec",
+      "reverse_preserves_full": true
+    },
+    "T3": {
+      "ablations": {
+        "D": {
+          "count": 3,
+          "hash": "642a6f4c58ca9f00693fb71cc2f68c53648e200e3e44e1541ed0fd39d9961d0f",
+          "lost": 3885,
+          "preserves_full": false,
+          "retained_fraction": 0.0007716049382716049,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "E": {
+          "count": 12,
+          "hash": "9617708093fc092e762d752d7596980e825ded6869f4e4ef2f3085062a605366",
+          "lost": 3876,
+          "preserves_full": false,
+          "retained_fraction": 0.0030864197530864196,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2
+          ]
+        },
+        "G": {
+          "count": 40,
+          "hash": "a86064dc49b4b063ddd9e9464c583a381e4ab2a9f110d64e47d6ede08d2a471e",
+          "lost": 3848,
+          "preserves_full": false,
+          "retained_fraction": 0.0102880658436214,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2
+          ]
+        },
+        "R": {
+          "count": 8,
+          "hash": "fa6653fbf952c0c917e8c6a60d8d70978ca013f2038ef271b8080baee5a8fe35",
+          "lost": 3880,
+          "preserves_full": false,
+          "retained_fraction": 0.00205761316872428,
+          "witness": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2
+          ]
+        }
+      },
+      "full_count": 3888,
+      "full_hash": "45de03f3bfdb82f6680a0b81546f8414671d723a11c5221d2dfe58871975492d",
+      "ground_derivable_without_ground": false,
+      "grows_beyond_seed": true,
+      "raw_seed_count": 3,
+      "reference_sweep": {
+        "0": {
+          "count": 40,
+          "hash": "a86064dc49b4b063ddd9e9464c583a381e4ab2a9f110d64e47d6ede08d2a471e",
+          "preserves_full": false
+        },
+        "1": {
+          "count": 808,
+          "hash": "f3bd0d1ff937d4ac5c439c34020a50fbed32715f2d9344cca02718ac6a053051",
+          "preserves_full": false
+        },
+        "2": {
+          "count": 3888,
+          "hash": "45de03f3bfdb82f6680a0b81546f8414671d723a11c5221d2dfe58871975492d",
+          "preserves_full": true
+        }
+      },
+      "reverse_hash": "45de03f3bfdb82f6680a0b81546f8414671d723a11c5221d2dfe58871975492d",
+      "reverse_preserves_full": true
+    },
+    "Z3": {
+      "ablations": {
+        "D": {
+          "count": 3,
+          "hash": "53224a92fe9557c5edaad50cc533b4c5fc803dcd5e9c82979a830dc6c7b3061a",
+          "lost": 6,
+          "preserves_full": false,
+          "retained_fraction": 0.3333333333333333,
+          "witness": [
+            0,
+            0,
+            0,
+            2,
+            2,
+            2,
+            1,
+            1,
+            1
+          ]
+        },
+        "E": {
+          "count": 3,
+          "hash": "ee73af69ecc1a503adfec1f176ab6055bb2e73771511101cd101733acb0884da",
+          "lost": 6,
+          "preserves_full": false,
+          "retained_fraction": 0.3333333333333333,
+          "witness": [
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2
+          ]
+        },
+        "G": {
+          "count": 9,
+          "hash": "4e657492041b94fb8aa9edb39a6ea7ce262ffb938f6c7f5f0f21420fab7f1a05",
+          "lost": 0,
+          "preserves_full": true,
+          "retained_fraction": 1.0,
+          "witness": null
+        },
+        "R": {
+          "count": 7,
+          "hash": "3e66090f7e16862ce15af595c594595e5a824b18c393f0ed043922a9d35f678e",
+          "lost": 2,
+          "preserves_full": false,
+          "retained_fraction": 0.7777777777777778,
+          "witness": [
+            0,
+            1,
+            2,
+            1,
+            2,
+            0,
+            2,
+            0,
+            1
+          ]
+        }
+      },
+      "full_count": 9,
+      "full_hash": "4e657492041b94fb8aa9edb39a6ea7ce262ffb938f6c7f5f0f21420fab7f1a05",
+      "ground_derivable_without_ground": true,
+      "grows_beyond_seed": true,
+      "raw_seed_count": 3,
+      "reference_sweep": {
+        "0": {
+          "count": 9,
+          "hash": "4e657492041b94fb8aa9edb39a6ea7ce262ffb938f6c7f5f0f21420fab7f1a05",
+          "preserves_full": true
+        },
+        "1": {
+          "count": 27,
+          "hash": "e4e7f66e3bda97ca8e844f12bedb04547c119f3339e9aa18c0d981cfb3ff3a48",
+          "preserves_full": false
+        },
+        "2": {
+          "count": 27,
+          "hash": "e4e7f66e3bda97ca8e844f12bedb04547c119f3339e9aa18c0d981cfb3ff3a48",
+          "preserves_full": false
+        }
+      },
+      "reverse_hash": "4e657492041b94fb8aa9edb39a6ea7ce262ffb938f6c7f5f0f21420fab7f1a05",
+      "reverse_preserves_full": true
+    }
+  }
+}
