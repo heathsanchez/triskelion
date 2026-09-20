@@ -1,0 +1,364 @@
+{
+  "all_transported_reference_dependent": true,
+  "boolean_representation_invariance": {
+    "count": 256,
+    "hash": "be66c2867e103fa00c88539675e5cd95f52ec5e38d9038e6d3710539f6c0aec1",
+    "ok": true
+  },
+  "claim_boundary": "Exact finite pointed algebras only. Transport means the frozen finite generativity signature, not universal substrate independence.",
+  "comparisons": {
+    "H3": {
+      "comparison": "outperform",
+      "directed_count": 22,
+      "operations_extensionally_different": true,
+      "symmetric_count": 4
+    },
+    "K3": {
+      "comparison": "outperform",
+      "directed_count": 84,
+      "operations_extensionally_different": true,
+      "symmetric_count": 4
+    },
+    "T3": {
+      "comparison": "outperform",
+      "directed_count": 3888,
+      "operations_extensionally_different": true,
+      "symmetric_count": 84
+    },
+    "Z3": {
+      "comparison": "tie",
+      "directed_count": 9,
+      "operations_extensionally_different": true,
+      "symmetric_count": 9
+    }
+  },
+  "controls": {
+    "H3": {
+      "1": {
+        "count": 2,
+        "hash": "c7bc2213ec4084b23a9caec45a6499738768c6a48fbcf97b47312c20a22aa596",
+        "total": 27
+      },
+      "2": {
+        "count": 4,
+        "hash": "166ef69a4cbaddc6714efd65dd2ab7ffb14181e12c8593425386078179927b66",
+        "total": 19683
+      },
+      "control_name": "meet"
+    },
+    "K3": {
+      "1": {
+        "count": 2,
+        "hash": "c7bc2213ec4084b23a9caec45a6499738768c6a48fbcf97b47312c20a22aa596",
+        "total": 27
+      },
+      "2": {
+        "count": 4,
+        "hash": "166ef69a4cbaddc6714efd65dd2ab7ffb14181e12c8593425386078179927b66",
+        "total": 19683
+      },
+      "control_name": "meet"
+    },
+    "T3": {
+      "1": {
+        "count": 6,
+        "hash": "975cf677fd775a47036ee5aae27710fa505f36f3612be711713b253d61658ddc",
+        "total": 27
+      },
+      "2": {
+        "count": 84,
+        "hash": "b6610ca90893574953814a0302c61ba480ca2c53a96b25344ca5de24c1ae82be",
+        "total": 19683
+      },
+      "control_name": "absolute_difference"
+    },
+    "Z3": {
+      "1": {
+        "count": 3,
+        "hash": "fdd479290894d1e50d3b853e3ead1aa7ca718d7fc90ecbd1c33ffa8a77c137c1",
+        "total": 27
+      },
+      "2": {
+        "count": 9,
+        "hash": "4e657492041b94fb8aa9edb39a6ea7ce262ffb938f6c7f5f0f21420fab7f1a05",
+        "total": 19683
+      },
+      "control_name": "cyclic_sum"
+    }
+  },
+  "directed": {
+    "B": {
+      "1": {
+        "all_constants": true,
+        "constants": {
+          "0": true,
+          "1": true
+        },
+        "count": 4,
+        "fraction": 1.0,
+        "hash": "8256e50dea4d27227d210c2c654309264e7d8adec5ba58eb1a211d412b8b0651",
+        "max_derivation_depth": 1,
+        "no_ground_all_constants": false,
+        "no_ground_count": 2,
+        "reference_delta": 2,
+        "total": 4
+      },
+      "2": {
+        "all_constants": true,
+        "constants": {
+          "0": true,
+          "1": true
+        },
+        "count": 16,
+        "fraction": 1.0,
+        "hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e",
+        "max_derivation_depth": 4,
+        "no_ground_all_constants": false,
+        "no_ground_count": 6,
+        "reference_delta": 10,
+        "total": 16
+      },
+      "3": {
+        "all_constants": true,
+        "constants": {
+          "0": true,
+          "1": true
+        },
+        "count": 256,
+        "fraction": 1.0,
+        "hash": "1c0735cd1b14390741c67d438990e66e512532ca38325c026b4a17c4e819f835",
+        "max_derivation_depth": 8,
+        "no_ground_all_constants": false,
+        "no_ground_count": 38,
+        "reference_delta": 218,
+        "total": 256
+      },
+      "fresh_difference": {
+        "binary_count": 16,
+        "embedded_unary_count": 4,
+        "new_binary_consequences": 12,
+        "reopens": true
+      }
+    },
+    "H3": {
+      "1": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": true
+        },
+        "count": 5,
+        "fraction": 0.18518518518518517,
+        "hash": "a6f075fc986df6ee6ac439711fd8f456f15ac48923708ffbc4b439cffdab4358",
+        "max_derivation_depth": 2,
+        "no_ground_all_constants": false,
+        "no_ground_count": 2,
+        "reference_delta": 3,
+        "total": 27
+      },
+      "2": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": true
+        },
+        "count": 22,
+        "fraction": 0.0011177157953563988,
+        "hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b",
+        "max_derivation_depth": 4,
+        "no_ground_all_constants": false,
+        "no_ground_count": 7,
+        "reference_delta": 15,
+        "total": 19683
+      },
+      "fresh_difference": {
+        "binary_count": 22,
+        "embedded_unary_count": 5,
+        "new_binary_consequences": 17,
+        "reopens": true
+      }
+    },
+    "K3": {
+      "1": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": true
+        },
+        "count": 6,
+        "fraction": 0.2222222222222222,
+        "hash": "ef797b895a9925260eff16243f685ec1fc7a528866a7a065392517776ffd48bb",
+        "max_derivation_depth": 2,
+        "no_ground_all_constants": false,
+        "no_ground_count": 2,
+        "reference_delta": 4,
+        "total": 27
+      },
+      "2": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": true
+        },
+        "count": 84,
+        "fraction": 0.004267642127724432,
+        "hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec",
+        "max_derivation_depth": 5,
+        "no_ground_all_constants": false,
+        "no_ground_count": 18,
+        "reference_delta": 66,
+        "total": 19683
+      },
+      "fresh_difference": {
+        "binary_count": 84,
+        "embedded_unary_count": 6,
+        "new_binary_consequences": 78,
+        "reopens": true
+      }
+    },
+    "T3": {
+      "1": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": true
+        },
+        "count": 12,
+        "fraction": 0.4444444444444444,
+        "hash": "4280cc4a4524d9626a4c3f2cdcfa97d3ab3b7e48b6ed8d20f26b0ddb90360609",
+        "max_derivation_depth": 5,
+        "no_ground_all_constants": false,
+        "no_ground_count": 2,
+        "reference_delta": 10,
+        "total": 27
+      },
+      "2": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": true
+        },
+        "count": 3888,
+        "fraction": 0.19753086419753085,
+        "hash": "45de03f3bfdb82f6680a0b81546f8414671d723a11c5221d2dfe58871975492d",
+        "max_derivation_depth": 12,
+        "no_ground_all_constants": false,
+        "no_ground_count": 40,
+        "reference_delta": 3848,
+        "total": 19683
+      },
+      "fresh_difference": {
+        "binary_count": 3888,
+        "embedded_unary_count": 12,
+        "new_binary_consequences": 3876,
+        "reopens": true
+      }
+    },
+    "Z3": {
+      "1": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": false
+        },
+        "count": 3,
+        "fraction": 0.1111111111111111,
+        "hash": "fdd479290894d1e50d3b853e3ead1aa7ca718d7fc90ecbd1c33ffa8a77c137c1",
+        "max_derivation_depth": 1,
+        "no_ground_all_constants": false,
+        "no_ground_count": 3,
+        "reference_delta": 0,
+        "total": 27
+      },
+      "2": {
+        "all_constants": false,
+        "constants": {
+          "0": true,
+          "1": false,
+          "2": false
+        },
+        "count": 9,
+        "fraction": 0.0004572473708276177,
+        "hash": "4e657492041b94fb8aa9edb39a6ea7ce262ffb938f6c7f5f0f21420fab7f1a05",
+        "max_derivation_depth": 2,
+        "no_ground_all_constants": false,
+        "no_ground_count": 9,
+        "reference_delta": 0,
+        "total": 19683
+      },
+      "fresh_difference": {
+        "binary_count": 9,
+        "embedded_unary_count": 3,
+        "new_binary_consequences": 6,
+        "reopens": true
+      }
+    }
+  },
+  "headline_gates": {
+    "T10_nonboolean_transport_exists": true,
+    "T1_all_worlds_controls_exact": true,
+    "T2_boolean_n3_exact": true,
+    "T3_deterministic_replay": true,
+    "T4_boolean_representation_invariance": true,
+    "T5_boolean_complete_n123": true,
+    "T6_counts_within_totals": true,
+    "T7_fresh_difference_reported": true,
+    "T8_reference_delta_reported": true,
+    "T9_directed_symmetric_comparison_reported": true
+  },
+  "precommit_commit": "fdf4ebd18dc7e2195ead3d247b1125491c874bc6",
+  "protocol": "NUCLEUS_TRANSPORT_V1",
+  "required_reports": {
+    "T11_transported_worlds": [
+      "H3",
+      "K3",
+      "T3"
+    ],
+    "T12_all_transported_reference_dependent": true,
+    "T13_transported_deriving_all_constants_without_ground": [],
+    "T14_directed_vs_symmetric": {
+      "H3": {
+        "comparison": "outperform",
+        "directed_count": 22,
+        "operations_extensionally_different": true,
+        "symmetric_count": 4
+      },
+      "K3": {
+        "comparison": "outperform",
+        "directed_count": 84,
+        "operations_extensionally_different": true,
+        "symmetric_count": 4
+      },
+      "T3": {
+        "comparison": "outperform",
+        "directed_count": 3888,
+        "operations_extensionally_different": true,
+        "symmetric_count": 84
+      },
+      "Z3": {
+        "comparison": "tie",
+        "directed_count": 9,
+        "operations_extensionally_different": true,
+        "symmetric_count": 9
+      }
+    },
+    "T15_name_blind_policy": true,
+    "T16_support_classification": "broader_reference_plus_directed_difference"
+  },
+  "result_hash": "b68ff7c70c8685f98d671367b1f536dba64664a16d0b64aa555d97091a3c2d1f",
+  "support_classification": "broader_reference_plus_directed_difference",
+  "transported_deriving_all_constants_without_ground": [],
+  "transported_worlds": [
+    "H3",
+    "K3",
+    "T3"
+  ],
+  "verdict": "PASS_NUCLEUS_TRANSPORT_V1"
+}
