@@ -1,0 +1,104 @@
+{
+  "costs": {
+    "cold": 4619047192,
+    "genealogy_execution": 4619060304,
+    "heldout": 554425,
+    "heldout_cold": 191047198,
+    "no_form_opt": 4619060304,
+    "no_reentry": 98124,
+    "optimized_pre_rev": 6044261
+  },
+  "headline_gates": {
+    "CWF10_recombinant_depth16": true,
+    "CWF11_no_reentry_depth_le2": true,
+    "CWF12_opt_lt50pct_genealogy": true,
+    "CWF13_opt_lt60pct_noform": true,
+    "CWF14_opt_lt70pct_noreentry": false,
+    "CWF15_opt_lt35pct_cold": true,
+    "CWF16_deep_form_median_not_higher": false,
+    "CWF17_25_deep_compressed": true,
+    "CWF18_remove_raises": true,
+    "CWF19_restore_exact": true,
+    "CWF1_zero_wrong": true,
+    "CWF20_revocation_cone100": true,
+    "CWF21_all_desc_removed": true,
+    "CWF22_outside99_preserved": true,
+    "CWF23_noancestry_separator": true,
+    "CWF24_postrev_depth16": true,
+    "CWF25_recovery90pct": true,
+    "CWF26_heldout_hit90": true,
+    "CWF27_heldout_lt40pct_cold": true,
+    "CWF28_random_mate_fewer": true,
+    "CWF29_no_duplicate_consequences": true,
+    "CWF2_all_consequences_verified": true,
+    "CWF30_deterministic_replay": true,
+    "CWF3_all_forms_verified": true,
+    "CWF4_form_does_not_change_whakapapa": true,
+    "CWF5_500_children": true,
+    "CWF6_depth32": true,
+    "CWF7_depth64": false,
+    "CWF8_100_disjoint_recombinants": true,
+    "CWF9_50_recombinants_later_parents": true
+  },
+  "knockouts": [
+    {
+      "ancestor": 553,
+      "cone": 1988,
+      "depth": 4,
+      "full": 459200,
+      "raised": true,
+      "removed": 232118300,
+      "restored": 459200,
+      "restored_exact": true
+    },
+    {
+      "ancestor": 553,
+      "cone": 1988,
+      "depth": 8,
+      "full": 459200,
+      "raised": true,
+      "removed": 232118300,
+      "restored": 459200,
+      "restored_exact": true
+    },
+    {
+      "ancestor": 553,
+      "cone": 1988,
+      "depth": 16,
+      "full": 459200,
+      "raised": true,
+      "removed": 232118300,
+      "restored": 459200,
+      "restored_exact": true
+    },
+    {
+      "ancestor": 553,
+      "cone": 1988,
+      "depth": 32,
+      "full": 459200,
+      "raised": true,
+      "removed": 232118300,
+      "restored": 459200,
+      "restored_exact": true
+    }
+  ],
+  "metrics": {
+    "children": 8356,
+    "deep_compressed": 7731,
+    "form_optimizations": 8376,
+    "max_depth": 51,
+    "post_hit": 0.8553763440860215,
+    "postrev_depth": 40,
+    "pre_hit": 0.8894142769981697,
+    "recombinants": 638,
+    "recombinants_later_parents": 622,
+    "recovery_ratio": 0.9617299454343948
+  },
+  "revocation": {
+    "cone": 6516,
+    "depth": 1,
+    "outside_preserved": 1.0,
+    "target": 13
+  },
+  "verdict": "PARTIAL_CONSEQUENCE_WHAKAPAPA_FORM_V1"
+}
