@@ -1,0 +1,1288 @@
+{
+  "aggregate_hash_forward": "a79aaeebacaf94afdfb9b93d680543cd0d3cef86681910f33a986af70575e1b7",
+  "aggregate_hash_reverse": "e3333b93e0aec545058f420186dde3f982c222f5bf26f444dc58bec7aa14bce8",
+  "audit": {
+    "first_mismatch": {
+      "d0": null,
+      "d1": null,
+      "d2": null,
+      "d3": null,
+      "mutation_complete": null,
+      "mutation_generative": null,
+      "mutation_ref_independent": null,
+      "recombinant3": null,
+      "recur_cycle_max": null,
+      "recur_cycle_sum": null,
+      "recur_distinct_max": null,
+      "recur_distinct_sum": null
+    },
+    "mismatch_counts": {
+      "d0": 0,
+      "d1": 0,
+      "d2": 0,
+      "d3": 0,
+      "mutation_complete": 0,
+      "mutation_generative": 0,
+      "mutation_ref_independent": 0,
+      "recombinant3": 0,
+      "recur_cycle_max": 0,
+      "recur_cycle_sum": 0,
+      "recur_distinct_max": 0,
+      "recur_distinct_sum": 0
+    },
+    "mutation_all18_resolved": true,
+    "mutation_label_dependency": "Completeness/generativity/reference-independence labels are independently re-enumerated over mutations but looked up from the authoritative pointed census, per precommit.",
+    "raw_weight": 59049,
+    "representatives": 5130,
+    "total_mismatches": 0
+  },
+  "claim_boundary": "Exact finite audit for the frozen 3-element census. Final closure cardinalities and mutant labels depend on the authoritative pointed census; developmental depth/recurrence fields are independently recomputed from operation tables.",
+  "family_analysis": {
+    "F1_final_semantic_reach": {
+      "fields": [
+        "binary",
+        "no_ground"
+      ],
+      "minimal_sufficient_views": [
+        "V4_generator_incidence_marked"
+      ],
+      "sufficient_views": [
+        "V4_generator_incidence_marked",
+        "V5_fully_marked_elementary_incidence"
+      ],
+      "views": {
+        "V0_fully_anonymous": {
+          "collision_classes": 219,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "no_ground": [
+                18,
+                130
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 193,
+          "sufficient": false
+        },
+        "V1_ground_source_marked": {
+          "collision_classes": 39,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "no_ground": [
+                6,
+                11
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 35,
+          "sufficient": false
+        },
+        "V2_side_marked": {
+          "collision_classes": 188,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "no_ground": [
+                18,
+                130
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 159,
+          "sufficient": false
+        },
+        "V3_ground_source_x_side_marked": {
+          "collision_classes": 26,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "no_ground": [
+                6,
+                11
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 23,
+          "sufficient": false
+        },
+        "V4_generator_incidence_marked": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        },
+        "V5_fully_marked_elementary_incidence": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        }
+      }
+    },
+    "F2_bounded_derivational_geometry": {
+      "fields": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "recombinant3"
+      ],
+      "minimal_sufficient_views": [
+        "V4_generator_incidence_marked"
+      ],
+      "sufficient_views": [
+        "V4_generator_incidence_marked",
+        "V5_fully_marked_elementary_incidence"
+      ],
+      "views": {
+        "V0_fully_anonymous": {
+          "collision_classes": 219,
+          "first_counterexample": {
+            "differences": {
+              "d1": [
+                6,
+                9
+              ],
+              "d2": [
+                11,
+                32
+              ],
+              "d3": [
+                18,
+                158
+              ],
+              "recombinant3": [
+                13,
+                142
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 219,
+          "sufficient": false
+        },
+        "V1_ground_source_marked": {
+          "collision_classes": 39,
+          "first_counterexample": {
+            "differences": {
+              "d1": [
+                4,
+                6
+              ],
+              "d2": [
+                6,
+                12
+              ],
+              "d3": [
+                6,
+                12
+              ],
+              "recombinant3": [
+                3,
+                5
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 39,
+          "sufficient": false
+        },
+        "V2_side_marked": {
+          "collision_classes": 188,
+          "first_counterexample": {
+            "differences": {
+              "d1": [
+                6,
+                9
+              ],
+              "d2": [
+                11,
+                32
+              ],
+              "d3": [
+                18,
+                158
+              ],
+              "recombinant3": [
+                13,
+                142
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 188,
+          "sufficient": false
+        },
+        "V3_ground_source_x_side_marked": {
+          "collision_classes": 26,
+          "first_counterexample": {
+            "differences": {
+              "d1": [
+                4,
+                6
+              ],
+              "d2": [
+                6,
+                12
+              ],
+              "d3": [
+                6,
+                12
+              ],
+              "recombinant3": [
+                3,
+                5
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 26,
+          "sufficient": false
+        },
+        "V4_generator_incidence_marked": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        },
+        "V5_fully_marked_elementary_incidence": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        }
+      }
+    },
+    "F3_recurrence_dynamics": {
+      "fields": [
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max"
+      ],
+      "minimal_sufficient_views": [
+        "V4_generator_incidence_marked"
+      ],
+      "sufficient_views": [
+        "V4_generator_incidence_marked",
+        "V5_fully_marked_elementary_incidence"
+      ],
+      "views": {
+        "V0_fully_anonymous": {
+          "collision_classes": 219,
+          "first_counterexample": {
+            "differences": {
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 212,
+          "sufficient": false
+        },
+        "V1_ground_source_marked": {
+          "collision_classes": 39,
+          "first_counterexample": {
+            "differences": {
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 34,
+          "sufficient": false
+        },
+        "V2_side_marked": {
+          "collision_classes": 188,
+          "first_counterexample": {
+            "differences": {
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 181,
+          "sufficient": false
+        },
+        "V3_ground_source_x_side_marked": {
+          "collision_classes": 26,
+          "first_counterexample": {
+            "differences": {
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 21,
+          "sufficient": false
+        },
+        "V4_generator_incidence_marked": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        },
+        "V5_fully_marked_elementary_incidence": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        }
+      }
+    },
+    "F4_mutation_neighborhood": {
+      "fields": [
+        "mutation_complete",
+        "mutation_generative",
+        "mutation_ref_independent"
+      ],
+      "minimal_sufficient_views": [
+        "V4_generator_incidence_marked"
+      ],
+      "sufficient_views": [
+        "V4_generator_incidence_marked",
+        "V5_fully_marked_elementary_incidence"
+      ],
+      "views": {
+        "V0_fully_anonymous": {
+          "collision_classes": 219,
+          "first_counterexample": {
+            "differences": {
+              "mutation_complete": [
+                0,
+                3
+              ],
+              "mutation_generative": [
+                2,
+                17
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 207,
+          "sufficient": false
+        },
+        "V1_ground_source_marked": {
+          "collision_classes": 39,
+          "first_counterexample": {
+            "differences": {
+              "mutation_complete": [
+                0,
+                1
+              ],
+              "mutation_generative": [
+                2,
+                16
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 36,
+          "sufficient": false
+        },
+        "V2_side_marked": {
+          "collision_classes": 188,
+          "first_counterexample": {
+            "differences": {
+              "mutation_complete": [
+                0,
+                3
+              ],
+              "mutation_generative": [
+                2,
+                17
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 175,
+          "sufficient": false
+        },
+        "V3_ground_source_x_side_marked": {
+          "collision_classes": 26,
+          "first_counterexample": {
+            "differences": {
+              "mutation_complete": [
+                0,
+                1
+              ],
+              "mutation_generative": [
+                2,
+                16
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 23,
+          "sufficient": false
+        },
+        "V4_generator_incidence_marked": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        },
+        "V5_fully_marked_elementary_incidence": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        }
+      }
+    },
+    "F5_operational_without_presentation_neighborhood": {
+      "fields": [
+        "binary",
+        "no_ground",
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max"
+      ],
+      "minimal_sufficient_views": [
+        "V4_generator_incidence_marked"
+      ],
+      "sufficient_views": [
+        "V4_generator_incidence_marked",
+        "V5_fully_marked_elementary_incidence"
+      ],
+      "views": {
+        "V0_fully_anonymous": {
+          "collision_classes": 219,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "no_ground": [
+                18,
+                130
+              ],
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 215,
+          "sufficient": false
+        },
+        "V1_ground_source_marked": {
+          "collision_classes": 39,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "no_ground": [
+                6,
+                11
+              ],
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 36,
+          "sufficient": false
+        },
+        "V2_side_marked": {
+          "collision_classes": 188,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "no_ground": [
+                18,
+                130
+              ],
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 184,
+          "sufficient": false
+        },
+        "V3_ground_source_x_side_marked": {
+          "collision_classes": 26,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "no_ground": [
+                6,
+                11
+              ],
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 23,
+          "sufficient": false
+        },
+        "V4_generator_incidence_marked": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        },
+        "V5_fully_marked_elementary_incidence": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        }
+      }
+    },
+    "F6_intrinsic_current_run_bundle": {
+      "fields": [
+        "binary",
+        "no_ground",
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "recombinant3",
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max"
+      ],
+      "minimal_sufficient_views": [
+        "V4_generator_incidence_marked"
+      ],
+      "sufficient_views": [
+        "V4_generator_incidence_marked",
+        "V5_fully_marked_elementary_incidence"
+      ],
+      "views": {
+        "V0_fully_anonymous": {
+          "collision_classes": 219,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "d1": [
+                6,
+                9
+              ],
+              "d2": [
+                11,
+                32
+              ],
+              "d3": [
+                18,
+                158
+              ],
+              "no_ground": [
+                18,
+                130
+              ],
+              "recombinant3": [
+                13,
+                142
+              ],
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 219,
+          "sufficient": false
+        },
+        "V1_ground_source_marked": {
+          "collision_classes": 39,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "d1": [
+                4,
+                6
+              ],
+              "d2": [
+                6,
+                12
+              ],
+              "d3": [
+                6,
+                12
+              ],
+              "no_ground": [
+                6,
+                11
+              ],
+              "recombinant3": [
+                3,
+                5
+              ],
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 39,
+          "sufficient": false
+        },
+        "V2_side_marked": {
+          "collision_classes": 188,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "d1": [
+                6,
+                9
+              ],
+              "d2": [
+                11,
+                32
+              ],
+              "d3": [
+                18,
+                158
+              ],
+              "no_ground": [
+                18,
+                130
+              ],
+              "recombinant3": [
+                13,
+                142
+              ],
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 188,
+          "sufficient": false
+        },
+        "V3_ground_source_x_side_marked": {
+          "collision_classes": 26,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "d1": [
+                4,
+                6
+              ],
+              "d2": [
+                6,
+                12
+              ],
+              "d3": [
+                6,
+                12
+              ],
+              "no_ground": [
+                6,
+                11
+              ],
+              "recombinant3": [
+                3,
+                5
+              ],
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 26,
+          "sufficient": false
+        },
+        "V4_generator_incidence_marked": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        },
+        "V5_fully_marked_elementary_incidence": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        }
+      }
+    },
+    "F7_full_primary_measurements": {
+      "fields": [
+        "binary",
+        "no_ground",
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "recombinant3",
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max",
+        "mutation_complete",
+        "mutation_generative",
+        "mutation_ref_independent"
+      ],
+      "minimal_sufficient_views": [
+        "V4_generator_incidence_marked"
+      ],
+      "sufficient_views": [
+        "V4_generator_incidence_marked",
+        "V5_fully_marked_elementary_incidence"
+      ],
+      "views": {
+        "V0_fully_anonymous": {
+          "collision_classes": 219,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "d1": [
+                6,
+                9
+              ],
+              "d2": [
+                11,
+                32
+              ],
+              "d3": [
+                18,
+                158
+              ],
+              "mutation_complete": [
+                0,
+                3
+              ],
+              "mutation_generative": [
+                2,
+                17
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ],
+              "no_ground": [
+                18,
+                130
+              ],
+              "recombinant3": [
+                13,
+                142
+              ],
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 219,
+          "sufficient": false
+        },
+        "V1_ground_source_marked": {
+          "collision_classes": 39,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "d1": [
+                4,
+                6
+              ],
+              "d2": [
+                6,
+                12
+              ],
+              "d3": [
+                6,
+                12
+              ],
+              "mutation_complete": [
+                0,
+                1
+              ],
+              "mutation_generative": [
+                2,
+                16
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ],
+              "no_ground": [
+                6,
+                11
+              ],
+              "recombinant3": [
+                3,
+                5
+              ],
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 39,
+          "sufficient": false
+        },
+        "V2_side_marked": {
+          "collision_classes": 188,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                18,
+                258
+              ],
+              "d1": [
+                6,
+                9
+              ],
+              "d2": [
+                11,
+                32
+              ],
+              "d3": [
+                18,
+                158
+              ],
+              "mutation_complete": [
+                0,
+                3
+              ],
+              "mutation_generative": [
+                2,
+                17
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ],
+              "no_ground": [
+                18,
+                130
+              ],
+              "recombinant3": [
+                13,
+                142
+              ],
+              "recur_cycle_sum": [
+                25,
+                27
+              ],
+              "recur_distinct_sum": [
+                39,
+                41
+              ]
+            },
+            "key_a": 30,
+            "key_b": 82
+          },
+          "heterogeneous_collision_classes": 188,
+          "sufficient": false
+        },
+        "V3_ground_source_x_side_marked": {
+          "collision_classes": 26,
+          "first_counterexample": {
+            "differences": {
+              "binary": [
+                6,
+                12
+              ],
+              "d1": [
+                4,
+                6
+              ],
+              "d2": [
+                6,
+                12
+              ],
+              "d3": [
+                6,
+                12
+              ],
+              "mutation_complete": [
+                0,
+                1
+              ],
+              "mutation_generative": [
+                2,
+                16
+              ],
+              "mutation_ref_independent": [
+                16,
+                2
+              ],
+              "no_ground": [
+                6,
+                11
+              ],
+              "recombinant3": [
+                3,
+                5
+              ],
+              "recur_distinct_max": [
+                5,
+                4
+              ]
+            },
+            "key_a": 2430,
+            "key_b": 6642
+          },
+          "heterogeneous_collision_classes": 26,
+          "sufficient": false
+        },
+        "V4_generator_incidence_marked": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        },
+        "V5_fully_marked_elementary_incidence": {
+          "collision_classes": 0,
+          "first_counterexample": null,
+          "heterogeneous_collision_classes": 0,
+          "sufficient": true
+        }
+      }
+    }
+  },
+  "family_symmetry_status": {
+    "F1_final_semantic_reach": {
+      "all_checked_fields_orbit_invariant": true,
+      "direct_fields_checked": []
+    },
+    "F2_bounded_derivational_geometry": {
+      "all_checked_fields_orbit_invariant": true,
+      "direct_fields_checked": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "recombinant3"
+      ]
+    },
+    "F3_recurrence_dynamics": {
+      "all_checked_fields_orbit_invariant": false,
+      "direct_fields_checked": [
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max"
+      ]
+    },
+    "F4_mutation_neighborhood": {
+      "all_checked_fields_orbit_invariant": true,
+      "direct_fields_checked": []
+    },
+    "F5_operational_without_presentation_neighborhood": {
+      "all_checked_fields_orbit_invariant": false,
+      "direct_fields_checked": [
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max"
+      ]
+    },
+    "F6_intrinsic_current_run_bundle": {
+      "all_checked_fields_orbit_invariant": false,
+      "direct_fields_checked": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "recombinant3",
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max"
+      ]
+    },
+    "F7_full_primary_measurements": {
+      "all_checked_fields_orbit_invariant": false,
+      "direct_fields_checked": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "recombinant3",
+        "recur_distinct_sum",
+        "recur_distinct_max",
+        "recur_cycle_sum",
+        "recur_cycle_max"
+      ]
+    }
+  },
+  "headline_gates": {
+    "SA10_V4_uniqueness_reported_all": true,
+    "SA11_F1_F7_x_V0_V5": true,
+    "SA12_minimal_sets_all_families": true,
+    "SA13_derived_labels_excluded": true,
+    "SA14_counterexamples_for_insufficient": true,
+    "SA15_256_symmetry_audits": true,
+    "SA16_independent_payload_hashes_match": false,
+    "SA1_all_5130_representatives": true,
+    "SA2_weight_sum_59049": true,
+    "SA3_depth_recomputed_all": true,
+    "SA4_R3_recomputed_all": true,
+    "SA5_recurrence_recomputed_all": true,
+    "SA6_all18_mutations_enumerated": true,
+    "SA7_zero_audited_field_mismatches": true,
+    "SA8_V4_reconstruction_all": true,
+    "SA9_V4_contains_source_all": true
+  },
+  "protocol": "STRUCTURAL_AUDIT_PHENOTYPE_SPLIT_V1",
+  "symmetry_audit": {
+    "failures": [],
+    "passed": 256,
+    "total": 256
+  },
+  "symmetry_compatibility": {
+    "all_direct_fields_orbit_invariant": false,
+    "direct_fields": {
+      "d0": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": null,
+        "method": "exact_structural_invariance",
+        "noninvariant_orbits": 0,
+        "raw_weight_in_noninvariant_orbits": 0,
+        "transpose_noninvariant_orbits": 0
+      },
+      "d1": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": null,
+        "method": "exact_structural_invariance",
+        "noninvariant_orbits": 0,
+        "raw_weight_in_noninvariant_orbits": 0,
+        "transpose_noninvariant_orbits": 0
+      },
+      "d2": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": null,
+        "method": "exact_structural_invariance",
+        "noninvariant_orbits": 0,
+        "raw_weight_in_noninvariant_orbits": 0,
+        "transpose_noninvariant_orbits": 0
+      },
+      "d3": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": null,
+        "method": "exact_structural_invariance",
+        "noninvariant_orbits": 0,
+        "raw_weight_in_noninvariant_orbits": 0,
+        "transpose_noninvariant_orbits": 0
+      },
+      "recombinant3": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": null,
+        "method": "exact_structural_invariance",
+        "noninvariant_orbits": 0,
+        "raw_weight_in_noninvariant_orbits": 0,
+        "transpose_noninvariant_orbits": 0
+      },
+      "recur_cycle_max": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": {
+          "canonical_key": 3,
+          "raw_a": 3,
+          "raw_b": 27,
+          "value_a": 1,
+          "value_b": 2
+        },
+        "method": "direct_all_raw_members",
+        "noninvariant_orbits": 3164,
+        "raw_weight_in_noninvariant_orbits": 37776,
+        "transpose_noninvariant_orbits": 3164
+      },
+      "recur_cycle_sum": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": {
+          "canonical_key": 3,
+          "raw_a": 3,
+          "raw_b": 27,
+          "value_a": 9,
+          "value_b": 17
+        },
+        "method": "direct_all_raw_members",
+        "noninvariant_orbits": 3426,
+        "raw_weight_in_noninvariant_orbits": 40902,
+        "transpose_noninvariant_orbits": 3426
+      },
+      "recur_distinct_max": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": {
+          "canonical_key": 4,
+          "raw_a": 4,
+          "raw_b": 28,
+          "value_a": 6,
+          "value_b": 5
+        },
+        "method": "direct_all_raw_members",
+        "noninvariant_orbits": 3543,
+        "raw_weight_in_noninvariant_orbits": 42360,
+        "transpose_noninvariant_orbits": 3543
+      },
+      "recur_distinct_sum": {
+        "carrier_relabel_noninvariant_orbits": 0,
+        "first_counterexample": {
+          "canonical_key": 3,
+          "raw_a": 3,
+          "raw_b": 27,
+          "value_a": 27,
+          "value_b": 31
+        },
+        "method": "direct_all_raw_members",
+        "noninvariant_orbits": 4354,
+        "raw_weight_in_noninvariant_orbits": 52068,
+        "transpose_noninvariant_orbits": 4354
+      }
+    },
+    "raw_members_examined": 59049,
+    "unique_raw_members": 59049
+  },
+  "v4_reconstruction": {
+    "consistent_orientation_distribution": {
+      "1": 369,
+      "2": 4761
+    },
+    "failures": [],
+    "reconstructed_orbit_count_distribution": {
+      "1": 5130
+    },
+    "source_contained_all": true,
+    "unique_all": true
+  },
+  "verdict": "PARTIAL_STRUCTURAL_AUDIT_PHENOTYPE_SPLIT_V1"
+}
