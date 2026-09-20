@@ -1,0 +1,36 @@
+name: Developmental IR V0 Runtime
+
+on:
+  push:
+    branches:
+      - prototype/developmental-ir-v0-transparent-runtime
+    paths:
+      - 'developmental_ir/**'
+      - 'tests/test_developmental_ir_v0_runtime.py'
+      - 'docs/DEVELOPMENTAL_IR_V0_TRANSPARENT_RUNTIME.md'
+      - '.github/workflows/developmental-ir-v0-runtime.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prototype/developmental-ir-v0-transparent-runtime
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run runtime tests
+        run: |
+          PYTHONPATH=. python -m unittest -v tests.test_developmental_ir_v0_runtime
+
+      - name: Export and independently verify V6 learned language pack
+        run: |
+          PYTHONPATH=. python -m developmental_ir.cli export-v6 \
+            --result results/developmental_ir_v6_blind_grammar_expansion/result.json \
+            --out /tmp/v6-language-pack.json
+          PYTHONPATH=. python -m developmental_ir.cli verify-pack /tmp/v6-language-pack.json
