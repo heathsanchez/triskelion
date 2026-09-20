@@ -1,0 +1,305 @@
+{
+  "analysis_hash": "5fa059a8665a89151e271ae4ec2e0aa659d1a9a8acbd3a3989ba6a29286c98b5",
+  "headline_gates": {
+    "GDC10_q_only_no_novelty": true,
+    "GDC11_unwarranted_quotient_loses_somewhere": true,
+    "GDC12_failure_worlds_have_witnesses": true,
+    "GDC13_canonical_depth_never_worse": true,
+    "GDC14_fixedpoint_while_syntax_grows_somewhere": true,
+    "GDC15_semantic_vs_syntactic_explicit": true,
+    "GDC16_claim_boundary_explicit": true,
+    "GDC1_all_worlds_frozen_schedule": true,
+    "GDC2_deterministic_replay": true,
+    "GDC3_exact_support_equal_every_generation": true,
+    "GDC4_quotient_reduces_multiplicity_every_world": true,
+    "GDC5_final_compression_gt10_every_world": true,
+    "GDC6_quotient_candidate_work_lower_every_world": true,
+    "GDC7_quotient_raw_candidate_ratio_lt025": true,
+    "GDC8_environment_reopens_every_world": true,
+    "GDC9_post_injection_exact_support_preserved": true
+  },
+  "interpretation": {
+    "cycle": "The tested question is whether Q_V preserves the future consequence frontier of the full syntactic history while reducing active candidate work.",
+    "downward": "Q_V collapses only extensionally identical consequences to one active representative.",
+    "unwarranted_control": "A coarse non-extensional quotient is intentionally invalid and tests whether generic compression can destroy future reach.",
+    "upward": "U_E creates new syntax and, after environmental injection, new exact consequences."
+  },
+  "verdict": "PASS_GROW_DISSOLVE_CYCLE_V1",
+  "worlds": {
+    "B": {
+      "coarse_unwarranted_control": {
+        "final_classes": 4,
+        "final_support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410",
+        "history": [
+          {
+            "classes": 4,
+            "new_consequences": 2,
+            "round": 1,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          },
+          {
+            "classes": 4,
+            "new_consequences": 0,
+            "round": 2,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          },
+          {
+            "classes": 4,
+            "new_consequences": 0,
+            "round": 3,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          },
+          {
+            "classes": 4,
+            "new_consequences": 0,
+            "round": 4,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 12,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "final": {
+        "classes": 16,
+        "compression_ratio": 8.11209781433766e+50,
+        "cumulative_quotient_candidates": 613,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 4.7228843730514315e-50,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e"
+      },
+      "injection": {
+        "eventual_new_consequences": 12,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": true,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "stage_a": {
+        "classes": 4,
+        "raw_terms": 1806,
+        "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+      }
+    },
+    "H3": {
+      "coarse_unwarranted_control": {
+        "final_classes": 5,
+        "final_support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43",
+        "history": [
+          {
+            "classes": 4,
+            "new_consequences": 2,
+            "round": 1,
+            "support_hash": "b4988c0dc92e3e77aa4695af272b7e1dd28802747d137eeb8b63d908166d8390"
+          },
+          {
+            "classes": 5,
+            "new_consequences": 1,
+            "round": 2,
+            "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+          },
+          {
+            "classes": 5,
+            "new_consequences": 0,
+            "round": 3,
+            "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+          },
+          {
+            "classes": 5,
+            "new_consequences": 0,
+            "round": 4,
+            "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 17,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          2,
+          2
+        ]
+      },
+      "final": {
+        "classes": 22,
+        "compression_ratio": 5.899707501336479e+50,
+        "cumulative_quotient_candidates": 1109,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 8.544337307853242e-50,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b"
+      },
+      "injection": {
+        "eventual_new_consequences": 17,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": true,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "stage_a": {
+        "classes": 5,
+        "raw_terms": 1806,
+        "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+      }
+    },
+    "K3": {
+      "coarse_unwarranted_control": {
+        "final_classes": 6,
+        "final_support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c",
+        "history": [
+          {
+            "classes": 5,
+            "new_consequences": 3,
+            "round": 1,
+            "support_hash": "d16b96cc8c455c68e9f64c570f90645f74b2675ca07a0a8403e667fe3baae78c"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 1,
+            "round": 2,
+            "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 0,
+            "round": 3,
+            "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 0,
+            "round": 4,
+            "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 78,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "final": {
+        "classes": 84,
+        "compression_ratio": 1.5451614884452682e+50,
+        "cumulative_quotient_candidates": 10163,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 7.830126245240081e-49,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec"
+      },
+      "injection": {
+        "eventual_new_consequences": 78,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": true,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "stage_a": {
+        "classes": 6,
+        "raw_terms": 1806,
+        "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+      }
+    },
+    "T3": {
+      "coarse_unwarranted_control": {
+        "final_classes": 11,
+        "final_support_hash": "0ad8786beac2a615e69b2468243436a1258348f2b86d17193b5ac62dc71be5b7",
+        "history": [
+          {
+            "classes": 4,
+            "new_consequences": 2,
+            "round": 1,
+            "support_hash": "425a5851be4440086e9b0be2877bfa535bdf2f446dfb66c856650057ca2a229e"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 2,
+            "round": 2,
+            "support_hash": "452195eaa646024dfa907f8a8b45fe4919dd960fb926da07519e2fe3a05343a3"
+          },
+          {
+            "classes": 9,
+            "new_consequences": 3,
+            "round": 3,
+            "support_hash": "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0"
+          },
+          {
+            "classes": 11,
+            "new_consequences": 2,
+            "round": 4,
+            "support_hash": "0ad8786beac2a615e69b2468243436a1258348f2b86d17193b5ac62dc71be5b7"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 3034,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ]
+      },
+      "final": {
+        "classes": 3045,
+        "compression_ratio": 4.262514450883499e+48,
+        "cumulative_quotient_candidates": 710533,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 5.474331488152288e-47,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "6ab90410d20c5bce597ea1fd44610af554cc806a9d4eb7eae1f0193a7e438ffb"
+      },
+      "injection": {
+        "eventual_new_consequences": 3036,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": false,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "stage_a": {
+        "classes": 9,
+        "raw_terms": 1806,
+        "support_hash": "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0"
+      }
+    }
+  }
+}

@@ -1,0 +1,785 @@
+{
+  "analysis_hash": "5fa059a8665a89151e271ae4ec2e0aa659d1a9a8acbd3a3989ba6a29286c98b5",
+  "claim_boundary": "Exact finite extensional worlds and an abstract ordered-pair candidate-work model only.",
+  "deterministic_replay": true,
+  "headline_gates": {
+    "GDC10_q_only_no_novelty": true,
+    "GDC11_unwarranted_quotient_loses_somewhere": true,
+    "GDC12_failure_worlds_have_witnesses": true,
+    "GDC13_canonical_depth_never_worse": true,
+    "GDC14_fixedpoint_while_syntax_grows_somewhere": true,
+    "GDC15_semantic_vs_syntactic_explicit": true,
+    "GDC16_claim_boundary_explicit": true,
+    "GDC1_all_worlds_frozen_schedule": true,
+    "GDC2_deterministic_replay": true,
+    "GDC3_exact_support_equal_every_generation": true,
+    "GDC4_quotient_reduces_multiplicity_every_world": true,
+    "GDC5_final_compression_gt10_every_world": true,
+    "GDC6_quotient_candidate_work_lower_every_world": true,
+    "GDC7_quotient_raw_candidate_ratio_lt025": true,
+    "GDC8_environment_reopens_every_world": true,
+    "GDC9_post_injection_exact_support_preserved": true
+  },
+  "interpretation": {
+    "cycle": "The tested question is whether Q_V preserves the future consequence frontier of the full syntactic history while reducing active candidate work.",
+    "downward": "Q_V collapses only extensionally identical consequences to one active representative.",
+    "unwarranted_control": "A coarse non-extensional quotient is intentionally invalid and tests whether generic compression can destroy future reach.",
+    "upward": "U_E creates new syntax and, after environmental injection, new exact consequences."
+  },
+  "precommit_commit": "54f060ef1f4d801e0ca10012f31eaaf3046aca72",
+  "protocol": "GROW_DISSOLVE_CYCLE_V1",
+  "verdict": "PASS_GROW_DISSOLVE_CYCLE_V1",
+  "worlds": {
+    "B": {
+      "coarse_unwarranted_control": {
+        "final_classes": 4,
+        "final_support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410",
+        "history": [
+          {
+            "classes": 4,
+            "new_consequences": 2,
+            "round": 1,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          },
+          {
+            "classes": 4,
+            "new_consequences": 0,
+            "round": 2,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          },
+          {
+            "classes": 4,
+            "new_consequences": 0,
+            "round": 3,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          },
+          {
+            "classes": 4,
+            "new_consequences": 0,
+            "round": 4,
+            "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 12,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "final": {
+        "classes": 16,
+        "compression_ratio": 8.11209781433766e+50,
+        "cumulative_quotient_candidates": 613,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 4.7228843730514315e-50,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e"
+      },
+      "history": [
+        {
+          "classes_after": 4,
+          "classes_before": 2,
+          "compression_ratio_after": 1.5,
+          "new_consequences": 2,
+          "quotient_candidates_this_round": 4,
+          "raw_candidates_this_round": 4,
+          "raw_terms_after": 6,
+          "raw_terms_before": 2,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+        },
+        {
+          "classes_after": 4,
+          "classes_before": 4,
+          "compression_ratio_after": 10.5,
+          "new_consequences": 0,
+          "quotient_candidates_this_round": 16,
+          "raw_candidates_this_round": 36,
+          "raw_terms_after": 42,
+          "raw_terms_before": 6,
+          "round": 2,
+          "semantic_fixed_point": true,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+        },
+        {
+          "classes_after": 4,
+          "classes_before": 4,
+          "compression_ratio_after": 451.5,
+          "new_consequences": 0,
+          "quotient_candidates_this_round": 16,
+          "raw_candidates_this_round": 1764,
+          "raw_terms_after": 1806,
+          "raw_terms_before": 42,
+          "round": 3,
+          "semantic_fixed_point": true,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+        },
+        {
+          "classes_after": 10,
+          "classes_before": 5,
+          "compression_ratio_after": 326705.6,
+          "new_consequences": 5,
+          "quotient_candidates_this_round": 25,
+          "raw_candidates_this_round": 3265249,
+          "raw_terms_after": 3267056,
+          "raw_terms_before": 1807,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "78f91bb75354394fbdf6d03803862d72c99d8f3e94443c5a465f753dbf0f36d5"
+        },
+        {
+          "classes_after": 14,
+          "classes_before": 10,
+          "compression_ratio_after": 762404155299.4286,
+          "new_consequences": 4,
+          "quotient_candidates_this_round": 100,
+          "raw_candidates_this_round": 10673654907136,
+          "raw_terms_after": 10673658174192,
+          "raw_terms_before": 3267056,
+          "round": 2,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "e174826a4ad0a2c865058bbca28f306ec33728ec56f06c756cb43c5940239b34"
+        },
+        {
+          "classes_after": 16,
+          "classes_before": 14,
+          "compression_ratio_after": 7.120436176219148e+24,
+          "new_consequences": 2,
+          "quotient_candidates_this_round": 196,
+          "raw_candidates_this_round": 113926978819495699014852864,
+          "raw_terms_after": 113926978819506372673027056,
+          "raw_terms_before": 10673658174192,
+          "round": 3,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e"
+        },
+        {
+          "classes_after": 16,
+          "classes_before": 16,
+          "compression_ratio_after": 8.11209781433766e+50,
+          "new_consequences": 0,
+          "quotient_candidates_this_round": 256,
+          "raw_candidates_this_round": 12979356502940253652350204056335842293767082108027136,
+          "raw_terms_after": 12979356502940253652350204170262821113273454781054192,
+          "raw_terms_before": 113926978819506372673027056,
+          "round": 4,
+          "semantic_fixed_point": true,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "676d9b69c928914f01d8e33f00c68d80e9a885659916803ecd89bba8f595dd2e"
+        }
+      ],
+      "injection": {
+        "eventual_new_consequences": 12,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": true,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "q_only_control": {
+        "hashes": [
+          "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410",
+          "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410",
+          "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+        ],
+        "no_novelty": true
+      },
+      "schedule": {
+        "A": 3,
+        "B": 4
+      },
+      "stage_a": {
+        "classes": 4,
+        "raw_terms": 1806,
+        "support_hash": "7de08b798c5288cd1f26b13520d9c6839b4ea07961248b21dfa8189ecc555410"
+      }
+    },
+    "H3": {
+      "coarse_unwarranted_control": {
+        "final_classes": 5,
+        "final_support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43",
+        "history": [
+          {
+            "classes": 4,
+            "new_consequences": 2,
+            "round": 1,
+            "support_hash": "b4988c0dc92e3e77aa4695af272b7e1dd28802747d137eeb8b63d908166d8390"
+          },
+          {
+            "classes": 5,
+            "new_consequences": 1,
+            "round": 2,
+            "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+          },
+          {
+            "classes": 5,
+            "new_consequences": 0,
+            "round": 3,
+            "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+          },
+          {
+            "classes": 5,
+            "new_consequences": 0,
+            "round": 4,
+            "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 17,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          2,
+          2
+        ]
+      },
+      "final": {
+        "classes": 22,
+        "compression_ratio": 5.899707501336479e+50,
+        "cumulative_quotient_candidates": 1109,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 8.544337307853242e-50,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b"
+      },
+      "history": [
+        {
+          "classes_after": 4,
+          "classes_before": 2,
+          "compression_ratio_after": 1.5,
+          "new_consequences": 2,
+          "quotient_candidates_this_round": 4,
+          "raw_candidates_this_round": 4,
+          "raw_terms_after": 6,
+          "raw_terms_before": 2,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "b4988c0dc92e3e77aa4695af272b7e1dd28802747d137eeb8b63d908166d8390"
+        },
+        {
+          "classes_after": 5,
+          "classes_before": 4,
+          "compression_ratio_after": 8.4,
+          "new_consequences": 1,
+          "quotient_candidates_this_round": 16,
+          "raw_candidates_this_round": 36,
+          "raw_terms_after": 42,
+          "raw_terms_before": 6,
+          "round": 2,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+        },
+        {
+          "classes_after": 5,
+          "classes_before": 5,
+          "compression_ratio_after": 361.2,
+          "new_consequences": 0,
+          "quotient_candidates_this_round": 25,
+          "raw_candidates_this_round": 1764,
+          "raw_terms_after": 1806,
+          "raw_terms_before": 42,
+          "round": 3,
+          "semantic_fixed_point": true,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+        },
+        {
+          "classes_after": 12,
+          "classes_before": 6,
+          "compression_ratio_after": 272254.6666666667,
+          "new_consequences": 6,
+          "quotient_candidates_this_round": 36,
+          "raw_candidates_this_round": 3265249,
+          "raw_terms_after": 3267056,
+          "raw_terms_before": 1807,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "5a5c4ab9476a2f0c43eecd4b3209257c4959165242eff019321daff991f58118"
+        },
+        {
+          "classes_after": 20,
+          "classes_before": 12,
+          "compression_ratio_after": 533682908709.6,
+          "new_consequences": 8,
+          "quotient_candidates_this_round": 144,
+          "raw_candidates_this_round": 10673654907136,
+          "raw_terms_after": 10673658174192,
+          "raw_terms_before": 3267056,
+          "round": 2,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "d37c18aa477ab0c926fb9247a2a53bb1123169afd3bd97a7b711e4a8a55d9258"
+        },
+        {
+          "classes_after": 22,
+          "classes_before": 20,
+          "compression_ratio_after": 5.17849903725029e+24,
+          "new_consequences": 2,
+          "quotient_candidates_this_round": 400,
+          "raw_candidates_this_round": 113926978819495699014852864,
+          "raw_terms_after": 113926978819506372673027056,
+          "raw_terms_before": 10673658174192,
+          "round": 3,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b"
+        },
+        {
+          "classes_after": 22,
+          "classes_before": 22,
+          "compression_ratio_after": 5.899707501336479e+50,
+          "new_consequences": 0,
+          "quotient_candidates_this_round": 484,
+          "raw_candidates_this_round": 12979356502940253652350204056335842293767082108027136,
+          "raw_terms_after": 12979356502940253652350204170262821113273454781054192,
+          "raw_terms_before": 113926978819506372673027056,
+          "round": 4,
+          "semantic_fixed_point": true,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "983199610ff88c196ac9660ed5499de11dde6b9f044326b055e866575889722b"
+        }
+      ],
+      "injection": {
+        "eventual_new_consequences": 17,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": true,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "q_only_control": {
+        "hashes": [
+          "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43",
+          "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43",
+          "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+        ],
+        "no_novelty": true
+      },
+      "schedule": {
+        "A": 3,
+        "B": 4
+      },
+      "stage_a": {
+        "classes": 5,
+        "raw_terms": 1806,
+        "support_hash": "a8ade215684edf6873a0de64019e6b0b1d19c5e574116111cb20b354b47a9e43"
+      }
+    },
+    "K3": {
+      "coarse_unwarranted_control": {
+        "final_classes": 6,
+        "final_support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c",
+        "history": [
+          {
+            "classes": 5,
+            "new_consequences": 3,
+            "round": 1,
+            "support_hash": "d16b96cc8c455c68e9f64c570f90645f74b2675ca07a0a8403e667fe3baae78c"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 1,
+            "round": 2,
+            "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 0,
+            "round": 3,
+            "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 0,
+            "round": 4,
+            "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 78,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "final": {
+        "classes": 84,
+        "compression_ratio": 1.5451614884452682e+50,
+        "cumulative_quotient_candidates": 10163,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 7.830126245240081e-49,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec"
+      },
+      "history": [
+        {
+          "classes_after": 5,
+          "classes_before": 2,
+          "compression_ratio_after": 1.2,
+          "new_consequences": 3,
+          "quotient_candidates_this_round": 4,
+          "raw_candidates_this_round": 4,
+          "raw_terms_after": 6,
+          "raw_terms_before": 2,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "d16b96cc8c455c68e9f64c570f90645f74b2675ca07a0a8403e667fe3baae78c"
+        },
+        {
+          "classes_after": 6,
+          "classes_before": 5,
+          "compression_ratio_after": 7.0,
+          "new_consequences": 1,
+          "quotient_candidates_this_round": 25,
+          "raw_candidates_this_round": 36,
+          "raw_terms_after": 42,
+          "raw_terms_before": 6,
+          "round": 2,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+        },
+        {
+          "classes_after": 6,
+          "classes_before": 6,
+          "compression_ratio_after": 301.0,
+          "new_consequences": 0,
+          "quotient_candidates_this_round": 36,
+          "raw_candidates_this_round": 1764,
+          "raw_terms_after": 1806,
+          "raw_terms_before": 42,
+          "round": 3,
+          "semantic_fixed_point": true,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+        },
+        {
+          "classes_after": 17,
+          "classes_before": 7,
+          "compression_ratio_after": 192179.76470588235,
+          "new_consequences": 10,
+          "quotient_candidates_this_round": 49,
+          "raw_candidates_this_round": 3265249,
+          "raw_terms_after": 3267056,
+          "raw_terms_before": 1807,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "e9959ef3e603c967a807d47b05b417b0feb1d985fde485d17b5ca61f28bc65d5"
+        },
+        {
+          "classes_after": 52,
+          "classes_before": 17,
+          "compression_ratio_after": 205262657196.0,
+          "new_consequences": 35,
+          "quotient_candidates_this_round": 289,
+          "raw_candidates_this_round": 10673654907136,
+          "raw_terms_after": 10673658174192,
+          "raw_terms_before": 3267056,
+          "round": 2,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "89783633b69d2a72bfc9bfe106bdbe1f484346181c3966db3d9dd8a41458edac"
+        },
+        {
+          "classes_after": 84,
+          "classes_before": 52,
+          "compression_ratio_after": 1.3562735573750758e+24,
+          "new_consequences": 32,
+          "quotient_candidates_this_round": 2704,
+          "raw_candidates_this_round": 113926978819495699014852864,
+          "raw_terms_after": 113926978819506372673027056,
+          "raw_terms_before": 10673658174192,
+          "round": 3,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec"
+        },
+        {
+          "classes_after": 84,
+          "classes_before": 84,
+          "compression_ratio_after": 1.5451614884452682e+50,
+          "new_consequences": 0,
+          "quotient_candidates_this_round": 7056,
+          "raw_candidates_this_round": 12979356502940253652350204056335842293767082108027136,
+          "raw_terms_after": 12979356502940253652350204170262821113273454781054192,
+          "raw_terms_before": 113926978819506372673027056,
+          "round": 4,
+          "semantic_fixed_point": true,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "adf2e4400a569fee2e1808e006f919676e0e2a77017f242b5abcb11fd51020ec"
+        }
+      ],
+      "injection": {
+        "eventual_new_consequences": 78,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": true,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "q_only_control": {
+        "hashes": [
+          "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c",
+          "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c",
+          "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+        ],
+        "no_novelty": true
+      },
+      "schedule": {
+        "A": 3,
+        "B": 4
+      },
+      "stage_a": {
+        "classes": 6,
+        "raw_terms": 1806,
+        "support_hash": "f5b1cb5f944a063b1d9df2834fb8d4da4e5305d4db3e9a0191f24809924e737c"
+      }
+    },
+    "T3": {
+      "coarse_unwarranted_control": {
+        "final_classes": 11,
+        "final_support_hash": "0ad8786beac2a615e69b2468243436a1258348f2b86d17193b5ac62dc71be5b7",
+        "history": [
+          {
+            "classes": 4,
+            "new_consequences": 2,
+            "round": 1,
+            "support_hash": "425a5851be4440086e9b0be2877bfa535bdf2f446dfb66c856650057ca2a229e"
+          },
+          {
+            "classes": 6,
+            "new_consequences": 2,
+            "round": 2,
+            "support_hash": "452195eaa646024dfa907f8a8b45fe4919dd960fb926da07519e2fe3a05343a3"
+          },
+          {
+            "classes": 9,
+            "new_consequences": 3,
+            "round": 3,
+            "support_hash": "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0"
+          },
+          {
+            "classes": 11,
+            "new_consequences": 2,
+            "round": 4,
+            "support_hash": "0ad8786beac2a615e69b2468243436a1258348f2b86d17193b5ac62dc71be5b7"
+          }
+        ],
+        "initial_classes": 2,
+        "lost_consequences": 3034,
+        "lost_witness": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2
+        ]
+      },
+      "final": {
+        "classes": 3045,
+        "compression_ratio": 4.262514450883499e+48,
+        "cumulative_quotient_candidates": 710533,
+        "cumulative_raw_candidates": 12979356502940253652350204170262821113273454781054189,
+        "quotient_raw_candidate_ratio": 5.474331488152288e-47,
+        "raw_terms": 12979356502940253652350204170262821113273454781054192,
+        "support_hash": "6ab90410d20c5bce597ea1fd44610af554cc806a9d4eb7eae1f0193a7e438ffb"
+      },
+      "history": [
+        {
+          "classes_after": 4,
+          "classes_before": 2,
+          "compression_ratio_after": 1.5,
+          "new_consequences": 2,
+          "quotient_candidates_this_round": 4,
+          "raw_candidates_this_round": 4,
+          "raw_terms_after": 6,
+          "raw_terms_before": 2,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "425a5851be4440086e9b0be2877bfa535bdf2f446dfb66c856650057ca2a229e"
+        },
+        {
+          "classes_after": 6,
+          "classes_before": 4,
+          "compression_ratio_after": 7.0,
+          "new_consequences": 2,
+          "quotient_candidates_this_round": 16,
+          "raw_candidates_this_round": 36,
+          "raw_terms_after": 42,
+          "raw_terms_before": 6,
+          "round": 2,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "452195eaa646024dfa907f8a8b45fe4919dd960fb926da07519e2fe3a05343a3"
+        },
+        {
+          "classes_after": 9,
+          "classes_before": 6,
+          "compression_ratio_after": 200.66666666666666,
+          "new_consequences": 3,
+          "quotient_candidates_this_round": 36,
+          "raw_candidates_this_round": 1764,
+          "raw_terms_after": 1806,
+          "raw_terms_before": 42,
+          "round": 3,
+          "semantic_fixed_point": false,
+          "stage": "A",
+          "support_equal": true,
+          "support_hash": "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0"
+        },
+        {
+          "classes_after": 27,
+          "classes_before": 10,
+          "compression_ratio_after": 121002.07407407407,
+          "new_consequences": 17,
+          "quotient_candidates_this_round": 100,
+          "raw_candidates_this_round": 3265249,
+          "raw_terms_after": 3267056,
+          "raw_terms_before": 1807,
+          "round": 1,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "6c2e221bfc9dc29107a7aa1638c593c7438144ddc305edc8d8807603d9a10d68"
+        },
+        {
+          "classes_after": 132,
+          "classes_before": 27,
+          "compression_ratio_after": 80861046774.18182,
+          "new_consequences": 105,
+          "quotient_candidates_this_round": 729,
+          "raw_candidates_this_round": 10673654907136,
+          "raw_terms_after": 10673658174192,
+          "raw_terms_before": 3267056,
+          "round": 2,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "e815d4d18e8fb216934b1bf7b169c17242bdf451e0193d19b56ac06e361d6ef6"
+        },
+        {
+          "classes_after": 832,
+          "classes_before": 132,
+          "compression_ratio_after": 1.3693146492729132e+23,
+          "new_consequences": 700,
+          "quotient_candidates_this_round": 17424,
+          "raw_candidates_this_round": 113926978819495699014852864,
+          "raw_terms_after": 113926978819506372673027056,
+          "raw_terms_before": 10673658174192,
+          "round": 3,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "547511ba5209126f34ff902357c845448255eea26a86d651433e2715546c9ece"
+        },
+        {
+          "classes_after": 3045,
+          "classes_before": 832,
+          "compression_ratio_after": 4.262514450883499e+48,
+          "new_consequences": 2213,
+          "quotient_candidates_this_round": 692224,
+          "raw_candidates_this_round": 12979356502940253652350204056335842293767082108027136,
+          "raw_terms_after": 12979356502940253652350204170262821113273454781054192,
+          "raw_terms_before": 113926978819506372673027056,
+          "round": 4,
+          "semantic_fixed_point": false,
+          "stage": "B",
+          "support_equal": true,
+          "support_hash": "6ab90410d20c5bce597ea1fd44610af554cc806a9d4eb7eae1f0193a7e438ffb"
+        }
+      ],
+      "injection": {
+        "eventual_new_consequences": 3036,
+        "x1_immediate_new_classes": 1
+      },
+      "properties": {
+        "canonical_depth_never_worse": true,
+        "environment_reopens": true,
+        "fixedpoint_with_raw_growth": false,
+        "quotient_reduced_multiplicity": true,
+        "support_equal_every_round": true
+      },
+      "q_only_control": {
+        "hashes": [
+          "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0",
+          "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0",
+          "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0"
+        ],
+        "no_novelty": true
+      },
+      "schedule": {
+        "A": 3,
+        "B": 4
+      },
+      "stage_a": {
+        "classes": 9,
+        "raw_terms": 1806,
+        "support_hash": "947cb9127c966f333f0dec1bb4171dbc4d7ad6c42771ead72014cace154fada0"
+      }
+    }
+  }
+}
