@@ -1,0 +1,86 @@
+name: Developmental IR V1
+
+on:
+  push:
+    branches:
+      - experiment/developmental-ir-v1
+    paths:
+      - 'experiments/developmental_ir_v1.py'
+      - 'protocols/DEVELOPMENTAL_IR_V1_PRECOMMIT.md'
+      - '.github/workflows/developmental-ir-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: developmental-ir-v1
+  cancel-in-progress: false
+
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/developmental-ir-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor 9d3771bb2eab4c3bbf0c083a6bc839d3f21513c3 HEAD
+          test -f protocols/DEVELOPMENTAL_IR_V1_PRECOMMIT.md
+          test -f experiments/developmental_ir_v1.py
+
+      - name: Run developmental IR experiment
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python experiments/developmental_ir_v1.py | tee /tmp/developmental-ir-v1.log
+
+      - name: Validate scientific result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(Path('results/developmental_ir_v1/result.json').read_text())
+          assert p['protocol'] == 'DEVELOPMENTAL_IR_V1'
+          assert p['precommit_commit'] == '9d3771bb2eab4c3bbf0c083a6bc839d3f21513c3'
+          assert len(p['derived_relations']) == 16
+          assert len(p['headline_gates']) == 16
+          assert p['kernel']['rows'] == 4096
+          assert p['verdict'] in {
+              'PASS_DEVELOPMENTAL_IR_V1',
+              'PARTIAL_DEVELOPMENTAL_IR_V1',
+              'VALID_NEGATIVE_DEVELOPMENTAL_IR_V1',
+          }
+          print('SCIENTIFIC_VERDICT=' + p['verdict'])
+          print(json.dumps(p['totals'], indent=2, sort_keys=True))
+          print(json.dumps(p['amortization'], indent=2, sort_keys=True))
+          print(json.dumps(p['archive'], indent=2, sort_keys=True))
+          print(json.dumps(p['headline_gates'], indent=2, sort_keys=True))
+          PY
+
+      - name: Commit authoritative scientific result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add             results/developmental_ir_v1/result.json             results/developmental_ir_v1/summary.json
+          git commit -m 'Record developmental IR V1 result' || exit 0
+          git push origin HEAD:experiment/developmental-ir-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: developmental-ir-v1-evidence
+          path: |
+            results/developmental_ir_v1/result.json
+            results/developmental_ir_v1/summary.json
+            /tmp/developmental-ir-v1.log
+          if-no-files-found: warn
