@@ -412,7 +412,8 @@ def family_analysis(rows):
             hetero=0
             counter=None
             collision_classes=0
-            for members in sigs[view].values():
+            for sig in sorted(sigs[view]):
+                members=sorted(sigs[view][sig],key=lambda r:int(r["key"]))
                 if len(members)>1:
                     collision_classes+=1
                 vals={}
