@@ -1,0 +1,53 @@
+name: Consequence Whakapapa Form V1
+on:
+  push:
+    branches: [experiment/consequence-whakapapa-form-v1]
+    paths: ['experiments/consequence_whakapapa_form_v1.py','protocols/CONSEQUENCE_WHAKAPAPA_FORM_V1_PRECOMMIT.md','.github/workflows/consequence-whakapapa-form-v1.yml']
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: experiment/consequence-whakapapa-form-v1, fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Verify freeze
+        run: |
+          git merge-base --is-ancestor 37daa6bf746d57aa8f5dc295f16d14eb44393190 HEAD
+          test -f experiments/consequence_whakapapa_form_v1.py
+      - name: Run experiment
+        run: |
+          set -o pipefail
+          python experiments/consequence_whakapapa_form_v1.py | tee /tmp/cwf-v1.log
+      - name: Validate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/consequence_whakapapa_form_v1/result.json').read_text())
+          assert p['protocol']=='CONSEQUENCE_WHAKAPAPA_FORM_V1'
+          assert p['precommit_commit']=='37daa6bf746d57aa8f5dc295f16d14eb44393190'
+          assert len(p['headline_gates'])==30
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['metrics'],indent=2,sort_keys=True))
+          print(json.dumps(p['costs'],indent=2,sort_keys=True))
+          print(json.dumps(p['revocation'],indent=2,sort_keys=True))
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          PY
+      - name: Commit result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/consequence_whakapapa_form_v1
+          git commit -m 'Record consequence whakapapa form V1 result' || exit 0
+          git push origin HEAD:experiment/consequence-whakapapa-form-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: consequence-whakapapa-form-v1-evidence
+          path: |
+            results/consequence_whakapapa_form_v1
+            /tmp/cwf-v1.log
