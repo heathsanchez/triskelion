@@ -1,0 +1,69 @@
+name: Deep Whakapapa Language V1
+on:
+  push:
+    branches: [experiment/deep-whakapapa-language-v1]
+    paths:
+      - 'experiments/deep_whakapapa_language_v1.py'
+      - 'protocols/DEEP_WHAKAPAPA_LANGUAGE_V1_PRECOMMIT.md'
+      - '.github/workflows/deep-whakapapa-language-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: deep-whakapapa-language-v1
+  cancel-in-progress: false
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/deep-whakapapa-language-v1
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify prospective freeze ancestry
+        run: |
+          git merge-base --is-ancestor 8e5046fa121c0468b69a2d4f815b6e6464123f7b HEAD
+          test -f protocols/DEEP_WHAKAPAPA_LANGUAGE_V1_PRECOMMIT.md
+          test -f experiments/deep_whakapapa_language_v1.py
+      - name: Run deep whakapapa experiment
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python experiments/deep_whakapapa_language_v1.py | tee /tmp/deep-whakapapa-language-v1.log
+      - name: Validate result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/deep_whakapapa_language_v1/result.json').read_text())
+          assert p['protocol']=='DEEP_WHAKAPAPA_LANGUAGE_V1'
+          assert p['precommit_commit']=='8e5046fa121c0468b69a2d4f815b6e6464123f7b'
+          assert p['episodes']==20000
+          assert len(p['headline_gates'])==30
+          assert p['verdict'] in {'PASS_DEEP_WHAKAPAPA_LANGUAGE_V1','PARTIAL_DEEP_WHAKAPAPA_LANGUAGE_V1','VALID_NEGATIVE_DEEP_WHAKAPAPA_LANGUAGE_V1'}
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps(p['metrics'],indent=2,sort_keys=True))
+          print(json.dumps(p['costs'],indent=2,sort_keys=True))
+          print(json.dumps(p['revocation'],indent=2,sort_keys=True))
+          print(json.dumps(p['knockouts'],indent=2,sort_keys=True))
+          print(json.dumps(p['headline_gates'],indent=2,sort_keys=True))
+          PY
+      - name: Commit authoritative result
+        run: |
+          git config user.name 'mathgraph-bot'
+          git config user.email '32909488+heathsanchez@users.noreply.github.com'
+          git add results/deep_whakapapa_language_v1/result.json results/deep_whakapapa_language_v1/summary.json
+          git commit -m 'Record deep whakapapa language V1 result' || exit 0
+          git push origin HEAD:experiment/deep-whakapapa-language-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deep-whakapapa-language-v1-evidence
+          path: |
+            results/deep_whakapapa_language_v1/result.json
+            results/deep_whakapapa_language_v1/summary.json
+            /tmp/deep-whakapapa-language-v1.log
+          if-no-files-found: warn
