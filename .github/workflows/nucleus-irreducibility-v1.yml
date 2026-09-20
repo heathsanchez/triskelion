@@ -1,0 +1,52 @@
+name: Nucleus Irreducibility V1
+on:
+  push:
+    branches: [experiment/nucleus-irreducibility-v1]
+    paths: ['experiments/nucleus_irreducibility_v1.py','protocols/NUCLEUS_IRREDUCIBILITY_V1_PRECOMMIT.md','.github/workflows/nucleus-irreducibility-v1.yml']
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  experiment:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: experiment/nucleus-irreducibility-v1, fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Verify prospective freeze
+        run: |
+          git merge-base --is-ancestor ab8bef1b156417b7b6596c24c8188aeab4b55587 HEAD
+          test -f protocols/NUCLEUS_IRREDUCIBILITY_V1_PRECOMMIT.md
+      - name: Run nucleus experiment
+        run: |
+          set -o pipefail
+          python experiments/nucleus_irreducibility_v1.py | tee /tmp/nucleus-v1.log
+      - name: Validate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/nucleus_irreducibility_v1/result.json').read_text())
+          s=p['summary']
+          assert s['protocol']=='NUCLEUS_IRREDUCIBILITY_V1'
+          assert s['precommit_commit']=='ab8bef1b156417b7b6596c24c8188aeab4b55587'
+          assert len(s['headline_gates'])==14
+          assert len(p['closures'])==16
+          print('SCIENTIFIC_VERDICT='+s['verdict'])
+          print(json.dumps(s,indent=2,sort_keys=True))
+          PY
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/nucleus_irreducibility_v1
+          git commit -m 'Record nucleus irreducibility V1 result' || exit 0
+          git push origin HEAD:experiment/nucleus-irreducibility-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nucleus-irreducibility-v1-evidence
+          path: |
+            results/nucleus_irreducibility_v1
+            /tmp/nucleus-v1.log
