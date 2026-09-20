@@ -1,0 +1,134 @@
+name: Ternary Pointed Nucleus Census V1
+
+on:
+  push:
+    branches:
+      - experiment/ternary-pointed-nucleus-census-v1
+    paths:
+      - 'experiments/ternary_pointed_nucleus_census_v1.cpp'
+      - 'experiments/aggregate_ternary_pointed_nucleus_census_v1.py'
+      - 'protocols/TERNARY_POINTED_NUCLEUS_CENSUS_V1_PRECOMMIT.md'
+      - 'protocols/TERNARY_POINTED_NUCLEUS_CENSUS_V1_ADDENDUM.md'
+      - '.github/workflows/ternary-pointed-nucleus-census-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ternary-pointed-nucleus-census-v1
+  cancel-in-progress: false
+
+jobs:
+  census:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/ternary-pointed-nucleus-census-v1
+          fetch-depth: 0
+
+      - name: Verify prospective freezes
+        run: |
+          git merge-base --is-ancestor ecf7c3af6807cc3f8913348de59df594663abf79 HEAD
+          git merge-base --is-ancestor 5db29f3df24abe7f2188bc8db3ec08cd75c9e79e HEAD
+          test -f protocols/TERNARY_POINTED_NUCLEUS_CENSUS_V1_PRECOMMIT.md
+          test -f protocols/TERNARY_POINTED_NUCLEUS_CENSUS_V1_ADDENDUM.md
+
+      - name: Compile exact census engine
+        run: |
+          g++ -O3 -std=c++20 -DNDEBUG experiments/ternary_pointed_nucleus_census_v1.cpp -o /tmp/ternary-census
+
+      - name: Run exact census shard
+        run: |
+          mkdir -p /tmp/shard
+          /tmp/ternary-census ${{ matrix.shard }} 24 /tmp/shard/shard_${{ matrix.shard }}.tsv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ternary-census-shard-${{ matrix.shard }}
+          path: /tmp/shard/
+          if-no-files-found: error
+          compression-level: 6
+
+  aggregate:
+    needs: census
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/ternary-pointed-nucleus-census-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ternary-census-shard-*
+          path: /tmp/census-shards
+          merge-multiple: true
+
+      - name: Aggregate exact census
+        run: |
+          set -o pipefail
+          python experiments/aggregate_ternary_pointed_nucleus_census_v1.py \
+            /tmp/census-shards \
+            results/ternary_pointed_nucleus_census_v1 | tee /tmp/ternary-census-summary.log
+
+      - name: Validate authoritative result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('results/ternary_pointed_nucleus_census_v1/result.json').read_text())
+          assert p['protocol']=='TERNARY_POINTED_NUCLEUS_CENSUS_V1'
+          assert p['precommit_commit']=='ecf7c3af6807cc3f8913348de59df594663abf79'
+          assert p['addendum_commit']=='5db29f3df24abe7f2188bc8db3ec08cd75c9e79e'
+          assert p['raw_pointed_nuclei']==59049
+          assert p['orbit_weight_sum']==59049
+          assert p['audit']['total']==256
+          assert p['audit']['passed']==256
+          assert len(p['headline_gates'])==16
+          assert p['verdict'] in {
+            'PASS_TERNARY_POINTED_NUCLEUS_CENSUS_V1',
+            'PARTIAL_TERNARY_POINTED_NUCLEUS_CENSUS_V1',
+            'VALID_NEGATIVE_TERNARY_POINTED_NUCLEUS_CENSUS_V1',
+          }
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print(json.dumps({
+            'canonical_orbits':p['canonical_orbits'],
+            'q90':p['weighted_q90_binary_closure'],
+            'generative_raw_count':p['generative_raw_count'],
+            'strongly_generative_raw_count':p['strongly_generative_raw_count'],
+            'extremes':p['extremes'],
+            'reports':p['required_reports'],
+            'gates':p['headline_gates'],
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/ternary_pointed_nucleus_census_v1
+          git commit -m 'Record ternary pointed nucleus census V1 result' || exit 0
+          git push origin HEAD:experiment/ternary-pointed-nucleus-census-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ternary-pointed-nucleus-census-v1-evidence
+          path: |
+            results/ternary_pointed_nucleus_census_v1
+            /tmp/ternary-census-summary.log
+          if-no-files-found: warn
