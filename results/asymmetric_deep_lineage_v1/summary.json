@@ -1,0 +1,184 @@
+{
+  "anchor_audit": {
+    "1": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 256,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 1,
+      "minimum_anchor": null,
+      "minimum_anchor_cardinality": 0
+    },
+    "11": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 38,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 11,
+      "minimum_anchor": 0,
+      "minimum_anchor_cardinality": 1
+    },
+    "13": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 38,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 13,
+      "minimum_anchor": 0,
+      "minimum_anchor_cardinality": 1
+    },
+    "2": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 38
+      },
+      "law": 2,
+      "minimum_anchor": 1,
+      "minimum_anchor_cardinality": 1
+    },
+    "4": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 38
+      },
+      "law": 4,
+      "minimum_anchor": 1,
+      "minimum_anchor_cardinality": 1
+    },
+    "7": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 256,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 7,
+      "minimum_anchor": null,
+      "minimum_anchor_cardinality": 0
+    }
+  },
+  "canonical_deep_lineage": {
+    "archive_size": 148,
+    "completed_generations": 135,
+    "difference_injections": 10,
+    "environment_coordinates_exposed": 12,
+    "generated_parent_fraction_after100_lower_bound": 0.9714285714285714,
+    "maximum_direct_fecundity": 6,
+    "maximum_lineage_depth": 135,
+    "mean_min_expression_cost": 5.874074074074074,
+    "mean_verifier_interactions": 4.229629629629629,
+    "route": "TERMINAL_DEVELOPMENTAL_STALL",
+    "two_generated_parent_fraction_after100_lower_bound": 0.0
+  },
+  "headline_gates": {
+    "A10_sham_fails_or_costlier": true,
+    "A11_closed_pair_semantic_closure_finite": true,
+    "A12_fresh_difference_reopens_frontier": true,
+    "A13_twins_diverge_and_common_correct": false,
+    "A14_cross_lineage_k_verified": false,
+    "A15_k_causally_enables_z": false,
+    "A16_representation_duals_same_structural_class": true,
+    "A1_each_survivor_needs_at_most_one_anchor": true,
+    "A2_survivors_one_exact_equivalence_class": true,
+    "A3_no_intrinsic_orientation_winner_under_isomorphism": true,
+    "A4_canonical_100k_no_stall": false,
+    "A5_generated_parent_after100_ge_99pct": false,
+    "A6_two_generated_parents_after100_ge_90pct": false,
+    "A7_lineage_depth_gt_100": true,
+    "A8_no_reentry_lt_1pct": true,
+    "A9_cold_lt_1pct": true
+  },
+  "optimal_asymmetry": {
+    "canonical_anchor": 1,
+    "canonical_audit_representative": 2,
+    "reason": "The four robust V1 survivors remain one exact orbit under input swap and binary symbol conjugation. The canonical representative is numeric convention, not ontological preference.",
+    "structural_class": [
+      2,
+      4,
+      11,
+      13
+    ]
+  },
+  "orientation_suite": {
+    "11": {
+      "anchor": 0,
+      "complete_10k": 0,
+      "mean_completed": 496.25,
+      "mean_cost": 5.960265354635366,
+      "mean_difference_injections": 9.5,
+      "mean_interactions": 4.186945052578302,
+      "mean_max_depth": 496.25
+    },
+    "13": {
+      "anchor": 0,
+      "complete_10k": 0,
+      "mean_completed": 408,
+      "mean_cost": 5.993127672397849,
+      "mean_difference_injections": 9.375,
+      "mean_interactions": 4.210979821540995,
+      "mean_max_depth": 408
+    },
+    "2": {
+      "anchor": 1,
+      "complete_10k": 0,
+      "mean_completed": 349.875,
+      "mean_cost": 6.04840831598279,
+      "mean_difference_injections": 9.5,
+      "mean_interactions": 4.2678780158231,
+      "mean_max_depth": 349.875
+    },
+    "4": {
+      "anchor": 1,
+      "complete_10k": 0,
+      "mean_completed": 539.125,
+      "mean_cost": 6.044832947545068,
+      "mean_difference_injections": 10,
+      "mean_interactions": 4.292663410855374,
+      "mean_max_depth": 539.125
+    }
+  },
+  "recombination_probe": {
+    "ok": false,
+    "route": "NOT_REACHED_WITHOUT_TWIN_FORK"
+  },
+  "symmetric_controls": {
+    "1": {
+      "anchor": null,
+      "complete_10k": 0,
+      "mean_completed": 433.125,
+      "mean_cost": 8.403035752848538,
+      "mean_interactions": 4.131769962110009
+    },
+    "7": {
+      "anchor": null,
+      "complete_10k": 0,
+      "mean_completed": 512.125,
+      "mean_cost": 8.416949052249368,
+      "mean_interactions": 4.068350054821389
+    }
+  },
+  "twin_history_probe": {
+    "archive_a": 0,
+    "archive_b": 0,
+    "common_targets_correct_both": 0,
+    "common_targets_found": 0,
+    "different_min_cost_count": 0,
+    "different_parent_pair_count": 0,
+    "jaccard": 1.0,
+    "ok": false,
+    "route": "NOT_REACHED_BEFORE_GENERATION_1000",
+    "semantic_overlap": 0,
+    "semantic_union": 0
+  },
+  "verdict": "PASS_ASYMMETRIC_CLASS_WITH_FINITE_STALL_V1"
+}

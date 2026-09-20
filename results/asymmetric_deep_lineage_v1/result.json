@@ -1,0 +1,590 @@
+{
+  "anchor_audit": {
+    "1": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 256,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 1,
+      "minimum_anchor": null,
+      "minimum_anchor_cardinality": 0
+    },
+    "11": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 38,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 11,
+      "minimum_anchor": 0,
+      "minimum_anchor_cardinality": 1
+    },
+    "13": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 38,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 13,
+      "minimum_anchor": 0,
+      "minimum_anchor_cardinality": 1
+    },
+    "2": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 38
+      },
+      "law": 2,
+      "minimum_anchor": 1,
+      "minimum_anchor_cardinality": 1
+    },
+    "4": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 38,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 38
+      },
+      "law": 4,
+      "minimum_anchor": 1,
+      "minimum_anchor_cardinality": 1
+    },
+    "7": {
+      "closures": {
+        "BOTH_ANCHORS": 256,
+        "NO_ANCHOR": 256,
+        "ONE_ANCHOR": 256,
+        "ZERO_ANCHOR": 256
+      },
+      "law": 7,
+      "minimum_anchor": null,
+      "minimum_anchor_cardinality": 0
+    }
+  },
+  "canonical_deep_lineage": {
+    "anchor": 1,
+    "archive_size": 148,
+    "checkpoints": [
+      {
+        "archive_size": 112,
+        "difference_injections": 9,
+        "exposed_env": 11,
+        "generation": 100,
+        "max_depth": 100,
+        "mean_cost": 5.84,
+        "mean_interactions": 4.21,
+        "two_generated_parent_fraction": 0.67
+      }
+    ],
+    "completed_generations": 135,
+    "difference_injections": 10,
+    "environment_coordinates_exposed": 12,
+    "generated_children": 135,
+    "generated_parent_fraction": 0.9925925925925926,
+    "generated_parent_fraction_after100_lower_bound": 0.9714285714285714,
+    "law": 2,
+    "maximum_direct_fecundity": 6,
+    "maximum_lineage_depth": 135,
+    "mean_generated_lineage_depth": 68.0,
+    "mean_min_expression_cost": 5.874074074074074,
+    "mean_verifier_interactions": 4.229629629629629,
+    "reopening_probes": [
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 2,
+        "opened_size": 256,
+        "parent_ids": [
+          3,
+          0
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 3,
+        "opened_size": 256,
+        "parent_ids": [
+          3,
+          0
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 4,
+        "opened_size": 256,
+        "parent_ids": [
+          6,
+          4
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 5,
+        "opened_size": 256,
+        "parent_ids": [
+          0,
+          8
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 6,
+        "opened_size": 256,
+        "parent_ids": [
+          7,
+          10
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 7,
+        "opened_size": 256,
+        "parent_ids": [
+          32,
+          10
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 8,
+        "opened_size": 256,
+        "parent_ids": [
+          19,
+          16
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 9,
+        "opened_size": 256,
+        "parent_ids": [
+          67,
+          55
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 10,
+        "opened_size": 256,
+        "parent_ids": [
+          42,
+          28
+        ]
+      },
+      {
+        "closed_size": 16,
+        "delta": 240,
+        "fresh_env_index": 11,
+        "opened_size": 256,
+        "parent_ids": [
+          5,
+          98
+        ]
+      }
+    ],
+    "requested_generations": 100000,
+    "route": "TERMINAL_DEVELOPMENTAL_STALL",
+    "sampled_descendant_counts": {
+      "0": 135,
+      "1": 135,
+      "110": 36,
+      "147": 0,
+      "2": 0,
+      "3": 134,
+      "36": 107,
+      "4": 133,
+      "5": 132,
+      "6": 132,
+      "7": 131,
+      "73": 70
+    },
+    "seed": "TRISKELION_ASYM_DEEP_V1:CANONICAL_100K",
+    "semantic_collision_attempts": 767,
+    "top_direct_fecundity": [
+      {
+        "children": 6,
+        "node": 8
+      },
+      {
+        "children": 6,
+        "node": 3
+      },
+      {
+        "children": 5,
+        "node": 9
+      },
+      {
+        "children": 5,
+        "node": 0
+      },
+      {
+        "children": 4,
+        "node": 91
+      },
+      {
+        "children": 4,
+        "node": 81
+      },
+      {
+        "children": 4,
+        "node": 44
+      },
+      {
+        "children": 4,
+        "node": 32
+      },
+      {
+        "children": 4,
+        "node": 23
+      },
+      {
+        "children": 4,
+        "node": 14
+      }
+    ],
+    "total_verifier_interactions": 571,
+    "two_generated_parent_fraction": 0.6888888888888889,
+    "two_generated_parent_fraction_after100_lower_bound": 0.0,
+    "verified_episodes": 135
+  },
+  "claim_boundary": "Finite exact 4096-row developmental ecology with at most twelve external binary coordinates. A positive result supports a one-anchor asymmetric relational class and long verified lineage under this protocol; it does not establish infinite development, physical binarity, or superiority over general-purpose calculi.",
+  "controls": {
+    "cold": {
+      "anchor": 1,
+      "archive_size": 3,
+      "checkpoints": [],
+      "completed_generations": 0,
+      "difference_injections": 0,
+      "environment_coordinates_exposed": 2,
+      "generated_children": 0,
+      "generated_parent_fraction": 0.0,
+      "generated_parent_fraction_after100_lower_bound": 0.0,
+      "law": 2,
+      "maximum_direct_fecundity": 0,
+      "maximum_lineage_depth": 0,
+      "mean_generated_lineage_depth": 0.0,
+      "mean_min_expression_cost": 5.0,
+      "mean_verifier_interactions": 4.0,
+      "reopening_probes": [],
+      "requested_generations": 10000,
+      "route": "COLD_NO_ACCUMULATION",
+      "sampled_descendant_counts": {
+        "0": 0,
+        "1": 0,
+        "2": 0
+      },
+      "seed": "TRISKELION_ASYM_DEEP_V1:COLD",
+      "semantic_collision_attempts": 2,
+      "top_direct_fecundity": [
+        {
+          "children": 0,
+          "node": 2
+        },
+        {
+          "children": 0,
+          "node": 1
+        },
+        {
+          "children": 0,
+          "node": 0
+        }
+      ],
+      "total_verifier_interactions": 4,
+      "two_generated_parent_fraction": 0.0,
+      "two_generated_parent_fraction_after100_lower_bound": 0.0,
+      "verified_episodes": 1
+    },
+    "no_anchor": {
+      "anchor": null,
+      "archive_size": 2,
+      "checkpoints": [],
+      "completed_generations": 0,
+      "difference_injections": 0,
+      "environment_coordinates_exposed": 2,
+      "generated_children": 0,
+      "generated_parent_fraction": 0.0,
+      "generated_parent_fraction_after100_lower_bound": 0.0,
+      "law": 2,
+      "maximum_direct_fecundity": 0,
+      "maximum_lineage_depth": 0,
+      "mean_generated_lineage_depth": 0.0,
+      "mean_min_expression_cost": 0.0,
+      "mean_verifier_interactions": 0.0,
+      "reopening_probes": [],
+      "requested_generations": 10000,
+      "route": "CEGIS_FAIL",
+      "sampled_descendant_counts": {
+        "0": 0,
+        "1": 0
+      },
+      "seed": "TRISKELION_ASYM_DEEP_V1:NO_ANCHOR",
+      "semantic_collision_attempts": 0,
+      "top_direct_fecundity": [
+        {
+          "children": 0,
+          "node": 1
+        },
+        {
+          "children": 0,
+          "node": 0
+        }
+      ],
+      "total_verifier_interactions": 0,
+      "two_generated_parent_fraction": 0.0,
+      "two_generated_parent_fraction_after100_lower_bound": 0.0,
+      "verified_episodes": 0
+    },
+    "no_reentry": {
+      "anchor": 1,
+      "archive_size": 3,
+      "checkpoints": [],
+      "completed_generations": 0,
+      "difference_injections": 0,
+      "environment_coordinates_exposed": 2,
+      "generated_children": 0,
+      "generated_parent_fraction": 0.0,
+      "generated_parent_fraction_after100_lower_bound": 0.0,
+      "law": 2,
+      "maximum_direct_fecundity": 0,
+      "maximum_lineage_depth": 0,
+      "mean_generated_lineage_depth": 0.0,
+      "mean_min_expression_cost": 5.0,
+      "mean_verifier_interactions": 4.0,
+      "reopening_probes": [],
+      "requested_generations": 10000,
+      "route": "NO_REENTRY_NO_DEVELOPMENTAL_ADMISSION",
+      "sampled_descendant_counts": {
+        "0": 0,
+        "1": 0,
+        "2": 0
+      },
+      "seed": "TRISKELION_ASYM_DEEP_V1:NO_REENTRY",
+      "semantic_collision_attempts": 1,
+      "top_direct_fecundity": [
+        {
+          "children": 0,
+          "node": 2
+        },
+        {
+          "children": 0,
+          "node": 1
+        },
+        {
+          "children": 0,
+          "node": 0
+        }
+      ],
+      "total_verifier_interactions": 4,
+      "two_generated_parent_fraction": 0.0,
+      "two_generated_parent_fraction_after100_lower_bound": 0.0,
+      "verified_episodes": 1
+    },
+    "sham_warrant": {
+      "anchor": 1,
+      "archive_size": 3,
+      "checkpoints": [],
+      "completed_generations": 0,
+      "difference_injections": 0,
+      "environment_coordinates_exposed": 2,
+      "generated_children": 0,
+      "generated_parent_fraction": 0.0,
+      "generated_parent_fraction_after100_lower_bound": 0.0,
+      "law": 2,
+      "maximum_direct_fecundity": 0,
+      "maximum_lineage_depth": 0,
+      "mean_generated_lineage_depth": 0.0,
+      "mean_min_expression_cost": 0.0,
+      "mean_verifier_interactions": 8.0,
+      "reopening_probes": [],
+      "requested_generations": 10000,
+      "route": "SHAM_WARRANT_REJECTED",
+      "sampled_descendant_counts": {
+        "0": 0,
+        "1": 0,
+        "2": 0
+      },
+      "seed": "TRISKELION_ASYM_DEEP_V1:SHAM",
+      "semantic_collision_attempts": 0,
+      "top_direct_fecundity": [
+        {
+          "children": 0,
+          "node": 2
+        },
+        {
+          "children": 0,
+          "node": 1
+        },
+        {
+          "children": 0,
+          "node": 0
+        }
+      ],
+      "total_verifier_interactions": 8,
+      "two_generated_parent_fraction": 0.0,
+      "two_generated_parent_fraction_after100_lower_bound": 0.0,
+      "verified_episodes": 1
+    },
+    "wrong_anchor": {
+      "anchor": 0,
+      "archive_size": 3,
+      "checkpoints": [],
+      "completed_generations": 0,
+      "difference_injections": 0,
+      "environment_coordinates_exposed": 2,
+      "generated_children": 0,
+      "generated_parent_fraction": 0.0,
+      "generated_parent_fraction_after100_lower_bound": 0.0,
+      "law": 2,
+      "maximum_direct_fecundity": 0,
+      "maximum_lineage_depth": 0,
+      "mean_generated_lineage_depth": 0.0,
+      "mean_min_expression_cost": 0.0,
+      "mean_verifier_interactions": 0.0,
+      "reopening_probes": [],
+      "requested_generations": 10000,
+      "route": "CEGIS_FAIL",
+      "sampled_descendant_counts": {
+        "0": 0,
+        "1": 0,
+        "2": 0
+      },
+      "seed": "TRISKELION_ASYM_DEEP_V1:WRONG_ANCHOR",
+      "semantic_collision_attempts": 0,
+      "top_direct_fecundity": [
+        {
+          "children": 0,
+          "node": 2
+        },
+        {
+          "children": 0,
+          "node": 1
+        },
+        {
+          "children": 0,
+          "node": 0
+        }
+      ],
+      "total_verifier_interactions": 0,
+      "two_generated_parent_fraction": 0.0,
+      "two_generated_parent_fraction_after100_lower_bound": 0.0,
+      "verified_episodes": 0
+    }
+  },
+  "headline_gates": {
+    "A10_sham_fails_or_costlier": true,
+    "A11_closed_pair_semantic_closure_finite": true,
+    "A12_fresh_difference_reopens_frontier": true,
+    "A13_twins_diverge_and_common_correct": false,
+    "A14_cross_lineage_k_verified": false,
+    "A15_k_causally_enables_z": false,
+    "A16_representation_duals_same_structural_class": true,
+    "A1_each_survivor_needs_at_most_one_anchor": true,
+    "A2_survivors_one_exact_equivalence_class": true,
+    "A3_no_intrinsic_orientation_winner_under_isomorphism": true,
+    "A4_canonical_100k_no_stall": false,
+    "A5_generated_parent_after100_ge_99pct": false,
+    "A6_two_generated_parents_after100_ge_90pct": false,
+    "A7_lineage_depth_gt_100": true,
+    "A8_no_reentry_lt_1pct": true,
+    "A9_cold_lt_1pct": true
+  },
+  "optimal_asymmetry": {
+    "canonical_anchor": 1,
+    "canonical_audit_representative": 2,
+    "reason": "The four robust V1 survivors remain one exact orbit under input swap and binary symbol conjugation. The canonical representative is numeric convention, not ontological preference.",
+    "structural_class": [
+      2,
+      4,
+      11,
+      13
+    ]
+  },
+  "orientation_suite": {
+    "11": {
+      "anchor": 0,
+      "complete_10k": 0,
+      "mean_completed": 496.25,
+      "mean_cost": 5.960265354635366,
+      "mean_difference_injections": 9.5,
+      "mean_interactions": 4.186945052578302,
+      "mean_max_depth": 496.25
+    },
+    "13": {
+      "anchor": 0,
+      "complete_10k": 0,
+      "mean_completed": 408,
+      "mean_cost": 5.993127672397849,
+      "mean_difference_injections": 9.375,
+      "mean_interactions": 4.210979821540995,
+      "mean_max_depth": 408
+    },
+    "2": {
+      "anchor": 1,
+      "complete_10k": 0,
+      "mean_completed": 349.875,
+      "mean_cost": 6.04840831598279,
+      "mean_difference_injections": 9.5,
+      "mean_interactions": 4.2678780158231,
+      "mean_max_depth": 349.875
+    },
+    "4": {
+      "anchor": 1,
+      "complete_10k": 0,
+      "mean_completed": 539.125,
+      "mean_cost": 6.044832947545068,
+      "mean_difference_injections": 10,
+      "mean_interactions": 4.292663410855374,
+      "mean_max_depth": 539.125
+    }
+  },
+  "precommit_commit": "dce9650c84afcf3e118b90ae5502d170fa184375",
+  "protocol": "ASYMMETRIC_DEEP_LINEAGE_V1",
+  "recombination_probe": {
+    "ok": false,
+    "route": "NOT_REACHED_WITHOUT_TWIN_FORK"
+  },
+  "symmetric_controls": {
+    "1": {
+      "anchor": null,
+      "complete_10k": 0,
+      "mean_completed": 433.125,
+      "mean_cost": 8.403035752848538,
+      "mean_interactions": 4.131769962110009
+    },
+    "7": {
+      "anchor": null,
+      "complete_10k": 0,
+      "mean_completed": 512.125,
+      "mean_cost": 8.416949052249368,
+      "mean_interactions": 4.068350054821389
+    }
+  },
+  "twin_history_probe": {
+    "archive_a": 0,
+    "archive_b": 0,
+    "common_targets_correct_both": 0,
+    "common_targets_found": 0,
+    "different_min_cost_count": 0,
+    "different_parent_pair_count": 0,
+    "jaccard": 1.0,
+    "ok": false,
+    "route": "NOT_REACHED_BEFORE_GENERATION_1000",
+    "semantic_overlap": 0,
+    "semantic_union": 0
+  },
+  "verdict": "PASS_ASYMMETRIC_CLASS_WITH_FINITE_STALL_V1"
+}
