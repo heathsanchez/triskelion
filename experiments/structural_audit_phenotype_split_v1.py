@@ -186,6 +186,62 @@ def independent_metrics(key:int):
         "recur_cycle_max":cycle_max,
     }
 
+
+DIRECT_DERIVATION_FIELDS=("d0","d1","d2","d3","recombinant3")
+DIRECT_RECURRENCE_FIELDS=(
+    "recur_distinct_sum","recur_distinct_max",
+    "recur_cycle_sum","recur_cycle_max",
+)
+
+def recurrence_metrics(key:int):
+    g,code=divmod(key,OP_COUNT)
+    op=DIGITS[code]
+    seeds=(X0,X1,CONST_CODES[g])
+    local={(a,b):local_cycle(op,a,b) for a in range(Q) for b in range(Q)}
+    distinct_sum=0
+    distinct_max=0
+    cycle_sum=0
+    cycle_max=0
+    for f in seeds:
+        F=DIGITS[f]
+        for h in seeds:
+            H=DIGITS[h]
+            mu=0
+            lam=1
+            for i in range(9):
+                m,cyc=local[(F[i],H[i])]
+                mu=max(mu,m)
+                lam=lcm(lam,cyc)
+            distinct=mu+lam
+            distinct_sum+=distinct
+            distinct_max=max(distinct_max,distinct)
+            cycle_sum+=lam
+            cycle_max=max(cycle_max,lam)
+    return {
+        "recur_distinct_sum":distinct_sum,
+        "recur_distinct_max":distinct_max,
+        "recur_cycle_sum":cycle_sum,
+        "recur_cycle_max":cycle_max,
+    }
+
+def orbit_symmetry_diagnostic(rawkey:int):
+    base=independent_metrics(rawkey)
+    relabel_diffs=set()
+    for p in PERMS:
+        m=independent_metrics(transform(rawkey,p,False))
+        for field in DIRECT_DERIVATION_FIELDS+DIRECT_RECURRENCE_FIELDS:
+            if m[field]!=base[field]:
+                relabel_diffs.add(field)
+    trans=independent_metrics(transform(rawkey,(0,1,2),True))
+    transpose_diffs=[
+        field for field in DIRECT_DERIVATION_FIELDS+DIRECT_RECURRENCE_FIELDS
+        if trans[field]!=base[field]
+    ]
+    return {
+        "carrier_relabel_differences":sorted(relabel_diffs),
+        "transpose_differences":sorted(transpose_diffs),
+    }
+
 def translations(key:int):
     g,code=divmod(key,OP_COUNT)
     op=DIGITS[code]
@@ -425,6 +481,97 @@ def build_aggregate(rows,reverse=False):
         "v4_consistent_orientation_distribution":dict(sorted(orientation_counter.items())),
     }
 
+
+def symmetry_compatibility_report(pointed_rows):
+    # Every raw pointed operation is a member of exactly one canonical orbit.
+    # Recurrence metrics are computed directly for every distinct raw member.
+    # The depth/recombinant fields are exactly invariant under:
+    #   (i) carrier relabeling, by conjugacy of the carrier action; and
+    #   (ii) global transpose, because each synchronous closure round ranges
+    #        over all ordered pairs, so swapping d(f,h) with d(h,f) leaves
+    #        the generated set unchanged. Essential-coordinate dependence is
+    #        preserved by the same carrier/output relabeling.
+    stats={}
+    for field in DIRECT_DERIVATION_FIELDS+DIRECT_RECURRENCE_FIELDS:
+        stats[field]={
+            "noninvariant_orbits":0,
+            "raw_weight_in_noninvariant_orbits":0,
+            "first_counterexample":None,
+            "method":"exact_structural_invariance" if field in DIRECT_DERIVATION_FIELDS else "direct_all_raw_members",
+        }
+
+    carrier_relabel_noninvariant={field:0 for field in DIRECT_RECURRENCE_FIELDS}
+    transpose_noninvariant={field:0 for field in DIRECT_RECURRENCE_FIELDS}
+    raw_members_examined=0
+    seen_raw=set()
+
+    for p_row in pointed_rows:
+        key=int(p_row["key"])
+        weight=int(p_row["weight"])
+        members=set()
+        no_swap=set()
+        swap_members=set()
+        for perm in PERMS:
+            a=transform(key,perm,False)
+            b=transform(key,perm,True)
+            members.add(a);members.add(b)
+            no_swap.add(a);swap_members.add(b)
+        if len(members)!=weight:
+            raise RuntimeError(f"orbit weight mismatch key={key} generated={len(members)} expected={weight}")
+        raw_members_examined+=len(members)
+        if seen_raw.intersection(members):
+            raise RuntimeError(f"raw orbit overlap at key={key}")
+        seen_raw.update(members)
+
+        rec_by_raw={raw:recurrence_metrics(raw) for raw in sorted(members)}
+        for field in DIRECT_RECURRENCE_FIELDS:
+            values={}
+            for raw,m in rec_by_raw.items():
+                values.setdefault(m[field],[]).append(raw)
+            if len(values)>1:
+                stats[field]["noninvariant_orbits"]+=1
+                stats[field]["raw_weight_in_noninvariant_orbits"]+=weight
+                if stats[field]["first_counterexample"] is None:
+                    groups=list(values.items())
+                    stats[field]["first_counterexample"]={
+                        "canonical_key":key,
+                        "raw_a":groups[0][1][0],
+                        "value_a":groups[0][0],
+                        "raw_b":groups[1][1][0],
+                        "value_b":groups[1][0],
+                    }
+
+            no_vals={rec_by_raw[r][field] for r in no_swap}
+            sw_vals={rec_by_raw[r][field] for r in swap_members}
+            if len(no_vals)>1:
+                carrier_relabel_noninvariant[field]+=1
+            # Relabel-invariant sets should each be singleton. A difference
+            # between the no-swap and swap value sets isolates transpose.
+            if no_vals!=sw_vals:
+                transpose_noninvariant[field]+=1
+
+    if raw_members_examined!=POINTED_COUNT or len(seen_raw)!=POINTED_COUNT:
+        raise RuntimeError(
+            f"expected exhaustive raw coverage {POINTED_COUNT}, got "
+            f"count={raw_members_examined} unique={len(seen_raw)}"
+        )
+
+    for field in DIRECT_DERIVATION_FIELDS:
+        stats[field]["carrier_relabel_noninvariant_orbits"]=0
+        stats[field]["transpose_noninvariant_orbits"]=0
+    for field in DIRECT_RECURRENCE_FIELDS:
+        stats[field]["carrier_relabel_noninvariant_orbits"]=carrier_relabel_noninvariant[field]
+        stats[field]["transpose_noninvariant_orbits"]=transpose_noninvariant[field]
+
+    return {
+        "raw_members_examined":raw_members_examined,
+        "unique_raw_members":len(seen_raw),
+        "direct_fields":stats,
+        "all_direct_fields_orbit_invariant":all(
+            s["noninvariant_orbits"]==0 for s in stats.values()
+        ),
+    }
+
 def main():
     if len(sys.argv)!=4:
         raise SystemExit("usage: structural_audit_phenotype_split_v1.py POINTED_RESULT DEV_RESULT OUT_DIR")
@@ -499,6 +646,17 @@ def main():
         rows.append(row)
 
     family=family_analysis(rows)
+    symmetry_compatibility=symmetry_compatibility_report(pointed_rows)
+    family_symmetry_status={}
+    for fam,fields in FAMILY_FIELDS.items():
+        direct=[f for f in fields if f in symmetry_compatibility["direct_fields"]]
+        family_symmetry_status[fam]={
+            "direct_fields_checked":direct,
+            "all_checked_fields_orbit_invariant":all(
+                symmetry_compatibility["direct_fields"][f]["noninvariant_orbits"]==0
+                for f in direct
+            ),
+        }
 
     # Symmetry audit on all six view signatures.
     sym_pass=0
@@ -573,6 +731,8 @@ def main():
         },
         "family_analysis":family,
         "family_fields":{k:list(v) for k,v in FAMILY_FIELDS.items()},
+        "family_symmetry_status":family_symmetry_status,
+        "symmetry_compatibility":symmetry_compatibility,
         "symmetry_audit":{"total":256,"passed":sym_pass,"failures":sym_fail},
         "aggregate_hash_forward":hash_a,
         "aggregate_hash_reverse":hash_b,
@@ -587,6 +747,8 @@ def main():
         "audit":result["audit"],
         "v4_reconstruction":result["v4_reconstruction"],
         "family_analysis":family,
+        "family_symmetry_status":family_symmetry_status,
+        "symmetry_compatibility":symmetry_compatibility,
         "symmetry_audit":result["symmetry_audit"],
         "headline_gates":gates,
         "aggregate_hash_forward":hash_a,
