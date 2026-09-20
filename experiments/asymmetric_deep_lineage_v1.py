@@ -1044,19 +1044,41 @@ def main() -> int:
     )
 
     snapshot = deep["_snapshot"]
-    twins = twin_probe(
-        law=canonical_law,
-        anchor=int(canonical_anchor),
-        base=snapshot,
-        seed="TRISKELION_ASYM_DEEP_V1:TWINS",
-    )
-    recomb = recombination_probe(
-        law=canonical_law,
-        anchor=int(canonical_anchor),
-        twin_a=twins["_a"],
-        twin_b=twins["_b"],
-        seed="TRISKELION_ASYM_DEEP_V1:RECOMB",
-    )
+    if snapshot is None:
+        # Scientific early-stall path: the frozen twin fork at generation 1,000
+        # was never reached. Record the downstream probes as not reached rather
+        # than crashing or substituting an earlier fork.
+        twins = {
+            "ok": False,
+            "route": "NOT_REACHED_BEFORE_GENERATION_1000",
+            "archive_a": 0,
+            "archive_b": 0,
+            "semantic_overlap": 0,
+            "semantic_union": 0,
+            "jaccard": 1.0,
+            "common_targets_found": 0,
+            "common_targets_correct_both": 0,
+            "different_parent_pair_count": 0,
+            "different_min_cost_count": 0,
+        }
+        recomb = {
+            "ok": False,
+            "route": "NOT_REACHED_WITHOUT_TWIN_FORK",
+        }
+    else:
+        twins = twin_probe(
+            law=canonical_law,
+            anchor=int(canonical_anchor),
+            base=snapshot,
+            seed="TRISKELION_ASYM_DEEP_V1:TWINS",
+        )
+        recomb = recombination_probe(
+            law=canonical_law,
+            anchor=int(canonical_anchor),
+            twin_a=twins["_a"],
+            twin_b=twins["_b"],
+            seed="TRISKELION_ASYM_DEEP_V1:RECOMB",
+        )
 
     deep_pub = public_run(deep)
     twins_pub = {k: v for k, v in twins.items() if not k.startswith("_")}
