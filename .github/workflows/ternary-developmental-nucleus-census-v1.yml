@@ -47,11 +47,11 @@ jobs:
       - name: Run developmental shard
         run: |
           mkdir -p /tmp/dev-shard
-          /tmp/ternary-dev-census \${{ matrix.shard }} 24 /tmp/dev-shard/shard_\${{ matrix.shard }}.tsv
+          /tmp/ternary-dev-census ${{ matrix.shard }} 24 /tmp/dev-shard/shard_${{ matrix.shard }}.tsv
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ternary-developmental-shard-\${{ matrix.shard }}
+          name: ternary-developmental-shard-${{ matrix.shard }}
           path: /tmp/dev-shard/
           if-no-files-found: error
           compression-level: 6
