@@ -1,0 +1,138 @@
+{
+  "claim_boundary": "Native GCC reality check on one deterministic 64-bit Boolean workload. Runtime timing is runner-specific. A positive result supports backend engineering tradeoffs; it does not validate CAP=1 as literal CPU cost.",
+  "headline_gates": {
+    "N10_hybrid_source_lt_35pct_expanded": true,
+    "N11_some_nonexpanded_compiles_faster": true,
+    "N12_deterministic_regeneration": true,
+    "N1_all_24_macros_reverified": true,
+    "N2_all_four_binaries_compile": true,
+    "N3_all_checksums_identical": true,
+    "N4_inline_runtime_le_115pct_expanded": true,
+    "N5_outline_text_lt_60pct_expanded": false,
+    "N6_hybrid_text_lt_75pct_expanded": false,
+    "N7_hybrid_runtime_le_125pct_fastest": false,
+    "N8_inline_source_lt_35pct_expanded": true,
+    "N9_outline_source_lt_35pct_expanded": true
+  },
+  "invocation_stream_hash": "08df8772c359e2a711a7fafd7300bc0bc5eca058d52c011c5b342431955fa9f6",
+  "macro_count": 24,
+  "metrics": {
+    "expanded": {
+      "checksums": [
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964
+      ],
+      "compile_seconds": 2.266605483999996,
+      "executable_bytes": 16120,
+      "median_ns": 1623,
+      "source_bytes": 2965479,
+      "text_bytes": 905,
+      "times_ns": [
+        1623,
+        1623,
+        1623,
+        1623,
+        1493,
+        1503,
+        1493
+      ]
+    },
+    "hybrid": {
+      "checksums": [
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964
+      ],
+      "compile_seconds": 10.705346226000003,
+      "executable_bytes": 233888,
+      "median_ns": 22035062,
+      "source_bytes": 786756,
+      "text_bytes": 209731,
+      "times_ns": [
+        22194667,
+        22065336,
+        22035062,
+        22274415,
+        21861674,
+        21908164,
+        21736736
+      ]
+    },
+    "inline": {
+      "checksums": [
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964
+      ],
+      "compile_seconds": 1.6822073320000044,
+      "executable_bytes": 16112,
+      "median_ns": 1503,
+      "source_bytes": 786414,
+      "text_bytes": 905,
+      "times_ns": [
+        1493,
+        1503,
+        1482,
+        1493,
+        1513,
+        1503,
+        1503
+      ]
+    },
+    "outline": {
+      "checksums": [
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964,
+        11432605045384383964
+      ],
+      "compile_seconds": 4.648935738999995,
+      "executable_bytes": 250344,
+      "median_ns": 74026870,
+      "source_bytes": 786870,
+      "text_bytes": 236906,
+      "times_ns": [
+        74031458,
+        78383884,
+        73939658,
+        73912017,
+        74026870,
+        73943355,
+        74188170
+      ]
+    }
+  },
+  "precommit_commit": "a820dc2c66789f0d877b68ff7d86bceed8e08c3c",
+  "protocol": "DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK",
+  "source_hashes": {
+    "expanded": "a27feac0f57069c9545a5f6e64c8461f552c4152a7317ad322854281e56538d8",
+    "hybrid": "f68b3344392f905a016ba3ea06b15b2ece3a1e69aaead950e16ad86c44a297e8",
+    "inline": "9cee8f52d1518f1a5a189846e820789a2a4b7c6ede2e38c788181dc752eee822",
+    "outline": "bd2624c11425617f82bc21b39816efef1a598cdadd8ea173e9f68d0fca19a784"
+  },
+  "top6_inline_macro_indices": [
+    1,
+    3,
+    11,
+    17,
+    19,
+    23
+  ],
+  "verdict": "PARTIAL_DEVELOPMENTAL_IR_V7_NATIVE_BACKEND_REALITY_CHECK"
+}
