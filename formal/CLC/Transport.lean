@@ -10,7 +10,7 @@ structure VerifiedTransport (A B : Form) where
   mapState : A.State → B.State
   pullTest : B.Test → A.Test
   liftProtect : ProtectedTest A → ProtectedTest B
-  pullProtected : ∀ d : B.Test, B.protected d → A.protected (pullTest d)
+  pullProtected : ∀ d : B.Test, B.isProtected d → A.isProtected (pullTest d)
   refine : ∀ (x : A.State) (d : B.Test),
     Refines (A.eval x (pullTest d)) (B.eval (mapState x) d)
   split : ∀ p : ProtectedTest A,
