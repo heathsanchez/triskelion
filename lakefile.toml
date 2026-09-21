@@ -1,6 +1,8 @@
 name = "clc-nucleus-adapter-v0"
 version = "0.1.0"
+defaultTargets = ["CLCAdapter"]
 
 [[lean_lib]]
 name = "CLCAdapter"
 srcDir = "formal"
+roots = ["CLCAdapter"]
