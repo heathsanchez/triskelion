@@ -5,7 +5,9 @@ on:
     branches:
       - experiment/clc-nucleus-adapter-v0
     paths:
+      - 'formal/Nucleus.lean'
       - 'formal/Nucleus/IndexedContext.lean'
+      - 'formal/CLC.lean'
       - 'formal/CLC/**'
       - 'formal/CLCAdapter.lean'
       - 'lakefile.toml'
