@@ -1,0 +1,89 @@
+{
+  "all_operation_family_exact_stable_arms": [],
+  "axes": {
+    "arms": [
+      "NONE",
+      "D",
+      "M",
+      "I",
+      "DM",
+      "DI",
+      "MI",
+      "DMI"
+    ],
+    "budgets": [
+      8,
+      24,
+      48
+    ],
+    "carriers": [
+      3,
+      4,
+      5
+    ],
+    "operation_families": [
+      "ALL16",
+      "SYMMETRIC",
+      "ASYMMETRIC"
+    ],
+    "protected_profiles": [
+      "VALUE",
+      "LINEAGE",
+      "COUNTERFACTUAL",
+      "ADAPTIVE"
+    ],
+    "seeds_per_carrier": 12,
+    "success_contracts": [
+      "CURRENT",
+      "DEPTH3",
+      "DEPTH6",
+      "RECOVERY"
+    ],
+    "verifiers": [
+      "EXACT",
+      "HALF",
+      "POSITIVE"
+    ]
+  },
+  "claim_boundary": "Finite synthetic tournament over declared binary carriers, operation-family restrictions, developmental-role subsets, verifier regimes and resource budgets only.",
+  "dmi_exact_family_rates": {
+    "ALL16": {
+      "adaptive_passes": 25,
+      "runs": 108
+    },
+    "ASYMMETRIC": {
+      "adaptive_passes": 0,
+      "runs": 108
+    },
+    "SYMMETRIC": {
+      "adaptive_passes": 2,
+      "runs": 108
+    }
+  },
+  "exact_all16_all_carrier_budget_stable_arms": [],
+  "precommit_commit": "b7b630d957454fbbd8bb0b78db051376e9be623f",
+  "protocol": "ASSUMPTION_TOURNAMENT_V1",
+  "records": 7776,
+  "strongest_nonzero_cells": 10,
+  "summary_hash": "4570767984518a9ee7058bd53a486e8ca799f229405a5a38e8e2de18b6d139cf",
+  "verdict": "CONDITIONAL_EMERGENT_CORE_V1",
+  "verifier_false_promotion": {
+    "EXACT": {
+      "false_promotions": 0,
+      "runs": 2592,
+      "runs_with_false_promotion": 0
+    },
+    "HALF": {
+      "false_promotions": 732,
+      "runs": 2592,
+      "runs_with_false_promotion": 253
+    },
+    "POSITIVE": {
+      "false_promotions": 2882,
+      "runs": 2592,
+      "runs_with_false_promotion": 558
+    }
+  },
+  "world_failures": [],
+  "world_hash": "49402ccd752366725d953963a7d69b2b2979113d06bffe354162e6161d5b052c"
+}
