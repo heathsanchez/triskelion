@@ -1,0 +1,2675 @@
+{
+  "closures": {
+    "0": {
+      "both": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "2ae126746fe8f12d3df98c8209531ed60d526006dfe5fc5b0f71f64509e24d71",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "adf164e3830dc07eb7c201c74d82965d64955cf2fdd01caa7690f6407054f505",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 5,
+          "hash": "b1f90e0953e424ba6944aa55f0d7668659b580da497248f2b8a18492e7d6947b",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 6,
+          "hash": "02ed25012e89b1bd88d990148835c1eecd9171202776ee027dcc07414f344d37",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "5e2077e83227767f3372812b0187cb9406de6608a891dc1fb1571fb6cd0bd208",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "6e2dc508b5c16bc4d99d5bd8b8e40516613002fe7175cd7ed1dd175cd005386a",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "91d69042bf57762c4d8ca73ad8e741b423dc42c96d7ae3f6496b1e911acf27f9",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "6738797ccdb2dd455e355dcbb626b9567c8e42759d5747eb77004de90f8a218b",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "a525f78f30937a4f0eb372a4d8670e3fd06f59d0465ddecc050ec52f4c497db9",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "e40492a68d5449663ddbb37a8557743891b3db45cbcd4c55181355c9493aeeb9",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 5,
+          "hash": "7b6a5cc661378dc0f9354fa67cb3bb23663a648eda5cc0c6ca3ecf9ef17613fc",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 6,
+          "hash": "6e1b3ac1bbb9987156bb478bd34661264886eae88532c8bc537e0bf68a296f82",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "57b61baa3c1be0126d4294fdadbcc934b5dc9dbdbdb2c8c69fa1a4e744f8d56b",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "e04f7dc640c569305123ecc1403721259abf93123d53e761b840bef0c83cfdd0",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "7824a320b656f421e17d57b4bb7c0d54fbd69afd38b53b93c5efaf745c160beb",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "1": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "24682f8f12e8fc23fa0c8c376fb62fd4d28b12d9c7ebd18067fc10fa7321a578",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "b8f074b6bb6506da7d95b339a78f60721bae1d571ddf99b630da8fc262dfce53",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "5d6e53fca8c70805db304ec5dab7976e3a1a00e2648af244763465009259b036",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "045d749157487b3d18cdc8d306500b6a68189841749435522daee3839f96e82b",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "5662c774acb3686280ae63f67b5c7e10bc6f4c280621854e5b814d8b71c28fc9",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "0863f69b9dee94b1f1944b03ecdad01c61bce9c0045c2a57de37b1daa7a768c5",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "59a605da0d10cb68f97c507f395ebfca90218030e5f68e4812856450cf505700",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "83edbd6509a31530f1b7406e712e1d793297d4d442cae3d9ce5753c39acffa9a",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "one": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "685de48eb0fe04fb08d8bcb76d6fb356a0f5efa65f258a45412bfbdb97470395",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "c7e46a52d6c491f96fd46f75705365740ac03cab40188d275430dd28c6c61e5e",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "a25c6ec830a88d55980a75d064995bc80ecb6d8907277e62758e15316b172467",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "7a4a17bad2a17190ffcae155719ba4ba25f936e437a1250e972c83f61c5d7704",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "3d44c6688cb6e137f015f55de196f184af355206b85cf19f819b6dc9e7b32fba",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "16c65e012761d1872115dec88d7cb206cd5e4aa5ca86064849a6b4603f7b8c23",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "b6b3ba54b0b4e5f92adee2f289d61be7f154f325fcc692a94dea45553a5e7db3",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "54547e3ff260b90b86cff2f8fe1d88f3f71caaf149b0438f76e78efc81c44047",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "10": {
+      "both": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "2ae126746fe8f12d3df98c8209531ed60d526006dfe5fc5b0f71f64509e24d71",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "adf164e3830dc07eb7c201c74d82965d64955cf2fdd01caa7690f6407054f505",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 5,
+          "hash": "b1f90e0953e424ba6944aa55f0d7668659b580da497248f2b8a18492e7d6947b",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 6,
+          "hash": "02ed25012e89b1bd88d990148835c1eecd9171202776ee027dcc07414f344d37",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 1,
+          "hash": "9a2b78174fc7f410c3cf76247a8005d3665c38ada654cff4c4395a61247193c2",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 2,
+          "hash": "76599a8b35772bf382e64470d6293d1058dd2c28698f95decb25aae6a76a7c22",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 3,
+          "hash": "219d3fcc7434e7099685fc333061258ef8365c7dd7fc0113dc0a1376f5a8aef8",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 4,
+          "hash": "950eec074ca52cc92b36e1ac63490c75efe4c1574da8079778207686079ebec9",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "a226c7579cdec60dbcd8193acc2f6bb91548da5d07643bf506db041fca97d6e8",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "2ac6603a160aaf629049c49fda7078dec8313b28dcd56c2032f19736ad918cd7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "2c72c819be5a7e9f9710154631ab0d7e9f94ec9843b019fd5d2df92fc0def2ef",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "57b61baa3c1be0126d4294fdadbcc934b5dc9dbdbdb2c8c69fa1a4e744f8d56b",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "e04f7dc640c569305123ecc1403721259abf93123d53e761b840bef0c83cfdd0",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "7824a320b656f421e17d57b4bb7c0d54fbd69afd38b53b93c5efaf745c160beb",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "11": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "a5955238e228aedb6298702b1830a1728fceed6fe00444750d420d0d207257c8",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "3b6d6e0fb6f0599eb0db23f345ff0e665216a6fb654953088a168075cc34c171",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "1cb8ef2eafaa4e1d36fb3aa14337ab1660aafac3d0f5e10c7c51f72639e1ee81",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "3907821b11ac666cbac9559fcd9f3ee45ed7caf8326d329b25f03c1344143dd1",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "3b5bf04a5c52e377c4f424338f53bfb7f56e3c6f8c3bd1056c236bebc3213ffa",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "fb1c6f629db8eaa0b33f00ee93bb405c0c6db233bfccb606b09aac39e2cb7719",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "83e5ce022c357a27c7a838a030f494c10c14a8d3337df82444efa55647d608ee",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "282107dd541570e62595e46bd2ddce06043730005634e9c0df36b7d3b76c84bc",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "125ee1d1c5d78d8ced56bed043bfc7d69f5c8b463fb082c5e040468c86b8ea03",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "bb25320f48d3a40ee76717d4b5ff2fc0413417c7476af0965ca716255ff74204",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "55ba2b16a505c91f5c7ad4bf0ba01276a67b8457107ed3c1f698f83283dc2688",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "0a232ebd3835eb7d6fb596fd7cfb8158a0e9f7fccaf82a7e84518b924d24bc36",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "c071eda19a7a493f2db1a9d30ef9ec02637fcb18dff47283d8a98599bec17f25",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "ef6ebb4d35e6c4605c3c782dc6f01d8589785789c1233f3b014cdeef6f11efbe",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "9a1617d6532a6ca6f33a55f6f9a72d88069e6765345b3a09f79783332301a722",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "12": {
+      "both": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "2ae126746fe8f12d3df98c8209531ed60d526006dfe5fc5b0f71f64509e24d71",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "adf164e3830dc07eb7c201c74d82965d64955cf2fdd01caa7690f6407054f505",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 5,
+          "hash": "b1f90e0953e424ba6944aa55f0d7668659b580da497248f2b8a18492e7d6947b",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 6,
+          "hash": "02ed25012e89b1bd88d990148835c1eecd9171202776ee027dcc07414f344d37",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 1,
+          "hash": "9a2b78174fc7f410c3cf76247a8005d3665c38ada654cff4c4395a61247193c2",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 2,
+          "hash": "76599a8b35772bf382e64470d6293d1058dd2c28698f95decb25aae6a76a7c22",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 3,
+          "hash": "219d3fcc7434e7099685fc333061258ef8365c7dd7fc0113dc0a1376f5a8aef8",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 4,
+          "hash": "950eec074ca52cc92b36e1ac63490c75efe4c1574da8079778207686079ebec9",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "a226c7579cdec60dbcd8193acc2f6bb91548da5d07643bf506db041fca97d6e8",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "2ac6603a160aaf629049c49fda7078dec8313b28dcd56c2032f19736ad918cd7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "2c72c819be5a7e9f9710154631ab0d7e9f94ec9843b019fd5d2df92fc0def2ef",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "57b61baa3c1be0126d4294fdadbcc934b5dc9dbdbdb2c8c69fa1a4e744f8d56b",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "e04f7dc640c569305123ecc1403721259abf93123d53e761b840bef0c83cfdd0",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "7824a320b656f421e17d57b4bb7c0d54fbd69afd38b53b93c5efaf745c160beb",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "13": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "24682f8f12e8fc23fa0c8c376fb62fd4d28b12d9c7ebd18067fc10fa7321a578",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "88067b51afa318cada6705fb34cd4aa917a1771fd60b095afdb38b248d273e2d",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "e3bb412839bf3b29194b34b550cb5d302e423434b8f0fdcf7c9e8ce60a9b61ca",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "2c9a8bd60e5fcfd74d81d0a7f90c0aadea819db5aa4d6431b68a6e183b131d13",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "3b5bf04a5c52e377c4f424338f53bfb7f56e3c6f8c3bd1056c236bebc3213ffa",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "65a83da53ff4e9d92e46006d363da95d5146dceebdf9ddbd7b8996bac15bb932",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "f9883641d139186ba53931dad5e9e7d7daa89e7cc6a727e8d4ce6b38cb858561",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "8adc0595ecc0bfd0ab2261a26044d824b5112e42b97a89b87789dc4320614ee6",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "6b30ddf128a1cee9724bbc7f3060ca78970032c1c237fa0a524d4ee0d5c4ea96",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "c46edc8374def3e9f171985ea19a671412a5379eb8a4bcf32eef16b631758df4",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "52a65612a17bf66c26ac8776acfd57267304215b746d75a65c823367881cdaa9",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "3d44c6688cb6e137f015f55de196f184af355206b85cf19f819b6dc9e7b32fba",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "f6971de5d62677d03c090acb3afc036e29a5ff9dcf5cecd718faea01c4d78f23",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "f75d6779cdbce9d7a7b1e6bce2b58955fc609dc0a2be5ffc08f7d1ef8a59dbd8",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "2dfe6ea139149d8143b1df74571049c975cf372a62170abda1d1d87f04f4c06d",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "14": {
+      "both": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "2ae126746fe8f12d3df98c8209531ed60d526006dfe5fc5b0f71f64509e24d71",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 5,
+          "hash": "5c997236228d4d2fd77850c523d3e079497c1a61002bb10451607e5761575c1b",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 9,
+          "hash": "bc0abf83cedebf7e8a964e1feee473252127b80dcb285dc3eb6c7aaf8c46e11d",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 17,
+          "hash": "605597f8e42c985596f0fa75cd3f2bb7c2fcef796688bf04927ed4145131801f",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 1,
+          "hash": "9a2b78174fc7f410c3cf76247a8005d3665c38ada654cff4c4395a61247193c2",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "a9660d7f9725ca2ecd2420abefc8f654f8d15c979bdbc866215fed31a8a95df8",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 7,
+          "hash": "00b3148b66415d9e74b21423d25db84cefe373e8631efb92c9f97589576e0700",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 15,
+          "hash": "04ca36f48cf46456274d40decd5db26c81a7fd659563a8f0abb9f334443252d2",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "c2a35c9231d97dff3ceddedbd8a67c025b15ca4f4744bf14ecca1dcc01625232",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "afc72cf77af6e009f5ebe18c0a57aa2231ff0c1ac1c1ce69e485ef3573b09245",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "9b3b8c2494cb4b16cdd71489851a3456a2a30366732911a54ac081f0b0d28b72",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "619acb652261e39ecf277cac40a5dee0990a82c5a53ff3dcc2f1308b8f4a39ea",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "ef761e4594e3c982d0eb2126bd15131604bfe3b1da34cbb82bcd8c0b35809d9c",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "a8637a6858d70b5fc1ebd9d4159e2f3e3d27c769be59c25c158496c4751f0682",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "15": {
+      "both": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "2ae126746fe8f12d3df98c8209531ed60d526006dfe5fc5b0f71f64509e24d71",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "adf164e3830dc07eb7c201c74d82965d64955cf2fdd01caa7690f6407054f505",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 5,
+          "hash": "b1f90e0953e424ba6944aa55f0d7668659b580da497248f2b8a18492e7d6947b",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 6,
+          "hash": "02ed25012e89b1bd88d990148835c1eecd9171202776ee027dcc07414f344d37",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "3b5bf04a5c52e377c4f424338f53bfb7f56e3c6f8c3bd1056c236bebc3213ffa",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "47592b92338d9c2474750d437aa584ffacc0ad7cb4c81b89f733b8f1e339d989",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "5da8b8659ca36f17178126afb84ce093fe8d493953e401eb1b5186a486e3a47d",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "e5e5ee92df0dd8260630bd9f1e237f4e2b70927ff8eefa6373a4683f94d1636b",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "a226c7579cdec60dbcd8193acc2f6bb91548da5d07643bf506db041fca97d6e8",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 4,
+          "hash": "2ac6603a160aaf629049c49fda7078dec8313b28dcd56c2032f19736ad918cd7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 5,
+          "hash": "2c72c819be5a7e9f9710154631ab0d7e9f94ec9843b019fd5d2df92fc0def2ef",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "7d75b48550b781f7a949124b41ffb36826ab48862f870c2994e877dbbb253602",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "ca2ad2f8143360d7c3d92b63e8d2ee056f76e16f2a84d800c37ea81d2bfc164c",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 5,
+          "hash": "59d45328163308f9c9425eeee611f65e5b7eeeb96e6751e6389688c879e2ac0a",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 6,
+          "hash": "51657d94ad5bf68ded03022e61787ea136cf9a02c4ef2fdb874d8e80eefaac9a",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "2": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "6fcf9628a8d6e71ab3668cbd2e47a0346c03e1786a4bc0bdf09db05a60a3e157",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "b355dad76f78e775d4fcce35f52dd8dd641c31116a0ed923a8c736245e4fcb0d",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "b2d5f0e0af6b12a491a15b6838069337ba2af2e63529843c53c17610b295c1c2",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "e5f6e0612a6c677d39842dc6b731038a0dd7239524c20e83230c4e155d73eca2",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "5e2077e83227767f3372812b0187cb9406de6608a891dc1fb1571fb6cd0bd208",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "2f551684bd9688365193fa29647d347279e3bc4a9882b1baa47ca1ee670707d1",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "0c66b7412e5f02eae8687a5196a76299ea0195f9f587b91b8360c79d103cd5e0",
+          "one_derived": false,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "206967513890a10a172089e4831393c3c7777309ab72b5cb270fca4deae042ec",
+          "one_derived": false,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "one": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "1ef115e345799caccf0ac43c30bf2afbba9c3a5fa19bce468ff370e1bf59af9c",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "e41d1ca3c833a8e9443b4f4b31261dc5bd6e996e622633b0fc65b28ce25bb20c",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "bac44457724b148d1aaa3f62c017f322372e74c71cf54a8975f401ffc86c924e",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "7db62d7c594af83e17f63c87f53a17534fc2fcc4ff90d3f8d873e88c18bb6f4b",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "0f70d6a52a820bb01d7f41592b4603972462946a917c36106166a9b663c50e5c",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "5fed74f362fe68ad5bcbcf3235a077b82e0f621427caeb82c3ec9af24565d5b8",
+          "one_derived": false,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "bdccedb668fb9222a3055f614ed7535c81fb895aade7121e90736bfe5d5383d0",
+          "one_derived": false,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "3": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "a5955238e228aedb6298702b1830a1728fceed6fe00444750d420d0d207257c8",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "2d46eb97e8fdacf5cd064db582bab0348de1af73ab23c4e18099a134526e28a4",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "d283b61efe2d9828a686f3bbe7a93396b2e2d39bf619a07c765fd73e18c5fe3e",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 10,
+          "hash": "5255fa45ec3fc0ad33f6170ae4d4230f6564628b940efd74f6e82118624f357a",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "0ba151d97753064e2f0dcaa8f4f77ea2014eee399c37f1329e11a2de9aad9946",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "16055fc3ae05e8e5ad344dfc0b54f877a5a32c7465eefb818da9eb8f50836445",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 6,
+          "hash": "369b1748f8d15c5e5135a08d26882da85c931ec902ab9a80f966b1e3cf486092",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 8,
+          "hash": "d39db2d477cf6d620d3dc3ffb5bedd77e02e81457f1206d0c4299eb59b880f5d",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "1ef115e345799caccf0ac43c30bf2afbba9c3a5fa19bce468ff370e1bf59af9c",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "5839919afd2525a7eef925862c94e767ec8b51182b6c9efeea19f15c0581b3f0",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "9cb70a810b993970afc316ff4c9c7daaf304724a43dc8d983e993ac425d96d53",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 10,
+          "hash": "9e6dc5bbd2704119df5bad32af2c7f697f336f029025acdae7c26abf7654e0d1",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "0a232ebd3835eb7d6fb596fd7cfb8158a0e9f7fccaf82a7e84518b924d24bc36",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "66a10a84a08492ae92a42b02a1099df819403e42cf1b49d948d980258b581f91",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "65bac8f7874a40fa046d8dd95a0fd5ba992d8ad0853b3e6c40b0203054463072",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 10,
+          "hash": "737ec353cb0cad2f9970490413048859f35c4f60b5a0417ee9416b3d600a4967",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "4": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "c7cd2fcc9e503eb91dec636882851f9b7920670aba7c6c6926ce4fefb0068198",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "8b47b47b93459493a2a1cddee424ace4b52636ba39f42950755710f5b4716848",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "5b039d5e6adf3c035f2ef58e3a4f015ef5ac481fede8798c22588f43eb81fc1e",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "cfcb210f00ed6fba4b2ec4c58a8bf1af1776b40d084b0b1379f22a06e22df3f4",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "5e2077e83227767f3372812b0187cb9406de6608a891dc1fb1571fb6cd0bd208",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "c8e08598ebe22e1d5e727f8880eb17be4088f6fe8e59d2899eb9d7a991803616",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "71129fc1efaca1eca4b0ca404ac893031d8537fdfd65b4657c1f61d3f5ebb444",
+          "one_derived": false,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "b814da3ada1f45d402b352bbb1602a2c0d5c43cf7481e5c1d9fe0f87a6e1f952",
+          "one_derived": false,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "one": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "eed42c2b7f4e97ca369bd0687c6fd83c97ea3e0483eca124d56116d4d204f92c",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "e454d498d854309297fe27066852d66417588cc2ab33be3a1bca3b6f973e5d15",
+          "one_derived": true,
+          "rounds": 4,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "2d6af9317d03543df848ced4b32cbf7082367c16c6e7c153d35b20703f934931",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "e3caf6a2ce45e39e3bb7b5ea4cfc446e226f9c0b77e0ae968a82d176923931ab",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "dcf7aa967e31bd473b703f1758946796412bd24db6407cf0996dd3b563df36dc",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 38,
+          "hash": "c1c18fac981c644513065235fdbb942cc3d16b7fa0ef24684957743b385f62d6",
+          "one_derived": false,
+          "rounds": 4,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 942,
+          "hash": "fb926c3205dc8d6016a2d94ebba628fd47cc8e85069ec3b7fc7c2b189f9effb5",
+          "one_derived": false,
+          "rounds": 5,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "5": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "24682f8f12e8fc23fa0c8c376fb62fd4d28b12d9c7ebd18067fc10fa7321a578",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "8f51b565845a687704f4f44c2092509b1cb5953681b43ad953dbfc94a08b48e5",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "0da55b5ac90cf9d599d41a1a827e60dac4a114000f20638daef5a4dace549619",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 10,
+          "hash": "3b9c297443bf7bf31d63800dbb838f4ca95cff63e47276b1514610c21c705625",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "0ba151d97753064e2f0dcaa8f4f77ea2014eee399c37f1329e11a2de9aad9946",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "9b8a5be94405116dc32eb28c34a945044c17689e7cdbcbd2e2ca08cab504a778",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 6,
+          "hash": "c8aa281134d9ea091032baf046357eec06375ad597f98c98a31566e6ae79825f",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 8,
+          "hash": "1b6500b92675490f3e7070c55cd015ba29771d7ec36a25a576a4ab6e5a7779df",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "eed42c2b7f4e97ca369bd0687c6fd83c97ea3e0483eca124d56116d4d204f92c",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "cb94d851510556641291b3e0a2b5c978a0532f76c9e014155909ed8ab7f3c575",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "413de5c9fa7fe275456fb8b3c333d14d8f1352348b3e976dbec0795cca4f027b",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 10,
+          "hash": "7a8dbb57009e1523f2052d063ef9e5276dc9722d5b7bc15ad4a43af0d5b550d3",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "3d44c6688cb6e137f015f55de196f184af355206b85cf19f819b6dc9e7b32fba",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 6,
+          "hash": "85fa7114c70dd9da1f5113622a50329054e331c195c3154be4437e3f90892d22",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "3ae49ad68e45af7cfed6db9ad04b7020b6a537b13302ff904ed2f47b1a109d82",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 10,
+          "hash": "8da355573dd53c33170eb7d05e2ff121dfd5f6c849529fc64fb83ef1de6bfe5f",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "6": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "c7cd2fcc9e503eb91dec636882851f9b7920670aba7c6c6926ce4fefb0068198",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 8,
+          "hash": "42e7c31d7a3b9de046c163ee90628cd0350dee544afefb99b90b5292965c5b30",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 16,
+          "hash": "60cedd0571cdd81e44b261adda564f4dc92a801c884395e31f675fe53dd3739c",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 32,
+          "hash": "d14bdc0081b04e0eed3fe9207ce27d6fcd526b213fb6c49413f59376cf1c1fe9",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "5e2077e83227767f3372812b0187cb9406de6608a891dc1fb1571fb6cd0bd208",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "bc2bfd1cf6b0aa831e7507f196d5abb95c851a494d5176b40280ea0106dc03f3",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "879b65460c6d6904d10469535c06969ed46514a9ce4aa44ff526700d050dc1cf",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "c93b39905dc1bb4ffc667fddb17390613f2b905be557810df2d4f0f218c1dd39",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "one": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "eed42c2b7f4e97ca369bd0687c6fd83c97ea3e0483eca124d56116d4d204f92c",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 8,
+          "hash": "1da93dd5da9601dca8ff8a525e1fdd996e33b1fe854b0c53eca6e29554b1d9f3",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 16,
+          "hash": "d16013daf3f0a20c09ebf6cdb190b59a5d5da94757f0ca79a85c61c52a35b265",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 32,
+          "hash": "b4f6a4b37f852a9ae46b3d32a833cbc876df3ea1eef3b00682f8e0aedcdd1758",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "93588c53fbe5aca575da47a4fee7f84a62ee8dbae8e87dd01afb3a68149d8dfe",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "8c556b5e96c45c7ce2e9e00275eec1ab3a1785090bab7f8ef0895ef6dd303539",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "2d8fa735a5f4c112a2fc061d49cc22ae9dacc2984a1ffbb75e5c07a93c8568c2",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "7": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "c7cd2fcc9e503eb91dec636882851f9b7920670aba7c6c6926ce4fefb0068198",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "dc6f771646500fbfda236da14a77e0a6ff2885bddd5b6e711a9c351b99e019e7",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "453c32b6870ace73633d3a2b1c981957b5a734a780511d271acadbe11b487adc",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "dcbbd482e5fcf26bb29bed0c422d44be15203058ab3b3b1e9990e3c4f294cddb",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "336b40d966e74c98d7d11f13ce102ce4c5201204d9b9846db0cd5a0c89514052",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "5d0b8951893e678fcf03badff3a082fcf16d3fa0c6514ef75962e27bbe4f17c9",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "6c48ab4f0df122cf2486e0422a801533cc19d354cfc27e04be073c01b30c1aff",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "35bfe7a9f510e85f3e32b1695db5cc52dd1e616cd44be466a7185ca1b56710b8",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "one": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "eed42c2b7f4e97ca369bd0687c6fd83c97ea3e0483eca124d56116d4d204f92c",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "b942fb5eb7795626841d7b27272384f01c1f21309affd4ee87bd054991ef9e06",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "892b02e4aff6b24611c0dc9a846c7bc52b8ebb22f5c8f9ecb92852fb71e47a1a",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "3929133fdf8df71bb4815b28dd0af85f427ebdbb9ea30f1df76f58053f638abd",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "f3b59a1fdcb01f827ea46898fbbf777aaeb2e21438c8586d55e0da0a6a28da3b",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": true,
+          "count": 16,
+          "hash": "1570531f9726d5b2d7bc6ec764cba8ce6dfbecf8bd971a57408fc036f857837d",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": true,
+          "count": 256,
+          "hash": "fd274ff9e132a75ecd96c2c79cac4e22ba3be4fd57f6d7e2e4b86236146f7c55",
+          "one_derived": true,
+          "rounds": 5,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": true,
+          "count": 65536,
+          "hash": "d0468c972d5e7b6ab7cb449209ffa54234ae964412d18b603fe11970a74df68c",
+          "one_derived": true,
+          "rounds": 6,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "8": {
+      "both": {
+        "1": {
+          "complete": false,
+          "count": 3,
+          "hash": "2ae126746fe8f12d3df98c8209531ed60d526006dfe5fc5b0f71f64509e24d71",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 5,
+          "hash": "d30065eff087c37d1468f2efe5b4660dec39b6b3c7546ed6c231cfea27aeb7ef",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 9,
+          "hash": "983db812668bd0c09a98a338e5ca0981ce9e9544f22bce8936f59752233ca730",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 17,
+          "hash": "4729f6b39eeefd6ce47c6e754f25e09630182953c3502b57e2ccbf257b6dcfb0",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 1,
+          "hash": "9a2b78174fc7f410c3cf76247a8005d3665c38ada654cff4c4395a61247193c2",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 3,
+          "hash": "b5c59adb51d15ccd15082c60f350a8b30dc9a8f77d5c18edcc67e2c93517d84e",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 7,
+          "hash": "43057f72563a9d602d071fea0bc85ac47e599d0a853cdcb8a4bc44ce9f58a38a",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 15,
+          "hash": "b6e26a84da228dd41855162b40b800ffd613bf129c7f650752017bf1b4cf0c29",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "a2b59f04948d04f83a12c9712bc1c3df7f3ca94195994581d456a736ccbb3ff8",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "3aa2ff2a7b3a988a61265ea16e7b6a9811a33d8c9a58539b96e0f18f7ab715f7",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "05c6d4577505a0ef1398a9698d89ec0074a241c0c0dceb8de3246afc1cf90ec5",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "f0fccef67a854217488db53b5d93370c5cddd7da421286ec4543df355df82625",
+          "one_derived": false,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "c74546e30a0f1bbe142feeafcfebec632022102333a73fb0bb3a810ffa802a3c",
+          "one_derived": false,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "4251729bddb38103bf3fe8653761bd5779d857b7b034253f29996ca320966b1c",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "a44441a3a5fa97b4576b4cc0d73271ab66cc52bf2d5397a9c50aae69a9aacd15",
+          "one_derived": false,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    },
+    "9": {
+      "both": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "24682f8f12e8fc23fa0c8c376fb62fd4d28b12d9c7ebd18067fc10fa7321a578",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 8,
+          "hash": "68c0045b4af5b087078d2c4077313d6f810446145b3095831d2837481d752247",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 16,
+          "hash": "f2da8475634373447a8956550069f097285e257052c25f1f1134368306df4ab7",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 32,
+          "hash": "d6aa4751fec75b9b6045d41f25e0793a0921f4caaddb1df988008d5a188eef5a",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 65536,
+          "zero_derived": true
+        }
+      },
+      "none": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "3b5bf04a5c52e377c4f424338f53bfb7f56e3c6f8c3bd1056c236bebc3213ffa",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "e768ef03c78668f9eea87cd76713c72face3efdeb281a9de48f44f3bd5b52ac3",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "b11670e3932dca2ec9999624743067383e4cda189dc9c14bf490c0dd845a8ead",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "da023db3fe319de067154a4f364947b0311522558d8295a879307477267e56bc",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "one": {
+        "1": {
+          "complete": false,
+          "count": 2,
+          "hash": "2dc333ac839e760dfb6327ca61f93eb6bb5a6c95aeac266e44f0bfe795a46bc7",
+          "one_derived": true,
+          "rounds": 0,
+          "total": 4,
+          "zero_derived": false
+        },
+        "2": {
+          "complete": false,
+          "count": 4,
+          "hash": "567e985e92b7fd7ce860e8647a61c537e1f85745ddb2c77c088881a507d2221a",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 16,
+          "zero_derived": false
+        },
+        "3": {
+          "complete": false,
+          "count": 8,
+          "hash": "c1752a06e49f02742b3d9cd764a9f85807e6e3293e171929289bca95ababd500",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": false
+        },
+        "4": {
+          "complete": false,
+          "count": 16,
+          "hash": "45706436949450a98d5a2c52ae234f2573a302a805195b25a7b03ca610977a2e",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 65536,
+          "zero_derived": false
+        }
+      },
+      "zero": {
+        "1": {
+          "complete": true,
+          "count": 4,
+          "hash": "3d44c6688cb6e137f015f55de196f184af355206b85cf19f819b6dc9e7b32fba",
+          "one_derived": true,
+          "rounds": 1,
+          "total": 4,
+          "zero_derived": true
+        },
+        "2": {
+          "complete": false,
+          "count": 8,
+          "hash": "f82c10ee4f2959a142dee0f1b8ea41a231cce0cbb5b8429b0e68589d3f0b6f80",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 16,
+          "zero_derived": true
+        },
+        "3": {
+          "complete": false,
+          "count": 16,
+          "hash": "7b75b6f2101c78b973492d6e200be4813551abf1e1390ca94e6505e87e8bbee5",
+          "one_derived": true,
+          "rounds": 2,
+          "total": 256,
+          "zero_derived": true
+        },
+        "4": {
+          "complete": false,
+          "count": 32,
+          "hash": "62ec332f4ffc735d5a2aff9ff8e7ebb4462efab5d5e5983b70464078bef4867f",
+          "one_derived": true,
+          "rounds": 3,
+          "total": 65536,
+          "zero_derived": true
+        }
+      }
+    }
+  },
+  "summary": {
+    "claim_boundary": "Finite exact Boolean result through n=4 plus frozen lineage trials only.",
+    "closure_hash": "852adcbf6b6c3e8a15047d4a7e91e3e41ae3d5785ffb7ce3ee933e5e858b2055",
+    "complete_candidates": [
+      {
+        "regime": "none",
+        "relation": 1
+      },
+      {
+        "regime": "zero",
+        "relation": 1
+      },
+      {
+        "regime": "one",
+        "relation": 1
+      },
+      {
+        "regime": "both",
+        "relation": 1
+      },
+      {
+        "regime": "one",
+        "relation": 2
+      },
+      {
+        "regime": "both",
+        "relation": 2
+      },
+      {
+        "regime": "one",
+        "relation": 4
+      },
+      {
+        "regime": "both",
+        "relation": 4
+      },
+      {
+        "regime": "none",
+        "relation": 7
+      },
+      {
+        "regime": "zero",
+        "relation": 7
+      },
+      {
+        "regime": "one",
+        "relation": 7
+      },
+      {
+        "regime": "both",
+        "relation": 7
+      },
+      {
+        "regime": "zero",
+        "relation": 11
+      },
+      {
+        "regime": "both",
+        "relation": 11
+      },
+      {
+        "regime": "zero",
+        "relation": 13
+      },
+      {
+        "regime": "both",
+        "relation": 13
+      }
+    ],
+    "ground_directed_difference_survives": false,
+    "headline_gates": {
+      "N10_minimal_exists": true,
+      "N11_dual_anchor_no_cardinality_gain": true,
+      "N12_robust_injection_reopens": true,
+      "N13_ranking_name_blind": true,
+      "N14_report_robust_symmetry_equivalence": true,
+      "N1_all_candidates_evaluated": true,
+      "N2_exact_deterministic": true,
+      "N3_complete_claims_full": true,
+      "N4_remove_relation_breaks": true,
+      "N5_required_anchor_removal_breaks": true,
+      "N6_no_smaller_anchor_regime": true,
+      "N7_symmetry_partition": true,
+      "N8_replay_hashes": true,
+      "N9_set_bitvector_agree": true
+    },
+    "minimal_candidates": [
+      {
+        "regime": "none",
+        "relation": 1
+      },
+      {
+        "regime": "one",
+        "relation": 2
+      },
+      {
+        "regime": "one",
+        "relation": 4
+      },
+      {
+        "regime": "none",
+        "relation": 7
+      },
+      {
+        "regime": "zero",
+        "relation": 11
+      },
+      {
+        "regime": "zero",
+        "relation": 13
+      }
+    ],
+    "precommit_commit": "ab8bef1b156417b7b6596c24c8188aeab4b55587",
+    "protocol": "NUCLEUS_IRREDUCIBILITY_V1",
+    "robust_all_symmetry_equivalent": true,
+    "robust_minimal": [
+      "1:none",
+      "7:none"
+    ],
+    "robustness": {
+      "11:zero": {
+        "max_generations": 160,
+        "mean_distinct": 21.5087890625,
+        "mean_generations": 160.0,
+        "reopened_trials": 1024,
+        "survive128": 1.0,
+        "survive32": 1.0,
+        "survive64": 1.0
+      },
+      "13:zero": {
+        "max_generations": 160,
+        "mean_distinct": 12.716796875,
+        "mean_generations": 160.0,
+        "reopened_trials": 1024,
+        "survive128": 1.0,
+        "survive32": 1.0,
+        "survive64": 1.0
+      },
+      "1:none": {
+        "max_generations": 160,
+        "mean_distinct": 22.2470703125,
+        "mean_generations": 160.0,
+        "reopened_trials": 1024,
+        "survive128": 1.0,
+        "survive32": 1.0,
+        "survive64": 1.0
+      },
+      "2:one": {
+        "max_generations": 160,
+        "mean_distinct": 21.5087890625,
+        "mean_generations": 160.0,
+        "reopened_trials": 1024,
+        "survive128": 1.0,
+        "survive32": 1.0,
+        "survive64": 1.0
+      },
+      "4:one": {
+        "max_generations": 160,
+        "mean_distinct": 12.716796875,
+        "mean_generations": 160.0,
+        "reopened_trials": 1024,
+        "survive128": 1.0,
+        "survive32": 1.0,
+        "survive64": 1.0
+      },
+      "7:none": {
+        "max_generations": 160,
+        "mean_distinct": 22.2470703125,
+        "mean_generations": 160.0,
+        "reopened_trials": 1024,
+        "survive128": 1.0,
+        "survive32": 1.0,
+        "survive64": 1.0
+      }
+    },
+    "symmetry_classes": [
+      [
+        0,
+        15
+      ],
+      [
+        1,
+        2,
+        4,
+        7,
+        8,
+        11,
+        13,
+        14
+      ],
+      [
+        3,
+        5,
+        10,
+        12
+      ],
+      [
+        6,
+        9
+      ]
+    ],
+    "verdict": "PASS_NUCLEUS_IRREDUCIBILITY_V1",
+    "zero_anchor_complete_relations": [
+      1,
+      7
+    ]
+  }
+}

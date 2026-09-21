@@ -1,0 +1,207 @@
+{
+  "claim_boundary": "Finite exact Boolean result through n=4 plus frozen lineage trials only.",
+  "closure_hash": "852adcbf6b6c3e8a15047d4a7e91e3e41ae3d5785ffb7ce3ee933e5e858b2055",
+  "complete_candidates": [
+    {
+      "regime": "none",
+      "relation": 1
+    },
+    {
+      "regime": "zero",
+      "relation": 1
+    },
+    {
+      "regime": "one",
+      "relation": 1
+    },
+    {
+      "regime": "both",
+      "relation": 1
+    },
+    {
+      "regime": "one",
+      "relation": 2
+    },
+    {
+      "regime": "both",
+      "relation": 2
+    },
+    {
+      "regime": "one",
+      "relation": 4
+    },
+    {
+      "regime": "both",
+      "relation": 4
+    },
+    {
+      "regime": "none",
+      "relation": 7
+    },
+    {
+      "regime": "zero",
+      "relation": 7
+    },
+    {
+      "regime": "one",
+      "relation": 7
+    },
+    {
+      "regime": "both",
+      "relation": 7
+    },
+    {
+      "regime": "zero",
+      "relation": 11
+    },
+    {
+      "regime": "both",
+      "relation": 11
+    },
+    {
+      "regime": "zero",
+      "relation": 13
+    },
+    {
+      "regime": "both",
+      "relation": 13
+    }
+  ],
+  "ground_directed_difference_survives": false,
+  "headline_gates": {
+    "N10_minimal_exists": true,
+    "N11_dual_anchor_no_cardinality_gain": true,
+    "N12_robust_injection_reopens": true,
+    "N13_ranking_name_blind": true,
+    "N14_report_robust_symmetry_equivalence": true,
+    "N1_all_candidates_evaluated": true,
+    "N2_exact_deterministic": true,
+    "N3_complete_claims_full": true,
+    "N4_remove_relation_breaks": true,
+    "N5_required_anchor_removal_breaks": true,
+    "N6_no_smaller_anchor_regime": true,
+    "N7_symmetry_partition": true,
+    "N8_replay_hashes": true,
+    "N9_set_bitvector_agree": true
+  },
+  "minimal_candidates": [
+    {
+      "regime": "none",
+      "relation": 1
+    },
+    {
+      "regime": "one",
+      "relation": 2
+    },
+    {
+      "regime": "one",
+      "relation": 4
+    },
+    {
+      "regime": "none",
+      "relation": 7
+    },
+    {
+      "regime": "zero",
+      "relation": 11
+    },
+    {
+      "regime": "zero",
+      "relation": 13
+    }
+  ],
+  "precommit_commit": "ab8bef1b156417b7b6596c24c8188aeab4b55587",
+  "protocol": "NUCLEUS_IRREDUCIBILITY_V1",
+  "robust_all_symmetry_equivalent": true,
+  "robust_minimal": [
+    "1:none",
+    "7:none"
+  ],
+  "robustness": {
+    "11:zero": {
+      "max_generations": 160,
+      "mean_distinct": 21.5087890625,
+      "mean_generations": 160.0,
+      "reopened_trials": 1024,
+      "survive128": 1.0,
+      "survive32": 1.0,
+      "survive64": 1.0
+    },
+    "13:zero": {
+      "max_generations": 160,
+      "mean_distinct": 12.716796875,
+      "mean_generations": 160.0,
+      "reopened_trials": 1024,
+      "survive128": 1.0,
+      "survive32": 1.0,
+      "survive64": 1.0
+    },
+    "1:none": {
+      "max_generations": 160,
+      "mean_distinct": 22.2470703125,
+      "mean_generations": 160.0,
+      "reopened_trials": 1024,
+      "survive128": 1.0,
+      "survive32": 1.0,
+      "survive64": 1.0
+    },
+    "2:one": {
+      "max_generations": 160,
+      "mean_distinct": 21.5087890625,
+      "mean_generations": 160.0,
+      "reopened_trials": 1024,
+      "survive128": 1.0,
+      "survive32": 1.0,
+      "survive64": 1.0
+    },
+    "4:one": {
+      "max_generations": 160,
+      "mean_distinct": 12.716796875,
+      "mean_generations": 160.0,
+      "reopened_trials": 1024,
+      "survive128": 1.0,
+      "survive32": 1.0,
+      "survive64": 1.0
+    },
+    "7:none": {
+      "max_generations": 160,
+      "mean_distinct": 22.2470703125,
+      "mean_generations": 160.0,
+      "reopened_trials": 1024,
+      "survive128": 1.0,
+      "survive32": 1.0,
+      "survive64": 1.0
+    }
+  },
+  "symmetry_classes": [
+    [
+      0,
+      15
+    ],
+    [
+      1,
+      2,
+      4,
+      7,
+      8,
+      11,
+      13,
+      14
+    ],
+    [
+      3,
+      5,
+      10,
+      12
+    ],
+    [
+      6,
+      9
+    ]
+  ],
+  "verdict": "PASS_NUCLEUS_IRREDUCIBILITY_V1",
+  "zero_anchor_complete_relations": [
+    1,
+    7
+  ]
+}
