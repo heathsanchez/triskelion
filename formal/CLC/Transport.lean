@@ -17,9 +17,9 @@ structure VerifiedTransport (A B : Form) where
     pullTest (liftProtect p).1 = p.1
 
 def VerifiedTransport.id (A : Form) : VerifiedTransport A A where
-  mapState := id
-  pullTest := id
-  liftProtect := id
+  mapState := fun x => x
+  pullTest := fun d => d
+  liftProtect := fun p => p
   pullProtected := by
     intro d hd
     exact hd
