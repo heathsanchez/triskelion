@@ -8,7 +8,7 @@ def boolEval (x q : Bool) : Verdict :=
 def BoolForm : Form where
   State := Bool
   Test := Bool
-  protected := fun _ => True
+  isProtected := fun _ => True
   eval := boolEval
 
 inductive Tagged where
@@ -30,7 +30,7 @@ def taggedEval (x q : Tagged) : Verdict :=
 def TaggedForm : Form where
   State := Tagged
   Test := Tagged
-  protected := fun _ => True
+  isProtected := fun _ => True
   eval := taggedEval
 
 def encodeTransport : VerifiedTransport BoolForm TaggedForm where
