@@ -6,3 +6,4 @@ defaultTargets = ["CLCAdapter"]
 name = "CLCAdapter"
 srcDir = "formal"
 roots = ["CLCAdapter"]
+globs = ["CLCAdapter", "CLC.**", "Nucleus.**"]
