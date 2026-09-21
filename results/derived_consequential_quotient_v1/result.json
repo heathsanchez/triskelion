@@ -1,0 +1,315 @@
+{
+  "aggregation_hash": "ceccb45b0486c2a163e4c19ab599387cd2f2f5aeb34615ce119e8bb37d76d484",
+  "audit": {
+    "base_fields": [
+      "unary",
+      "binary",
+      "no_ground",
+      "d0",
+      "d1",
+      "d2",
+      "d3",
+      "recombinant3",
+      "recur_distinct_sum",
+      "recur_distinct_max",
+      "recur_cycle_sum",
+      "recur_cycle_max"
+    ],
+    "examples": {},
+    "mismatch_counts": {},
+    "reexecution_replay": true
+  },
+  "capability_same_history_different_witness": {
+    "a": {
+      "d": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "mutation_capability_stable": 0,
+      "mutation_capability_target_classes": 6
+    },
+    "b": {
+      "d": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "mutation_capability_stable": 0,
+      "mutation_capability_target_classes": 9
+    },
+    "key_a": 0,
+    "key_b": 15897,
+    "same_fixed_capability": true
+  },
+  "claim_boundary": "Exact finite result for all 59,049 pointed ternary operations modulo the frozen relabeling/input-swap canonicalization. Q_capability_fixed identifies systems by the exact set of binary functions expressible from x,y,ground under arbitrary finite composition. It is a capability-set quotient, not contextual equivalence for a named primitive operation symbol.",
+  "fixed_point_reached_by_bounded_round": {
+    "d0": {
+      "orbits": 2,
+      "raw_weight": 9
+    },
+    "d1": {
+      "orbits": 53,
+      "raw_weight": 468
+    },
+    "d2": {
+      "orbits": 221,
+      "raw_weight": 2145
+    },
+    "d3": {
+      "orbits": 460,
+      "raw_weight": 4710
+    }
+  },
+  "headline_gates": {
+    "DQ10_exact_reference_sensitive_partition": true,
+    "DQ11_old_measurement_quotient_computed": true,
+    "DQ12_history_refines_monotonically": true,
+    "DQ13_exact_signature_counts_self_consistent": true,
+    "DQ14_capability_history_witness_reported": true,
+    "DQ15_measurement_merge_witness_reported": true,
+    "DQ16_no_audit_mismatch": true,
+    "DQ1_5130_canonical_orbits": true,
+    "DQ2_raw_weight_59049": true,
+    "DQ3_independent_base_measurements_match_prior": true,
+    "DQ4_independent_mutation_measurements_match_prior": true,
+    "DQ5_independent_joint_labels_match_prior": true,
+    "DQ6_independent_pareto_matches_prior": true,
+    "DQ7_true_reexecution_replay": true,
+    "DQ8_V4_reconstruction_lookup_injective": true,
+    "DQ9_exact_fixed_capability_partition": true
+  },
+  "independent_engine": "fresh operation-table enumeration and closure computation; prior result used only after recomputation for audit comparison",
+  "old_measurement_merge_witness": {
+    "class_size": 2,
+    "keys": [
+      13,
+      728
+    ],
+    "same_old_protected_measurements": true
+  },
+  "partitions": {
+    "Q_capability_fixed": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.1612085769980507,
+      "classes": 827,
+      "largest_class_orbits": 2089,
+      "largest_class_raw_weight": 24534,
+      "merged_orbits": 4303,
+      "name": "Q_capability_fixed",
+      "nontrivial_classes": 273,
+      "sample_largest_merged_class": {
+        "keys": [
+          7,
+          34,
+          38,
+          41,
+          43,
+          44,
+          52,
+          61,
+          64,
+          67,
+          68,
+          70
+        ],
+        "orbit_class_size": 2089,
+        "raw_weight": 24534
+      },
+      "singleton_classes": 554
+    },
+    "Q_capability_history_mutation": {
+      "canonical_orbits": 5130,
+      "class_ratio": 1.0,
+      "classes": 5130,
+      "largest_class_orbits": 1,
+      "largest_class_raw_weight": 12,
+      "merged_orbits": 0,
+      "name": "Q_capability_history_mutation",
+      "nontrivial_classes": 0,
+      "sample_largest_merged_class": null,
+      "singleton_classes": 5130
+    },
+    "Q_capability_plus_history_d3": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.9998050682261208,
+      "classes": 5129,
+      "largest_class_orbits": 2,
+      "largest_class_raw_weight": 12,
+      "merged_orbits": 1,
+      "name": "Q_capability_plus_history_d3",
+      "nontrivial_classes": 1,
+      "sample_largest_merged_class": {
+        "keys": [
+          0,
+          15897
+        ],
+        "orbit_class_size": 2,
+        "raw_weight": 9
+      },
+      "singleton_classes": 5128
+    },
+    "Q_capability_plus_reference": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.22573099415204678,
+      "classes": 1158,
+      "largest_class_orbits": 966,
+      "largest_class_raw_weight": 11322,
+      "merged_orbits": 3972,
+      "name": "Q_capability_plus_reference",
+      "nontrivial_classes": 403,
+      "sample_largest_merged_class": {
+        "keys": [
+          7,
+          34,
+          38,
+          41,
+          43,
+          44,
+          52,
+          61,
+          64,
+          67,
+          68,
+          70
+        ],
+        "orbit_class_size": 966,
+        "raw_weight": 11322
+      },
+      "singleton_classes": 755
+    },
+    "Q_history_d0": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.0001949317738791423,
+      "classes": 1,
+      "largest_class_orbits": 5130,
+      "largest_class_raw_weight": 59049,
+      "merged_orbits": 5129,
+      "name": "Q_history_d0",
+      "nontrivial_classes": 1,
+      "sample_largest_merged_class": {
+        "keys": [
+          0,
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          12,
+          13,
+          14,
+          15
+        ],
+        "orbit_class_size": 5130,
+        "raw_weight": 59049
+      },
+      "singleton_classes": 0
+    },
+    "Q_history_d1": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.9998050682261208,
+      "classes": 5129,
+      "largest_class_orbits": 2,
+      "largest_class_raw_weight": 12,
+      "merged_orbits": 1,
+      "name": "Q_history_d1",
+      "nontrivial_classes": 1,
+      "sample_largest_merged_class": {
+        "keys": [
+          0,
+          15897
+        ],
+        "orbit_class_size": 2,
+        "raw_weight": 9
+      },
+      "singleton_classes": 5128
+    },
+    "Q_history_d2": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.9998050682261208,
+      "classes": 5129,
+      "largest_class_orbits": 2,
+      "largest_class_raw_weight": 12,
+      "merged_orbits": 1,
+      "name": "Q_history_d2",
+      "nontrivial_classes": 1,
+      "sample_largest_merged_class": {
+        "keys": [
+          0,
+          15897
+        ],
+        "orbit_class_size": 2,
+        "raw_weight": 9
+      },
+      "singleton_classes": 5128
+    },
+    "Q_history_d3": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.9998050682261208,
+      "classes": 5129,
+      "largest_class_orbits": 2,
+      "largest_class_raw_weight": 12,
+      "merged_orbits": 1,
+      "name": "Q_history_d3",
+      "nontrivial_classes": 1,
+      "sample_largest_merged_class": {
+        "keys": [
+          0,
+          15897
+        ],
+        "orbit_class_size": 2,
+        "raw_weight": 9
+      },
+      "singleton_classes": 5128
+    },
+    "Q_new_full_bundle": {
+      "canonical_orbits": 5130,
+      "class_ratio": 1.0,
+      "classes": 5130,
+      "largest_class_orbits": 1,
+      "largest_class_raw_weight": 12,
+      "merged_orbits": 0,
+      "name": "Q_new_full_bundle",
+      "nontrivial_classes": 0,
+      "sample_largest_merged_class": null,
+      "singleton_classes": 5130
+    },
+    "Q_old_protected_measurements": {
+      "canonical_orbits": 5130,
+      "class_ratio": 0.9873294346978557,
+      "classes": 5065,
+      "largest_class_orbits": 3,
+      "largest_class_raw_weight": 36,
+      "merged_orbits": 65,
+      "name": "Q_old_protected_measurements",
+      "nontrivial_classes": 62,
+      "sample_largest_merged_class": {
+        "keys": [
+          1056,
+          7383,
+          7617
+        ],
+        "orbit_class_size": 3,
+        "raw_weight": 36
+      },
+      "singleton_classes": 5003
+    }
+  },
+  "protocol": "DERIVED_CONSEQUENTIAL_QUOTIENT_V1",
+  "source_run": "35539755279/106155174472",
+  "thresholds_recomputed": {
+    "G3": 3612,
+    "M_numerator_of_18": 15,
+    "P_numerator_of_9": 63,
+    "R3": 3562
+  },
+  "v4": {
+    "distinct_signatures": 5130,
+    "injective": true
+  },
+  "verdict": "PASS_DERIVED_CONSEQUENTIAL_QUOTIENT_V1"
+}
