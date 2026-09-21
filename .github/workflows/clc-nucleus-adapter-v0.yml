@@ -1,0 +1,109 @@
+name: CLC Nucleus Adapter V0
+
+on:
+  push:
+    branches:
+      - experiment/clc-nucleus-adapter-v0
+    paths:
+      - 'formal/Nucleus/IndexedContext.lean'
+      - 'formal/CLC/**'
+      - 'formal/CLCAdapter.lean'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
+      - '.github/workflows/clc-nucleus-adapter-v0.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: clc-nucleus-adapter-v0
+  cancel-in-progress: true
+
+jobs:
+  lean-adapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/clc-nucleus-adapter-v0
+          fetch-depth: 0
+
+      - name: Install pinned Lean and build adapter
+        uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          build: true
+          test: false
+          lint: false
+          use-github-cache: false
+          axiom-audit: true
+          axiom-audit-root: CLCAdapter
+          axiom-audit-allow: propext,Classical.choice,Quot.sound
+
+      - name: Check decisive modules directly
+        run: |
+          lean --version
+          lake env lean formal/CLC/ContextualBridge.lean
+          lake env lean formal/CLC/Behavior.lean
+          lake env lean formal/CLC/Reversibility.lean
+          lake env lean formal/CLC/ReversibilityFixtures.lean
+
+      - name: Reject placeholders and custom axioms
+        run: |
+          if grep -RInE '\b(sorry|axiom)\b' formal/Nucleus formal/CLC formal/CLCAdapter.lean; then
+            echo "placeholder/custom axiom found"
+            exit 1
+          fi
+
+      - name: Record theorem manifest
+        run: |
+          mkdir -p results/clc_nucleus_adapter_v0
+          cat > results/clc_nucleus_adapter_v0/result.json <<'JSON'
+          {
+            "protocol": "CLC_NUCLEUS_ADAPTER_V0",
+            "status": "PASS_PENDING_FINAL_COMMIT",
+            "theorems": [
+              "Nucleus.continuationSafe_map",
+              "CLC.clcEq_iff_indexedCtxEq",
+              "CLC.continuationSafe_map",
+              "CLC.behaviorMap_id",
+              "CLC.behaviorMap_comp",
+              "CLC.continuationNeutral_iff_noResidual",
+              "CLC.behavioralInverse_left",
+              "CLC.behavioralInverse_right",
+              "CLC.behaviorEquiv",
+              "CLC.Fixtures.encode_decode_behavioral_inverse",
+              "CLC.Fixtures.same_form_not_behaviorally_reversible"
+            ],
+            "claim_boundary": "Mechanizes the semantic CLC adapter and behavioral reversibility slice only; certificate authority, revocation, support algebra, Flash exactness, hypergraph lineage, and productivity remain outside this result."
+          }
+          JSON
+
+      - name: Commit authoritative adapter result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('results/clc_nucleus_adapter_v0/result.json')
+          d=json.loads(p.read_text())
+          d['status']='PASS_CLC_NUCLEUS_ADAPTER_V0'
+          d['lean_toolchain']='leanprover/lean4:v4.28.0'
+          d['axiom_audit']='PASS with allowlist propext, Classical.choice, Quot.sound'
+          p.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
+          PY
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/clc_nucleus_adapter_v0
+          git commit -m 'Record CLC nucleus adapter V0 result' || exit 0
+          git push origin HEAD:experiment/clc-nucleus-adapter-v0
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clc-nucleus-adapter-v0-evidence
+          path: results/clc_nucleus_adapter_v0
+          if-no-files-found: warn
