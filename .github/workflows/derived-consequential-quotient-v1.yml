@@ -9,6 +9,13 @@ on:
       - 'experiments/derived_consequential_quotient_v1.cpp'
       - 'experiments/aggregate_derived_consequential_quotient_v1.py'
       - '.github/workflows/derived-consequential-quotient-v1.yml'
+  pull_request:
+    branches:
+      - experiment/derived-consequential-quotient-v1
+    paths:
+      - 'experiments/derived_consequential_quotient_v1.cpp'
+      - 'experiments/aggregate_derived_consequential_quotient_v1.py'
+      - '.github/workflows/derived-consequential-quotient-v1.yml'
   workflow_dispatch:
 
 permissions:
