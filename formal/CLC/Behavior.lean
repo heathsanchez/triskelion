@@ -34,9 +34,7 @@ def behaviorMap
 theorem behaviorMap_id (A : Form) :
     behaviorMap (VerifiedTransport.id A) = id := by
   funext q
-  apply Quotient.ind
-  intro x
-  rfl
+  exact Quotient.inductionOn q (fun x => rfl)
 
 /-- Behavioral descent respects transport composition. -/
 theorem behaviorMap_comp
@@ -46,8 +44,6 @@ theorem behaviorMap_comp
     behaviorMap (VerifiedTransport.comp b a) =
       behaviorMap b ∘ behaviorMap a := by
   funext q
-  apply Quotient.ind
-  intro x
-  rfl
+  exact Quotient.inductionOn q (fun x => rfl)
 
 end CLC
