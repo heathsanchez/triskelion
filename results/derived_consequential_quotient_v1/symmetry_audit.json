@@ -1,0 +1,45 @@
+{
+  "protocol": "DERIVED_CONSEQUENTIAL_QUOTIENT_SYMMETRY_AUDIT_V1",
+  "source_run": 35549071552,
+  "source_aggregation_hash": "ceccb45b0486c2a163e4c19ab599387cd2f2f5aeb34615ce119e8bb37d76d484",
+  "source_artifacts": "24 derived-consequential-shard artifacts from the successful run",
+  "population": {
+    "raw_pointed_operations": 59049,
+    "canonical_operation_orbits": 5130
+  },
+  "symmetry": {
+    "carrier": "S3 conjugation of input/output carrier labels",
+    "argument_swap": "No additional quotient required for capability sets: with both projections x and y available, a generated term-function set is closed under x/y renaming.",
+    "canonicalization": "Exact bitsets were transformed under all six carrier permutations; classes were grouped by the lexicographically minimal transformed bitset. For the reference-sensitive quotient, the with-ground and no-ground bitsets were transformed by the same permutation."
+  },
+  "Q_capability_fixed_symmetry": {
+    "classes": 747,
+    "merged_orbits": 4383,
+    "nontrivial_classes": 256,
+    "singleton_classes": 491,
+    "class_ratio": 0.1456140350877193,
+    "compression_factor": 6.867469879518072,
+    "largest_class_orbits": 2089,
+    "largest_class_raw_weight": 24534,
+    "interpretation": "Exact quotient for the complete set of binary term-functions expressible from x,y,ground, modulo carrier relabeling."
+  },
+  "Q_capability_plus_reference_symmetry": {
+    "classes": 1091,
+    "merged_orbits": 4039,
+    "nontrivial_classes": 395,
+    "singleton_classes": 696,
+    "class_ratio": 0.21267056530214426,
+    "compression_factor": 4.702108157653529,
+    "largest_class_orbits": 966,
+    "largest_class_raw_weight": 11322,
+    "interpretation": "Exact quotient preserving both the with-ground capability set and the no-ground capability set, modulo the same carrier relabeling."
+  },
+  "comparison": {
+    "V4_generator_incidence_classes": 5130,
+    "unsymmetrized_capability_classes": 827,
+    "unsymmetrized_capability_plus_reference_classes": 1158,
+    "old_protected_measurement_classes": 5065,
+    "history_d1_classes": 5129
+  },
+  "claim_boundary": "Finite exact census only. These are capability-set quotients, not contextual equivalence classes for a language that exposes the original primitive operation as a named observable. The 747-class quotient forgets ground-dependence provenance; the 1091-class quotient preserves it."
+}
