@@ -1,14 +1,16 @@
 namespace Nucleus
 
+universe u v q o h
+
 /-- A heterogeneous continuation system. Objects may have different state
     and query types. Lawful arrows compose, and each arrow maps source
     states into target states. -/
 structure IndexedContextSystem where
-  Obj : Type
-  State : Obj → Type
-  Query : Obj → Type
-  ObsVal : Type
-  Hom : Obj → Obj → Type
+  Obj : Type u
+  State : Obj → Type v
+  Query : Obj → Type q
+  ObsVal : Type o
+  Hom : Obj → Obj → Type h
   id : (A : Obj) → Hom A A
   comp : {A B D : Obj} → Hom B D → Hom A B → Hom A D
   mapState : {A B : Obj} → Hom A B → State A → State B
