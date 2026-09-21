@@ -23,10 +23,11 @@ permissions:
 
 concurrency:
   group: derived-consequential-quotient-v1
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   census:
+    if: ${{ false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     strategy:
