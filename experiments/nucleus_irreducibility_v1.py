@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 from pathlib import Path
-import hashlib,json
+import hashlib,json,subprocess,tempfile
 
 PROTOCOL="NUCLEUS_IRREDUCIBILITY_V1"
 PRECOMMIT="ab8bef1b156417b7b6596c24c8188aeab4b55587"
@@ -29,32 +29,52 @@ def projections(n):
 
 REGIMES={"none":(),"zero":(0,),"one":(1,),"both":(0,1)}
 
+FAST_SRC=Path("experiments/nucleus_irreducibility_v1_fast.cpp")
+FAST_BIN=Path("/tmp/nucleus_irreducibility_v1_fast")
+_FAST_READY=False
+
+def _ensure_fast_helper():
+    global _FAST_READY
+    if _FAST_READY and FAST_BIN.exists():
+        return
+    subprocess.run([
+        "g++","-O3","-std=c++20",str(FAST_SRC),"-o",str(FAST_BIN)
+    ],check=True)
+    _FAST_READY=True
+
 def closure(rel,n,regime):
-    rows=1<<n; mask=(1<<rows)-1
-    seeds=projections(n)
-    if 0 in REGIMES[regime]: seeds.append(0)
-    if 1 in REGIMES[regime]: seeds.append(mask)
-    cost={x:0 for x in seeds}; expr={x:(f"x{projections(n).index(x)}" if x in projections(n) else ("0" if x==0 else "1")) for x in seeds}
-    rounds=0
-    while True:
-        items=sorted(cost)
-        updates={}
-        for a in items:
-            for b in items:
-                s=rel_apply(rel,a,b,mask); c=1+cost[a]+cost[b]; e=f"R({expr[a]},{expr[b]})"
-                if s not in cost and (s not in updates or c<updates[s][0] or (c==updates[s][0] and e<updates[s][1])):
-                    updates[s]=(c,e)
-                elif s in cost and c==cost[s] and e<expr[s]:
-                    expr[s]=e
-        if not updates:break
-        for s,(c,e) in sorted(updates.items()):
-            cost[s]=c;expr[s]=e
-        rounds+=1
-    total=1<<rows
-    return {"count":len(cost),"total":total,"complete":len(cost)==total,"rounds":rounds,
-            "zero_derived":0 in cost,"one_derived":mask in cost,
-            "hash":H([(s,cost[s],expr[s]) for s in sorted(cost)]),
-            "costs":cost,"exprs":expr}
+    _ensure_fast_helper()
+    with tempfile.NamedTemporaryFile(prefix="nucleus-v1-",suffix=".tsv",delete=False) as tmp:
+        outpath=Path(tmp.name)
+    try:
+        subprocess.run([
+            str(FAST_BIN),str(rel),str(n),regime,str(outpath)
+        ],check=True)
+        with outpath.open() as fh:
+            meta=fh.readline().rstrip("\n").split("\t")
+            if len(meta)!=7 or meta[0]!="#META":
+                raise RuntimeError("bad fast-helper metadata")
+            count,total,complete,rounds,zero_derived,one_derived = map(int,meta[1:])
+            costs={}
+            exprs={}
+            for line in fh:
+                sem,cost,expr=line.rstrip("\n").split("\t",2)
+                sem=int(sem); costs[sem]=int(cost); exprs[sem]=expr
+        if len(costs)!=count:
+            raise RuntimeError("fast-helper count mismatch")
+        return {
+            "count":count,
+            "total":total,
+            "complete":bool(complete),
+            "rounds":rounds,
+            "zero_derived":bool(zero_derived),
+            "one_derived":bool(one_derived),
+            "hash":H([(sem,costs[sem],exprs[sem]) for sem in sorted(costs)]),
+            "costs":costs,
+            "exprs":exprs,
+        }
+    finally:
+        outpath.unlink(missing_ok=True)
 
 def symmetry_orbit(rel):
     # table index bits correspond (00,01,10,11).
