@@ -1,3 +1,4 @@
+# PR execution trigger; no scientific logic change
 #!/usr/bin/env python3
 from __future__ import annotations
 from collections import defaultdict
