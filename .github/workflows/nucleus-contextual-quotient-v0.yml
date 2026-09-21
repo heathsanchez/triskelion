@@ -1,0 +1,160 @@
+name: Nucleus Contextual Quotient V0
+
+on:
+  push:
+    branches:
+      - experiment/nucleus-contextual-quotient-v0
+    paths:
+      - 'experiments/nucleus_contextual_quotient_v0.py'
+      - 'formal/NucleusV0.lean'
+      - 'protocols/NUCLEUS_CONTEXTUAL_QUOTIENT_V0.md'
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+      - '.github/workflows/nucleus-contextual-quotient-v0.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: nucleus-contextual-quotient-v0
+  cancel-in-progress: true
+
+jobs:
+  formal-kernel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/nucleus-contextual-quotient-v0
+          fetch-depth: 0
+
+      - name: Install pinned Lean
+        uses: leanprover/lean-action@v1
+        with:
+          auto-config: false
+          use-github-cache: false
+
+      - name: Check nucleus semantic kernel
+        run: |
+          lean --version
+          lake env lean formal/NucleusV0.lean
+
+      - name: Reject placeholders or custom axioms
+        run: |
+          if grep -nE '\b(sorry|axiom)\b' formal/NucleusV0.lean; then
+            echo "placeholder/custom axiom found"
+            exit 1
+          fi
+
+  finite-quotient:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/nucleus-contextual-quotient-v0
+          fetch-depth: 0
+
+      - name: Download exact successful source-run artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/source-run
+          gh run download 35549071552 \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir /tmp/source-run
+          test "$(find /tmp/source-run -name 'shard_*.tsv' | wc -l)" -eq 24
+
+      - name: Derive exact contextual and symmetry quotients
+        run: |
+          set -o pipefail
+          python experiments/nucleus_contextual_quotient_v0.py \
+            /tmp/source-run \
+            results/derived_consequential_quotient_v1/result.json \
+            /tmp/nucleus-contextual-quotient-v0 \
+            | tee /tmp/nucleus-contextual-quotient-v0.log
+
+      - name: Validate exact finite theorem
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('/tmp/nucleus-contextual-quotient-v0/result.json').read_text())
+          assert p['verdict']=='PASS_NUCLEUS_CONTEXTUAL_QUOTIENT_V0'
+          assert len(p['headline_gates'])==16
+          assert all(p['headline_gates'].values())
+          assert p['quotients']['fixed_coordinate_capability']['classes']==827
+          assert p['quotients']['carrier_isomorphism_capability']['classes']==747
+          assert p['quotients']['fixed_coordinate_capability_plus_reference']['classes']==1158
+          assert p['quotients']['carrier_isomorphism_capability_plus_reference']['classes']==1091
+          assert p['quotients']['fixed_coordinate_capability']['pairwise_query_witness_audit']['unordered_pairs_checked']==341551
+          assert all(x['pass'] for x in p['fixtures'].values())
+          print('SCIENTIFIC_VERDICT='+p['verdict'])
+          print('Q_NAMED='+str(p['quotients']['fixed_coordinate_capability']['classes']))
+          print('Q_ISO='+str(p['quotients']['carrier_isomorphism_capability']['classes']))
+          print('Q_REFERENCE_NAMED='+str(p['quotients']['fixed_coordinate_capability_plus_reference']['classes']))
+          print('Q_REFERENCE_ISO='+str(p['quotients']['carrier_isomorphism_capability_plus_reference']['classes']))
+          print('HASH='+p['aggregation_hash'])
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nucleus-contextual-quotient-v0-finite
+          path: |
+            /tmp/nucleus-contextual-quotient-v0
+            /tmp/nucleus-contextual-quotient-v0.log
+          if-no-files-found: error
+
+  seal:
+    needs: [formal-kernel, finite-quotient]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/nucleus-contextual-quotient-v0
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: nucleus-contextual-quotient-v0-finite
+          path: /tmp/sealed
+
+      - name: Seal formal + finite result
+        run: |
+          mkdir -p results/nucleus_contextual_quotient_v0
+          cp /tmp/sealed/nucleus-contextual-quotient-v0/result.json results/nucleus_contextual_quotient_v0/result.json
+          cp /tmp/sealed/nucleus-contextual-quotient-v0/summary.json results/nucleus_contextual_quotient_v0/summary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('results/nucleus_contextual_quotient_v0/result.json')
+          d=json.loads(p.read_text())
+          d['lean_formal_kernel']='PASS: formal/NucleusV0.lean checked by Lean 4.28.0 in the same workflow'
+          p.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
+          Path('results/nucleus_contextual_quotient_v0/summary.json').write_text(
+              json.dumps(d,indent=2,sort_keys=True)+'\n'
+          )
+          print(d['verdict'])
+          print(d['lean_formal_kernel'])
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/nucleus_contextual_quotient_v0
+          git commit -m 'Record nucleus contextual quotient V0 result' || exit 0
+          git push origin HEAD:experiment/nucleus-contextual-quotient-v0
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nucleus-contextual-quotient-v0-evidence
+          path: results/nucleus_contextual_quotient_v0
+          if-no-files-found: error
