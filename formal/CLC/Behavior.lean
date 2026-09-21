@@ -17,22 +17,24 @@ def behaviorSetoid (A : Form) : Setoid A.State where
 abbrev Behavior (A : Form) := Quotient (behaviorSetoid A)
 
 def behaviorClass {A : Form} (x : A.State) : Behavior A :=
-  Quotient.mk'' x
+  Quotient.mk (behaviorSetoid A) x
 
 /-- Every verified transport descends to the behavioral quotient. -/
 def behaviorMap
     {A B : Form}
     (a : VerifiedTransport A B) :
     Behavior A → Behavior B :=
-  Quotient.map' a.mapState (by
-    intro x y h
-    exact continuationSafe_map h a)
+  Quotient.lift
+    (fun x => Quotient.mk (behaviorSetoid B) (a.mapState x))
+    (by
+      intro x y h
+      exact Quotient.sound (continuationSafe_map h a))
 
 /-- Identity transport acts as identity on behavioral classes. -/
 theorem behaviorMap_id (A : Form) :
     behaviorMap (VerifiedTransport.id A) = id := by
   funext q
-  refine Quotient.inductionOn' q ?_
+  apply Quotient.ind
   intro x
   rfl
 
@@ -44,7 +46,7 @@ theorem behaviorMap_comp
     behaviorMap (VerifiedTransport.comp b a) =
       behaviorMap b ∘ behaviorMap a := by
   funext q
-  refine Quotient.inductionOn' q ?_
+  apply Quotient.ind
   intro x
   rfl
 
