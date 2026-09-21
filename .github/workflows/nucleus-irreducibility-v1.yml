@@ -1,3 +1,4 @@
+# Execution trigger: 2026-09-21 — user-approved prospective run; no scientific predicate change.
 name: Nucleus Irreducibility V1
 on:
   push:
