@@ -1,0 +1,6 @@
+name = "nucleus-contextual-quotient-v0"
+version = "0.1.0"
+
+[[lean_lib]]
+name = "Nucleus"
+srcDir = "formal"
