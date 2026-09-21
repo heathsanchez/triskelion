@@ -1,6 +1,6 @@
-name = "nucleus-contextual-quotient-v0"
+name = "clc-nucleus-adapter-v0"
 version = "0.1.0"
 
 [[lean_lib]]
-name = "Nucleus"
+name = "CLCAdapter"
 srcDir = "formal"
