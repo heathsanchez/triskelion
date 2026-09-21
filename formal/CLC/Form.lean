@@ -7,9 +7,9 @@ namespace CLC
 structure Form where
   State : Type
   Test : Type
-  protected : Test → Prop
+  isProtected : Test → Prop
   eval : State → Test → Verdict
 
-abbrev ProtectedTest (A : Form) := {p : A.Test // A.protected p}
+abbrev ProtectedTest (A : Form) := {p : A.Test // A.isProtected p}
 
 end CLC
