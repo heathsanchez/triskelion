@@ -1,0 +1,75 @@
+name: Assumption Tournament V1
+
+on:
+  push:
+    branches: [experiment/assumption-tournament-v1]
+    paths:
+      - 'experiments/assumption_tournament_v1.py'
+      - 'protocols/ASSUMPTION_TOURNAMENT_V1_PRECOMMIT.md'
+      - '.github/workflows/assumption-tournament-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: assumption-tournament-v1
+  cancel-in-progress: false
+
+jobs:
+  tournament:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/assumption-tournament-v1
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify prospective freeze
+        run: |
+          git merge-base --is-ancestor b7b630d957454fbbd8bb0b78db051376e9be623f HEAD
+          test -f protocols/ASSUMPTION_TOURNAMENT_V1_PRECOMMIT.md
+
+      - name: Run assumption tournament
+        run: |
+          set -o pipefail
+          python experiments/assumption_tournament_v1.py | tee /tmp/assumption-tournament-v1.log
+
+      - name: Validate scientific output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path('results/assumption_tournament_v1/summary.json').read_text())
+          assert s['protocol']=='ASSUMPTION_TOURNAMENT_V1'
+          assert s['precommit_commit']=='b7b630d957454fbbd8bb0b78db051376e9be623f'
+          assert s['axes']['carriers']==[3,4,5]
+          assert s['axes']['operation_families']==['ALL16','SYMMETRIC','ASYMMETRIC']
+          assert s['axes']['verifiers']==['EXACT','HALF','POSITIVE']
+          assert s['axes']['budgets']==[8,24,48]
+          assert s['records'] > 0
+          print('SCIENTIFIC_VERDICT='+s['verdict'])
+          print(json.dumps(s,indent=2,sort_keys=True))
+          PY
+
+      - name: Commit authoritative result
+        run: |
+          git config user.name mathgraph-bot
+          git config user.email 32909488+heathsanchez@users.noreply.github.com
+          git add results/assumption_tournament_v1
+          git commit -m 'Record assumption tournament V1 result' || exit 0
+          git push origin HEAD:experiment/assumption-tournament-v1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: assumption-tournament-v1-evidence
+          path: |
+            results/assumption_tournament_v1
+            /tmp/assumption-tournament-v1.log
+          if-no-files-found: warn
