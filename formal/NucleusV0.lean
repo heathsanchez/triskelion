@@ -30,20 +30,24 @@ theorem continuationSafe_map
   rw [← A.comp_act c a x, ← A.comp_act c a y]
   exact h (A.comp c a) q
 
-/-- The protected observation language for a capability state asks,
-    for every named capability, whether that capability is present. -/
-def CapabilityEq {α : Type} [DecidableEq α] (K L : Finset α) : Prop :=
-  ∀ q, q ∈ K ↔ q ∈ L
+/-- A capability state is its extensional membership predicate.
+    This avoids privileging any finite container representation. -/
+abbrev Capability (α : Type) := α → Prop
 
-/-- Membership-query equivalence is exactly equality of capability sets. -/
+/-- The protected observation language asks, for every named capability,
+    whether that capability is present. -/
+def CapabilityEq {α : Type} (K L : Capability α) : Prop :=
+  ∀ q, K q ↔ L q
+
+/-- Membership-query equivalence is exactly extensional equality of
+    capability states. -/
 theorem capabilityEq_iff_eq
-    {α : Type} [DecidableEq α] (K L : Finset α) :
+    {α : Type} (K L : Capability α) :
     CapabilityEq K L ↔ K = L := by
   constructor
   · intro h
-    apply Finset.ext
-    intro q
-    exact h q
+    funext q
+    exact propext (h q)
   · intro h
     cases h
     intro q
